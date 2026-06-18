@@ -8,6 +8,7 @@ import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.routes.configureRouting
 
 fun main() {
+
     embeddedServer(Netty, port = 8080) {
         configureHttp()
         configureSerialization()
