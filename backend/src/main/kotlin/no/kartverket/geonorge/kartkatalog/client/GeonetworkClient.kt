@@ -35,7 +35,6 @@ class GeonetworkClient (private val httpClient: HttpClient){
         return responseXml
     }
     private fun buildGetRecordByIdRequest(uuid: String): String {
-        val escapedUuid = escapeXml(uuid)
 
         return """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -45,18 +44,11 @@ class GeonetworkClient (private val httpClient: HttpClient){
                 service="CSW"
                 version="2.0.2"
                 outputSchema="csw:IsoRecord">
-                <csw:Id>$escapedUuid</csw:Id>
+                <csw:Id>$uuid</csw:Id>
                 <csw:ElementSetName>full</csw:ElementSetName>
             </csw:GetRecordById>
         """.trimIndent()
     }
-    private fun escapeXml(value: String): String =value
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace("\"", "&quot;")
-        .replace("'", "&apos;")
-
 }
 
 class GeoNetworkException(message: String) : RuntimeException(message)
