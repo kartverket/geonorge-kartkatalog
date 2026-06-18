@@ -1,9 +1,0 @@
-ktor:
-  deployment:
-    port: 8080
-  application:
-    modules:
-      - no.kartverket.geonorge.kartkatalog.HttpKt.configureHttp
-      - no.kartverket.geonorge.kartkatalog.SerializationKt.configureSerialization
-      - no.kartverket.geonorge.kartkatalog.StatusPagesKt.configureStatusPages
-      - no.kartverket.geonorge.kartkatalog.RoutingKt.configureRouting

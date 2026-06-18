@@ -8,7 +8,7 @@ group = "no.kartverket.geonorge.kartkatalog"
 version = "1.0.0-SNAPSHOT"
 
 application {
-    mainClass = "io.ktor.server.netty.EngineMain"
+    mainClass = "no.kartverket.geonorge.kartkatalog.MainKt"
 }
 
 kotlin {
@@ -16,7 +16,6 @@ kotlin {
 }
 dependencies {
     implementation(ktorLibs.server.callLogging)
-    implementation(ktorLibs.server.config.yaml)
     implementation(ktorLibs.server.contentNegotiation)
     implementation(ktorLibs.server.core)
     implementation(ktorLibs.server.cors)

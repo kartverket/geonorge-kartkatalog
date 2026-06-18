@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog
+package no.kartverket.geonorge.kartkatalog.config
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
