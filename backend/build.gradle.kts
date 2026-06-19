@@ -23,6 +23,11 @@ dependencies {
     implementation(ktorLibs.server.statusPages)
     implementation(libs.logback.classic)
 
+    implementation(ktorLibs.client.core)
+    implementation(ktorLibs.client.cio)
+    implementation(ktorLibs.client.contentNegotiation)
+    implementation(ktorLibs.serialization.kotlinx.json)
+
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)
 }
