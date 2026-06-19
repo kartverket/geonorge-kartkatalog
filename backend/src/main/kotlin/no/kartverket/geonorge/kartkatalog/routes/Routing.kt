@@ -11,11 +11,12 @@ import io.ktor.server.routing.routing
 import no.kartverket.geonorge.kartkatalog.client.GeonetworkClient
 
 fun Application.configureRouting() {
-    val httpClient = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json()
+    val httpClient =
+        HttpClient(CIO) {
+            install(ContentNegotiation) {
+                json()
+            }
         }
-    }
     val geonetworkClient = GeonetworkClient(httpClient)
     routing {
         get("/") {

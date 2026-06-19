@@ -8,19 +8,19 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
-
-class GeonetworkClient (private val httpClient: HttpClient){
+class GeonetworkClient(private val httpClient: HttpClient) {
     private val baseUrl = "https://www.geonorge.no/geonetworktest/".trimEnd('/')
     private val cswUrl: String = "$baseUrl/srv/nor/csw"
 
     suspend fun getRecordByUuid(uuid: String): String? {
         val requestXml = buildGetRecordByIdRequest(uuid)
 
-        val responseXml = httpClient.post(cswUrl) {
-            accept(ContentType.Application.Xml)
-            contentType(ContentType.Application.Xml)
-            setBody(requestXml)
-        }.bodyAsText()
+        val responseXml =
+            httpClient.post(cswUrl) {
+                accept(ContentType.Application.Xml)
+                contentType(ContentType.Application.Xml)
+                setBody(requestXml)
+            }.bodyAsText()
 
         if (responseXml.contains("ExceptionReport")) {
             throw GeoNetworkException("CSW service returned an ExceptionReport: $responseXml")
@@ -34,8 +34,8 @@ class GeonetworkClient (private val httpClient: HttpClient){
 
         return responseXml
     }
-    private fun buildGetRecordByIdRequest(uuid: String): String {
 
+    private fun buildGetRecordByIdRequest(uuid: String): String {
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <csw:GetRecordById
@@ -47,7 +47,7 @@ class GeonetworkClient (private val httpClient: HttpClient){
                 <csw:Id>$uuid</csw:Id>
                 <csw:ElementSetName>full</csw:ElementSetName>
             </csw:GetRecordById>
-        """.trimIndent()
+            """.trimIndent()
     }
 }
 
