@@ -63,8 +63,17 @@ class MetadataRoutesTest {
         val emptyResponse =
             """<?xml version="1.0"?><csw:GetRecordByIdResponse xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"/>"""
         testApp(clientReturning(emptyResponse)) {
-            val response = client.get("/metadata/unknown-uuid")
+            val response = client.get("/metadata/00000000-0000-0000-0000-000000000000")
             assertEquals(HttpStatusCode.NotFound, response.status)
+            assertContains(response.bodyAsText(), "error")
         }
     }
+
+    @Test
+    fun `returns 400 for invalid UUID format`() =
+        testApp(clientReturning(responseXml)) {
+            val response = client.get("/metadata/not-a-uuid")
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertContains(response.bodyAsText(), "error")
+        }
 }
