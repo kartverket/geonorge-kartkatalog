@@ -1,5 +1,8 @@
 package no.kartverket.geonorge.kartkatalog.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ExtensionResource(
     val applicationProfile: String,
     val url: String? = null,

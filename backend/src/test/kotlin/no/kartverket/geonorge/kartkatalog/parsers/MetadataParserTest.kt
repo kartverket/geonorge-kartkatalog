@@ -1,6 +1,5 @@
-package no.kartverket.geonorge.kartkatalog
+package no.kartverket.geonorge.kartkatalog.parsers
 
-import no.kartverket.geonorge.kartkatalog.parsers.MetadataParser
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

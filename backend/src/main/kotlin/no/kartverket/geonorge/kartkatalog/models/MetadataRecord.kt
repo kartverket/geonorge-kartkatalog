@@ -1,20 +1,26 @@
 package no.kartverket.geonorge.kartkatalog.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Thumbnail(
     val url: String,
     val type: String? = null,
 )
 
+@Serializable
 data class ReferenceSystem(
     val code: String,
     val codeSpace: String? = null,
 )
 
+@Serializable
 data class MetadataDate(
     val date: String,
     val type: String,
 )
 
+@Serializable
 data class QualitySpecification(
     val title: String,
     val date: String? = null,
@@ -26,6 +32,7 @@ data class QualitySpecification(
     val specificationIdentifier: String? = null,
 )
 
+@Serializable
 data class MetadataRecord(
     // MD_Metadata level
     val uuid: String,

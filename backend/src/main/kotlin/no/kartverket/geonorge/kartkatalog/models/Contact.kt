@@ -1,5 +1,8 @@
 package no.kartverket.geonorge.kartkatalog.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Contact(
     val name: String? = null,
     val organization: String? = null,

@@ -1,10 +1,14 @@
 package no.kartverket.geonorge.kartkatalog.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class DistributionFormat(
     val name: String,
     val version: String? = null,
 )
 
+@Serializable
 data class OnlineResource(
     val url: String,
     val protocol: String? = null,
@@ -15,6 +19,7 @@ data class OnlineResource(
     val function: String? = null,
 )
 
+@Serializable
 data class DistributionInfo(
     val formats: List<DistributionFormat> = emptyList(),
     val onlineResources: List<OnlineResource> = emptyList(),

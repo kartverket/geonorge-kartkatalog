@@ -8,16 +8,11 @@ import no.kartverket.geonorge.kartkatalog.client.GeonetworkClient
 
 fun Route.metadataRoutes(geonetworkClient: GeonetworkClient) {
     get("/metadata/{uuid}") {
-        val uuid = call.parameters["uuid"]
-
-        if (uuid == null) {
-            call.respond(HttpStatusCode.BadRequest, "Missing uuid")
-            return@get
-        }
+        val uuid = call.parameters["uuid"]!!
 
         val result = geonetworkClient.getRecordByUuid(uuid)
         if (result == null) {
-            call.respond(HttpStatusCode.BadRequest, "Record not found")
+            call.respond(HttpStatusCode.NotFound, "Record not found")
             return@get
         }
 
