@@ -9,7 +9,7 @@ import java.util.UUID
 
 fun Route.metadataRoutes(geonetworkClient: GeonetworkClient) {
     get("/metadata/{uuid}") {
-        val uuid = UUID.fromString(call.parameters["uuid"]!!)
+        val uuid = UUID.fromString(call.parameters["uuid"])
 
         val result = geonetworkClient.getRecordByUuid(uuid)
         if (result == null) {

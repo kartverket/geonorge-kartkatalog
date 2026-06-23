@@ -15,6 +15,7 @@ application {
 kotlin {
     jvmToolchain(21)
 }
+
 dependencies {
     implementation(ktorLibs.server.callLogging)
     implementation(ktorLibs.server.contentNegotiation)

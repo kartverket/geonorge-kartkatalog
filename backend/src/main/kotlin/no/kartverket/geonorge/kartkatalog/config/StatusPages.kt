@@ -12,7 +12,8 @@ private val log = LoggerFactory.getLogger("StatusPages")
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
-        exception<IllegalArgumentException> { call, _ ->
+        exception<IllegalArgumentException> { call, cause ->
+            log.error("Unhandled exception", cause)
             call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid request"))
         }
         exception<Throwable> { call, cause ->
