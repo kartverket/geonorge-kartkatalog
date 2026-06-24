@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.models
+package no.kartverket.geonorge.kartkatalog.models.responses.geonetwork
 
 import kotlinx.serialization.Serializable
 

@@ -7,6 +7,8 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Parameters
 import io.ktor.http.isSuccess
+import kotlinx.serialization.json.Json
+import no.kartverket.geonorge.kartkatalog.models.responses.solr.SolrResponse
 import java.util.UUID
 
 class SolrClient(private val httpClient: HttpClient) {
@@ -15,7 +17,9 @@ class SolrClient(private val httpClient: HttpClient) {
     // norsk versjon
     private val norskPath = "solr/metadata/select"
 
-    suspend fun getMetadataByUUid(uuid: UUID): String {
+    private val json = Json { ignoreUnknownKeys = true }
+
+    suspend fun getMetadataByUUid(uuid: UUID): SolrResponse {
         val solrQuery = buildMetadataSolrQuery(uuid)
 
         val response =
@@ -25,8 +29,13 @@ class SolrClient(private val httpClient: HttpClient) {
 
         if (!response.status.isSuccess()) {
             throw SolrException("Solr request failed with status ${response.status}")
-        } else {
-            return response.bodyAsText()
+        }
+
+        try {
+            val body = response.bodyAsText()
+            return json.decodeFromString(body)
+        } catch (e: Exception) {
+            throw SolrException("Failed to parse Solr response: ${e.message}")
         }
     }
 

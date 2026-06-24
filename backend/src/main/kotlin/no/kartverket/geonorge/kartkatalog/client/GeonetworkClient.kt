@@ -7,7 +7,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import no.kartverket.geonorge.kartkatalog.models.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.parsers.MetadataParser
 import java.util.UUID
 
