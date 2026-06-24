@@ -15,6 +15,7 @@ application {
 kotlin {
     jvmToolchain(21)
 }
+
 dependencies {
     implementation(ktorLibs.server.callLogging)
     implementation(ktorLibs.server.contentNegotiation)
@@ -22,6 +23,7 @@ dependencies {
     implementation(ktorLibs.server.cors)
     implementation(ktorLibs.server.netty)
     implementation(ktorLibs.server.statusPages)
+    implementation(libs.kotlinx.datetime)
     implementation(libs.logback.classic)
 
     implementation(ktorLibs.client.core)
