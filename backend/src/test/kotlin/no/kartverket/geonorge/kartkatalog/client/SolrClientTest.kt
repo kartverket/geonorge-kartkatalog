@@ -45,7 +45,7 @@ class SolrClientTest {
             val solrClient = SolrClient(httpClient)
 
             try {
-                val response = solrClient.getMetadataByUUid(uuid)
+                val response = solrClient.getMetadataByUuid(uuid)
 
                 assertEquals(1, response.response.numFound)
                 assertEquals("test-uuid", response.response.docs.first().uuid)
@@ -74,7 +74,7 @@ class SolrClientTest {
             val solrClient = SolrClient(httpClient)
 
             httpClient.use { _ ->
-                val response: SolrResponse = solrClient.getMetadataByUUid(uuid)
+                val response: SolrResponse = solrClient.getMetadataByUuid(uuid)
                 assertEquals(1, response.response.numFound)
                 assertEquals("test-uuid", response.response.docs.first().uuid)
             }

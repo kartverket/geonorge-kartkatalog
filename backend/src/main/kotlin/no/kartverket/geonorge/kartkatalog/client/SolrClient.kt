@@ -19,7 +19,7 @@ class SolrClient(private val httpClient: HttpClient) {
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun getMetadataByUUid(uuid: UUID): SolrResponse {
+    suspend fun getMetadataByUuid(uuid: UUID): SolrResponse {
         val solrQuery = buildMetadataSolrQuery(uuid)
 
         val response =
@@ -35,7 +35,7 @@ class SolrClient(private val httpClient: HttpClient) {
             val body = response.bodyAsText()
             return json.decodeFromString(body)
         } catch (e: Exception) {
-            throw SolrException("Failed to parse Solr response: ${e.message}")
+            throw SolrException("Failed to parse Solr response", e)
         }
     }
 
@@ -74,4 +74,4 @@ private val METADATA_FL =
         "servicedataset,otherconstraintsaccess,dataaccess,ServiceDistributionUuidForDataset," +
         "ServiceDistributionAccessConstraint,parentidentifier,serie,seriedatasets,distributions"
 
-class SolrException(message: String) : RuntimeException(message)
+class SolrException(message: String, e: Throwable? = null) : RuntimeException(message, e)

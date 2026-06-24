@@ -29,7 +29,7 @@ data class SolrDocument(
     val uuid: String,
     val title: String? = null,
     @SerialName("abstract")
-    val abstract: String? = null,
+    val abstractText: String? = null,
     val purpose: String? = null,
     val type: String? = null,
     val theme: String? = null,
