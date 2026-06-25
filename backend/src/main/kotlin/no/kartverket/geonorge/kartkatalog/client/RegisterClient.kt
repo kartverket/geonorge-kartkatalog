@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
@@ -49,7 +50,7 @@ class RegisterClient(
     ): T {
         val response =
             httpClient.get("$baseUrl$path") {
-                headers { append("Accept-Language", "no") }
+                headers { append(HttpHeaders.AcceptLanguage, "no") }
             }
 
         if (!response.status.isSuccess()) {

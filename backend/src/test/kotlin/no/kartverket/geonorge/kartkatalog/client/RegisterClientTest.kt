@@ -60,9 +60,9 @@ class RegisterClientTest {
             mockResponse("""{"containeditems": [{"label": "Basisdata", "codevalue": "baseMaps"}]}""")
             val response = client.getCodeList(CodeList.DISTRIBUTION_TYPES)
             assertEquals("/api/kodelister/${CodeList.DISTRIBUTION_TYPES.systemId}", capturedPath)
-            assertEquals(1, response.containeditems.size)
-            assertEquals("Basisdata", response.containeditems.first().label)
-            assertEquals("baseMaps", response.containeditems.first().codevalue)
+            assertEquals(1, response.containedItems.size)
+            assertEquals("Basisdata", response.containedItems.first().label)
+            assertEquals("baseMaps", response.containedItems.first().codeValue)
         }
 
     @Test
@@ -71,8 +71,8 @@ class RegisterClientTest {
             mockResponse("""{"containeditems": [{"label": "Forvaltning", "codevalue": "forvaltning"}]}""")
             val response = client.getCodeListByName("brukergrupper")
             assertEquals("/api/metadata-kodelister/brukergrupper", capturedPath)
-            assertEquals(1, response.containeditems.size)
-            assertEquals("Forvaltning", response.containeditems.first().label)
+            assertEquals(1, response.containedItems.size)
+            assertEquals("Forvaltning", response.containedItems.first().label)
         }
 
     @Test
@@ -84,8 +84,8 @@ class RegisterClientTest {
                 "/api/subregister/metadata-kodelister/kartverket/norge-digitalt-tjenesteerklaering",
                 capturedPath,
             )
-            assertEquals(1, response.containeditems.size)
-            assertEquals("Grunnleggende", response.containeditems.first().label)
+            assertEquals(1, response.containedItems.size)
+            assertEquals("Grunnleggende", response.containedItems.first().label)
         }
 
     @Test
@@ -94,9 +94,9 @@ class RegisterClientTest {
             mockResponse("""{"containeditems": [{"label": "Kartverket", "ShortName": "KV"}]}""")
             val response = client.getOrganizations()
             assertEquals("/api/register/organisasjoner", capturedPath)
-            assertEquals(1, response.containeditems.size)
-            assertEquals("Kartverket", response.containeditems.first().label)
-            assertEquals("KV", response.containeditems.first().shortName)
+            assertEquals(1, response.containedItems.size)
+            assertEquals("Kartverket", response.containedItems.first().label)
+            assertEquals("KV", response.containedItems.first().shortName)
         }
 
     @Test

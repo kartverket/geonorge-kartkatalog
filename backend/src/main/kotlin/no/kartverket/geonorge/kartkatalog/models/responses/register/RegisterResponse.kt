@@ -5,20 +5,23 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RegisterCodeListResponse(
-    val containeditems: List<RegisterCodeListItem> = emptyList(),
+    @SerialName("containeditems")
+    val containedItems: List<RegisterCodeListItem> = emptyList(),
 )
 
 @Serializable
 data class RegisterCodeListItem(
     val label: String,
-    val codevalue: String? = null,
+    @SerialName("codevalue")
+    val codeValue: String? = null,
 ) {
-    val effectiveCodeValue: String get() = codevalue?.takeIf { it.isNotBlank() } ?: label
+    val effectiveCodeValue: String get() = codeValue?.takeIf { it.isNotBlank() } ?: label
 }
 
 @Serializable
 data class RegisterOrganizationsResponse(
-    val containeditems: List<RegisterOrganizationItem> = emptyList(),
+    @SerialName("containeditems")
+    val containedItems: List<RegisterOrganizationItem> = emptyList(),
 )
 
 @Serializable
@@ -30,7 +33,8 @@ data class RegisterOrganizationItem(
 
 @Serializable
 data class RegisterSubRegisterResponse(
-    val containeditems: List<RegisterSubRegisterItem> = emptyList(),
+    @SerialName("containeditems")
+    val containedItems: List<RegisterSubRegisterItem> = emptyList(),
 )
 
 @Serializable
