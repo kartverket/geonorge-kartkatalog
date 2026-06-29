@@ -11,7 +11,9 @@ import kotlinx.serialization.json.Json
 import no.kartverket.geonorge.kartkatalog.models.responses.solr.SolrResponse
 import java.util.UUID
 
-class SolrClient(private val httpClient: HttpClient) {
+class SolrClient(
+    private val httpClient: HttpClient,
+) {
     private val baseUrl = "https://geonorge-kartkatalog-solr-dev.atkv3-dev.kartverket-intern.cloud/"
 
     // norsk versjon
@@ -39,14 +41,13 @@ class SolrClient(private val httpClient: HttpClient) {
         }
     }
 
-    private fun buildMetadataSolrQuery(uuid: UUID): MetadataSolrQuery {
-        return MetadataSolrQuery(
+    private fun buildMetadataSolrQuery(uuid: UUID): MetadataSolrQuery =
+        MetadataSolrQuery(
             q = "uuid:$uuid",
             fl = METADATA_FL,
             rows = 1,
             wt = "json",
         )
-    }
 }
 
 data class MetadataSolrQuery(
@@ -74,4 +75,7 @@ private val METADATA_FL =
         "servicedataset,otherconstraintsaccess,dataaccess,ServiceDistributionUuidForDataset," +
         "ServiceDistributionAccessConstraint,parentidentifier,serie,seriedatasets,distributions"
 
-class SolrException(message: String, e: Throwable? = null) : RuntimeException(message, e)
+class SolrException(
+    message: String,
+    e: Throwable? = null,
+) : RuntimeException(message, e)
