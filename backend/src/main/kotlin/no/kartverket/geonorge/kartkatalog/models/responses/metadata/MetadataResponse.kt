@@ -5,6 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MetadataResponse(
+    // Runtime / computed server-side properties
+    @SerialName("MapOnlyWms")
+    val mapOnlyWms: Boolean = false,
     // Core identity
     @SerialName("Uuid")
     val uuid: String? = null,
