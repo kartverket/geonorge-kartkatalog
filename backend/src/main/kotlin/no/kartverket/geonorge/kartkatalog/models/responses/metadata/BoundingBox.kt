@@ -5,12 +5,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class BoundingBox(
-    @SerialName("NorthBoundLongitude")
-    val northBoundLongitude: String? = null,
+    @SerialName("NorthBoundLatitude")
+    val northBoundLatitude: String? = null,
     @SerialName("SouthBoundLatitude")
     val southBoundLatitude: String? = null,
-    @SerialName("EastBoundLatitude")
-    val eastBoundLatitude: String? = null,
+    @SerialName("EastBoundLongitude")
+    val eastBoundLongitude: String? = null,
     @SerialName("WestBoundLongitude")
     val westBoundLongitude: String? = null,
 )
