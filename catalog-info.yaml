@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: geonorge-kartkatalog
+  description: Repo for kartkatalogen - frontend og backend
+spec:
+  type: website
+  owner: group:default/geonorge
+  lifecycle: experimental
+  system: system:default/geonorge
+  domain: domain:default/datadeling
