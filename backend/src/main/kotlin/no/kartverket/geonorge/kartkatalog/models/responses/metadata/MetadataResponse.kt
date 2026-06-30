@@ -19,7 +19,7 @@ data class MetadataResponse(
     val englishTitle: String? = null,
     // Main textual content
     @SerialName("Abstract")
-    val abstract: String? = null,
+    val abstractText: String? = null,
     @SerialName("EnglishAbstract")
     val englishAbstract: String? = null,
     @SerialName("Purpose")
