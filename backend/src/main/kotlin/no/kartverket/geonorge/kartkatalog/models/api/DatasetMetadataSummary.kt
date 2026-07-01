@@ -12,7 +12,7 @@ data class DatasetMetadataSummary(
     val dateUpdated: String,
     val maintenanceFrequency: String,
     val spatialRepresentation: String,
-    val resolutionScale: String,
+    val resolutionScale: String? = null,
     val keywordsTheme: List<Keyword>,
     val distributionFormats: List<DistributionFormat>,
 )

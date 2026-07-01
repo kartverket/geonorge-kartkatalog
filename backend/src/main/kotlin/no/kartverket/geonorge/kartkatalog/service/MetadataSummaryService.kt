@@ -1,7 +1,5 @@
 package no.kartverket.geonorge.kartkatalog.service
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.client.CodeList
 import no.kartverket.geonorge.kartkatalog.client.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.client.RegisterClient
@@ -19,16 +17,13 @@ class MetadataSummaryService(
     private val solrClient: SolrClient,
 ) {
     suspend fun getMetadataSummary(uuid: UUID): DatasetMetadataSummary? =
-        coroutineScope {
-            val recordDeferred = async { geonetworkClient.getRecordByUuid(uuid) }
-            val solrDeferred = async { solrClient.getMetadataByUuid(uuid) }
-
-            val record = recordDeferred.await() ?: return@coroutineScope null
+        geonetworkClient.getRecordByUuid(uuid)?.let { record ->
+            // Only fetch Solr after GeoNetwork confirms the record exists.
             val solrDocument =
-                solrDeferred
-                    .await()
-                    .response.docs
-                    .firstOrNull() ?: return@coroutineScope null
+                solrClient.getMetadataByUuid(uuid)
+                    .response
+                    .docs
+                    .firstOrNull() ?: return null
             val accessState = resolveAccessState(record, solrDocument)
 
             DatasetMetadataSummary(
@@ -48,7 +43,7 @@ class MetadataSummaryService(
                         CodeList.SPATIAL_REPRESENTATIONS,
                         record.spatialRepresentationTypes.firstOrNull(),
                     ),
-                resolutionScale = record.resolutionScale.orEmpty(),
+                resolutionScale = record.resolutionScale,
                 keywordsTheme = mapThemeKeywords(record),
                 distributionFormats =
                     record.distributionInfo?.formats.orEmpty().map { format ->
