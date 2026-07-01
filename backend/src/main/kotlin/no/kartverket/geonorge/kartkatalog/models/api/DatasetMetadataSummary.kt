@@ -14,6 +14,7 @@ data class DatasetMetadataSummary(
     val spatialRepresentation: String,
     val resolutionScale: String? = null,
     val keywordsTheme: List<Keyword>,
+    val nationalKeywords: List<Keyword>,
     val distributionFormats: List<DistributionFormat>,
 )
 

@@ -20,7 +20,8 @@ class MetadataSummaryService(
         geonetworkClient.getRecordByUuid(uuid)?.let { record ->
             // Only fetch Solr after GeoNetwork confirms the record exists.
             val solrDocument =
-                solrClient.getMetadataByUuid(uuid)
+                solrClient
+                    .getMetadataByUuid(uuid)
                     .response
                     .docs
                     .firstOrNull() ?: return null
@@ -32,7 +33,7 @@ class MetadataSummaryService(
                 accessIsRestricted = accessState.restricted,
                 accessIsOpenData = accessState.openData,
                 accessIsProtected = accessState.protected,
-                dateUpdated = solrDocument.dateUpdated?.toString() ?: record.dateStamp,
+                dateUpdated = record.dateStamp,
                 maintenanceFrequency =
                     translateCodeListValue(
                         CodeList.MAINTENANCE_FREQUENCY,
@@ -45,6 +46,7 @@ class MetadataSummaryService(
                     ),
                 resolutionScale = record.resolutionScale,
                 keywordsTheme = mapThemeKeywords(record),
+                nationalKeywords = mapNationalKeywords(record),
                 distributionFormats =
                     record.distributionInfo?.formats.orEmpty().map { format ->
                         DistributionFormat(
@@ -82,8 +84,19 @@ class MetadataSummaryService(
         ).firstOrNull { it.isNotBlank() }.orEmpty()
 
     private fun mapThemeKeywords(record: MetadataRecord): List<Keyword> =
+        mapKeywords(record, { it.type.equals("theme", ignoreCase = true) })
+
+    private fun mapNationalKeywords(record: MetadataRecord): List<Keyword> =
+        mapKeywords(record) { group ->
+            group.thesaurus.equals("Nasjonal tematisk inndeling (DOK-kategori)", ignoreCase = true)
+        }
+
+    private fun mapKeywords(
+        record: MetadataRecord,
+        predicate: (no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.KeywordGroup) -> Boolean,
+    ): List<Keyword> =
         record.keywordGroups
-            .filter { it.type.equals("theme", ignoreCase = true) }
+            .filter(predicate)
             .flatMap { group ->
                 group.keywords.map { keyword ->
                     Keyword(
