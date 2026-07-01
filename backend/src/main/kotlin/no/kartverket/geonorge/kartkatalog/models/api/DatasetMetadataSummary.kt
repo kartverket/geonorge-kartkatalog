@@ -1,0 +1,30 @@
+package no.kartverket.geonorge.kartkatalog.models.api
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class DatasetMetadataSummary(
+    val title: String,
+    val organization: String,
+    val accessIsRestricted: Boolean,
+    val accessIsOpenData: Boolean,
+    val accessIsProtected: Boolean,
+    val dateUpdated: String,
+    val maintenanceFrequency: String,
+    val spatialRepresentation: String,
+    val resolutionScale: String,
+    val keywordsTheme: List<Keyword>,
+    val distributionFormats: List<DistributionFormat>,
+)
+
+@Serializable
+data class DistributionFormat(
+    val name: String? = null,
+    val version: String? = null,
+)
+
+@Serializable
+data class Keyword(
+    val keywordValue: String? = null,
+    val type: String? = null,
+)

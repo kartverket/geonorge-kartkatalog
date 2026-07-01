@@ -75,6 +75,7 @@ object MetadataParser {
                             "/gmd:maintenanceAndUpdateFrequency/gmd:MD_MaintenanceFrequencyCode",
                         "codeListValue",
                     ),
+                resolutionScale = parseResolutionScale(idInfo),
                 specificUsage =
                     idInfo?.text(
                         "gmd:resourceSpecificUsage/gmd:MD_Usage" +
@@ -347,6 +348,20 @@ object MetadataParser {
                     }
                 }
                 ?: emptyList()
+
+        private fun parseResolutionScale(idInfo: Node?): String? {
+            val denominator =
+                idInfo
+                    ?.node(
+                        "gmd:spatialResolution/gmd:MD_Resolution" +
+                            "/gmd:equivalentScale/gmd:MD_RepresentativeFraction" +
+                            "/gmd:denominator/gco:Integer",
+                    )
+                    ?.textContent
+                    ?.trim()
+                    ?.takeIf { it.isNotEmpty() }
+            return denominator
+        }
 
         private fun parseDistributionInfo(): DistributionInfo? {
             val dist = md.node("gmd:distributionInfo/gmd:MD_Distribution") ?: return null
