@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class ProductMetadataSummary(
     val title: String,
     val organization: String,
+    val hierarchyLevel: String,
     val accessIsRestricted: Boolean,
     val accessIsOpenData: Boolean,
     val accessIsProtected: Boolean,

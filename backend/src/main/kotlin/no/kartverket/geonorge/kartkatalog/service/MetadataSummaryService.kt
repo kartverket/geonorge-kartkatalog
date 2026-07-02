@@ -30,6 +30,7 @@ class MetadataSummaryService(
             ProductMetadataSummary(
                 title = record.title.ifBlank { solrDocument.title.orEmpty() },
                 organization = resolveOrganization(record, solrDocument),
+                hierarchyLevel = record.hierarchyLevel,
                 accessIsRestricted = accessState.restricted,
                 accessIsOpenData = accessState.openData,
                 accessIsProtected = accessState.protected,
