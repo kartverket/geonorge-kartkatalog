@@ -19,4 +19,12 @@ fun Route.metadataRoutes(metadataSummaryService: MetadataSummaryService) {
 
         call.respond(result)
     }
+
+    get("/metadatainfo/{uuid}") {
+        val uuid = UUID.fromString(call.parameters["uuid"])
+
+        val result = metadataSummaryService.getMetadataInformation(uuid)
+
+        call.respond(result)
+    }
 }

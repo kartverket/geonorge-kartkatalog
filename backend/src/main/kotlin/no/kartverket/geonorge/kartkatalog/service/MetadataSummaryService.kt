@@ -6,7 +6,10 @@ import no.kartverket.geonorge.kartkatalog.client.RegisterClient
 import no.kartverket.geonorge.kartkatalog.client.SolrClient
 import no.kartverket.geonorge.kartkatalog.models.api.Keyword
 import no.kartverket.geonorge.kartkatalog.models.api.ProductDistributionFormat
+import no.kartverket.geonorge.kartkatalog.models.api.ProductMetadataContact
+import no.kartverket.geonorge.kartkatalog.models.api.ProductMetadataInfo
 import no.kartverket.geonorge.kartkatalog.models.api.ProductMetadataSummary
+import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.Contact
 import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.DistributionFormat
 import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.models.responses.solr.SolrDocument
@@ -18,6 +21,35 @@ class MetadataSummaryService(
     private val registerClient: RegisterClient,
     private val solrClient: SolrClient,
 ) {
+    suspend fun getMetadataInformation(uuid: UUID): ProductMetadataInfo {
+        val geonetworkRecord =
+            geonetworkClient.getRecordByUuid(uuid)
+                ?: throw MetadataRecordNotFoundException(uuid)
+        return ProductMetadataInfo(
+            abstractText = geonetworkRecord.abstract,
+            specificUsage = geonetworkRecord.specificUsage,
+            constraints = geonetworkRecord.legalConstraints?.otherConstraintsAccess.orEmpty(),
+            contactMetadata = geonetworkRecord.metadataContact.toProductMetadataContact(),
+            contactOwner =
+                geonetworkRecord.contacts
+                    .firstOrNull {
+                        it.role.equals("owner", ignoreCase = true)
+                    }?.toProductMetadataContact(),
+            contactPublisher =
+                geonetworkRecord.contacts
+                    .firstOrNull {
+                        it.role.equals("publisher", ignoreCase = true)
+                    }?.toProductMetadataContact(),
+            distributionFormatsGrouped =
+                geonetworkRecord.distributionInfo
+                    ?.formats
+                    ?.groupBy { it.name }
+                    ?.map { (name, formats) ->
+                        "$name: ${formats.joinToString(", ") { it.version.orEmpty() }}"
+                    }?.joinToString("; "),
+        )
+    }
+
     suspend fun getMetadataSummary(uuid: UUID): ProductMetadataSummary? =
         geonetworkClient.getRecordByUuid(uuid)?.let { record ->
             // Only fetch Solr after GeoNetwork confirms the record exists.
@@ -188,4 +220,18 @@ class MetadataSummaryService(
             name = name,
             version = version,
         )
+
+    private fun Contact.toProductMetadataContact() =
+        ProductMetadataContact(
+            name = name,
+            email = email,
+            organization = organization,
+            organizationEnglish = organizationEnglish,
+            role = role,
+        )
 }
+
+class MetadataRecordNotFoundException(
+    uuid: UUID,
+) : RuntimeException("Metadata record not found for UUID: $uuid")
+

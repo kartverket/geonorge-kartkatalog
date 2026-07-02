@@ -139,6 +139,15 @@ class MetadataRoutesTest {
         }
 
     @Test
+    fun `returns 404 for metadata info when record not found`() =
+        testApp(createSummaryService(emptyGeonetworkXml)) {
+            val response = client.get("/metadatainfo/00000000-0000-0000-0000-000000000000")
+
+            assertEquals(HttpStatusCode.NotFound, response.status)
+            assertContains(response.bodyAsText(), "error")
+        }
+
+    @Test
     fun `returns 400 for invalid UUID format`() =
         testApp(createSummaryService(responseXml)) {
             val response = client.get("/metadata/not-a-uuid")
