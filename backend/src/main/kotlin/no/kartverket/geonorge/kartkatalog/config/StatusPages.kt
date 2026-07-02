@@ -18,8 +18,8 @@ fun Application.configureStatusPages() {
             call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid request"))
         }
         exception<GeoNetworkException> { call, cause ->
-            log.warn("GeoNetwork record not found", cause)
-            call.respond(HttpStatusCode.NotFound, mapOf("error" to "Record not found"))
+            log.warn("GeoNetwork request failed", cause)
+            call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream GeoNetwork error"))
         }
         exception<Throwable> { call, cause ->
             log.error("Unhandled exception", cause)

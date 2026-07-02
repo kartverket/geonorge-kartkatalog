@@ -26,7 +26,8 @@ class MetadataSummaryService(
                     .getMetadataByUuid(uuid)
                     .response
                     .docs
-                    .firstOrNull() ?: return null
+                    .firstOrNull()
+                    ?: SolrDocument(uuid = uuid.toString())
             val accessState = resolveAccessState(record, solrDocument)
 
             ProductMetadataSummary(
