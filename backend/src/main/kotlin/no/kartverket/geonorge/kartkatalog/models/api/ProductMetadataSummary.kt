@@ -10,7 +10,7 @@ data class ProductMetadataSummary(
     val accessIsRestricted: Boolean,
     val accessIsOpenData: Boolean,
     val accessIsProtected: Boolean,
-    val dateUpdated: String,
+    val dateUpdated: String?,
     val maintenanceFrequency: String,
     val spatialRepresentation: String,
     val resolutionScale: String? = null,

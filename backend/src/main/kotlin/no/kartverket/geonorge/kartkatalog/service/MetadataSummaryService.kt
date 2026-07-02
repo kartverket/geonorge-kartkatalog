@@ -34,7 +34,7 @@ class MetadataSummaryService(
                 accessIsRestricted = accessState.restricted,
                 accessIsOpenData = accessState.openData,
                 accessIsProtected = accessState.protected,
-                dateUpdated = record.dateStamp,
+                dateUpdated = record.dates.firstOrNull { it.type == "revision" }?.date,
                 maintenanceFrequency =
                     translateCodeListValue(
                         CodeList.MAINTENANCE_FREQUENCY,
