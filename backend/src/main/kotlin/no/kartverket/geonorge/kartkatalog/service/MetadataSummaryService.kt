@@ -49,11 +49,8 @@ class MetadataSummaryService(
                 keywordsTheme = mapThemeKeywords(record),
                 nationalKeywords = mapNationalKeywords(record),
                 distributionFormats =
-                    record.distributionInfo?.formats.orEmpty().map { format ->
-                        DistributionFormat(
-                            name = format.name,
-                            version = format.version,
-                        )
+                    record.distributionInfo?.formats.orEmpty().map {
+                        it.toDistributionFormat()
                     },
             )
         }
@@ -175,4 +172,10 @@ class MetadataSummaryService(
         val openData: Boolean,
         val protected: Boolean,
     )
+
+    private fun no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.DistributionFormat.toDistributionFormat() =
+        DistributionFormat(
+            name = name,
+            version = version,
+        )
 }
