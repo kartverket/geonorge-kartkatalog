@@ -16,11 +16,11 @@ data class ProductMetadataSummary(
     val resolutionScale: String? = null,
     val keywordsTheme: List<Keyword>,
     val nationalKeywords: List<Keyword>,
-    val distributionFormats: List<DistributionFormat>,
+    val distributionFormats: List<ProductDistributionFormat>,
 )
 
 @Serializable
-data class DistributionFormat(
+data class ProductDistributionFormat(
     val name: String? = null,
     val version: String? = null,
 )
