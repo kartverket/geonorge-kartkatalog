@@ -10,7 +10,6 @@ class ProductMetadataInfo(
     val contactMetadata: ProductMetadataContact?,
     val contactOwner: ProductMetadataContact?,
     val contactPublisher: ProductMetadataContact?,
-    val distributionFormatsGrouped: String?,
 )
 
 @Serializable

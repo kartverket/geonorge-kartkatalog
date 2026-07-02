@@ -40,13 +40,6 @@ class MetadataSummaryService(
                     .firstOrNull {
                         it.role.equals("publisher", ignoreCase = true)
                     }?.toProductMetadataContact(),
-            distributionFormatsGrouped =
-                geonetworkRecord.distributionInfo
-                    ?.formats
-                    ?.groupBy { it.name }
-                    ?.map { (name, formats) ->
-                        "$name: ${formats.joinToString(", ") { it.version.orEmpty() }}"
-                    }?.joinToString("; "),
         )
     }
 
@@ -234,4 +227,3 @@ class MetadataSummaryService(
 class MetadataRecordNotFoundException(
     uuid: UUID,
 ) : RuntimeException("Metadata record not found for UUID: $uuid")
-
