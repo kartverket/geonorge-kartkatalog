@@ -54,6 +54,7 @@ data class MetadataRecord(
     val purpose: String? = null,
     val status: String? = null,
     val maintenanceFrequency: String? = null,
+    val resolutionScale: String? = null,
     val specificUsage: String? = null,
     val processHistory: String? = null,
     val contacts: List<Contact> = emptyList(),

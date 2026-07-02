@@ -6,6 +6,7 @@ import io.ktor.server.application.install
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
+import no.kartverket.geonorge.kartkatalog.client.GeoNetworkException
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("StatusPages")
@@ -15,6 +16,10 @@ fun Application.configureStatusPages() {
         exception<IllegalArgumentException> { call, cause ->
             log.warn("Invalid request", cause)
             call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid request"))
+        }
+        exception<GeoNetworkException> { call, cause ->
+            log.warn("GeoNetwork request failed", cause)
+            call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream GeoNetwork error"))
         }
         exception<Throwable> { call, cause ->
             log.error("Unhandled exception", cause)
