@@ -11,6 +11,7 @@ import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.Distributi
 import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.models.responses.solr.SolrDocument
 import java.util.UUID
+import kotlin.coroutines.cancellation.CancellationException
 
 class MetadataSummaryService(
     private val geonetworkClient: GeonetworkClient,
@@ -62,7 +63,14 @@ class MetadataSummaryService(
     ): String {
         val codeValue = value?.takeIf { it.isNotBlank() } ?: return ""
 
-        val codeListItems = runCatching { registerClient.getCodeList(codeList).containedItems }.getOrNull()
+        val codeListItems =
+            try {
+                registerClient.getCodeList(codeList).containedItems
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                null
+            }
         return codeListItems
             ?.firstOrNull { item ->
                 item.effectiveCodeValue.equals(codeValue, ignoreCase = true) ||
