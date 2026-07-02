@@ -3,7 +3,7 @@ package no.kartverket.geonorge.kartkatalog.models.api
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DatasetMetadataSummary(
+data class ProductMetadataSummary(
     val title: String,
     val organization: String,
     val accessIsRestricted: Boolean,
