@@ -13,14 +13,15 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
-import no.kartverket.geonorge.kartkatalog.client.CodeList
-import no.kartverket.geonorge.kartkatalog.client.GeonetworkClient
-import no.kartverket.geonorge.kartkatalog.client.RegisterClient
-import no.kartverket.geonorge.kartkatalog.client.SolrClient
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
-import no.kartverket.geonorge.kartkatalog.service.MetadataSummaryService
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.metadata.MetadataSummaryService
+import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -133,6 +134,15 @@ class MetadataRoutesTest {
     fun `returns 404 when record not found`() =
         testApp(createSummaryService(emptyGeonetworkXml)) {
             val response = client.get("/metadata/00000000-0000-0000-0000-000000000000")
+
+            assertEquals(HttpStatusCode.NotFound, response.status)
+            assertContains(response.bodyAsText(), "error")
+        }
+
+    @Test
+    fun `returns 404 for metadata info when record not found`() =
+        testApp(createSummaryService(emptyGeonetworkXml)) {
+            val response = client.get("/metadatainfo/00000000-0000-0000-0000-000000000000")
 
             assertEquals(HttpStatusCode.NotFound, response.status)
             assertContains(response.bodyAsText(), "error")

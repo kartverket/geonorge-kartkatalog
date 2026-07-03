@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.client
+package no.kartverket.geonorge.kartkatalog.integrations.solr
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.FormDataContent
@@ -8,7 +8,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Parameters
 import io.ktor.http.isSuccess
 import kotlinx.serialization.json.Json
-import no.kartverket.geonorge.kartkatalog.models.responses.solr.SolrResponse
 import java.util.UUID
 
 class SolrClient(

@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.models.responses.solr
+package no.kartverket.geonorge.kartkatalog.integrations.solr
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName

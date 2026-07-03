@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.models.api
+package no.kartverket.geonorge.kartkatalog.metadata.models
 
 import kotlinx.serialization.Serializable
 

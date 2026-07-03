@@ -1,15 +1,19 @@
-package no.kartverket.geonorge.kartkatalog.service
+package no.kartverket.geonorge.kartkatalog.metadata
 
-import no.kartverket.geonorge.kartkatalog.client.CodeList
-import no.kartverket.geonorge.kartkatalog.client.GeonetworkClient
-import no.kartverket.geonorge.kartkatalog.client.RegisterClient
-import no.kartverket.geonorge.kartkatalog.client.SolrClient
-import no.kartverket.geonorge.kartkatalog.models.api.Keyword
-import no.kartverket.geonorge.kartkatalog.models.api.ProductDistributionFormat
-import no.kartverket.geonorge.kartkatalog.models.api.ProductMetadataSummary
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.DistributionFormat
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.MetadataRecord
-import no.kartverket.geonorge.kartkatalog.models.responses.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.metadata.models.Keyword
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataInfo
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataSummary
 import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -18,6 +22,28 @@ class MetadataSummaryService(
     private val registerClient: RegisterClient,
     private val solrClient: SolrClient,
 ) {
+    suspend fun getMetadataInformation(uuid: UUID): ProductMetadataInfo {
+        val geonetworkRecord =
+            geonetworkClient.getRecordByUuid(uuid)
+                ?: throw MetadataRecordNotFoundException(uuid)
+        return ProductMetadataInfo(
+            abstractText = geonetworkRecord.abstract,
+            specificUsage = geonetworkRecord.specificUsage,
+            constraints = geonetworkRecord.legalConstraints,
+            contactMetadata = geonetworkRecord.metadataContact.toProductMetadataContact(),
+            contactOwner =
+                geonetworkRecord.contacts
+                    .firstOrNull {
+                        it.role.equals("owner", ignoreCase = true)
+                    }?.toProductMetadataContact(),
+            contactPublisher =
+                geonetworkRecord.contacts
+                    .firstOrNull {
+                        it.role.equals("publisher", ignoreCase = true)
+                    }?.toProductMetadataContact(),
+        )
+    }
+
     suspend fun getMetadataSummary(uuid: UUID): ProductMetadataSummary? =
         geonetworkClient.getRecordByUuid(uuid)?.let { record ->
             // Only fetch Solr after GeoNetwork confirms the record exists.
@@ -101,7 +127,7 @@ class MetadataSummaryService(
 
     private fun mapKeywords(
         record: MetadataRecord,
-        predicate: (no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.KeywordGroup) -> Boolean,
+        predicate: (KeywordGroup) -> Boolean,
     ): List<Keyword> =
         record.keywordGroups
             .filter(predicate)
@@ -117,15 +143,13 @@ class MetadataSummaryService(
     private fun resolveAccessState(
         record: MetadataRecord,
         solrDocument: SolrDocument,
-    ): AccessState {
-        val openData = isOpenData(record, solrDocument)
-        return when {
-            openData -> AccessState(restricted = false, openData = true, protected = false)
-            isProtected(record, solrDocument) -> AccessState(restricted = false, openData = false, protected = true)
+    ): AccessState =
+        when {
             isRestricted(record, solrDocument) -> AccessState(restricted = true, openData = false, protected = false)
+            isProtected(record, solrDocument) -> AccessState(restricted = false, openData = false, protected = true)
+            isOpenData(record, solrDocument) -> AccessState(restricted = false, openData = true, protected = false)
             else -> AccessState(restricted = false, openData = false, protected = false)
         }
-    }
 
     private fun isOpenData(
         record: MetadataRecord,
@@ -162,9 +186,9 @@ class MetadataSummaryService(
         solrDocument: SolrDocument,
     ): Boolean {
         val accessConstraint =
-            listOfNotNull(record.legalConstraints?.accessConstraints, solrDocument.accessconstraint)
+            listOfNotNull(record.legalConstraints?.otherConstraintsAccess, solrDocument.otherconstraintsaccess)
                 .joinToString(" ")
-        return containsAny(accessConstraint, "Beskyttet", "restricted") ||
+        return containsAny(accessConstraint, "Beskyttet", "restricted", "INSPIRE_Directive_Article13_1b") ||
             solrDocument.dataaccess.equals("protected", ignoreCase = true) ||
             record.securityConstraints?.classification.equals("restricted", ignoreCase = true)
     }
@@ -188,4 +212,17 @@ class MetadataSummaryService(
             name = name,
             version = version,
         )
+
+    private fun Contact.toProductMetadataContact() =
+        ProductMetadataContact(
+            name = name,
+            email = email,
+            organization = organization,
+            organizationEnglish = organizationEnglish,
+            role = role,
+        )
 }
+
+class MetadataRecordNotFoundException(
+    uuid: UUID,
+) : RuntimeException("Metadata record not found for UUID: $uuid")
