@@ -10,7 +10,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
-import no.kartverket.geonorge.kartkatalog.models.responses.solr.SolrResponse
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrResponse
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -48,7 +49,12 @@ class SolrClientTest {
                 val response = solrClient.getMetadataByUuid(uuid)
 
                 assertEquals(1, response.response.numFound)
-                assertEquals("test-uuid", response.response.docs.first().uuid)
+                assertEquals(
+                    "test-uuid",
+                    response.response.docs
+                        .first()
+                        .uuid,
+                )
                 assertEquals("/solr/metadata/select", capturedPath)
                 assertEquals("https", capturedProtocol)
             } finally {
@@ -76,7 +82,12 @@ class SolrClientTest {
             httpClient.use { _ ->
                 val response: SolrResponse = solrClient.getMetadataByUuid(uuid)
                 assertEquals(1, response.response.numFound)
-                assertEquals("test-uuid", response.response.docs.first().uuid)
+                assertEquals(
+                    "test-uuid",
+                    response.response.docs
+                        .first()
+                        .uuid,
+                )
             }
         }
 }

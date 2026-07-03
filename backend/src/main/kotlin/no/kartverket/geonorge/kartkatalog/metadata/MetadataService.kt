@@ -1,18 +1,19 @@
-package no.kartverket.geonorge.kartkatalog.service
+package no.kartverket.geonorge.kartkatalog.metadata
 
-import no.kartverket.geonorge.kartkatalog.client.CodeList
-import no.kartverket.geonorge.kartkatalog.client.GeonetworkClient
-import no.kartverket.geonorge.kartkatalog.client.RegisterClient
-import no.kartverket.geonorge.kartkatalog.client.SolrClient
-import no.kartverket.geonorge.kartkatalog.models.api.Keyword
-import no.kartverket.geonorge.kartkatalog.models.api.ProductDistributionFormat
-import no.kartverket.geonorge.kartkatalog.models.api.ProductMetadataContact
-import no.kartverket.geonorge.kartkatalog.models.api.ProductMetadataInfo
-import no.kartverket.geonorge.kartkatalog.models.api.ProductMetadataSummary
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.Contact
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.DistributionFormat
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.MetadataRecord
-import no.kartverket.geonorge.kartkatalog.models.responses.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.metadata.models.Keyword
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataInfo
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataSummary
 import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -126,7 +127,7 @@ class MetadataSummaryService(
 
     private fun mapKeywords(
         record: MetadataRecord,
-        predicate: (no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.KeywordGroup) -> Boolean,
+        predicate: (KeywordGroup) -> Boolean,
     ): List<Keyword> =
         record.keywordGroups
             .filter(predicate)

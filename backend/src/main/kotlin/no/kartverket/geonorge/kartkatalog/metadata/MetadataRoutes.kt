@@ -1,10 +1,9 @@
-package no.kartverket.geonorge.kartkatalog.routes
+package no.kartverket.geonorge.kartkatalog.metadata
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
-import no.kartverket.geonorge.kartkatalog.service.MetadataSummaryService
 import java.util.UUID
 
 fun Route.metadataRoutes(metadataSummaryService: MetadataSummaryService) {

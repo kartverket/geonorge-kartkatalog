@@ -6,8 +6,8 @@ import io.ktor.server.application.install
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
-import no.kartverket.geonorge.kartkatalog.client.GeoNetworkException
-import no.kartverket.geonorge.kartkatalog.service.MetadataRecordNotFoundException
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeoNetworkException
+import no.kartverket.geonorge.kartkatalog.metadata.MetadataRecordNotFoundException
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("StatusPages")

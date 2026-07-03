@@ -1,7 +1,7 @@
-package no.kartverket.geonorge.kartkatalog.models.api
+package no.kartverket.geonorge.kartkatalog.metadata.models
 
 import kotlinx.serialization.Serializable
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.LegalConstraints
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 
 @Serializable
 class ProductMetadataInfo(
