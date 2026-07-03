@@ -28,7 +28,7 @@ class MetadataSummaryService(
         return ProductMetadataInfo(
             abstractText = geonetworkRecord.abstract,
             specificUsage = geonetworkRecord.specificUsage,
-            constraints = geonetworkRecord.legalConstraints?.otherConstraintsAccess.orEmpty(),
+            constraints = geonetworkRecord.legalConstraints,
             contactMetadata = geonetworkRecord.metadataContact.toProductMetadataContact(),
             contactOwner =
                 geonetworkRecord.contacts
