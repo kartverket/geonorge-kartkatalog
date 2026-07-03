@@ -1,13 +1,13 @@
 package no.kartverket.geonorge.kartkatalog.service
 
-import no.kartverket.geonorge.kartkatalog.client.CodeList
-import no.kartverket.geonorge.kartkatalog.client.RegisterClient
 import no.kartverket.geonorge.kartkatalog.client.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.models.api.Keyword
 import no.kartverket.geonorge.kartkatalog.models.api.ProductDistributionFormat
 import no.kartverket.geonorge.kartkatalog.models.api.ProductMetadataContact

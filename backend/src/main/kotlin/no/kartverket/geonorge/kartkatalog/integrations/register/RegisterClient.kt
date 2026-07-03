@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.client
+package no.kartverket.geonorge.kartkatalog.integrations.register
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -8,9 +8,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
-import no.kartverket.geonorge.kartkatalog.models.responses.register.RegisterCodeListResponse
-import no.kartverket.geonorge.kartkatalog.models.responses.register.RegisterOrganizationsResponse
-import no.kartverket.geonorge.kartkatalog.models.responses.register.RegisterSubRegisterResponse
 
 enum class CodeList(
     val systemId: String,
