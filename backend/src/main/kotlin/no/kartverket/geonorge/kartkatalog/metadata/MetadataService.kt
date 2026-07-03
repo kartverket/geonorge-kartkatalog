@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.service
+package no.kartverket.geonorge.kartkatalog.metadata
 
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
@@ -9,11 +9,11 @@ import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
-import no.kartverket.geonorge.kartkatalog.models.api.Keyword
-import no.kartverket.geonorge.kartkatalog.models.api.ProductDistributionFormat
-import no.kartverket.geonorge.kartkatalog.models.api.ProductMetadataContact
-import no.kartverket.geonorge.kartkatalog.models.api.ProductMetadataInfo
-import no.kartverket.geonorge.kartkatalog.models.api.ProductMetadataSummary
+import no.kartverket.geonorge.kartkatalog.metadata.models.Keyword
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataInfo
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataSummary
 import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 

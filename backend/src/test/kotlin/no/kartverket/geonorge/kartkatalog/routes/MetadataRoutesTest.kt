@@ -20,7 +20,8 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClie
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
-import no.kartverket.geonorge.kartkatalog.service.MetadataSummaryService
+import no.kartverket.geonorge.kartkatalog.metadata.MetadataSummaryService
+import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
