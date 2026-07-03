@@ -13,6 +13,7 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "types": ["@kv-designsystem/theme/types", "@kv-designsystem/react/html"],
     "plugins": [
       {
         "name": "next"

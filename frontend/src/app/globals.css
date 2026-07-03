@@ -1,3 +1,5 @@
+@import "@kv-designsystem/react/green";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -26,7 +28,9 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-feature-settings: "cv05" 1; /* Enable lowercase l with tail */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
