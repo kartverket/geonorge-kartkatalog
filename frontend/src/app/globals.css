@@ -1,14 +1,14 @@
 @import "@kv-designsystem/react/green";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ff1094;
+  --foreground: #5eff00;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ff1094;
+    --foreground: #5eff00;
   }
 }
 
