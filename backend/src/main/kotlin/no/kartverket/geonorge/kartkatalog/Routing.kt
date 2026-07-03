@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.routes
+package no.kartverket.geonorge.kartkatalog
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO

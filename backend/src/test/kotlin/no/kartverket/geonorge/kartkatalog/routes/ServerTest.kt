@@ -6,6 +6,7 @@ import io.ktor.server.testing.testApplication
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
+import no.kartverket.geonorge.kartkatalog.configureRouting
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
