@@ -1,24 +1,24 @@
-package no.kartverket.geonorge.kartkatalog.parsers
+package no.kartverket.geonorge.kartkatalog.integrations.geonetwork
 
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.ApplicationSchemaInfo
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.BoundingBox
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.Contact
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.DistributionFormat
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.DistributionInfo
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.ExtensionResource
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.Keyword
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.KeywordGroup
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.LegalConstraints
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.MetadataDate
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.MetadataRecord
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.OnlineResource
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.OperatesOn
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.QualitySpecification
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.ReferenceSystem
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.SecurityConstraints
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.ServiceOperation
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.TemporalExtent
-import no.kartverket.geonorge.kartkatalog.models.responses.geonetwork.Thumbnail
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ApplicationSchemaInfo
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.BoundingBox
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionInfo
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ExtensionResource
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Keyword
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataDate
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OperatesOn
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.QualitySpecification
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.SecurityConstraints
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ServiceOperation
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.TemporalExtent
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Thumbnail
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
@@ -36,7 +36,9 @@ object MetadataParser {
         return Parser(doc).parse()
     }
 
-    private class Parser(doc: Document) {
+    private class Parser(
+        doc: Document,
+    ) {
         private val xpath: XPath =
             XPathFactory.newInstance().newXPath().also { it.namespaceContext = isoNamespaceContext }
         private val md: Node = xpath.node("//gmd:MD_Metadata", doc)!!
@@ -128,8 +130,7 @@ object MetadataParser {
                         ?.nodes(
                             "gmd:spatialRepresentationType" +
                                 "/gmd:MD_SpatialRepresentationTypeCode",
-                        )
-                        ?.mapNotNull { it.attr("codeListValue") }
+                        )?.mapNotNull { it.attr("codeListValue") }
                         ?: emptyList(),
                 distributionInfo = parseDistributionInfo(),
                 qualitySpecifications = parseQualitySpecifications(),
@@ -162,8 +163,7 @@ object MetadataParser {
                 .nodes(
                     "gmd:referenceSystemInfo/gmd:MD_ReferenceSystem" +
                         "/gmd:referenceSystemIdentifier/gmd:RS_Identifier",
-                )
-                .map { rs ->
+                ).map { rs ->
                     val anchor = rs.node("gmd:code/gmx:Anchor")
                     ReferenceSystem(
                         code =
@@ -179,8 +179,7 @@ object MetadataParser {
                 .nodes(
                     "gmd:metadataExtensionInfo/gmd:MD_MetadataExtensionInformation" +
                         "/gmd:extensionOnLineResource/gmd:CI_OnlineResource",
-                )
-                .map { or ->
+                ).map { or ->
                     ExtensionResource(
                         applicationProfile =
                             or.text("gmd:applicationProfile/gco:CharacterString") ?: "",
@@ -274,7 +273,10 @@ object MetadataParser {
 
             idInfo.nodes("gmd:resourceConstraints/gmd:MD_Constraints").forEach { c ->
                 c.nodes("gmd:useLimitation/gco:CharacterString").forEach { n ->
-                    n.textContent.trim().takeIf { it.isNotEmpty() }?.let { useLimitations.add(it) }
+                    n.textContent
+                        .trim()
+                        .takeIf { it.isNotEmpty() }
+                        ?.let { useLimitations.add(it) }
                 }
             }
             idInfo.nodes("gmd:resourceConstraints/gmd:MD_LegalConstraints").forEach { c ->
@@ -337,14 +339,20 @@ object MetadataParser {
                     val period = extent.node("gml:TimePeriod")
                     val instant = extent.node("gml:TimeInstant")
                     when {
-                        period != null ->
+                        period != null -> {
                             TemporalExtent(
                                 begin = period.text("gml:beginPosition"),
                                 end = period.text("gml:endPosition"),
                             )
-                        instant != null ->
+                        }
+
+                        instant != null -> {
                             TemporalExtent(begin = instant.text("gml:timePosition"))
-                        else -> null
+                        }
+
+                        else -> {
+                            null
+                        }
                     }
                 }
                 ?: emptyList()
@@ -356,8 +364,7 @@ object MetadataParser {
                         "gmd:spatialResolution/gmd:MD_Resolution" +
                             "/gmd:equivalentScale/gmd:MD_RepresentativeFraction" +
                             "/gmd:denominator/gco:Integer",
-                    )
-                    ?.textContent
+                    )?.textContent
                     ?.trim()
                     ?.takeIf { it.isNotEmpty() }
             return denominator
@@ -485,7 +492,11 @@ object MetadataParser {
         }
 
         private fun Node.text(expr: String): String? =
-            xpath.node(expr, this)?.textContent?.trim()?.takeIf { it.isNotEmpty() }
+            xpath
+                .node(expr, this)
+                ?.textContent
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
 
         private fun Node.node(expr: String): Node? = xpath.node(expr, this)
 
@@ -502,9 +513,17 @@ object MetadataParser {
                 val prefix = attrName.substringBefore(':')
                 val local = attrName.substringAfter(':')
                 val ns = isoNamespaceContext.getNamespaceURI(prefix)
-                return attrs.getNamedItemNS(ns, local)?.nodeValue?.trim()?.takeIf { it.isNotEmpty() }
+                return attrs
+                    .getNamedItemNS(ns, local)
+                    ?.nodeValue
+                    ?.trim()
+                    ?.takeIf { it.isNotEmpty() }
             }
-            return attrs.getNamedItem(attrName)?.nodeValue?.trim()?.takeIf { it.isNotEmpty() }
+            return attrs
+                .getNamedItem(attrName)
+                ?.nodeValue
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
         }
     }
 }

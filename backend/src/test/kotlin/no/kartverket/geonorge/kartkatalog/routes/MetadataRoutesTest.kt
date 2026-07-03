@@ -14,12 +14,12 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import no.kartverket.geonorge.kartkatalog.client.CodeList
-import no.kartverket.geonorge.kartkatalog.client.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.client.RegisterClient
 import no.kartverket.geonorge.kartkatalog.client.SolrClient
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.service.MetadataSummaryService
 import kotlin.test.Test
 import kotlin.test.assertContains
