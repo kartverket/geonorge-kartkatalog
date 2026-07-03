@@ -1,0 +1,539 @@
+{
+  "MapOnlyWms": true,
+  "Abstract": "Datasettet viser kommuneinndelinga i landet med de mest nøyaktige grensene som er registrert digitalt og som er samlet i ett datasett. \n \nFlatene inneholder egenskaper som forteller om offisielle kommunenumre. De offisielle norske, samiske og kvenske navnene for kommunene er hentet fra SSR. I tillegg finnes informasjon om samiske forvaltningsområder.\n\nGeodataene er fra nasjonal inndelingsbase, som er en del av matrikkelen. Ved overgang til ny forvaltningsløsning, ble det også gjort endringer i UML-modellen.\n\nDatasettet har referansedato 1.1.2026, og er oppdatert med overføring av to arealer mellom Indre Østfold og Nordre Follo ved Slemmestadveien, og et areal mellom Indre Østfold og Vestby ved Laaskenveien. Det er i tillegg oppdatert med en del mindre kvalitetshevinger, som følge av jordskiftesaker og klarlegging av eksisterende grense på kommune-/fylkesgrenser.\n\nDatasettet blir oppdatert årlig, og da ved nyttår. Dersom det blir gjort vedtak om grensejustering mellom kommuner etter inndelingsloven med ikrafttredelsesdato underveis i året, blir filene oppdatert rundt ikrafttredelsesdato.",
+  "BoundingBox": {
+    "EastBoundLongitude": "33,00",
+    "NorthBoundLatitude": "72,00",
+    "SouthBoundLatitude": "57,00",
+    "WestBoundLongitude": "2,00"
+  },
+  "Constraints": {
+    "AccessConstraints": "Åpne data",
+    "OtherConstraintsLink": "https://creativecommons.org/licenses/by/4.0/",
+    "OtherConstraintsLinkText": "Creative Commons BY 4.0 (CC BY 4.0)",
+    "SecurityConstraints": "Ugradert",
+    "SecurityConstraintsNote": "",
+    "UseConstraints": "Lisens",
+    "UseLimitations": "Ingen begrensninger på bruk er oppgitt. Se forøvrig lisens.",
+    "OtherConstraintsAccess": "http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations"
+  },
+  "ContactMetadata": {
+    "Email": "post@kartverket.no",
+    "Name": "Liv Mari Nesje",
+    "Organization": "Kartverket",
+    "Role": "pointOfContact"
+  },
+  "ContactOwner": {
+    "Email": "post@kartverket.no",
+    "Name": "Liv Mari Nesje",
+    "Organization": "Kartverket",
+    "Role": "owner"
+  },
+  "Organization": "Kartverket",
+  "ContactOwners": [
+    {
+      "Email": "post@kartverket.no",
+      "Name": "Liv Mari Nesje",
+      "Organization": "Kartverket",
+      "Role": "owner"
+    }
+  ],
+  "ContactPublisher": {
+    "Email": "post@kartverket.no",
+    "Organization": "Kartverket",
+    "Role": "publisher"
+  },
+  "DateCreated": "2006-07-01T00:00:00",
+  "DateMetadataUpdated": "2026-07-03T00:00:00",
+  "DateMetadataValidFrom": "2026-01-01T00:00:00",
+  "DatePublished": "2006-07-01T00:00:00",
+  "DateUpdated": "2025-12-10T00:00:00",
+  "DistributionDetails": {
+    "Protocol": "GEONORGE:DOWNLOAD",
+    "ProtocolName": "Geonorge nedlastning",
+    "URL": "https://nedlasting.geonorge.no/api/capabilities/"
+  },
+  "DistributionProtocol": "GEONORGE:DOWNLOAD",
+  "Protocol": "Geonorge nedlastning",
+  "DistributionFormats": [
+    {
+      "Name": "FGDB"
+    },
+    {
+      "Name": "GeoJSON"
+    },
+    {
+      "Name": "GML"
+    },
+    {
+      "Name": "PostGIS"
+    },
+    {
+      "Name": "SOSI"
+    },
+    {
+      "Name": "FGDB"
+    },
+    {
+      "Name": "GML"
+    },
+    {
+      "Name": "GeoJSON"
+    },
+    {
+      "Name": "PostGIS"
+    },
+    {
+      "Name": "SOSI"
+    }
+  ],
+  "DistributionsFormats": [
+    {
+      "ProtocolName": "Geonorge nedlastning",
+      "FormatName": "FGDB",
+      "URL": "https://nedlasting.geonorge.no/api/capabilities/",
+      "Protocol": "GEONORGE:DOWNLOAD",
+      "Organization": "Kartverket",
+      "UnitsOfDistribution": "fylkesvis, kommunevis, landsfiler"
+    },
+    {
+      "ProtocolName": "Geonorge nedlastning",
+      "FormatName": "GeoJSON",
+      "URL": "https://nedlasting.geonorge.no/api/capabilities/",
+      "Protocol": "GEONORGE:DOWNLOAD",
+      "Organization": "Kartverket",
+      "UnitsOfDistribution": "fylkesvis, kommunevis, landsfiler"
+    },
+    {
+      "ProtocolName": "Geonorge nedlastning",
+      "FormatName": "GML",
+      "URL": "https://nedlasting.geonorge.no/api/capabilities/",
+      "Protocol": "GEONORGE:DOWNLOAD",
+      "Organization": "Kartverket",
+      "UnitsOfDistribution": "fylkesvis, kommunevis, landsfiler"
+    },
+    {
+      "ProtocolName": "Geonorge nedlastning",
+      "FormatName": "PostGIS",
+      "URL": "https://nedlasting.geonorge.no/api/capabilities/",
+      "Protocol": "GEONORGE:DOWNLOAD",
+      "Organization": "Kartverket",
+      "UnitsOfDistribution": "fylkesvis, kommunevis, landsfiler"
+    },
+    {
+      "ProtocolName": "Geonorge nedlastning",
+      "FormatName": "SOSI",
+      "URL": "https://nedlasting.geonorge.no/api/capabilities/",
+      "Protocol": "GEONORGE:DOWNLOAD",
+      "Organization": "Kartverket",
+      "UnitsOfDistribution": "fylkesvis, kommunevis, landsfiler"
+    },
+    {
+      "ProtocolName": "Atom Feed",
+      "FormatName": "FGDB",
+      "URL": "http://nedlasting.geonorge.no/geonorge/ATOM-feeds/AdministrativeEnheterKommuner_AtomFeedFGDB.xml",
+      "Protocol": "W3C:AtomFeed",
+      "Organization": "Kartverket"
+    },
+    {
+      "ProtocolName": "Atom Feed",
+      "FormatName": "GML",
+      "URL": "http://nedlasting.geonorge.no/geonorge/ATOM-feeds/AdministrativeEnheterKommuner_AtomFeedGML.xml",
+      "Protocol": "W3C:AtomFeed",
+      "Organization": "Kartverket"
+    },
+    {
+      "ProtocolName": "Atom Feed",
+      "FormatName": "GeoJSON",
+      "URL": "http://nedlasting.geonorge.no/geonorge/ATOM-feeds/AdministrativeEnheterKommuner_AtomFeedGeoJSON.xml",
+      "Protocol": "W3C:AtomFeed",
+      "Organization": "Kartverket"
+    },
+    {
+      "ProtocolName": "Atom Feed",
+      "FormatName": "PostGIS",
+      "URL": "http://nedlasting.geonorge.no/geonorge/ATOM-feeds/AdministrativeEnheterKommuner_AtomFeedPostGIS.xml",
+      "Protocol": "W3C:AtomFeed",
+      "Organization": "Kartverket"
+    },
+    {
+      "ProtocolName": "Atom Feed",
+      "FormatName": "SOSI",
+      "URL": "http://nedlasting.geonorge.no/geonorge/ATOM-feeds/AdministrativeEnheterKommuner_AtomFeedSOSI.xml",
+      "Protocol": "W3C:AtomFeed",
+      "Organization": "Kartverket"
+    }
+  ],
+  "DistributionFormatsGrouped": [
+    {
+      "ProtocolName": "Geonorge nedlastning",
+      "ProtocolDescription": "Nedlastning gjennom Geonorge-portalen ved bruk av handlevognsfunksjonalitet",
+      "Protocol": "GEONORGE:DOWNLOAD",
+      "Organization": "Kartverket",
+      "UnitsOfDistribution": "fylkesvis, kommunevis, landsfiler",
+      "Formats": [
+        {
+          "FormatName": "FGDB"
+        },
+        {
+          "FormatName": "GeoJSON"
+        },
+        {
+          "FormatName": "GML"
+        },
+        {
+          "FormatName": "PostGIS"
+        },
+        {
+          "FormatName": "SOSI"
+        }
+      ],
+      "URL": ["https://nedlasting.geonorge.no/api/capabilities/"]
+    },
+    {
+      "ProtocolName": "Atom Feed",
+      "ProtocolDescription": "Atom er et XML-format brukt til automatiske web-oppdateringer",
+      "Protocol": "W3C:AtomFeed",
+      "Organization": "Kartverket",
+      "Formats": [
+        {
+          "FormatName": "FGDB"
+        },
+        {
+          "FormatName": "GML"
+        },
+        {
+          "FormatName": "GeoJSON"
+        },
+        {
+          "FormatName": "PostGIS"
+        },
+        {
+          "FormatName": "SOSI"
+        }
+      ],
+      "URL": [
+        "http://nedlasting.geonorge.no/geonorge/ATOM-feeds/AdministrativeEnheterKommuner_AtomFeedFGDB.xml",
+        "http://nedlasting.geonorge.no/geonorge/ATOM-feeds/AdministrativeEnheterKommuner_AtomFeedGML.xml",
+        "http://nedlasting.geonorge.no/geonorge/ATOM-feeds/AdministrativeEnheterKommuner_AtomFeedGeoJSON.xml",
+        "http://nedlasting.geonorge.no/geonorge/ATOM-feeds/AdministrativeEnheterKommuner_AtomFeedPostGIS.xml",
+        "http://nedlasting.geonorge.no/geonorge/ATOM-feeds/AdministrativeEnheterKommuner_AtomFeedSOSI.xml"
+      ]
+    }
+  ],
+  "UnitsOfDistribution": "fylkesvis, kommunevis, landsfiler",
+  "ReferenceSystems": [
+    {
+      "CoordinateSystem": "EUREF89 UTM sone 32, 2d",
+      "CoordinateSystemUrl": "http://www.opengis.net/def/crs/EPSG/0/25832"
+    },
+    {
+      "CoordinateSystem": "EUREF89 UTM sone 33, 2d",
+      "CoordinateSystemUrl": "http://www.opengis.net/def/crs/EPSG/0/25833"
+    },
+    {
+      "CoordinateSystem": "EUREF89 UTM sone 35, 2d",
+      "CoordinateSystemUrl": "http://www.opengis.net/def/crs/EPSG/0/25835"
+    },
+    {
+      "CoordinateSystem": "EUREF89 / ETRS89-LAEA Europe",
+      "CoordinateSystemUrl": "http://www.opengis.net/def/crs/EPSG/0/3035"
+    },
+    {
+      "CoordinateSystem": "EUREF 89 Geografisk (ETRS 89) 2d",
+      "CoordinateSystemUrl": "http://www.opengis.net/def/crs/EPSG/0/4258"
+    }
+  ],
+  "EnglishAbstract": "The dataset shows national, county and municipal divisions within the country. It has the most accurate boundaries that have been recorded digitally and are collected in a dataset. \n\nThe municipalities are delimited by National Border, Outer Limit of Territorial Waters 12 Nautical Miles, Agreed Delimitation Line, county boundary and municipal boundary. \n\nThe dataset also includes a baseline and 1 nautical mile, which are legal lines that can be used when processing cases linked with specific laws. \n\nThe units include properties which indicate official municipal numbers. The official Norwegian, Sami and Kven names for counties and municipalities are taken from SSR. There is also information about Sami language administrative districts.",
+  "EnglishTitle": "Administrative units municipalities",
+  "NorwegianTitle": "Administrative enheter kommuner",
+  "HierarchyLevel": "dataset",
+  "Type": "dataset",
+  "TypeTranslated": "Datasett",
+  "KeywordsPlace": [
+    {
+      "EnglishKeyword": "Norway Mainland",
+      "KeywordValue": "Norge fastland",
+      "Type": "place"
+    }
+  ],
+  "KeywordsTheme": [
+    {
+      "EnglishKeyword": "Municipality",
+      "KeywordValue": "Kommune",
+      "Type": "theme"
+    },
+    {
+      "EnglishKeyword": "Administrative units",
+      "KeywordValue": "Administrativ inndeling",
+      "Type": "theme"
+    },
+    {
+      "EnglishKeyword": "Administrative borders",
+      "KeywordValue": "Administrative grenser",
+      "Type": "theme"
+    },
+    {
+      "KeywordValue": "Kommunegrenser",
+      "Type": "theme"
+    },
+    {
+      "KeywordValue": "Fylkesgrenser",
+      "Type": "theme"
+    },
+    {
+      "KeywordValue": "Riksgrense",
+      "Type": "theme"
+    },
+    {
+      "KeywordValue": "ABAS",
+      "Type": "theme"
+    }
+  ],
+  "KeywordsInspire": [
+    {
+      "KeywordValue": "Administrative enheter",
+      "Thesaurus": "GEMET - INSPIRE themes, version 1.0",
+      "Type": ""
+    }
+  ],
+  "KeywordsInspirePriorityDataset": [],
+  "KeywordsHighValueDatasetCategories": [
+    {
+      "KeywordValue": "Geodata",
+      "Thesaurus": "High-value dataset kategorier",
+      "Type": "",
+      "KeywordLink": "http://data.europa.eu/bna/c_ac64a52d"
+    }
+  ],
+  "KeywordsNationalInitiative": [
+    {
+      "EnglishKeyword": "NSDI data",
+      "KeywordValue": "Det offentlige kartgrunnlaget",
+      "Thesaurus": "Nasjonal inndeling i geografiske initiativ og SDI-er",
+      "Type": ""
+    },
+    {
+      "KeywordValue": "Inspire",
+      "Thesaurus": "Nasjonal inndeling i geografiske initiativ og SDI-er",
+      "Type": ""
+    },
+    {
+      "EnglishKeyword": "Geodata Act",
+      "KeywordValue": "geodataloven",
+      "Thesaurus": "Nasjonal inndeling i geografiske initiativ og SDI-er",
+      "Type": ""
+    },
+    {
+      "EnglishKeyword": "Norway Digital",
+      "KeywordValue": "Norge digitalt",
+      "Thesaurus": "Nasjonal inndeling i geografiske initiativ og SDI-er",
+      "Type": ""
+    },
+    {
+      "EnglishKeyword": "Beredskapsbase",
+      "KeywordValue": "beredskapsbase",
+      "Thesaurus": "Nasjonal inndeling i geografiske initiativ og SDI-er",
+      "Type": ""
+    },
+    {
+      "KeywordValue": "dataNorgeNo",
+      "Thesaurus": "Nasjonal inndeling i geografiske initiativ og SDI-er",
+      "Type": ""
+    },
+    {
+      "EnglishKeyword": "Felles datakatalog",
+      "KeywordValue": "fellesDatakatalog",
+      "Thesaurus": "Nasjonal inndeling i geografiske initiativ og SDI-er",
+      "Type": ""
+    }
+  ],
+  "KeywordsNationalTheme": [
+    {
+      "KeywordValue": "Basis geodata",
+      "Thesaurus": "Nasjonal tematisk inndeling (DOK-kategori)",
+      "Type": ""
+    }
+  ],
+  "KeywordsOther": [],
+  "KeywordsConcept": [],
+  "KeywordsAdministrativeUnits": [
+    {
+      "KeywordValue": "Norge",
+      "Thesaurus": "Administrative enheter i Norge",
+      "Type": "",
+      "KeywordLink": "https://data.geonorge.no/administrativeEnheter/nasjon/id/173163"
+    }
+  ],
+  "SpatialScope": "National",
+  "LegendDescriptionUrl": "https://register.geonorge.no/tegneregler/administrative-enheter-norge",
+  "MaintenanceFrequency": "Årlig",
+  "DatasetLanguage": "nor",
+  "MetadataLanguage": "nor",
+  "MetadataStandard": "ISO19115",
+  "MetadataStandardVersion": "2003",
+  "OperatesOn": [],
+  "ProductSheetUrl": "https://register.geonorge.no/produktark/administrative-enheter-norge",
+  "ProductSpecificationUrl": "https://register.geonorge.no/produktspesifikasjoner/administrative-enheter-norge",
+  "CoverageUrl": "https://geonorge-nkg.atkv3-dev.kartverket.cloud/geoportal/#!?zoom=5&project=geonorge&layers=1002&lat=6768825.17&lon=217236.30&wms=https%3a%2f%2fwms.geonorge.no%2fskwms1%2fwms.geonorge_dekningskart%3fdatasett%3dkv_adminomr_kommune%2chttps%3a%2f%2fwms.geonorge.no%2fskwms1%2fwms.gp_dek_oversikt%3fdatasett%3dkv_adminomr_kommune&addLayers=geonorgedekningskart%2cgp_dek_oversikt_wms%2cgeojson&type=dek&geojson=https%3a%2f%2fnedlasting.geonorge.no%2fgeonorge%2fBasisdata%2fDOKFullstendighetsdekningskart%2fKartkatalogen%2fdekning_kommuner.geojson",
+  "CoverageGridUrl": "TYPE:GEONORGE-WMS@PATH:https://wms.geonorge.no/skwms/wms.geonorge_dekningskart?@LAYER:kv_adminomr_kommune",
+  "SurveyAreaMapUrl": "https://nedlasting.geonorge.no/geonorge/Basisdata/DOKFullstendighetsdekningskart/Kartkatalogen/dekning_kommuner.geojson",
+  "DownloadUrl": "https://nedlasting.geonorge.no/api/capabilities/",
+  "Purpose": "Framstille den offisielle kommuneinndelingen.",
+  "QualitySpecifications": [
+    {
+      "Date": "2010-12-08T00:00:00",
+      "DateType": "publication",
+      "Explanation": "Dataene er i henhold til produktspesifikasjonen",
+      "Result": true,
+      "Title": "COMMISSION REGULATION (EU) No 1089/2010 of 23 November 2010 implementing Directive 2007/2/EC of the European Parliament and of the Council as regards interoperability of spatial data sets and services"
+    },
+    {
+      "Date": "2022-12-14T00:00:00",
+      "DateType": "publication",
+      "Explanation": "Dataene er i henhold til produktspesifikasjonen",
+      "Result": true,
+      "Title": "SOSI produktspesifikasjon: Administrative enheter Norge"
+    },
+    {
+      "Date": "2022-12-14T00:00:00",
+      "DateType": "publication",
+      "Explanation": "SOSI-filer er i henhold til applikasjonsskjema",
+      "Result": true,
+      "Title": "Sosi applikasjonsskjema"
+    },
+    {
+      "Date": "2022-12-14T00:00:00",
+      "DateType": "publication",
+      "Explanation": "GML-filer er i henhold til applikasjonsskjema",
+      "Result": true,
+      "Title": "Sosi applikasjonsskjema"
+    },
+    {
+      "Explanation": "Datasettets faktiske kartlagte areal i forhold til datasettets spesifiserte utstrekning",
+      "Title": "Prosentvis dekning i forhold til datasettets utstrekning",
+      "QuantitativeResult": "100"
+    },
+    {
+      "Explanation": "Angir fullstendighet i forhold til krav fra FAIR-prinsippene (The FAIR Guiding Principles for scientific data management and stewardship)",
+      "Title": "Prosentvis oppfyllelse av FAIR-prinsipper",
+      "QuantitativeResult": "97"
+    }
+  ],
+  "ReferenceSystem": {
+    "CoordinateSystem": "EUREF89 UTM sone 32, 2d",
+    "CoordinateSystemUrl": "http://www.opengis.net/def/crs/EPSG/0/25832"
+  },
+  "ResolutionScale": "5000",
+  "SpatialRepresentation": "Vektor",
+  "SpecificUsage": "Forvaltningsmessig saksbehandling. Analyse og presentasjon i et GIS-system. Presentasjon av statistikk og analyser. Produksjon av kart og avledede produkter. Saksbehandling på lokalt og regionalt plan etter plan- og bygningsloven.",
+  "Status": "Kontinuerlig oppdatert",
+  "OrderingInstructions": "",
+  "OrderingInstructionsLinkText": "",
+  "SupplementalDescription": "Trenger du hjelp til å laste ned og ta i bruk Kartverkets data og tjenester? På kartverket.no finner du tips og veiledning.",
+  "HelpUrl": "https://www.kartverket.no/data/",
+  "Thumbnails": [
+    {
+      "Type": "original",
+      "URL": "https://editor.geonorge.no/thumbnails/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b_20200306090252_admenheter_kommuner.png"
+    },
+    {
+      "Type": "miniatyrbilde",
+      "URL": "https://editor.geonorge.no/thumbnails/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b_20200306090252_mini_admenheter_kommuner.png"
+    },
+    {
+      "Type": "medium",
+      "URL": "https://editor.geonorge.no/thumbnails/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b_20200306090252_medium_admenheter_kommuner.png"
+    }
+  ],
+  "Title": "Administrative enheter kommuner",
+  "TopicCategory": "Administrative grenser",
+  "TopicCategories": ["Administrative grenser"],
+  "Uuid": "041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+  "ResourceReferenceCode": "kommuner",
+  "ResourceReferenceCodespace": "https://data.geonorge.no/sosi/administrativeenheter",
+  "MetadataXmlUrl": "https://www.geonorge.no/geonetwork/srv/nor/csw?service=CSW&request=GetRecordById&version=2.0.2&outputSchema=http://www.isotc211.org/2005/gmd&elementSetName=full&id=041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+  "MetadataEditUrl": "https://editor.geonorge.no/Metadata/Edit?uuid=041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+  "OrganizationLogoUrl": "https://register.geonorge.no/data/organizations/971040238_Kartverket_liten.png",
+  "ServiceDistributionUrlForDataset": "https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities",
+  "ServiceDistributionProtocolForDataset": "OGC:WMS",
+  "ServiceUuid": "666e4559-60bf-4a1d-9e72-c43502a9a58b",
+  "ServiceDistributionAccessConstraint": "http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations",
+  "AccessIsOpendata": true,
+  "AccessIsRestricted": false,
+  "AccessIsProtected": false,
+  "DataAccess": "Åpne data",
+  "CanShowMapUrl": false,
+  "CanShowServiceMapUrl": true,
+  "CanShowDownloadService": true,
+  "CanShowDownloadUrl": false,
+  "CanShowWebsiteUrl": false,
+  "MapLink": "https://nedlasting.geonorge.no/api/capabilities/",
+  "ServiceLink": "#!?zoom=3&lon=306722&lat=7197864&wms=https://wms.geonorge.no/skwms1/wms.adm_enheter2",
+  "DistributionUrl": "https://nedlasting.geonorge.no/api/capabilities/",
+  "Distributions": {
+    "SelfDistribution": [],
+    "RelatedDataset": [],
+    "RelatedSerieDatasets": [],
+    "RelatedDatasetSerie": [],
+    "RelatedApplications": [],
+    "RelatedServices": [],
+    "RelatedServiceLayer": [],
+    "RelatedViewServices": [
+      {
+        "Uuid": "666e4559-60bf-4a1d-9e72-c43502a9a58b",
+        "Title": "Administrative enheter WMS",
+        "Type": "Tjeneste",
+        "TypeTranslated": "Tjeneste",
+        "TypeName": "service",
+        "Organization": "Kartverket",
+        "Organizations": ["Kartverket"],
+        "ThumbnailUrl": "https://editor.geonorge.no/thumbnails/666e4559-60bf-4a1d-9e72-c43502a9a58b_20190807121920_mini_adm-enheter2.PNG",
+        "ShowDetailsUrl": "/metadata/org/title/666e4559-60bf-4a1d-9e72-c43502a9a58b",
+        "RemoveDetailsUrl": false,
+        "CanShowMapUrl": true,
+        "CanShowServiceMapUrl": false,
+        "CanShowDownloadUrl": false,
+        "CanShowDownloadService": false,
+        "MapUrl": "https://geonorge-nkg.atkv3-dev.kartverket.cloud/geoportal/#!?zoom=3&lon=306722&lat=7197864&wms=https://wms.geonorge.no/skwms1/wms.adm_enheter2",
+        "ServiceUuid": "666e4559-60bf-4a1d-9e72-c43502a9a58b",
+        "AccessIsOpendata": true,
+        "AccessIsRestricted": false,
+        "AccessIsProtected": false,
+        "DataAccess": "Åpne data",
+        "ServiceDistributionAccessConstraint": "no restrictions",
+        "GetCapabilitiesUrl": "https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities",
+        "Protocol": "WMS-tjeneste",
+        "DistributionFormats": [
+          {
+            "Name": "png"
+          }
+        ],
+        "DistributionUrl": "https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities"
+      }
+    ],
+    "RelatedDownloadServices": [],
+    "ShowRelatedDataset": false,
+    "ShowRelatedSerieDatasets": false,
+    "ShowRelatedDatasetSerie": false,
+    "ShowRelatedApplications": false,
+    "ShowRelatedServices": false,
+    "ShowRelatedServiceLayer": false,
+    "ShowRelatedViewServices": false,
+    "ShowRelatedDownloadServices": false,
+    "ShowSelfDistributions": true
+  },
+  "DatasetServicesWithShowMapLink": [
+    {
+      "Uuid": "666e4559-60bf-4a1d-9e72-c43502a9a58b",
+      "Title": "Administrative enheter WMS",
+      "DistributionProtocol": "WMS-tjeneste",
+      "GetCapabilitiesUrl": "https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities"
+    }
+  ],
+  "QuantitativeResult": {
+    "FAIR": "Prosentvis oppfyllelse av FAIR-prinsipper: 97%",
+    "Coverage": "Prosentvis dekning i forhold til datasettets utstrekning: 100%"
+  },
+  "MetMetadata": false
+}
