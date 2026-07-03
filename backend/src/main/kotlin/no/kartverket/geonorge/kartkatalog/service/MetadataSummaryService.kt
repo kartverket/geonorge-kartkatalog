@@ -142,15 +142,13 @@ class MetadataSummaryService(
     private fun resolveAccessState(
         record: MetadataRecord,
         solrDocument: SolrDocument,
-    ): AccessState {
-        val openData = isOpenData(record, solrDocument)
-        return when {
-            openData -> AccessState(restricted = false, openData = true, protected = false)
-            isProtected(record, solrDocument) -> AccessState(restricted = false, openData = false, protected = true)
+    ): AccessState =
+        when {
             isRestricted(record, solrDocument) -> AccessState(restricted = true, openData = false, protected = false)
+            isProtected(record, solrDocument) -> AccessState(restricted = false, openData = false, protected = true)
+            isOpenData(record, solrDocument) -> AccessState(restricted = false, openData = true, protected = false)
             else -> AccessState(restricted = false, openData = false, protected = false)
         }
-    }
 
     private fun isOpenData(
         record: MetadataRecord,
@@ -187,9 +185,9 @@ class MetadataSummaryService(
         solrDocument: SolrDocument,
     ): Boolean {
         val accessConstraint =
-            listOfNotNull(record.legalConstraints?.accessConstraints, solrDocument.accessconstraint)
+            listOfNotNull(record.legalConstraints?.otherConstraintsAccess, solrDocument.otherconstraintsaccess)
                 .joinToString(" ")
-        return containsAny(accessConstraint, "Beskyttet", "restricted") ||
+        return containsAny(accessConstraint, "Beskyttet", "restricted", "INSPIRE_Directive_Article13_1b") ||
             solrDocument.dataaccess.equals("protected", ignoreCase = true) ||
             record.securityConstraints?.classification.equals("restricted", ignoreCase = true)
     }
