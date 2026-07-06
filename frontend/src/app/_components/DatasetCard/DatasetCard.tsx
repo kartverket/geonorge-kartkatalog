@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button, Card } from "@kv-designsystem/react";
+import { Button, Card } from "@digdir/designsystemet-react";
 import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = {

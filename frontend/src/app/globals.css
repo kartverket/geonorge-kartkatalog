@@ -1,4 +1,5 @@
-@import "@kv-designsystem/react/green";
+@import "@kv-designsystem/theme/green";
+@import "@digdir/designsystemet-css";
 
 :root {
   --background: #ff1094;
