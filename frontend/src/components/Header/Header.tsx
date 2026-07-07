@@ -1,7 +1,9 @@
+"use client";
+
 import styles from "./Header.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@digdir/designsystemet-react";
+import { Button } from "@kv-designsystem/react";
 import {
   MagnifyingGlassIcon,
   LocationPinIcon,
