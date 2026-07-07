@@ -26,41 +26,25 @@ export function Header() {
           />
         </Link>
         <nav aria-label="Hovedmeny" className={styles.nav}>
-          <Button
-            variant="tertiary"
-            data-color="neutral"
-            className={styles.hideOnMobile}
-          >
+          <Button variant="tertiary" data-color="neutral">
             <MagnifyingGlassIcon aria-hidden />
             Søk
           </Button>
-          <Button
-            variant="tertiary"
-            data-color="neutral"
-            className={styles.hideOnTablet}
-          >
+          <Button variant="tertiary" data-color="neutral">
             <LocationPinIcon aria-hidden />
             Kart
           </Button>
-          <Button
-            variant="tertiary"
-            data-color="neutral"
-            className={styles.hideOnTablet}
-          >
+          <Button variant="tertiary" data-color="neutral">
             <DownloadIcon aria-hidden />
             Nedlastingskurv
           </Button>
-          <Button
-            variant="tertiary"
-            data-color="neutral"
-            className={styles.hideOnTablet}
-          >
+          <Button variant="tertiary" data-color="neutral">
             <PersonCircleIcon aria-hidden />
             Logg inn
           </Button>
           <Button variant="tertiary" data-color="neutral">
             <MenuHamburgerIcon aria-hidden />
-            <span className={styles.hideOnMobile}>Meny</span>
+            Meny
           </Button>
         </nav>
       </div>
