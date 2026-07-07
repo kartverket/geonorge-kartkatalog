@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@digdir/designsystemet-react";
+import { Button } from "@kv-designsystem/react";
 
 export type ViewMode = "grid" | "list";
 
