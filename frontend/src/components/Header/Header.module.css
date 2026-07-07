@@ -23,7 +23,7 @@
   --dsc-button-color: var(--ds-color-neutral-text-default);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
   .hideOnTablet {
     display: none;
   }
