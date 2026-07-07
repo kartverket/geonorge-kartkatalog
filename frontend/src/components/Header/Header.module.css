@@ -1,5 +1,4 @@
 .header {
-  height: var(--ds-size-26);
   background: var(--ds-color-neutral-background-default);
   border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
@@ -7,15 +6,19 @@
 .inner {
   max-width: 1440px;
   margin-inline: auto;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-inline: var(--ds-size-10);
+  padding-block: var(--ds-size-6);
+  padding-inline: var(--ds-size-18);
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: var(--ds-size-2);
+  gap: var(--ds-size-12);
+}
+
+.nav :global(.ds-button) {
+    --dsc-button-color: var(--ds-color-neutral-text-default);
 }
