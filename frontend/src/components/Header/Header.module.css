@@ -24,13 +24,13 @@
 }
 
 @media (max-width: 1000px) {
-    .hideOnTablet {
-        display: none;
-    }
+  .hideOnTablet {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
-    .hideOnMobile {
-        display: none;
-    }
+  .hideOnMobile {
+    display: none;
+  }
 }
