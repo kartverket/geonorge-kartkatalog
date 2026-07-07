@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@digdir/designsystemet-css": "^1.18.0",
-    "@digdir/designsystemet-react": "^1.18.0",
+    "@kv-designsystem/react": "^1.0.0-alpha.2",
     "@kv-designsystem/theme": "^1.0.0-alpha.0",
     "@navikt/aksel-icons": "^8.14.0",
     "next": "16.2.10",
