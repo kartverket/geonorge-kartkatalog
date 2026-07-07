@@ -20,5 +20,5 @@
 }
 
 .nav :global(.ds-button) {
-    --dsc-button-color: var(--ds-color-neutral-text-default);
+  --dsc-button-color: var(--ds-color-neutral-text-default);
 }
