@@ -22,3 +22,15 @@
 .nav :global(.ds-button) {
   --dsc-button-color: var(--ds-color-neutral-text-default);
 }
+
+@media (max-width: 1000px) {
+    .hideOnTablet {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .hideOnMobile {
+        display: none;
+    }
+}
