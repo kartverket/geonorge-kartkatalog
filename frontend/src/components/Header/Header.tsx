@@ -17,6 +17,7 @@ import { HeaderSearch } from "./HeaderSearch";
 
 export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <>
       <header className={styles.header}>
@@ -36,7 +37,10 @@ export function Header() {
               data-color="neutral"
               className={styles.hideOnMobile}
               aria-expanded={searchOpen}
-              onClick={() => setSearchOpen(!searchOpen)}
+              onClick={() => {
+                setSearchOpen(!searchOpen);
+                setMenuOpen(false);
+              }}
             >
               {searchOpen ? (
                 <XMarkIcon aria-hidden />
@@ -69,8 +73,21 @@ export function Header() {
               <PersonCircleIcon aria-hidden />
               Logg inn
             </Button>
-            <Button variant="tertiary" data-color="neutral">
-              <MenuHamburgerIcon aria-hidden />
+            <Button
+              variant="tertiary"
+              data-color="neutral"
+              aria-expanded={menuOpen}
+              aria-label={"Meny"}
+              onClick={() => {
+                setMenuOpen(!menuOpen);
+                setSearchOpen(false);
+              }}
+            >
+              {menuOpen ? (
+                <XMarkIcon aria-hidden />
+              ) : (
+                <MenuHamburgerIcon aria-hidden />
+              )}
               <span className={styles.hideOnMobile}>Meny</span>
             </Button>
           </nav>
