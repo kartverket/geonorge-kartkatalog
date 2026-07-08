@@ -16,8 +16,10 @@ import { useState } from "react";
 import { HeaderSearch } from "./HeaderSearch";
 
 export function Header() {
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [openPanel, setOpenPanel] = useState<"search" | "menu" | null>(null);
+  const togglePanel = (panel: "search" | "menu") => {
+    setOpenPanel((prev) => (prev === panel ? null : panel));
+  };
   return (
     <>
       <header className={styles.header}>
@@ -28,7 +30,7 @@ export function Header() {
               alt="Geonorge"
               width={211}
               height={33}
-              priority
+              preload
             />
           </Link>
           <nav aria-label="Hovedmeny" className={styles.nav}>
@@ -36,13 +38,10 @@ export function Header() {
               variant="tertiary"
               data-color="neutral"
               className={styles.hideOnMobile}
-              aria-expanded={searchOpen}
-              onClick={() => {
-                setSearchOpen(!searchOpen);
-                setMenuOpen(false);
-              }}
+              aria-expanded={openPanel === "search"}
+              onClick={() => togglePanel("search")}
             >
-              {searchOpen ? (
+              {openPanel === "search" ? (
                 <XMarkIcon aria-hidden />
               ) : (
                 <MagnifyingGlassIcon aria-hidden />
@@ -76,14 +75,11 @@ export function Header() {
             <Button
               variant="tertiary"
               data-color="neutral"
-              aria-expanded={menuOpen}
-              aria-label={"Meny"}
-              onClick={() => {
-                setMenuOpen(!menuOpen);
-                setSearchOpen(false);
-              }}
+              aria-label="Meny"
+              aria-expanded={openPanel === "menu"}
+              onClick={() => togglePanel("menu")}
             >
-              {menuOpen ? (
+              {openPanel === "menu" ? (
                 <XMarkIcon aria-hidden />
               ) : (
                 <MenuHamburgerIcon aria-hidden />
@@ -93,7 +89,7 @@ export function Header() {
           </nav>
         </div>
       </header>
-      {searchOpen && <HeaderSearch />}
+      {openPanel === "search" && <HeaderSearch />}
     </>
   );
 }
