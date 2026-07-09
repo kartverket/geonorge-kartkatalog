@@ -1,24 +1,28 @@
 "use client";
 
-import styles from "./Header.module.css";
-import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@kv-designsystem/react";
 import {
-  MagnifyingGlassIcon,
-  LocationPinIcon,
   DownloadIcon,
-  PersonCircleIcon,
+  LocationPinIcon,
+  MagnifyingGlassIcon,
   MenuHamburgerIcon,
+  PersonCircleIcon,
   XMarkIcon,
 } from "@navikt/aksel-icons";
+import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
+import styles from "./Header.module.css";
+import { HeaderMenu } from "./HeaderMenu";
 import { HeaderSearch } from "./HeaderSearch";
 
 export function Header() {
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [openPanel, setOpenPanel] = useState<"search" | "menu" | null>(null);
+  const togglePanel = (panel: "search" | "menu") => {
+    setOpenPanel((prev) => (prev === panel ? null : panel));
+  };
   return (
-    <>
+    <div className={styles.root}>
       <header className={styles.header}>
         <div className={styles.inner}>
           <Link href="/">
@@ -27,18 +31,18 @@ export function Header() {
               alt="Geonorge"
               width={211}
               height={33}
-              priority
+              preload
             />
           </Link>
-          <nav aria-label="Hovedmeny" className={styles.nav}>
+          <div className={styles.actions}>
             <Button
               variant="tertiary"
               data-color="neutral"
               className={styles.hideOnMobile}
-              aria-expanded={searchOpen}
-              onClick={() => setSearchOpen(!searchOpen)}
+              aria-expanded={openPanel === "search"}
+              onClick={() => togglePanel("search")}
             >
-              {searchOpen ? (
+              {openPanel === "search" ? (
                 <XMarkIcon aria-hidden />
               ) : (
                 <MagnifyingGlassIcon aria-hidden />
@@ -69,14 +73,27 @@ export function Header() {
               <PersonCircleIcon aria-hidden />
               Logg inn
             </Button>
-            <Button variant="tertiary" data-color="neutral">
-              <MenuHamburgerIcon aria-hidden />
+            <Button
+              variant="tertiary"
+              data-color="neutral"
+              aria-label="Meny"
+              aria-expanded={openPanel === "menu"}
+              onClick={() => togglePanel("menu")}
+            >
+              {openPanel === "menu" ? (
+                <XMarkIcon aria-hidden />
+              ) : (
+                <MenuHamburgerIcon aria-hidden />
+              )}
               <span className={styles.hideOnMobile}>Meny</span>
             </Button>
-          </nav>
+          </div>
         </div>
       </header>
-      {searchOpen && <HeaderSearch />}
-    </>
+      {openPanel === "search" && <HeaderSearch />}
+      {openPanel === "menu" && (
+        <HeaderMenu onNavigate={() => setOpenPanel(null)} />
+      )}
+    </div>
   );
 }

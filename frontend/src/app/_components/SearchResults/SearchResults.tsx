@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
-import { ViewToggle, type ViewMode } from "./ViewToggle";
 import styles from "./SearchResults.module.css";
+import { type ViewMode, ViewToggle } from "./ViewToggle";
 
 type SearchResultsProps = {
   results: Array<Omit<DatasetCardProps, "viewMode">>;
