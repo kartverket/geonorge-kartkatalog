@@ -13,9 +13,19 @@
   flex-direction: column;
 }
 
-.language {
-  align-self: flex-end;
+.menuActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ds-size-5);
+}
+
+.menuActions :global(.ds-button) {
   --dsc-button-color: var(--ds-color-neutral-text-default);
+}
+
+.tabletOnly {
+  display: none;
 }
 
 .divider {
@@ -54,4 +64,13 @@
 .linkList a:hover {
   background: var(--ds-color-surface-active);
   color: var(--ds-color-text-default);
+}
+
+@media (max-width: 1000px) {
+  .tabletOnly {
+    display: inline-flex;
+  }
+  .section {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

@@ -1,7 +1,12 @@
 "use client";
 
+import {
+  LocationPinIcon,
+  DownloadIcon,
+  PersonCircleIcon,
+  LanguageIcon,
+} from "@navikt/aksel-icons";
 import { Button, Divider, Heading } from "@kv-designsystem/react";
-import { LanguageIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import styles from "./HeaderMenu.module.css";
 
@@ -49,14 +54,36 @@ export function HeaderMenu({ onNavigate }: { onNavigate: () => void }) {
   return (
     <div className={styles.panel}>
       <div className={styles.panelInner}>
-        <Button
-          variant="tertiary"
-          data-color="neutral"
-          className={styles.language}
-        >
-          <LanguageIcon aria-hidden />
-          <span>EN</span>
-        </Button>
+        <div className={styles.menuActions}>
+          <Button
+            variant="tertiary"
+            data-color="neutral"
+            className={styles.tabletOnly}
+          >
+            <LocationPinIcon aria-hidden />
+            Kart
+          </Button>
+          <Button
+            variant="tertiary"
+            data-color="neutral"
+            className={styles.tabletOnly}
+          >
+            <DownloadIcon aria-hidden />
+            Nedlastingskurv
+          </Button>
+          <Button variant="tertiary" data-color="neutral">
+            <LanguageIcon aria-hidden />
+            <span>EN</span>
+          </Button>
+          <Button
+            variant="tertiary"
+            data-color="neutral"
+            className={styles.tabletOnly}
+          >
+            <PersonCircleIcon aria-hidden />
+            Logg inn
+          </Button>
+        </div>
         <Divider className={styles.divider} />
         <nav aria-label="Hovedmeny" data-color="info">
           <ul className={styles.section}>
