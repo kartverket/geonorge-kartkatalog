@@ -11,7 +11,7 @@ import {
 } from "@navikt/aksel-icons";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderSearch } from "./HeaderSearch";
@@ -21,8 +21,34 @@ export function Header() {
   const togglePanel = (panel: "search" | "menu") => {
     setOpenPanel((prev) => (prev === panel ? null : panel));
   };
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!openPanel) return;
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpenPanel(null);
+      }
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpenPanel(null);
+      }
+    };
+
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [openPanel]);
+
   return (
-    <div className={styles.root}>
+    <div className={styles.root} ref={rootRef}>
       <header className={styles.header}>
         <div className={styles.inner}>
           <Link href="/">
