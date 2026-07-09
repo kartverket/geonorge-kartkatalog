@@ -1,4 +1,9 @@
 .panel {
+  position: absolute;
+  top: 100%;
+  inset-inline: 0;
+  z-index: 10;
+  background: var(--ds-color-neutral-background-default);
   padding: var(--ds-size-10) var(--ds-size-18);
   display: flex;
   justify-content: center;
