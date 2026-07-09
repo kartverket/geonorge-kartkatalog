@@ -49,6 +49,7 @@
   height: var(--ds-size-12);
   padding-inline: var(--ds-size-4);
   color: var(--ds-color-text-subtle);
+  border-radius: var(--ds-border-radius-default);
 }
 
 .linkList a:hover {
