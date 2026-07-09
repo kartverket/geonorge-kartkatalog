@@ -1,9 +1,13 @@
 .panel {
+  position: absolute;
+  top: 100%;
+  inset-inline: 0;
+  background: var(--ds-color-neutral-background-default);
   padding: var(--ds-size-10) var(--ds-size-18);
   display: flex;
   justify-content: center;
 }
 
 .panel :global(.ds-search) {
-  width: min(37.5rem, 100%);
+  width: min(37.5rem, 100%); /* TODO: verifiser bredde mot skisse */
 }
