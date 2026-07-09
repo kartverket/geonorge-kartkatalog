@@ -91,7 +91,9 @@ export function Header() {
         </div>
       </header>
       {openPanel === "search" && <HeaderSearch />}
-      {openPanel === "menu" && <HeaderMenu />}
+      {openPanel === "menu" && (
+        <HeaderMenu onNavigate={() => setOpenPanel(null)} />
+      )}
     </div>
   );
 }

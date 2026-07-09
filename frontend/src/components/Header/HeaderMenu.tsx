@@ -45,7 +45,7 @@ const MENU_SECTIONS = [
   },
 ];
 
-export function HeaderMenu() {
+export function HeaderMenu({ onNavigate }: { onNavigate: () => void }) {
   return (
     <div className={styles.panel}>
       <div className={styles.panelInner}>
@@ -66,10 +66,14 @@ export function HeaderMenu() {
                 <ul className={styles.linkList}>
                   {section.links.map((link) => (
                     <li key={link.label}>
-                      {link.href.startsWith("/") ? (
-                        <Link href={link.href}>{link.label}</Link>
+                      {link.href === "/" ? (
+                        <Link href="/" onClick={onNavigate}>
+                          {link.label}
+                        </Link>
                       ) : (
-                        <a href={link.href}>{link.label}</a>
+                        <a href={link.href} onClick={onNavigate}>
+                          {link.label}
+                        </a>
                       )}
                     </li>
                   ))}
