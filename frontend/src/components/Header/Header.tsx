@@ -1,18 +1,19 @@
 "use client";
 
-import styles from "./Header.module.css";
-import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@kv-designsystem/react";
 import {
-  MagnifyingGlassIcon,
-  LocationPinIcon,
   DownloadIcon,
-  PersonCircleIcon,
+  LocationPinIcon,
+  MagnifyingGlassIcon,
   MenuHamburgerIcon,
+  PersonCircleIcon,
   XMarkIcon,
 } from "@navikt/aksel-icons";
+import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
+import styles from "./Header.module.css";
+import { HeaderMenu } from "./HeaderMenu";
 import { HeaderSearch } from "./HeaderSearch";
 
 export function Header() {
@@ -21,7 +22,7 @@ export function Header() {
     setOpenPanel((prev) => (prev === panel ? null : panel));
   };
   return (
-    <>
+    <div className={styles.root}>
       <header className={styles.header}>
         <div className={styles.inner}>
           <Link href="/">
@@ -33,7 +34,7 @@ export function Header() {
               preload
             />
           </Link>
-          <nav aria-label="Hovedmeny" className={styles.nav}>
+          <div className={styles.actions}>
             <Button
               variant="tertiary"
               data-color="neutral"
@@ -86,10 +87,11 @@ export function Header() {
               )}
               <span className={styles.hideOnMobile}>Meny</span>
             </Button>
-          </nav>
+          </div>
         </div>
       </header>
       {openPanel === "search" && <HeaderSearch />}
-    </>
+      {openPanel === "menu" && <HeaderMenu />}
+    </div>
   );
 }

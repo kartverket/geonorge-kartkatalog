@@ -13,13 +13,13 @@
   padding-inline: var(--ds-size-18);
 }
 
-.nav {
+.actions {
   display: flex;
   align-items: center;
   gap: var(--ds-size-12);
 }
 
-.nav :global(.ds-button) {
+.actions :global(.ds-button) {
   --dsc-button-color: var(--ds-color-neutral-text-default);
 }
 
@@ -35,6 +35,6 @@
   }
 }
 
-.searchIsOpen {
-  border-bottom: none;
+.root {
+  position: relative;
 }

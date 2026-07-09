@@ -1,0 +1,57 @@
+.panel {
+  position: absolute;
+  top: 100%;
+  inset-inline: 0;
+  z-index: 10;
+  background: var(--ds-color-neutral-background-default);
+}
+
+.panelInner {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding: var(--ds-size-6) var(--ds-size-18);
+  display: flex;
+  flex-direction: column;
+}
+
+.language {
+  align-self: flex-end;
+  --dsc-button-color: var(--ds-color-neutral-text-default);
+}
+
+.divider {
+  margin-block: var(--ds-size-8);
+}
+
+.section,
+.linkList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.section {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--ds-size-8);
+}
+
+.section > li,
+.linkList {
+  display: grid;
+  gap: var(--ds-size-3);
+  align-content: start;
+}
+
+.linkList a {
+  display: flex;
+  align-items: center;
+  height: var(--ds-size-12);
+  padding-inline: var(--ds-size-4);
+  color: var(--ds-color-text-subtle);
+}
+
+.linkList a:hover {
+  background: var(--ds-color-surface-active);
+  color: var(--ds-color-text-default);
+}
