@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import Link from "next/link";
 import getData from "../../../mocks/getData.json";
 import styles from "./page.module.css";
 
