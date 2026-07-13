@@ -81,10 +81,9 @@
 }
 
 .accordions :global(summary) {
-    font-size: var(--ds-heading-xs-font-size);
-    font-weight: var(--ds-heading-xs-font-weight);
+  font-size: var(--ds-heading-xs-font-size);
+  font-weight: var(--ds-heading-xs-font-weight);
 }
-
 
 @media (max-width: 1000px) {
   .tabletOnly,
