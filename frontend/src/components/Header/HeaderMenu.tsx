@@ -6,7 +6,7 @@ import {
   LanguageIcon,
   LocationPinIcon,
   MagnifyingGlassIcon,
-  PersonCircleIcon,
+  EnterIcon,
 } from "@navikt/aksel-icons";
 import Link from "next/link";
 import styles from "./HeaderMenu.module.css";
@@ -96,7 +96,7 @@ export function HeaderMenu({
             data-color="neutral"
             className={styles.belowDesktop}
           >
-            <PersonCircleIcon aria-hidden />
+            <EnterIcon aria-hidden />
             Logg inn
           </Button>
         </div>
