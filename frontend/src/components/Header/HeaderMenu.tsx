@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  MagnifyingGlassIcon,
   LocationPinIcon,
   DownloadIcon,
   PersonCircleIcon,
@@ -50,11 +51,26 @@ const MENU_SECTIONS = [
   },
 ];
 
-export function HeaderMenu({ onNavigate }: { onNavigate: () => void }) {
+export function HeaderMenu({
+  onNavigate,
+  onOpenSearch,
+}: {
+  onNavigate: () => void;
+  onOpenSearch: () => void;
+}) {
   return (
     <div className={styles.panel}>
       <div className={styles.panelInner}>
         <div className={styles.menuActions}>
+          <Button
+            variant="tertiary"
+            data-color="neutral"
+            className={styles.mobileOnly}
+            onClick={onOpenSearch}
+          >
+            <MagnifyingGlassIcon aria-hidden />
+            Søk
+          </Button>
           <Button
             variant="tertiary"
             data-color="neutral"
@@ -78,7 +94,7 @@ export function HeaderMenu({ onNavigate }: { onNavigate: () => void }) {
           <Button
             variant="tertiary"
             data-color="neutral"
-            className={styles.tabletOnly}
+            className={styles.belowDesktop}
           >
             <PersonCircleIcon aria-hidden />
             Logg inn

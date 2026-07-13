@@ -118,7 +118,10 @@ export function Header() {
       </header>
       {openPanel === "search" && <HeaderSearch />}
       {openPanel === "menu" && (
-        <HeaderMenu onNavigate={() => setOpenPanel(null)} />
+        <HeaderMenu
+          onNavigate={() => setOpenPanel(null)}
+          onOpenSearch={() => setOpenPanel("search")}
+        />
       )}
     </div>
   );

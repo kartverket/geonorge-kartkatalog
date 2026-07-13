@@ -24,8 +24,30 @@
   --dsc-button-color: var(--ds-color-neutral-text-default);
 }
 
-.tabletOnly {
+.tabletOnly,
+.belowDesktop,
+.mobileOnly {
   display: none;
+}
+
+@media (max-width: 1000px) {
+  .tabletOnly,
+  .belowDesktop {
+    display: inline-flex;
+  }
+  .section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .tabletOnly {
+    display: none;
+  }
+  .mobileOnly,
+  .belowDesktop {
+    display: inline-flex;
+  }
 }
 
 .divider {
@@ -64,13 +86,4 @@
 .linkList a:hover {
   background: var(--ds-color-surface-active);
   color: var(--ds-color-text-default);
-}
-
-@media (max-width: 1000px) {
-  .tabletOnly {
-    display: inline-flex;
-  }
-  .section {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
