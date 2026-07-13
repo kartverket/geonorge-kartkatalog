@@ -1,13 +1,13 @@
 "use client";
 
+import { Button, Details, Divider, Heading } from "@kv-designsystem/react";
 import {
-  MagnifyingGlassIcon,
-  LocationPinIcon,
   DownloadIcon,
-  PersonCircleIcon,
   LanguageIcon,
+  LocationPinIcon,
+  MagnifyingGlassIcon,
+  PersonCircleIcon,
 } from "@navikt/aksel-icons";
-import { Button, Divider, Heading } from "@kv-designsystem/react";
 import Link from "next/link";
 import styles from "./HeaderMenu.module.css";
 
@@ -124,6 +124,30 @@ export function HeaderMenu({
               </li>
             ))}
           </ul>
+          <div className={styles.accordions}>
+            {MENU_SECTIONS.map((section) => (
+              <Details key={section.title} data-color="info">
+                <Details.Summary>{section.title}</Details.Summary>
+                <Details.Content>
+                  <ul className={styles.linkList}>
+                    {section.links.map((link) => (
+                      <li key={link.label}>
+                        {link.href === "/" ? (
+                          <Link href="/" onClick={onNavigate}>
+                            {link.label}
+                          </Link>
+                        ) : (
+                          <a href={link.href} onClick={onNavigate}>
+                            {link.label}
+                          </a>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </Details.Content>
+              </Details>
+            ))}
+          </div>
         </nav>
       </div>
     </div>

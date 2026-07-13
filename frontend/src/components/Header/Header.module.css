@@ -35,8 +35,18 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 500px) {
+  .root {
+    --header-height: var(--ds-size-18);
+  }
+
   .hideOnMobile {
     display: none;
+  }
+
+  .inner {
+    padding-inline: var(--ds-size-4);
+    padding-block: 0;
+    height: var(--header-height);
   }
 }
