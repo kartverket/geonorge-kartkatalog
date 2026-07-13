@@ -28,9 +28,9 @@
   --dsc-button-color: var(--ds-color-neutral-text-default);
 }
 
-.tabletOnly,
-.belowDesktop,
-.mobileOnly {
+.inMenuFromXl,
+.inMenuFromLg,
+.inMenuFromSm {
   display: none;
 }
 

@@ -3,10 +3,10 @@
 import { Button, Details, Divider, Heading } from "@kv-designsystem/react";
 import {
   DownloadIcon,
+  EnterIcon,
   LanguageIcon,
   LocationPinIcon,
   MagnifyingGlassIcon,
-  EnterIcon,
 } from "@navikt/aksel-icons";
 import Link from "next/link";
 import styles from "./HeaderMenu.module.css";
@@ -126,7 +126,7 @@ export function HeaderMenu({
           </ul>
           <div className={styles.accordions}>
             {MENU_SECTIONS.map((section) => (
-              <Details key={section.title} data-color="info">
+              <Details key={section.title}>
                 <Details.Summary>{section.title}</Details.Summary>
                 <Details.Content>
                   <ul className={styles.linkList}>

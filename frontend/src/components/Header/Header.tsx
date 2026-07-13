@@ -3,10 +3,10 @@
 import { Button } from "@kv-designsystem/react";
 import {
   DownloadIcon,
+  EnterIcon,
   LocationPinIcon,
   MagnifyingGlassIcon,
   MenuHamburgerIcon,
-  EnterIcon,
   XMarkIcon,
 } from "@navikt/aksel-icons";
 import Image from "next/image";
