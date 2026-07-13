@@ -11,3 +11,9 @@
 .panel :global(.ds-search) {
   width: min(37.5rem, 100%); /* TODO: verifiser bredde mot skisse */
 }
+
+@media (max-width: 500px) {
+  .panel {
+    padding: var(--ds-size-6) var(--ds-size-4);
+  }
+}
