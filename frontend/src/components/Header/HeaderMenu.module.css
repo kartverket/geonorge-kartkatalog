@@ -86,9 +86,14 @@
   font-weight: var(--ds-heading-xs-font-weight);
 }
 
-@media (max-width: 1000px) {
-  .tabletOnly,
-  .belowDesktop {
+@media (max-width: 1280px) {
+  .inMenuFromXl {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 1024px) {
+  .inMenuFromLg {
     display: inline-flex;
   }
   .section {
@@ -96,13 +101,13 @@
   }
 }
 
-@media (max-width: 500px) {
-  .tabletOnly {
+@media (max-width: 480px) {
+  .inMenuFromXl {
+    /*hvorfor denne her?*/
     display: none;
   }
 
-  .mobileOnly,
-  .belowDesktop {
+  .inMenuFromSm {
     display: inline-flex;
   }
 

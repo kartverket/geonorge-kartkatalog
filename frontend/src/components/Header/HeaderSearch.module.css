@@ -6,14 +6,14 @@
   padding: var(--ds-size-10) var(--ds-size-18);
   display: flex;
   justify-content: center;
-    border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
 .panel :global(.ds-search) {
   width: min(37.5rem, 100%); /* TODO: verifiser bredde mot skisse */
 }
 
-@media (max-width: 500px) {
+@media (max-width: 480px) {
   .panel {
     padding: var(--ds-size-6) var(--ds-size-4);
   }

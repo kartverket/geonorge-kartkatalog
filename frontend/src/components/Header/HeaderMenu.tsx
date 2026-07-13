@@ -65,7 +65,7 @@ export function HeaderMenu({
           <Button
             variant="tertiary"
             data-color="neutral"
-            className={styles.mobileOnly}
+            className={styles.inMenuFromSm}
             onClick={onOpenSearch}
           >
             <MagnifyingGlassIcon aria-hidden />
@@ -74,7 +74,7 @@ export function HeaderMenu({
           <Button
             variant="tertiary"
             data-color="neutral"
-            className={styles.tabletOnly}
+            className={styles.inMenuFromXl}
           >
             <LocationPinIcon aria-hidden />
             Kart
@@ -82,7 +82,7 @@ export function HeaderMenu({
           <Button
             variant="tertiary"
             data-color="neutral"
-            className={styles.tabletOnly}
+            className={styles.inMenuFromXl}
           >
             <DownloadIcon aria-hidden />
             Nedlastingskurv
@@ -94,7 +94,7 @@ export function HeaderMenu({
           <Button
             variant="tertiary"
             data-color="neutral"
-            className={styles.belowDesktop}
+            className={styles.InMenuFromLg}
           >
             <EnterIcon aria-hidden />
             Logg inn
