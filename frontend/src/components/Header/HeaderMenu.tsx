@@ -1,7 +1,13 @@
 "use client";
 
-import { Button, Divider, Heading } from "@kv-designsystem/react";
-import { LanguageIcon } from "@navikt/aksel-icons";
+import { Button, Details, Divider, Heading } from "@kv-designsystem/react";
+import {
+  DownloadIcon,
+  LanguageIcon,
+  LocationPinIcon,
+  MagnifyingGlassIcon,
+  EnterIcon,
+} from "@navikt/aksel-icons";
 import Link from "next/link";
 import styles from "./HeaderMenu.module.css";
 
@@ -45,18 +51,55 @@ const MENU_SECTIONS = [
   },
 ];
 
-export function HeaderMenu({ onNavigate }: { onNavigate: () => void }) {
+export function HeaderMenu({
+  onNavigate,
+  onOpenSearch,
+}: {
+  onNavigate: () => void;
+  onOpenSearch: () => void;
+}) {
   return (
     <div className={styles.panel}>
       <div className={styles.panelInner}>
-        <Button
-          variant="tertiary"
-          data-color="neutral"
-          className={styles.language}
-        >
-          <LanguageIcon aria-hidden />
-          <span>EN</span>
-        </Button>
+        <div className={styles.menuActions}>
+          <Button
+            variant="tertiary"
+            data-color="neutral"
+            className={styles.mobileOnly}
+            onClick={onOpenSearch}
+          >
+            <MagnifyingGlassIcon aria-hidden />
+            Søk
+          </Button>
+          <Button
+            variant="tertiary"
+            data-color="neutral"
+            className={styles.tabletOnly}
+          >
+            <LocationPinIcon aria-hidden />
+            Kart
+          </Button>
+          <Button
+            variant="tertiary"
+            data-color="neutral"
+            className={styles.tabletOnly}
+          >
+            <DownloadIcon aria-hidden />
+            Nedlastingskurv
+          </Button>
+          <Button variant="tertiary" data-color="neutral">
+            <LanguageIcon aria-hidden />
+            <span>EN</span>
+          </Button>
+          <Button
+            variant="tertiary"
+            data-color="neutral"
+            className={styles.belowDesktop}
+          >
+            <EnterIcon aria-hidden />
+            Logg inn
+          </Button>
+        </div>
         <Divider className={styles.divider} />
         <nav aria-label="Hovedmeny" data-color="info">
           <ul className={styles.section}>
@@ -81,6 +124,30 @@ export function HeaderMenu({ onNavigate }: { onNavigate: () => void }) {
               </li>
             ))}
           </ul>
+          <div className={styles.accordions}>
+            {MENU_SECTIONS.map((section) => (
+              <Details key={section.title} data-color="info">
+                <Details.Summary>{section.title}</Details.Summary>
+                <Details.Content>
+                  <ul className={styles.linkList}>
+                    {section.links.map((link) => (
+                      <li key={link.label}>
+                        {link.href === "/" ? (
+                          <Link href="/" onClick={onNavigate}>
+                            {link.label}
+                          </Link>
+                        ) : (
+                          <a href={link.href} onClick={onNavigate}>
+                            {link.label}
+                          </a>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </Details.Content>
+              </Details>
+            ))}
+          </div>
         </nav>
       </div>
     </div>

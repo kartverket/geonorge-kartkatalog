@@ -6,7 +6,7 @@ import {
   LocationPinIcon,
   MagnifyingGlassIcon,
   MenuHamburgerIcon,
-  PersonCircleIcon,
+  EnterIcon,
   XMarkIcon,
 } from "@navikt/aksel-icons";
 import Image from "next/image";
@@ -96,7 +96,7 @@ export function Header() {
               data-color="neutral"
               className={styles.hideOnTablet}
             >
-              <PersonCircleIcon aria-hidden />
+              <EnterIcon aria-hidden />
               Logg inn
             </Button>
             <Button
@@ -118,7 +118,10 @@ export function Header() {
       </header>
       {openPanel === "search" && <HeaderSearch />}
       {openPanel === "menu" && (
-        <HeaderMenu onNavigate={() => setOpenPanel(null)} />
+        <HeaderMenu
+          onNavigate={() => setOpenPanel(null)}
+          onOpenSearch={() => setOpenPanel("search")}
+        />
       )}
     </div>
   );
