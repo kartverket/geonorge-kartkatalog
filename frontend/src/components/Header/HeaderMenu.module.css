@@ -6,6 +6,7 @@
   max-height: 80dvh;
   overflow-y: auto;
   overscroll-behavior: contain;
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
 .panelInner {
