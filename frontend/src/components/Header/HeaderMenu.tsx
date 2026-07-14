@@ -8,8 +8,8 @@ import {
   LocationPinIcon,
   MagnifyingGlassIcon,
 } from "@navikt/aksel-icons";
-import Link from "next/link";
 import type { Route } from "next";
+import Link from "next/link";
 import styles from "./HeaderMenu.module.css";
 
 type MenuLink = { label: string; href: Route };
