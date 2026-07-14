@@ -12,7 +12,10 @@ import Link from "next/link";
 import type { Route } from "next";
 import styles from "./HeaderMenu.module.css";
 
-const MENU_SECTIONS = [
+type MenuLink = { label: string; href: Route };
+type MenuSection = { title: string; links: MenuLink[] };
+
+const MENU_SECTIONS: MenuSection[] = [
   {
     title: "Kartdata",
     links: [
@@ -51,8 +54,6 @@ const MENU_SECTIONS = [
     ],
   },
 ];
-
-type MenuLink = { label: string; href: Route };
 
 function MenuLinkList({
   links,
