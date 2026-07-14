@@ -1,5 +1,12 @@
 @import "@kv-designsystem/react/green";
 
+:root {
+  /* Headerens faste høyde på mobil (≤480px).
+  Brukes av Header.module.css (.inner) og
+  HeaderMenu.module.css (panelhøyde). */
+  --header-height-mobile: var(--ds-size-18);
+}
+
 * {
   box-sizing: border-box;
 }

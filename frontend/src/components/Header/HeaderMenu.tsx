@@ -51,6 +51,28 @@ const MENU_SECTIONS = [
   },
 ];
 
+type MenuLink = { label: string; href: string };
+
+function MenuLinkList({
+  links,
+  onNavigate,
+}: {
+  links: MenuLink[];
+  onNavigate: () => void;
+}) {
+  return (
+    <ul className={styles.linkList}>
+      {links.map((link) => (
+        <li key={link.label}>
+          <Link href={link.href} onClick={onNavigate}>
+            {link.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function HeaderMenu({
   onNavigate,
   onOpenSearch,
@@ -94,7 +116,7 @@ export function HeaderMenu({
           <Button
             variant="tertiary"
             data-color="neutral"
-            className={styles.InMenuFromLg}
+            className={styles.inMenuFromLg}
           >
             <EnterIcon aria-hidden />
             Logg inn
@@ -106,21 +128,7 @@ export function HeaderMenu({
             {MENU_SECTIONS.map((section) => (
               <li key={section.title}>
                 <Heading data-size="sm">{section.title}</Heading>
-                <ul className={styles.linkList}>
-                  {section.links.map((link) => (
-                    <li key={link.label}>
-                      {link.href === "/" ? (
-                        <Link href="/" onClick={onNavigate}>
-                          {link.label}
-                        </Link>
-                      ) : (
-                        <a href={link.href} onClick={onNavigate}>
-                          {link.label}
-                        </a>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+                <MenuLinkList links={section.links} onNavigate={onNavigate} />
               </li>
             ))}
           </ul>
@@ -129,21 +137,7 @@ export function HeaderMenu({
               <Details key={section.title}>
                 <Details.Summary>{section.title}</Details.Summary>
                 <Details.Content>
-                  <ul className={styles.linkList}>
-                    {section.links.map((link) => (
-                      <li key={link.label}>
-                        {link.href === "/" ? (
-                          <Link href="/" onClick={onNavigate}>
-                            {link.label}
-                          </Link>
-                        ) : (
-                          <a href={link.href} onClick={onNavigate}>
-                            {link.label}
-                          </a>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+                  <MenuLinkList links={section.links} onNavigate={onNavigate} />
                 </Details.Content>
               </Details>
             ))}

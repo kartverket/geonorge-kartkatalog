@@ -9,7 +9,7 @@ export function HeaderSearch() {
       <Search data-color="neutral">
         <Search.Input
           aria-label="Søk i kartkatalogen"
-          placeholder="FKB-bygning, Rødlistedearter..."
+          placeholder="FKB-bygning, Rødlistede arter..."
         />
         <Search.Clear />
       </Search>
