@@ -20,23 +20,18 @@ export function ProfileMenu({
         <Avatar aria-hidden data-size="xs" />
         {userName}
       </Dropdown.Trigger>
-      <Dropdown>
+      <Dropdown data-color="neutral">
         <Dropdown.Heading>Velg profil</Dropdown.Heading>
         <Dropdown.List>
           <Dropdown.Item>
             <Dropdown.Button>
-              <Avatar aria-hidden data-size="xs" data-color="neutral" />
+              <Avatar aria-hidden data-size="xs" />
               Frodo Baggins
             </Dropdown.Button>
           </Dropdown.Item>
           <Dropdown.Item>
             <Dropdown.Button>
-              <Avatar
-                aria-hidden
-                data-size="xs"
-                variant="square"
-                data-color="neutral"
-              >
+              <Avatar aria-hidden data-size="xs" variant="square">
                 <Buildings2Icon />
               </Avatar>
               Oslo kommune
