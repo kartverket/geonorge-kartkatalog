@@ -103,7 +103,8 @@
 
 @media (max-width: 480px) {
   .inMenuFromXl {
-    /*hvorfor denne her?*/
+    /* Kart og Nedlastingskurv skal
+    ikke vises på mobil */
     display: none;
   }
 
