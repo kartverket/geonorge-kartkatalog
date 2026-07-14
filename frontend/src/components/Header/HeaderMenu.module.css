@@ -126,7 +126,8 @@
   }
 
   .panel {
-    height: calc(100dvh - var(--header-height) - 1px);
+    /* --header-height er definert i globals.css */
+    height: calc(100dvh - var(--header-height-mobile) - 1px);
     max-height: none;
   }
 

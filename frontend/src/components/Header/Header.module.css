@@ -45,13 +45,10 @@
   .showFromSm {
     display: none; /* Søk og meny tekst */
   }
-  .root {
-    --header-height: var(--ds-size-18);
-  }
 
   .inner {
     padding-inline: var(--ds-size-4);
     padding-block: 0;
-    height: var(--header-height);
+    height: var(--header-height-mobile);
   }
 }
