@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@kv-designsystem/react";
+import { Avatar, Button } from "@kv-designsystem/react";
 import {
   DownloadIcon,
   EnterIcon,
@@ -21,6 +21,11 @@ export function Header() {
   const togglePanel = (panel: "search" | "menu") => {
     setOpenPanel((prev) => (prev === panel ? null : panel));
   };
+
+  // Midlertidig til vi har innlogging koblet på
+  const user = { name: "Frodo Baggins" };
+  // const user = null; // test utlogget tilstand
+
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -91,14 +96,25 @@ export function Header() {
               <DownloadIcon aria-hidden />
               Nedlastingskurv
             </Button>
-            <Button
-              variant="tertiary"
-              data-color="neutral"
-              className={styles.showFromLg}
-            >
-              <EnterIcon aria-hidden />
-              Logg inn
-            </Button>
+            {user ? (
+              <Button
+                variant="tertiary"
+                data-color="neutral"
+                className={styles.showFromLg}
+              >
+                <Avatar aria-hidden data-size="xs" />
+                {user.name}
+              </Button>
+            ) : (
+              <Button
+                variant="tertiary"
+                data-color="neutral"
+                className={styles.showFromLg}
+              >
+                <EnterIcon aria-hidden />
+                Logg inn
+              </Button>
+            )}
             <Button
               variant="tertiary"
               data-color="neutral"
