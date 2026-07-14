@@ -3,10 +3,10 @@
 import { Button } from "@kv-designsystem/react";
 import {
   DownloadIcon,
+  EnterIcon,
   LocationPinIcon,
   MagnifyingGlassIcon,
   MenuHamburgerIcon,
-  EnterIcon,
   XMarkIcon,
 } from "@navikt/aksel-icons";
 import Image from "next/image";
@@ -64,7 +64,7 @@ export function Header() {
             <Button
               variant="tertiary"
               data-color="neutral"
-              className={styles.hideOnMobile}
+              className={styles.showFromSm}
               aria-expanded={openPanel === "search"}
               onClick={() => togglePanel("search")}
             >
@@ -78,7 +78,7 @@ export function Header() {
             <Button
               variant="tertiary"
               data-color="neutral"
-              className={styles.hideOnTablet}
+              className={styles.showFromXl}
             >
               <LocationPinIcon aria-hidden />
               Kart
@@ -86,7 +86,7 @@ export function Header() {
             <Button
               variant="tertiary"
               data-color="neutral"
-              className={styles.hideOnTablet}
+              className={styles.showFromXl}
             >
               <DownloadIcon aria-hidden />
               Nedlastingskurv
@@ -94,7 +94,7 @@ export function Header() {
             <Button
               variant="tertiary"
               data-color="neutral"
-              className={styles.hideOnTablet}
+              className={styles.showFromLg}
             >
               <EnterIcon aria-hidden />
               Logg inn
@@ -111,7 +111,7 @@ export function Header() {
               ) : (
                 <MenuHamburgerIcon aria-hidden />
               )}
-              <span className={styles.hideOnMobile}>Meny</span>
+              <span className={styles.showFromSm}>Meny</span>
             </Button>
           </div>
         </div>

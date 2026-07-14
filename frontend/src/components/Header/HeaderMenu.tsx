@@ -3,10 +3,10 @@
 import { Button, Details, Divider, Heading } from "@kv-designsystem/react";
 import {
   DownloadIcon,
+  EnterIcon,
   LanguageIcon,
   LocationPinIcon,
   MagnifyingGlassIcon,
-  EnterIcon,
 } from "@navikt/aksel-icons";
 import Link from "next/link";
 import styles from "./HeaderMenu.module.css";
@@ -65,7 +65,7 @@ export function HeaderMenu({
           <Button
             variant="tertiary"
             data-color="neutral"
-            className={styles.mobileOnly}
+            className={styles.inMenuFromSm}
             onClick={onOpenSearch}
           >
             <MagnifyingGlassIcon aria-hidden />
@@ -74,7 +74,7 @@ export function HeaderMenu({
           <Button
             variant="tertiary"
             data-color="neutral"
-            className={styles.tabletOnly}
+            className={styles.inMenuFromXl}
           >
             <LocationPinIcon aria-hidden />
             Kart
@@ -82,7 +82,7 @@ export function HeaderMenu({
           <Button
             variant="tertiary"
             data-color="neutral"
-            className={styles.tabletOnly}
+            className={styles.inMenuFromXl}
           >
             <DownloadIcon aria-hidden />
             Nedlastingskurv
@@ -94,7 +94,7 @@ export function HeaderMenu({
           <Button
             variant="tertiary"
             data-color="neutral"
-            className={styles.belowDesktop}
+            className={styles.InMenuFromLg}
           >
             <EnterIcon aria-hidden />
             Logg inn
@@ -126,7 +126,7 @@ export function HeaderMenu({
           </ul>
           <div className={styles.accordions}>
             {MENU_SECTIONS.map((section) => (
-              <Details key={section.title} data-color="info">
+              <Details key={section.title}>
                 <Details.Summary>{section.title}</Details.Summary>
                 <Details.Content>
                   <ul className={styles.linkList}>

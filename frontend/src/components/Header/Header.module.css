@@ -29,19 +29,24 @@
   --dsc-button-color: var(--ds-color-neutral-text-default);
 }
 
-@media (max-width: 1000px) {
-  .hideOnTablet {
-    display: none;
+@media (max-width: 1280px) {
+  .showFromXl {
+    display: none; /* kart, nedlastingskurv */
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 1024px) {
+  .showFromLg {
+    display: none; /* Logg inn */
+  }
+}
+
+@media (max-width: 480px) {
+  .showFromSm {
+    display: none; /* Søk og meny tekst */
+  }
   .root {
     --header-height: var(--ds-size-18);
-  }
-
-  .hideOnMobile {
-    display: none;
   }
 
   .inner {
