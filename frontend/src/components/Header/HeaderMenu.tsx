@@ -9,6 +9,7 @@ import {
   MagnifyingGlassIcon,
 } from "@navikt/aksel-icons";
 import Link from "next/link";
+import type { Route } from "next";
 import styles from "./HeaderMenu.module.css";
 
 const MENU_SECTIONS = [
@@ -51,7 +52,7 @@ const MENU_SECTIONS = [
   },
 ];
 
-type MenuLink = { label: string; href: string };
+type MenuLink = { label: string; href: Route };
 
 function MenuLinkList({
   links,
