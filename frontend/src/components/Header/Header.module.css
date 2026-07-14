@@ -1,3 +1,6 @@
+/* Brytepunkter: 1280 / 1024 / 480,
+må matche de andre Header-filene */
+
 .root {
   position: sticky;
   top: 0;
