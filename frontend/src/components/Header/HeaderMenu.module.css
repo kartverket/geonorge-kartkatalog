@@ -135,6 +135,6 @@ må matche de andre Header-filene */
   }
 
   .menuActions {
-    justify-content: right;
+    justify-content: flex-end;
   }
 }

@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderSearch } from "./HeaderSearch";
-import { ProfileMenu } from "./ProfileMenu";
+import { ProfileDropdown } from "./ProfileDropdown";
 
 export function Header() {
   const [openPanel, setOpenPanel] = useState<"search" | "menu" | null>(null);
@@ -98,7 +98,7 @@ export function Header() {
               Nedlastingskurv
             </Button>
             {user ? (
-              <ProfileMenu userName={user.name} className={styles.showFromSm} />
+              <ProfileDropdown userName={user.name} className={styles.showFromSm} />
             ) : (
               <Button
                 variant="tertiary"
