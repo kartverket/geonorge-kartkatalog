@@ -41,7 +41,7 @@ export function ProfileDropdown({
         <Divider />
         <Dropdown.List>
           <Dropdown.Item>
-            <Dropdown.Button>
+            <Dropdown.Button data-color="danger">
               <LeaveIcon aria-hidden />
               Logg ut
             </Dropdown.Button>

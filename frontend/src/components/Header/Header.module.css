@@ -28,7 +28,7 @@ må matche de andre Header-filene */
   gap: var(--ds-size-12);
 }
 
-.actions :global(.ds-button) {
+.actions > :global(.ds-button) {
   --dsc-button-color: var(--ds-color-neutral-text-default);
 }
 
