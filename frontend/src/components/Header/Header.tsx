@@ -14,12 +14,15 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
+import { HeaderProfile } from "./HeaderProfile";
 import { HeaderSearch } from "./HeaderSearch";
 import { ProfileDropdown } from "./ProfileDropdown";
 
 export function Header() {
-  const [openPanel, setOpenPanel] = useState<"search" | "menu" | null>(null);
-  const togglePanel = (panel: "search" | "menu") => {
+  const [openPanel, setOpenPanel] = useState<
+    "search" | "menu" | "profile" | null
+  >(null);
+  const togglePanel = (panel: "search" | "menu" | "profile") => {
     setOpenPanel((prev) => (prev === panel ? null : panel));
   };
 
@@ -98,7 +101,22 @@ export function Header() {
               Nedlastingskurv
             </Button>
             {user ? (
-              <ProfileDropdown userName={user.name} className={styles.showFromSm} />
+              <>
+                <ProfileDropdown
+                  userName={user.name}
+                  className={styles.showFromLg}
+                />
+                <Button
+                  variant="tertiary"
+                  data-color="neutral"
+                  className={styles.tabletOnly}
+                  aria-expanded={openPanel === "profile"}
+                  onClick={() => togglePanel("profile")}
+                >
+                  <Avatar aria-hidden data-size="xs" />
+                  {user.name}
+                </Button>
+              </>
             ) : (
               <Button
                 variant="tertiary"
@@ -133,6 +151,7 @@ export function Header() {
           onOpenSearch={() => setOpenPanel("search")}
         />
       )}
+      {openPanel === "profile" && <HeaderProfile />}
     </div>
   );
 }

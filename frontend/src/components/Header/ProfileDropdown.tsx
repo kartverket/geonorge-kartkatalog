@@ -3,7 +3,7 @@
 import { Avatar, Divider, Dropdown } from "@kv-designsystem/react";
 import { Buildings2Icon, LeaveIcon } from "@navikt/aksel-icons";
 
-export function profileDropdown({
+export function ProfileDropdown({
   userName,
   className,
 }: {

@@ -32,7 +32,8 @@ må matche de andre Header-filene */
 }
 
 .inMenuFromXl,
-.inMenuFromSm { /*bytte navn til inMenuFrom800?*/
+.inMenuFromSm {
+  /*bytte navn til inMenuFrom800?*/
   display: none;
 }
 
