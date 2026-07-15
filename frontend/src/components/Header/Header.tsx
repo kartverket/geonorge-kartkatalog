@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@kv-designsystem/react";
+import { Avatar, Button } from "@kv-designsystem/react";
 import {
   DownloadIcon,
   EnterIcon,
@@ -15,12 +15,18 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderSearch } from "./HeaderSearch";
+import { ProfileMenu } from "./ProfileMenu";
 
 export function Header() {
   const [openPanel, setOpenPanel] = useState<"search" | "menu" | null>(null);
   const togglePanel = (panel: "search" | "menu") => {
     setOpenPanel((prev) => (prev === panel ? null : panel));
   };
+
+  // Midlertidig til vi har innlogging koblet på
+  const user = { name: "Frodo Baggins" };
+  // const user = null; // test utlogget tilstand
+
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -91,14 +97,18 @@ export function Header() {
               <DownloadIcon aria-hidden />
               Nedlastingskurv
             </Button>
-            <Button
-              variant="tertiary"
-              data-color="neutral"
-              className={styles.showFromLg}
-            >
-              <EnterIcon aria-hidden />
-              Logg inn
-            </Button>
+            {user ? (
+              <ProfileMenu userName={user.name} className={styles.showFromLg} />
+            ) : (
+              <Button
+                variant="tertiary"
+                data-color="neutral"
+                className={styles.showFromLg}
+              >
+                <EnterIcon aria-hidden />
+                Logg inn
+              </Button>
+            )}
             <Button
               variant="tertiary"
               data-color="neutral"

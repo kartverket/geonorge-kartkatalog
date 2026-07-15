@@ -8,10 +8,14 @@ import {
   LocationPinIcon,
   MagnifyingGlassIcon,
 } from "@navikt/aksel-icons";
+import type { Route } from "next";
 import Link from "next/link";
 import styles from "./HeaderMenu.module.css";
 
-const MENU_SECTIONS = [
+type MenuLink = { label: string; href: Route };
+type MenuSection = { title: string; links: MenuLink[] };
+
+const MENU_SECTIONS: MenuSection[] = [
   {
     title: "Kartdata",
     links: [
@@ -50,8 +54,6 @@ const MENU_SECTIONS = [
     ],
   },
 ];
-
-type MenuLink = { label: string; href: string };
 
 function MenuLinkList({
   links,
