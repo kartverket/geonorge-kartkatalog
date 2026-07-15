@@ -148,7 +148,7 @@ export function Header() {
       {openPanel === "menu" && (
         <HeaderMenu
           onNavigate={() => setOpenPanel(null)}
-          onOpenSearch={() => setOpenPanel("search")}
+          userName={user?.name}
         />
       )}
       {openPanel === "profile" && <HeaderProfile />}
