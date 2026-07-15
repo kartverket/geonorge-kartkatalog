@@ -1,4 +1,4 @@
-/* Brytepunkter: 1280 / 1024 / 480,
+/* Brytepunkter: 1280 / 1024 / 800,
 må matche de andre Header-filene */
 
 .panel {
@@ -32,8 +32,7 @@ må matche de andre Header-filene */
 }
 
 .inMenuFromXl,
-.inMenuFromLg,
-.inMenuFromSm {
+.inMenuFromSm { /*bytte navn til inMenuFrom800?*/
   display: none;
 }
 
@@ -96,15 +95,12 @@ må matche de andre Header-filene */
 }
 
 @media (max-width: 1024px) {
-  .inMenuFromLg {
-    display: inline-flex;
-  }
   .section {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 800px) {
   .inMenuFromXl {
     /* Kart og Nedlastingskurv skal
     ikke vises på mobil */
@@ -139,6 +135,6 @@ må matche de andre Header-filene */
   }
 
   .menuActions {
-    justify-content: center;
+    justify-content: right;
   }
 }

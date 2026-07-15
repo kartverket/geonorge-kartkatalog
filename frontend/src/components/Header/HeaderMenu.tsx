@@ -118,7 +118,7 @@ export function HeaderMenu({
           <Button
             variant="tertiary"
             data-color="neutral"
-            className={styles.inMenuFromLg}
+            className={styles.inMenuFromSm}
           >
             <EnterIcon aria-hidden />
             Logg inn

@@ -98,12 +98,12 @@ export function Header() {
               Nedlastingskurv
             </Button>
             {user ? (
-              <ProfileMenu userName={user.name} className={styles.showFromLg} />
+              <ProfileMenu userName={user.name} className={styles.showFromSm} />
             ) : (
               <Button
                 variant="tertiary"
                 data-color="neutral"
-                className={styles.showFromLg}
+                className={styles.showFromSm}
               >
                 <EnterIcon aria-hidden />
                 Logg inn

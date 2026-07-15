@@ -1,4 +1,4 @@
-/* Brytepunkter: 1280 / 1024 / 480,
+/* Brytepunkter: 1280 / 1024 / 800,
 må matche de andre Header-filene */
 
 .panel {
@@ -16,7 +16,7 @@ må matche de andre Header-filene */
   width: min(37.5rem, 100%); /* TODO: verifiser bredde mot skisse */
 }
 
-@media (max-width: 480px) {
+@media (max-width: 800px) {
   .panel {
     padding: var(--ds-size-6) var(--ds-size-4);
   }
