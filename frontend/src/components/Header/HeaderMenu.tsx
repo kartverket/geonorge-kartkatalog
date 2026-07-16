@@ -1,6 +1,12 @@
 "use client";
 
-import { Button, Details, Divider, Heading } from "@kv-designsystem/react";
+import {
+  Avatar,
+  Button,
+  Details,
+  Divider,
+  Heading,
+} from "@kv-designsystem/react";
 import {
   DownloadIcon,
   EnterIcon,
@@ -10,7 +16,10 @@ import {
 } from "@navikt/aksel-icons";
 import type { Route } from "next";
 import Link from "next/link";
+import { useState } from "react";
 import styles from "./HeaderMenu.module.css";
+import { ProfileContent } from "./ProfileContent";
+import { SearchField } from "./SearchField";
 
 type MenuLink = { label: string; href: Route };
 type MenuSection = { title: string; links: MenuLink[] };
@@ -77,11 +86,12 @@ function MenuLinkList({
 
 export function HeaderMenu({
   onNavigate,
-  onOpenSearch,
+  userName,
 }: {
   onNavigate: () => void;
-  onOpenSearch: () => void;
+  userName?: string;
 }) {
+  const [view, setView] = useState<"nav" | "search" | "profile">("nav");
   return (
     <div className={styles.panel}>
       <div className={styles.panelInner}>
@@ -90,7 +100,8 @@ export function HeaderMenu({
             variant="tertiary"
             data-color="neutral"
             className={styles.inMenuFromSm}
-            onClick={onOpenSearch}
+            aria-expanded={view === "search"}
+            onClick={() => setView(view === "search" ? "nav" : "search")}
           >
             <MagnifyingGlassIcon aria-hidden />
             Søk
@@ -115,36 +126,58 @@ export function HeaderMenu({
             <LanguageIcon aria-hidden />
             <span>EN</span>
           </Button>
-          <Button
-            variant="tertiary"
-            data-color="neutral"
-            className={styles.inMenuFromSm}
-          >
-            <EnterIcon aria-hidden />
-            Logg inn
-          </Button>
+          {userName ? (
+            <Button
+              variant="tertiary"
+              data-color="neutral"
+              className={styles.inMenuFromSm}
+              aria-expanded={view === "profile"}
+              onClick={() => setView(view === "profile" ? "nav" : "profile")}
+            >
+              <Avatar aria-hidden data-size="xs" />
+              {userName}
+            </Button>
+          ) : (
+            <Button
+              variant="tertiary"
+              data-color="neutral"
+              className={styles.inMenuFromSm}
+            >
+              <EnterIcon aria-hidden />
+              Logg inn
+            </Button>
+          )}
         </div>
         <Divider className={styles.divider} />
-        <nav aria-label="Hovedmeny" data-color="info">
-          <ul className={styles.section}>
-            {MENU_SECTIONS.map((section) => (
-              <li key={section.title}>
-                <Heading data-size="sm">{section.title}</Heading>
-                <MenuLinkList links={section.links} onNavigate={onNavigate} />
-              </li>
-            ))}
-          </ul>
-          <div className={styles.accordions}>
-            {MENU_SECTIONS.map((section) => (
-              <Details key={section.title}>
-                <Details.Summary>{section.title}</Details.Summary>
-                <Details.Content>
+        {view === "search" ? (
+          <SearchField />
+        ) : view === "profile" ? (
+          <ProfileContent />
+        ) : (
+          <nav aria-label="Hovedmeny" data-color="info">
+            <ul className={styles.section}>
+              {MENU_SECTIONS.map((section) => (
+                <li key={section.title}>
+                  <Heading data-size="sm">{section.title}</Heading>
                   <MenuLinkList links={section.links} onNavigate={onNavigate} />
-                </Details.Content>
-              </Details>
-            ))}
-          </div>
-        </nav>
+                </li>
+              ))}
+            </ul>
+            <div className={styles.accordions}>
+              {MENU_SECTIONS.map((section) => (
+                <Details key={section.title}>
+                  <Details.Summary>{section.title}</Details.Summary>
+                  <Details.Content>
+                    <MenuLinkList
+                      links={section.links}
+                      onNavigate={onNavigate}
+                    />
+                  </Details.Content>
+                </Details>
+              ))}
+            </div>
+          </nav>
+        )}
       </div>
     </div>
   );

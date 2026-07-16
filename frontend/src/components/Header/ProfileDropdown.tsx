@@ -3,7 +3,7 @@
 import { Avatar, Divider, Dropdown } from "@kv-designsystem/react";
 import { Buildings2Icon, LeaveIcon } from "@navikt/aksel-icons";
 
-export function ProfileMenu({
+export function ProfileDropdown({
   userName,
   className,
 }: {
@@ -41,7 +41,7 @@ export function ProfileMenu({
         <Divider />
         <Dropdown.List>
           <Dropdown.Item>
-            <Dropdown.Button>
+            <Dropdown.Button data-color="danger">
               <LeaveIcon aria-hidden />
               Logg ut
             </Dropdown.Button>

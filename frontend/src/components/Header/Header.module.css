@@ -28,8 +28,12 @@ må matche de andre Header-filene */
   gap: var(--ds-size-12);
 }
 
-.actions :global(.ds-button) {
+.actions > :global(.ds-button) {
   --dsc-button-color: var(--ds-color-neutral-text-default);
+}
+
+.tabletOnly {
+  display: none;
 }
 
 @media (max-width: 1280px) {
@@ -38,9 +42,23 @@ må matche de andre Header-filene */
   }
 }
 
+@media (max-width: 1024px) {
+  .showFromLg {
+    display: none; /* Logg inn */
+  }
+
+  .tabletOnly {
+    display: inline-flex;
+  }
+}
+
 @media (max-width: 800px) {
   .showFromSm { /*bytte navn til showFrom800?*/
     display: none; /* Søk og meny tekst */
+  }
+
+  .tabletOnly {
+    display: none;
   }
 
   .inner {

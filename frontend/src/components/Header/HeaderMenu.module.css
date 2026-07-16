@@ -32,7 +32,8 @@ må matche de andre Header-filene */
 }
 
 .inMenuFromXl,
-.inMenuFromSm { /*bytte navn til inMenuFrom800?*/
+.inMenuFromSm {
+  /*bytte navn til inMenuFrom800?*/
   display: none;
 }
 
@@ -88,6 +89,10 @@ må matche de andre Header-filene */
   font-weight: var(--ds-heading-xs-font-weight);
 }
 
+.accordions :global(.ds-details:first-child) {
+  border-top: 0;
+}
+
 @media (max-width: 1280px) {
   .inMenuFromXl {
     display: inline-flex;
@@ -111,30 +116,28 @@ må matche de andre Header-filene */
     display: inline-flex;
   }
 
+  .panelInner {
+    padding: var(--ds-size-8) var(--ds-size-4);
+    gap: var(--ds-size-6);
+  }
+
   .divider {
-    display: none;
+    margin-block: 0;
+  }
+
+  .accordions {
+    display: block;
+    /* opphever accordions topp-padding så alle visninger får lik avstand fra streken */
+    margin-top: calc(-1 * var(--ds-size-4));
   }
 
   .section {
     display: none;
   }
 
-  .accordions {
-    display: block;
-    margin-top: var(--ds-size-8);
-  }
-
   .panel {
     /* --header-height er definert i globals.css */
     height: calc(100dvh - var(--header-height-mobile) - 1px);
     max-height: none;
-  }
-
-  .panelInner {
-    padding: var(--ds-size-8) var(--ds-size-4);
-  }
-
-  .menuActions {
-    justify-content: right;
   }
 }
