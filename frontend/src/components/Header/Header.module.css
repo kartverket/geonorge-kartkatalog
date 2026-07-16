@@ -1,10 +1,20 @@
-/* Brytepunkter: 1280 / 1024 / 800,
+/* Brytepunkter: xl=1280 / lg=1024 / sm=800,
 må matche de andre Header-filene */
 
 .root {
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+/*felles styling for panelene under headeren (søk/meny/profil)
+Brukes via composes fra de andre Header-filene */
+.panelBase {
+  position: absolute;
+  top: 100%;
+  inset-inline: 0;
+  background: var(--ds-color-neutral-background-default);
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
 .header {
@@ -53,7 +63,7 @@ må matche de andre Header-filene */
 }
 
 @media (max-width: 800px) {
-  .showFromSm { /*bytte navn til showFrom800?*/
+  .showFromSm {
     display: none; /* Søk og meny tekst */
   }
 

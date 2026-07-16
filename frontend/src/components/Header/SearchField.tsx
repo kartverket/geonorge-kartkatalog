@@ -1,6 +1,6 @@
 "use client";
 
-import { Divider, Search } from "@kv-designsystem/react";
+import { Search } from "@kv-designsystem/react";
 
 export function SearchField() {
   return (
@@ -8,6 +8,7 @@ export function SearchField() {
       <Search.Input
         aria-label="Søk i kartkatalogen"
         placeholder="FKB-bygning, Rødlistede arter..."
+        autoFocus
       />
       <Search.Clear />
     </Search>

@@ -31,6 +31,9 @@ export function Header() {
   // const user = null; // test utlogget tilstand
 
   const rootRef = useRef<HTMLDivElement>(null);
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const profileButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!openPanel) return;
@@ -44,6 +47,8 @@ export function Header() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setOpenPanel(null);
+        if (openPanel === "search") searchButtonRef.current?.focus();
+        if (openPanel === "menu") menuButtonRef.current?.focus();
       }
     };
 
@@ -71,10 +76,12 @@ export function Header() {
           </Link>
           <div className={styles.actions}>
             <Button
+              ref={searchButtonRef}
               variant="tertiary"
               data-color="neutral"
               className={styles.showFromSm}
               aria-expanded={openPanel === "search"}
+              aria-controls="header-search-panel"
               onClick={() => togglePanel("search")}
             >
               {openPanel === "search" ? (
@@ -107,10 +114,12 @@ export function Header() {
                   className={styles.showFromLg}
                 />
                 <Button
+                  ref={profileButtonRef}
                   variant="tertiary"
                   data-color="neutral"
                   className={styles.tabletOnly}
                   aria-expanded={openPanel === "profile"}
+                  aria-controls="header-profile-panel"
                   onClick={() => togglePanel("profile")}
                 >
                   <Avatar aria-hidden data-size="xs" />
@@ -128,10 +137,12 @@ export function Header() {
               </Button>
             )}
             <Button
+              ref={menuButtonRef}
               variant="tertiary"
               data-color="neutral"
               aria-label="Meny"
               aria-expanded={openPanel === "menu"}
+              aria-controls="header-menu-panel"
               onClick={() => togglePanel("menu")}
             >
               {openPanel === "menu" ? (

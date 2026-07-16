@@ -1,15 +1,11 @@
-/* Brytepunkter: 1280 / 1024 / 800,
+/* Brytepunkter: xl=1280 / lg=1024 / sm=800,
 må matche de andre Header-filene */
 
 .panel {
-  position: absolute;
-  top: 100%;
-  inset-inline: 0;
-  background: var(--ds-color-neutral-background-default);
+  composes: panelBase from "./Header.module.css";
   padding: var(--ds-size-10) var(--ds-size-18);
   display: flex;
   justify-content: center;
-  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
 .panel :global(.ds-search) {

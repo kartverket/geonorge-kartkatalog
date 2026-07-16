@@ -1,9 +1,5 @@
 .panel {
-  position: absolute;
-  top: 100%;
-  inset-inline: 0;
-  background: var(--ds-color-neutral-background-default);
-  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+  composes: panelBase from "./Header.module.css";
 }
 
 .inner {
