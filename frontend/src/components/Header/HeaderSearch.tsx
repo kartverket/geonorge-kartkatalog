@@ -5,7 +5,7 @@ import { SearchField } from "./SearchField";
 
 export function HeaderSearch() {
   return (
-    <search className={styles.panel}>
+    <search id="header-search-panel" className={styles.panel}>
       <SearchField />
     </search>
   );

@@ -81,6 +81,7 @@ export function Header() {
               data-color="neutral"
               className={styles.showFromSm}
               aria-expanded={openPanel === "search"}
+              aria-controls="header-search-panel"
               onClick={() => togglePanel("search")}
             >
               {openPanel === "search" ? (
@@ -118,6 +119,7 @@ export function Header() {
                   data-color="neutral"
                   className={styles.tabletOnly}
                   aria-expanded={openPanel === "profile"}
+                  aria-controls="header-profile-panel"
                   onClick={() => togglePanel("profile")}
                 >
                   <Avatar aria-hidden data-size="xs" />
@@ -140,6 +142,7 @@ export function Header() {
               data-color="neutral"
               aria-label="Meny"
               aria-expanded={openPanel === "menu"}
+              aria-controls="header-menu-panel"
               onClick={() => togglePanel("menu")}
             >
               {openPanel === "menu" ? (

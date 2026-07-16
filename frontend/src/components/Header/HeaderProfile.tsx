@@ -5,7 +5,7 @@ import { ProfileContent } from "./ProfileContent";
 
 export function HeaderProfile() {
   return (
-    <div className={styles.panel}>
+    <div id="header-profile-panel" className={styles.panel}>
       <div className={styles.inner}>
         <ProfileContent />
       </div>
