@@ -8,6 +8,7 @@ export function SearchField() {
       <Search.Input
         aria-label="Søk i kartkatalogen"
         placeholder="FKB-bygning, Rødlistede arter..."
+        autoFocus
       />
       <Search.Clear />
     </Search>
