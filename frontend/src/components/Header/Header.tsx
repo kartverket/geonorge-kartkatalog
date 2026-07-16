@@ -100,8 +100,14 @@ export function Header() {
               data-color="neutral"
               className={styles.showFromXl}
             >
-              <Badge.Position overlap="circle">
-                <Badge count={downloadCount} data-color="neutral" />
+              <Badge.Position
+                overlap="circle"
+                placement="top-left"
+                className={styles.badge}
+              >
+                {mapCount > 0 && (
+                  <Badge count={mapCount} data-color="neutral" />
+                )}
                 <LocationPinIcon aria-hidden />
               </Badge.Position>
               Kart
@@ -111,8 +117,12 @@ export function Header() {
               data-color="neutral"
               className={styles.showFromXl}
             >
-              <Badge.Position overlap="circle">
-                {mapCount > 0 && (
+              <Badge.Position
+                overlap="circle"
+                placement="top-left"
+                className={styles.badge}
+              >
+                {downloadCount > 0 && (
                   <Badge count={downloadCount} data-color="danger" />
                 )}
                 <DownloadIcon aria-hidden />
@@ -172,6 +182,8 @@ export function Header() {
         <HeaderMenu
           onNavigate={() => setOpenPanel(null)}
           userName={user?.name}
+          mapCount={mapCount}
+          downloadCount={downloadCount}
         />
       )}
       {openPanel === "profile" && <HeaderProfile />}
