@@ -46,6 +46,10 @@ Brukes via composes fra de andre Header-filene */
   display: none;
 }
 
+.badge {
+  --dsc-badge-left: -1px;
+}
+
 @media (max-width: 1280px) {
   .showFromXl {
     display: none; /* kart, nedlastingskurv */

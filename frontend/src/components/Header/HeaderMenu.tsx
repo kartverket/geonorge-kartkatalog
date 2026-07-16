@@ -2,6 +2,7 @@
 
 import {
   Avatar,
+  Badge,
   Button,
   Details,
   Divider,
@@ -87,9 +88,13 @@ function MenuLinkList({
 export function HeaderMenu({
   onNavigate,
   userName,
+  mapCount,
+  downloadCount,
 }: {
   onNavigate: () => void;
   userName?: string;
+  mapCount: number;
+  downloadCount: number;
 }) {
   const [view, setView] = useState<"nav" | "search" | "profile">("nav");
   return (
@@ -111,7 +116,14 @@ export function HeaderMenu({
             data-color="neutral"
             className={styles.inMenuFromXl}
           >
-            <LocationPinIcon aria-hidden />
+            <Badge.Position
+              overlap="circle"
+              placement="top-left"
+              className={styles.badge}
+            >
+              {mapCount > 0 && <Badge count={mapCount} data-color="neutral" />}
+              <LocationPinIcon aria-hidden />
+            </Badge.Position>
             Kart
           </Button>
           <Button
@@ -119,7 +131,16 @@ export function HeaderMenu({
             data-color="neutral"
             className={styles.inMenuFromXl}
           >
-            <DownloadIcon aria-hidden />
+            <Badge.Position
+              overlap="circle"
+              placement="top-left"
+              className={styles.badge}
+            >
+              {downloadCount > 0 && (
+                <Badge count={downloadCount} data-color="danger" />
+              )}
+              <DownloadIcon aria-hidden />
+            </Badge.Position>
             Nedlastingskurv
           </Button>
           <Button variant="tertiary" data-color="neutral">

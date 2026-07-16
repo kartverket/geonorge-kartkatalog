@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Button } from "@kv-designsystem/react";
+import { Avatar, Badge, Button } from "@kv-designsystem/react";
 import {
   DownloadIcon,
   EnterIcon,
@@ -29,6 +29,10 @@ export function Header() {
   // Midlertidig til vi har innlogging koblet på
   const user = { name: "Frodo Baggins" };
   // const user = null; // test utlogget tilstand
+
+  // Midlertidig til nedlasting/kart-state kobles på (produktsiden)
+  const mapCount = 1;
+  const downloadCount = 5;
 
   const rootRef = useRef<HTMLDivElement>(null);
   const searchButtonRef = useRef<HTMLButtonElement>(null);
@@ -96,7 +100,16 @@ export function Header() {
               data-color="neutral"
               className={styles.showFromXl}
             >
-              <LocationPinIcon aria-hidden />
+              <Badge.Position
+                overlap="circle"
+                placement="top-left"
+                className={styles.badge}
+              >
+                {mapCount > 0 && (
+                  <Badge count={mapCount} data-color="neutral" />
+                )}
+                <LocationPinIcon aria-hidden />
+              </Badge.Position>
               Kart
             </Button>
             <Button
@@ -104,7 +117,16 @@ export function Header() {
               data-color="neutral"
               className={styles.showFromXl}
             >
-              <DownloadIcon aria-hidden />
+              <Badge.Position
+                overlap="circle"
+                placement="top-left"
+                className={styles.badge}
+              >
+                {downloadCount > 0 && (
+                  <Badge count={downloadCount} data-color="danger" />
+                )}
+                <DownloadIcon aria-hidden />
+              </Badge.Position>
               Nedlastingskurv
             </Button>
             {user ? (
@@ -160,6 +182,8 @@ export function Header() {
         <HeaderMenu
           onNavigate={() => setOpenPanel(null)}
           userName={user?.name}
+          mapCount={mapCount}
+          downloadCount={downloadCount}
         />
       )}
       {openPanel === "profile" && <HeaderProfile />}
