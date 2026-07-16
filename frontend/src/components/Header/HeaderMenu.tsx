@@ -93,8 +93,8 @@ export function HeaderMenu({
 }: {
   onNavigate: () => void;
   userName?: string;
-  mapCount?: number;
-  downloadCount?: number;
+  mapCount: number;
+  downloadCount: number;
 }) {
   const [view, setView] = useState<"nav" | "search" | "profile">("nav");
   return (
@@ -121,9 +121,7 @@ export function HeaderMenu({
               placement="top-left"
               className={styles.badge}
             >
-              {mapCount > 0 && (
-                <Badge count={mapCount} data-color="neutral" />
-              )}
+              {mapCount > 0 && <Badge count={mapCount} data-color="neutral" />}
               <LocationPinIcon aria-hidden />
             </Badge.Position>
             Kart

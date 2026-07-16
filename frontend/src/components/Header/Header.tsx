@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Button, Badge } from "@kv-designsystem/react";
+import { Avatar, Badge, Button } from "@kv-designsystem/react";
 import {
   DownloadIcon,
   EnterIcon,
