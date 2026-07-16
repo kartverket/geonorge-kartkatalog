@@ -53,7 +53,8 @@ må matche de andre Header-filene */
 }
 
 @media (max-width: 800px) {
-  .showFromSm { /*bytte navn til showFrom800?*/
+  .showFromSm {
+    /*bytte navn til showFrom800?*/
     display: none; /* Søk og meny tekst */
   }
 
