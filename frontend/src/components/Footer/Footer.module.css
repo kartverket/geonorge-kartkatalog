@@ -1,0 +1,13 @@
+.footer {
+  background-color: var(--ds-color-info-text-default);
+  color: var(--ds-color-neutral-background-default);
+  margin-top: auto;
+}
+
+.inner {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding: var(--ds-size-32, 8rem) var(--ds-size-26);
+  display: flex;
+  justify-content: space-between;
+}
