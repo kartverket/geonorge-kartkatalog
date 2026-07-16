@@ -88,6 +88,10 @@ må matche de andre Header-filene */
   border-top: 0;
 }
 
+.badge {
+  --dsc-badge-left: -1px;
+}
+
 @media (max-width: 1280px) {
   .inMenuFromXl {
     display: inline-flex;
