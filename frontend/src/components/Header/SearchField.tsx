@@ -1,6 +1,6 @@
 "use client";
 
-import { Divider, Search } from "@kv-designsystem/react";
+import { Search } from "@kv-designsystem/react";
 
 export function SearchField() {
   return (
