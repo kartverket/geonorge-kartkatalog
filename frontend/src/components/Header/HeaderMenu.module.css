@@ -2,14 +2,10 @@
 må matche de andre Header-filene */
 
 .panel {
-  position: absolute;
-  top: 100%;
-  inset-inline: 0;
-  background: var(--ds-color-neutral-background-default);
+  composes: panelBase from "./Header.module.css";
   max-height: 80dvh;
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
 .panelInner {
@@ -33,7 +29,6 @@ må matche de andre Header-filene */
 
 .inMenuFromXl,
 .inMenuFromSm {
-  /*bytte navn til inMenuFrom800?*/
   display: none;
 }
 
@@ -136,7 +131,6 @@ må matche de andre Header-filene */
   }
 
   .panel {
-    /* --header-height er definert i globals.css */
     height: calc(100dvh - var(--header-height-mobile) - 1px);
     max-height: none;
   }
