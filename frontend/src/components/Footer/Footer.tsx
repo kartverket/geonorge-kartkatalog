@@ -6,9 +6,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Route } from "next";
 import styles from "./Footer.module.css";
 
-const OM_NETTSTEDET = [
+const OM_NETTSTEDET: { label: string; href: Route }[] = [
   { label: "Om Geonorge", href: "#" },
   { label: "Personvernerklæring", href: "#" },
   { label: "Erklæring om informasjonskapsler", href: "#" },
