@@ -7,9 +7,36 @@
 .inner {
   max-width: 1440px;
   margin-inline: auto;
-  padding: 8rem var(--ds-size-26) 12rem;
+  padding-block: var(--ds-size-30) 12rem;
+  padding-inline: var(--ds-size-18);
   display: flex;
   justify-content: space-between;
+  gap: var(--ds-size-10);
+}
+
+.brand {
+  display: grid;
+  align-content: start;
+  gap: var(--ds-size-10);
+}
+
+.tagline {
+  font-size: var(--ds-font-size-4);
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  margin: 0;
+}
+
+.columns {
+  display: flex;
+  gap: var(--ds-size-26);
+}
+
+.heading {
+  font-size: var(--ds-body-sm-font-size);
+  font-weight: var(--ds-font-weight-semibold);
+  margin: 0 0 var(--ds-size-3);
 }
 
 .linkList {
@@ -25,27 +52,22 @@
   text-decoration: underline;
 }
 
-.heading {
-  font-size: var(--ds-body-sm-font-size);
-  font-weight: var(--ds-font-weight-semibold);
-  margin: 0 0 var(--ds-size-3);
+@media (max-width: 1024px) {
+  .inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .columns {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
 }
 
-.brand {
-  display: grid;
-  gap: var(--ds-size-8);
-  align-content: start;
-}
-
-.tagline {
-  font-size: var(--ds-font-size-4);
-  display: flex;
-  align-items: center;
-  gap: var(--ds-size-3);
-  margin: 0;
-}
-
-.columns {
-  display: flex;
-  gap: var(--ds-size-26);
+@media (max-width: 800px) {
+  .columns {
+    flex-direction: column-reverse; /* stablet, fortsatt
+  Kontakt øverst */
+    gap: var(--ds-size-8); /* mål */
+  }
 }

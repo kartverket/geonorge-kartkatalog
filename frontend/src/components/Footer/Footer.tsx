@@ -4,9 +4,9 @@
 // fordi footeren er statisk
 // kan endres senere ved å legge til use client
 
+import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Route } from "next";
 import styles from "./Footer.module.css";
 
 const OM_NETTSTEDET: { label: string; href: Route }[] = [
