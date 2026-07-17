@@ -66,8 +66,7 @@
 
 @media (max-width: 800px) {
   .columns {
-    flex-direction: column-reverse; /* stablet, fortsatt
-  Kontakt øverst */
-    gap: var(--ds-size-8); /* mål */
+    flex-direction: column-reverse;
+    gap: var(--ds-size-8);
   }
 }
