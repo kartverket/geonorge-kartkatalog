@@ -7,7 +7,45 @@
 .inner {
   max-width: 1440px;
   margin-inline: auto;
-  padding: var(--ds-size-32, 8rem) var(--ds-size-26);
+  padding: 8rem var(--ds-size-26) 12rem;
   display: flex;
   justify-content: space-between;
+}
+
+.linkList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--ds-size-3);
+}
+
+.linkList a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.heading {
+  font-size: var(--ds-body-sm-font-size);
+  font-weight: var(--ds-font-weight-semibold);
+  margin: 0 0 var(--ds-size-3);
+}
+
+.brand {
+  display: grid;
+  gap: var(--ds-size-8);
+  align-content: start;
+}
+
+.tagline {
+  font-size: var(--ds-font-size-4);
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  margin: 0;
+}
+
+.columns {
+  display: flex;
+  gap: var(--ds-size-26);
 }
