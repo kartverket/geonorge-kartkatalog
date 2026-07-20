@@ -12,21 +12,13 @@ fun Route.metadataRoutes(metadataSummaryService: MetadataSummaryService) {
     route("/metadata/") {
         get("summary/{uuid}") {
             val uuid = UUID.fromString(call.parameters["uuid"])
-
             val result = metadataSummaryService.getMetadataSummary(uuid)
-            if (result == null) {
-                call.respond(HttpStatusCode.NotFound, mapOf("error" to "Record not found"))
-                return@get
-            }
-
             call.respond(result)
         }
 
-        get("/info/{uuid}") {
+        get("info/{uuid}") {
             val uuid = UUID.fromString(call.parameters["uuid"])
-
             val result = metadataSummaryService.getMetadataInformation(uuid)
-
             call.respond(result)
         }
     }

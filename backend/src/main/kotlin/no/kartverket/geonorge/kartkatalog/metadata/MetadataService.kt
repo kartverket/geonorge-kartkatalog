@@ -44,9 +44,11 @@ class MetadataSummaryService(
         )
     }
 
-    suspend fun getMetadataSummary(uuid: UUID): ProductMetadataSummary? =
-        geonetworkClient.getRecordByUuid(uuid)?.let { record ->
-            // Only fetch Solr after GeoNetwork confirms the record exists.
+    suspend fun getMetadataSummary(uuid: UUID): ProductMetadataSummary {
+    val record =
+        geonetworkClient.getRecordByUuid(uuid)
+            ?: throw MetadataRecordNotFoundException(uuid)
+
             val solrDocument =
                 solrClient
                     .getMetadataByUuid(uuid)
@@ -56,7 +58,7 @@ class MetadataSummaryService(
                     ?: SolrDocument(uuid = uuid.toString())
             val accessState = resolveAccessState(record, solrDocument)
 
-            ProductMetadataSummary(
+            return ProductMetadataSummary(
                 title = record.title.ifBlank { solrDocument.title.orEmpty() },
                 organization = resolveOrganization(record, solrDocument),
                 hierarchyLevel = record.hierarchyLevel,
