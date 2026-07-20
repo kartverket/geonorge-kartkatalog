@@ -9,7 +9,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
-import no.kartverket.geonorge.kartkatalog.metadata.models.Keyword
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataInfo
@@ -83,7 +83,7 @@ class MetadataSummaryService(
             nationalKeywords = mapNationalKeywords(record),
             distributionFormats =
                 record.distributionInfo?.formats.orEmpty().map {
-                    it.toDistributionFormat()
+                    it.toProductDistributionFormat()
                 },
         )
     }
@@ -110,22 +110,22 @@ class MetadataSummaryService(
             ?: codeValue
     }
 
-    private fun mapThemeKeywords(record: MetadataRecord): List<Keyword> =
+    private fun mapThemeKeywords(record: MetadataRecord): List<ProductKeyword> =
         mapKeywords(record, { it.type.equals("theme", ignoreCase = true) })
 
-    private fun mapNationalKeywords(record: MetadataRecord): List<Keyword> =
+    private fun mapNationalKeywords(record: MetadataRecord): List<ProductKeyword> =
         mapKeywords(record) {it.thesaurus.equals("Nasjonal tematisk inndeling (DOK-kategori)", ignoreCase = true)
         }
 
     private fun mapKeywords(
         record: MetadataRecord,
         predicate: (KeywordGroup) -> Boolean,
-    ): List<Keyword> =
+    ): List<ProductKeyword> =
         record.keywordGroups
             .filter(predicate)
             .flatMap { group ->
                 group.keywords.map { keyword ->
-                    Keyword(
+                    ProductKeyword(
                         keywordValue = keyword.value,
                         type = group.type,
                     )
@@ -199,7 +199,7 @@ class MetadataSummaryService(
         val protected: Boolean,
     )
 
-    private fun DistributionFormat.toDistributionFormat() =
+    private fun DistributionFormat.toProductDistributionFormat() =
         ProductDistributionFormat(
             name = name,
             version = version,
