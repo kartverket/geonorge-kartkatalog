@@ -122,36 +122,45 @@ class MetadataRoutesTest {
     }
 
     @Test
-    fun `returns 200 with dataset metadata summary for valid uuid`() =
+    fun `returns 200 with dataset metadata-summary for valid uuid`() =
         testApp(createSummaryService(responseXml)) {
-            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
+            val response = client.get("/metadata/summary/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertContains(response.bodyAsText(), "Matrikkelen - Bygningspunkt WFS")
         }
 
     @Test
-    fun `returns 404 when record not found`() =
+    fun `returns 404 when record not found for metadata-summary`() =
         testApp(createSummaryService(emptyGeonetworkXml)) {
-            val response = client.get("/metadata/00000000-0000-0000-0000-000000000000")
+            val response = client.get("/metadata/summary/00000000-0000-0000-0000-000000000000")
 
             assertEquals(HttpStatusCode.NotFound, response.status)
             assertContains(response.bodyAsText(), "error")
         }
 
     @Test
-    fun `returns 404 for metadata info when record not found`() =
+    fun `returns 404 for metadata-info when record not found`() =
         testApp(createSummaryService(emptyGeonetworkXml)) {
-            val response = client.get("/metadatainfo/00000000-0000-0000-0000-000000000000")
+            val response = client.get("/metadata/info/00000000-0000-0000-0000-000000000000")
 
             assertEquals(HttpStatusCode.NotFound, response.status)
             assertContains(response.bodyAsText(), "error")
         }
 
     @Test
-    fun `returns 400 for invalid UUID format`() =
+    fun `returns 400 for invalid UUID format in metadata-summary`() =
         testApp(createSummaryService(responseXml)) {
-            val response = client.get("/metadata/not-a-uuid")
+            val response = client.get("/metadata/summary/not-a-uuid")
+
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertContains(response.bodyAsText(), "error")
+        }
+
+    @Test
+    fun `returns 400 for invalid UUID format in metadata-info`() =
+        testApp(createSummaryService(responseXml)) {
+            val response = client.get("/metadata/info/not-a-uuid")
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertContains(response.bodyAsText(), "error")
