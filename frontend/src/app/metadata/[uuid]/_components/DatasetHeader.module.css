@@ -1,0 +1,35 @@
+.header {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding: var(--ds-size-10) var(--ds-size-18) 0;
+  display: grid;
+  gap: var(--ds-size-6);
+}
+
+.breadcrumb {
+  font-size: var(--ds-body-sm-font-size);
+  margin-bottom: var(--ds-size-10);
+}
+
+.current {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.tagIcon {
+  margin-right: var(--ds-size-2);
+}
+
+.title {
+  font-size: var(--ds-heading-md-font-size);
+  font-weight: var(--ds-font-weight-regular);
+  margin: 0;
+}
+
+.organization {
+  color: var(--ds-color-neutral-text-subtle);
+  margin: 0;
+}
+
+.organization a {
+  text-decoration: underline;
+}
