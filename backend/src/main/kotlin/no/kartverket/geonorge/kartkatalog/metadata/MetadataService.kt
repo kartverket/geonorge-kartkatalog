@@ -60,7 +60,9 @@ class MetadataSummaryService(
 
         return ProductMetadataSummary(
             title = record.title.ifBlank { solrDocument.title.orEmpty() },
-            organization = resolveOrganization(record, solrDocument),
+            organization =
+                record.metadataContact.organization?.takeIf { it.isNotBlank() }
+                    ?: solrDocument.organization.orEmpty(),
             hierarchyLevel = record.hierarchyLevel,
             accessIsRestricted = accessState.restricted,
             accessIsOpenData = accessState.openData,
@@ -107,17 +109,6 @@ class MetadataSummaryService(
             }?.label
             ?: codeValue
     }
-
-    private fun resolveOrganization(
-        record: MetadataRecord,
-        solrDocument: SolrDocument,
-    ): String =
-        listOfNotNull(
-            solrDocument.organization,
-            solrDocument.organizations?.firstOrNull(),
-            record.metadataContact.organization,
-            record.contacts.firstOrNull { !it.organization.isNullOrBlank() }?.organization,
-        ).firstOrNull { it.isNotBlank() }.orEmpty()
 
     private fun mapThemeKeywords(record: MetadataRecord): List<Keyword> =
         mapKeywords(record, { it.type.equals("theme", ignoreCase = true) })
