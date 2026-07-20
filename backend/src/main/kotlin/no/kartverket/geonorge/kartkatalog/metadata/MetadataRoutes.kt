@@ -8,7 +8,6 @@ import io.ktor.server.routing.route
 import java.util.UUID
 
 fun Route.metadataRoutes(metadataSummaryService: MetadataSummaryService) {
-    // TODO: se på grupperingen av data og navngivning
     route("/metadata/") {
         get("summary/{uuid}") {
             val uuid = UUID.fromString(call.parameters["uuid"])
