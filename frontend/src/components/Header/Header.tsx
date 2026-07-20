@@ -71,7 +71,7 @@ export function Header() {
         <div className={styles.inner}>
           <Link href="/">
             <Image
-              src="/geonorge_logo1.svg"
+              src="/geonorge-logo.svg"
               alt="Geonorge"
               width={211}
               height={33}
