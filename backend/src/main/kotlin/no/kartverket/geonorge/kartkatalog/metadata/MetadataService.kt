@@ -187,10 +187,10 @@ class MetadataSummaryService(
 
     private fun containsAny(
         value: String,
-        vararg needles: String,
+        vararg searchTerms: String,
     ): Boolean {
         val normalized = value.lowercase()
-        return needles.any { needle -> normalized.contains(needle.lowercase()) }
+        return searchTerms.any { term -> normalized.contains(term.lowercase()) }
     }
 
     private data class AccessState(
