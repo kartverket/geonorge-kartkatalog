@@ -8,7 +8,7 @@ export default async function DatasetPage() {
       <DatasetHeader
         title={d.Title}
         organization={d.Organization}
-        access={d.AccessIsOpendata ? "Åpent datasett" : "Lukke datasett"}
+        isOpen={d.AccessIsOpendata}
       />
     </div>
   );
