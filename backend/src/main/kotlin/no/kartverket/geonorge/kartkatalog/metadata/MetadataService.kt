@@ -114,8 +114,7 @@ class MetadataSummaryService(
         mapKeywords(record, { it.type.equals("theme", ignoreCase = true) })
 
     private fun mapNationalKeywords(record: MetadataRecord): List<Keyword> =
-        mapKeywords(record) { group ->
-            group.thesaurus.equals("Nasjonal tematisk inndeling (DOK-kategori)", ignoreCase = true)
+        mapKeywords(record) {it.thesaurus.equals("Nasjonal tematisk inndeling (DOK-kategori)", ignoreCase = true)
         }
 
     private fun mapKeywords(
