@@ -156,6 +156,7 @@ class MetadataRoutesTest {
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertContains(response.bodyAsText(), "error")
         }
+
     @Test
     fun `returns 400 for invalid UUID format in metadata-info`() =
         testApp(createSummaryService(responseXml)) {
