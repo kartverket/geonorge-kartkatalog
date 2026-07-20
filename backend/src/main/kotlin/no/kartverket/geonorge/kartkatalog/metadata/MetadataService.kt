@@ -9,8 +9,8 @@ import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataInfo
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataSummary
@@ -114,7 +114,8 @@ class MetadataSummaryService(
         mapKeywords(record, { it.type.equals("theme", ignoreCase = true) })
 
     private fun mapNationalKeywords(record: MetadataRecord): List<ProductKeyword> =
-        mapKeywords(record) {it.thesaurus.equals("Nasjonal tematisk inndeling (DOK-kategori)", ignoreCase = true)
+        mapKeywords(record) {
+            it.thesaurus.equals("Nasjonal tematisk inndeling (DOK-kategori)", ignoreCase = true)
         }
 
     private fun mapKeywords(
