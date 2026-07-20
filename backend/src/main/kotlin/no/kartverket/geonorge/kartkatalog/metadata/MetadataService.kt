@@ -45,46 +45,46 @@ class MetadataSummaryService(
     }
 
     suspend fun getMetadataSummary(uuid: UUID): ProductMetadataSummary {
-    val record =
-        geonetworkClient.getRecordByUuid(uuid)
-            ?: throw MetadataRecordNotFoundException(uuid)
+        val record =
+            geonetworkClient.getRecordByUuid(uuid)
+                ?: throw MetadataRecordNotFoundException(uuid)
 
-            val solrDocument =
-                solrClient
-                    .getMetadataByUuid(uuid)
-                    .response
-                    .docs
-                    .firstOrNull()
-                    ?: SolrDocument(uuid = uuid.toString())
-            val accessState = resolveAccessState(record, solrDocument)
+        val solrDocument =
+            solrClient
+                .getMetadataByUuid(uuid)
+                .response
+                .docs
+                .firstOrNull()
+                ?: SolrDocument(uuid = uuid.toString())
+        val accessState = resolveAccessState(record, solrDocument)
 
-            return ProductMetadataSummary(
-                title = record.title.ifBlank { solrDocument.title.orEmpty() },
-                organization = resolveOrganization(record, solrDocument),
-                hierarchyLevel = record.hierarchyLevel,
-                accessIsRestricted = accessState.restricted,
-                accessIsOpenData = accessState.openData,
-                accessIsProtected = accessState.protected,
-                dateUpdated = record.dates.firstOrNull { it.type == "revision" }?.date,
-                maintenanceFrequency =
-                    translateCodeListValue(
-                        CodeList.MAINTENANCE_FREQUENCY,
-                        record.maintenanceFrequency,
-                    ),
-                spatialRepresentation =
-                    translateCodeListValue(
-                        CodeList.SPATIAL_REPRESENTATIONS,
-                        record.spatialRepresentationTypes.firstOrNull(),
-                    ),
-                resolutionScale = record.resolutionScale,
-                keywordsTheme = mapThemeKeywords(record),
-                nationalKeywords = mapNationalKeywords(record),
-                distributionFormats =
-                    record.distributionInfo?.formats.orEmpty().map {
-                        it.toDistributionFormat()
-                    },
-            )
-        }
+        return ProductMetadataSummary(
+            title = record.title.ifBlank { solrDocument.title.orEmpty() },
+            organization = resolveOrganization(record, solrDocument),
+            hierarchyLevel = record.hierarchyLevel,
+            accessIsRestricted = accessState.restricted,
+            accessIsOpenData = accessState.openData,
+            accessIsProtected = accessState.protected,
+            dateUpdated = record.dates.firstOrNull { it.type == "revision" }?.date,
+            maintenanceFrequency =
+                translateCodeListValue(
+                    CodeList.MAINTENANCE_FREQUENCY,
+                    record.maintenanceFrequency,
+                ),
+            spatialRepresentation =
+                translateCodeListValue(
+                    CodeList.SPATIAL_REPRESENTATIONS,
+                    record.spatialRepresentationTypes.firstOrNull(),
+                ),
+            resolutionScale = record.resolutionScale,
+            keywordsTheme = mapThemeKeywords(record),
+            nationalKeywords = mapNationalKeywords(record),
+            distributionFormats =
+                record.distributionInfo?.formats.orEmpty().map {
+                    it.toDistributionFormat()
+                },
+        )
+    }
 
     private suspend fun translateCodeListValue(
         codeList: CodeList,
