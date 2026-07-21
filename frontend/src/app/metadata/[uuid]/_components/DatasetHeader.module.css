@@ -1,7 +1,5 @@
 .header {
-  max-width: 1440px;
-  margin-inline: auto;
-  padding: var(--ds-size-10) var(--ds-size-18) 0;
+  padding: var(--ds-size-10) 0;
   display: grid;
   gap: var(--ds-size-6);
 }
