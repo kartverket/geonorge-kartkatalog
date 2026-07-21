@@ -79,6 +79,7 @@ class MetadataSummaryService(
                     CodeList.SPATIAL_REPRESENTATIONS,
                     record.spatialRepresentationTypes.firstOrNull(),
                 ),
+            spatialScope = mapSpatialScope(record),
             resolutionScale = record.resolutionScale,
             keywordsTheme = mapThemeKeywords(record),
             nationalKeywords = mapNationalKeywords(record),
@@ -130,6 +131,12 @@ class MetadataSummaryService(
         mapKeywords(record) {
             it.thesaurus.equals("Nasjonal tematisk inndeling (DOK-kategori)", ignoreCase = true)
         }
+
+    private fun mapSpatialScope(record: MetadataRecord): String? =
+        mapKeywords(record) {
+            it.thesaurus?.equals("Spatial scope", ignoreCase = true) == true ||
+                it.thesaurusHref?.contains("SpatialScope", ignoreCase = true) == true
+        }.firstOrNull()?.keywordValue
 
     private fun mapKeywords(
         record: MetadataRecord,
