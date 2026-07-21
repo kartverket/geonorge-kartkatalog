@@ -1,0 +1,11 @@
+.content {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: var(--ds-size-26);
+}
+
+.metaRow {
+  display: flex;
+  gap: var(--ds-size-10);
+  padding: var(--ds-size-10) 0 var(--ds-size-18);
+}

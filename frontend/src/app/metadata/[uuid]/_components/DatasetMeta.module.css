@@ -1,0 +1,44 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--ds-size-6);
+  margin: 0;
+  flex: 1;
+}
+
+.grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-1);
+}
+
+.grid dt {
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-body-sm-font-size);
+}
+
+.grid dd {
+  margin: 0;
+  font-weight: var(--ds-font-weight-medium);
+}
+
+.dt {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-1);
+}
+
+.dt :global(.ds-button) {
+  --dsc-button-size: var(--ds-size-6);
+  padding: 0;
+}
+
+.pending {
+  font-style: italic;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-2);
+}
