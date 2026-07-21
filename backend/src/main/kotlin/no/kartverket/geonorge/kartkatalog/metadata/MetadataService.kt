@@ -86,6 +86,7 @@ class MetadataSummaryService(
                 record.distributionInfo?.formats.orEmpty().map {
                     it.toProductDistributionFormat()
                 },
+            thumbnailUrl = record.thumbnails.firstOrNull { it.type?.equals("medium", ignoreCase = true) == true }?.url,
             dataQualityMeasures =
                 record.dataQualityMeasures
                     .mapNotNull { m ->

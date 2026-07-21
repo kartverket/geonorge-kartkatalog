@@ -17,6 +17,7 @@ data class ProductMetadataSummary(
     val keywordsTheme: List<ProductKeyword>,
     val nationalKeywords: List<ProductKeyword>,
     val distributionFormats: List<ProductDistributionFormat>,
+    val thumbnailUrl: String? = null,
     val dataQualityMeasures: List<ProductDataQualityMeasure> = emptyList(),
 )
 
