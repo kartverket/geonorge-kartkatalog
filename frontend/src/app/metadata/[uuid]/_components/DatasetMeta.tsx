@@ -77,7 +77,7 @@ export function DatasetMeta({
       <MetaField label="Målestokktall" help="Målestokk datasettet er egnet for">
         {resolutionScale}
       </MetaField>
-      {/* Datakvalitet: ikke tilgjengelig) */}
+      {/* Datakvalitet: ikke tilgjengelig */}
       <MetaField
         label="Datakvalitet (FAIR-status)"
         help="Datasettets FAIR-score"
