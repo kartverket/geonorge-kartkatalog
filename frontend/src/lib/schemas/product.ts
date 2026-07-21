@@ -52,11 +52,7 @@ export type ProductMetadataSummary = z.infer<typeof ProductMetadataSummarySchema
 export function parseProductMetadataSummary(body: unknown): ProductMetadataSummary {
   const res = ProductMetadataSummarySchema.safeParse(body);
   if (!res.success) {
-    // Log validation errors for debugging; throw a clear error to callers
-    // so calling code can handle (or propagate) the failure.
-    // eslint-disable-next-line no-console
-    console.error("ProductMetadataSummary validation failed", res.error.format());
-    throw new Error("Invalid metadata summary from server");
+    throw new Error("Invalid metadata summary from server", { cause: res.error });
   }
 
   return res.data;
