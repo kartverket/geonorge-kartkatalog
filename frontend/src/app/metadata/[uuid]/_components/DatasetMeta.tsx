@@ -76,7 +76,7 @@ export function DatasetMeta({
         label="Representasjonsform"
         help="Hvordan geodataene er representert"
       >
-        <Tag>{representation}</Tag>
+        <Tag data-color="neutral">{representation}</Tag>
       </MetaField>
       <MetaField label="Målestokktall" help="Målestokk datasettet er egnet for">
         {resolutionScale}
