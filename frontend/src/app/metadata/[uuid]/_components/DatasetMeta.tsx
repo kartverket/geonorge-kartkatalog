@@ -21,9 +21,11 @@ function MetaField({
       <dt className={styles.dt}>
         {label}
         <Tooltip content={help} placement="top">
-          <Button aria-label="Mer informasjon" variant="tertiary" icon>
-            <QuestionmarkCircleIcon aria-hidden />
-          </Button>
+          <Button
+            aria-label={`Mer informasjon om ${label}`}
+            variant="tertiary"
+            icon
+          >
         </Tooltip>
       </dt>
       <dd>{children}</dd>
