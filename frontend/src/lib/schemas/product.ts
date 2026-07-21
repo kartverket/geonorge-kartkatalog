@@ -90,9 +90,7 @@ export type ProductMetadataInfo = z.infer<typeof ProductMetadataInfoSchema>;
 export function parseProductMetadataInfo(body: unknown): ProductMetadataInfo {
   const res = ProductMetadataInfoSchema.safeParse(body);
   if (!res.success) {
-    // eslint-disable-next-line no-console
-    console.error("ProductMetadataInfo validation failed", res.error.format());
-    throw new Error("Invalid metadata info from server");
+    throw new Error("Invalid metadata info from server", { cause: res.error });
   }
   return res.data;
 }
