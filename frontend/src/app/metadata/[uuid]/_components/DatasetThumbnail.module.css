@@ -1,0 +1,11 @@
+.wrapper {
+  position: relative;
+  aspect-ratio: 345 / 294;
+  width: 100%;
+  max-width: 345px;
+}
+
+.image {
+  object-fit: cover;
+  border-radius: var(--ds-border-radius-md);
+}
