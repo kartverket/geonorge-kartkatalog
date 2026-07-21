@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.integrations.geonetwork
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ApplicationSchemaInfo
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.BoundingBox
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DataQualityMeasure
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionInfo
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ExtensionResource
@@ -134,6 +135,7 @@ object MetadataParser {
                         ?: emptyList(),
                 distributionInfo = parseDistributionInfo(),
                 qualitySpecifications = parseQualitySpecifications(),
+                dataQualityMeasures = parseDataQualityMeasures(),
                 serviceType = idInfo?.text("srv:serviceType/gco:LocalName"),
                 serviceTypeVersion =
                     idInfo?.text("srv:serviceTypeVersion/gco:CharacterString"),
@@ -475,6 +477,38 @@ object MetadataParser {
                             "gmd:specification/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier" +
                                 "/gmd:authority/gmd:CI_Citation/gmd:title/gco:CharacterString",
                         ),
+                )
+            }
+
+        private fun parseDataQualityMeasures(): List<DataQualityMeasure> =
+            md.nodes(".//gmd:DQ_CompletenessOmission").map { node ->
+                // Name of measure can be an Anchor or a CharacterString
+                val name =
+                    node.node("gmd:nameOfMeasure/gmx:Anchor")?.textContent?.trim()
+                        ?: node.text("gmd:nameOfMeasure/gco:CharacterString")
+
+                val desc = node.text("gmd:measureDescription/gco:CharacterString")
+
+                // valueUnit is typically an element with xlink:href attribute
+                val unit =
+                    node.attr(
+                        "gmd:result/gmd:DQ_QuantitativeResult/gmd:valueUnit",
+                        "xlink:href",
+                    )
+
+                // value may be in a record wrapper, try the usual places
+                val valueStr =
+                    node.text(
+                        "gmd:result/gmd:DQ_QuantitativeResult/gmd:value/gco:Record/gco:Integer",
+                    ) ?: node.text("gmd:result/gmd:DQ_QuantitativeResult/gmd:value/gco:Integer")
+
+                val value = valueStr?.toIntOrNull()
+
+                DataQualityMeasure(
+                    nameOfMeasure = name,
+                    measureDescription = desc,
+                    value = value,
+                    valueUnit = unit,
                 )
             }
 

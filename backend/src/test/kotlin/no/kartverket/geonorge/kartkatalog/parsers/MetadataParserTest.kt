@@ -12,6 +12,10 @@ class MetadataParserTest {
         val xml = javaClass.classLoader.getResourceAsStream("response.xml")!!
         MetadataParser.parse(xml)
     }
+    private val recordWithQuantitativeResult by lazy {
+        val xml = javaClass.classLoader.getResourceAsStream("response2.xml")!!
+        MetadataParser.parse(xml)
+    }
 
     @Test
     fun `print record`() {
@@ -234,5 +238,26 @@ class MetadataParserTest {
         assertTrue(spec3.title.startsWith("COMMISSION REGULATION (EC) No 976/2009"))
         assertEquals("inspire-networkservice", spec3.specificationIdentifier)
         assertNotNull(spec3.specificationHref)
+    }
+
+    @Test
+    fun `parses quantitation specifications`() {
+        // assuming record variable is the parsed MetadataRecord already used in this test class
+        assertTrue(recordWithQuantitativeResult.dataQualityMeasures.isNotEmpty())
+        val measure =
+            recordWithQuantitativeResult.dataQualityMeasures.find {
+                it.nameOfMeasure?.contains("FAIR", ignoreCase = true) == true
+            }
+        assertNotNull(measure)
+        assertEquals(87, measure!!.value)
+        assertTrue(measure.valueUnit?.contains("percent") == true)
+        assertTrue(measure.measureDescription!!.contains("FAIR", ignoreCase = true))
+    }
+
+    @Test
+    fun `parses empty quantitation specifications`() {
+        assertTrue(record.dataQualityMeasures.isEmpty())
+        val measure = record.dataQualityMeasures.find { it.nameOfMeasure?.contains("FAIR", ignoreCase = true) == true }
+        assertNull(measure)
     }
 }

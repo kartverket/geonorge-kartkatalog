@@ -14,9 +14,10 @@ data class ProductMetadataSummary(
     val maintenanceFrequency: String,
     val spatialRepresentation: String,
     val resolutionScale: String? = null,
-    val keywordsTheme: List<Keyword>,
-    val nationalKeywords: List<Keyword>,
+    val keywordsTheme: List<ProductKeyword>,
+    val nationalKeywords: List<ProductKeyword>,
     val distributionFormats: List<ProductDistributionFormat>,
+    val dataQualityMeasures: List<ProductDataQualityMeasure> = emptyList(),
 )
 
 @Serializable
@@ -26,7 +27,15 @@ data class ProductDistributionFormat(
 )
 
 @Serializable
-data class Keyword(
+data class ProductKeyword(
     val keywordValue: String? = null,
     val type: String? = null,
+)
+
+@Serializable
+data class ProductDataQualityMeasure(
+    val explanation: String? = null,
+    val quantitativeResult: Int? = null,
+    val quantitativeResultValueUnit: String? = null,
+    val title: String? = null,
 )

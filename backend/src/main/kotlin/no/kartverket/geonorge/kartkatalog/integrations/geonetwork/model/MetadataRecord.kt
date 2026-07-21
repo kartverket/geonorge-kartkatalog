@@ -33,6 +33,14 @@ data class QualitySpecification(
 )
 
 @Serializable
+data class DataQualityMeasure(
+    val nameOfMeasure: String? = null,
+    val measureDescription: String? = null,
+    val value: Int? = null,
+    val valueUnit: String? = null,
+)
+
+@Serializable
 data class MetadataRecord(
     // MD_Metadata level
     val uuid: String,
@@ -73,6 +81,7 @@ data class MetadataRecord(
     val distributionInfo: DistributionInfo? = null,
     // Data quality
     val qualitySpecifications: List<QualitySpecification> = emptyList(),
+    val dataQualityMeasures: List<DataQualityMeasure> = emptyList(),
     // Service specific
     val serviceType: String? = null,
     val serviceTypeVersion: String? = null,
