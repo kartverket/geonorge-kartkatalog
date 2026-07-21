@@ -8,8 +8,8 @@ export function DatasetThumbnail({ thumbnailUrl }: { thumbnailUrl?: string }) {
       <Image
         src={thumbnailUrl}
         alt="Kartforhåndsvisning"
-        width={345}
-        height={294}
+        fill
+        sizes="(max-width: 768px) 100vw, 345px"
         className={styles.image}
       />
     </div>
