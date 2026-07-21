@@ -9,6 +9,7 @@ export function DatasetThumbnail({ thumbnailUrl }: { thumbnailUrl?: string }) {
         src={thumbnailUrl}
         alt="Kartforhåndsvisning"
         fill
+        loading="eager"
         sizes="(max-width: 768px) 100vw, 345px"
         className={styles.image}
       />

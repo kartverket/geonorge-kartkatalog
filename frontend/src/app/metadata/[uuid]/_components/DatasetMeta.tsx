@@ -26,6 +26,8 @@ function MetaField({
             variant="tertiary"
             icon
           >
+            <QuestionmarkCircleIcon aria-hidden />
+          </Button>
         </Tooltip>
       </dt>
       <dd>{children}</dd>

@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
         pathname: "/thumbnails/**",
       },
     ],
-  }
+  },
   /* config options here */
   typedRoutes: true,
   reactCompiler: true,
