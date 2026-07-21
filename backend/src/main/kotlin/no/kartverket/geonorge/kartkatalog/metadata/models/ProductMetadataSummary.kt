@@ -35,13 +35,9 @@ data class ProductKeyword(
 
 @Serializable
 data class ProductDataQualityMeasure(
-    @SerialName("Explanation")
     val explanation: String? = null,
-    @SerialName("QuantitativeResult")
     val quantitativeResult: Int? = null,
-    @SerialName("QuantitativeResultValueUnit")
     val quantitativeResultValueUnit: String? = null,
-    @SerialName("Title")
     val title: String? = null,
 )
 
