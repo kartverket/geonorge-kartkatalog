@@ -52,6 +52,7 @@ async function fetchJson(
     }
     return body;
   } catch (err: unknown) {
+    clearTimeout(id);
     // AbortError when fetch is aborted in Node/Browser has different shapes; check name via typed guard
     const maybeErr = err as { name?: string } | undefined;
     if (maybeErr?.name === "AbortError") {
