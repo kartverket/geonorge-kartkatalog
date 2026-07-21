@@ -1,19 +1,14 @@
-import { getMetadataSummary } from "@/app/api";
+import getData from "../../../mocks/getData.json";
 import { DatasetHeader } from "./_components/DatasetHeader";
 
-export default async function DatasetPage({
-  params,
-}: {
-  params: Promise<{ uuid: string }>;
-}) {
-  const { uuid } = await params;
-  const d = await getMetadataSummary(uuid);
+export default async function DatasetPage() {
+  const d = getData;
   return (
     <div>
       <DatasetHeader
-        title={d.title ?? "datafeil"}
-        organization={d.organization ?? "kitkat"}
-        isOpen={d.accessIsOpenData ?? false}
+        title={d.Title}
+        organization={d.Organization}
+        isOpen={d.AccessIsOpendata}
       />
     </div>
   );
