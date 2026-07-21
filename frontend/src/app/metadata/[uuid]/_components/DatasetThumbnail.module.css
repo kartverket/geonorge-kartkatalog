@@ -3,9 +3,11 @@
   aspect-ratio: 345 / 294;
   width: 100%;
   max-width: 345px;
+  border: 1px solid var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-lg);
 }
 
 .image {
-  object-fit: cover;
-  border-radius: var(--ds-border-radius-md);
+  /*må se hvordan dette blir med de ulike bildene*/
+  object-fit: contain;
 }
