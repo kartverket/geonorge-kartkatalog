@@ -9,9 +9,9 @@ import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataInfo
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataSummary
@@ -86,16 +86,17 @@ class MetadataSummaryService(
                 record.distributionInfo?.formats.orEmpty().map {
                     it.toProductDistributionFormat()
                 },
-            dataQualityMeasures = record.dataQualityMeasures
-                .mapNotNull { m ->
-                    if (m.value == null) return@mapNotNull null
-                    ProductDataQualityMeasure(
-                        explanation = m.measureDescription,
-                        quantitativeResult = m.value,
-                        quantitativeResultValueUnit = getSimpleValueUnit(m.valueUnit),
-                        title = m.nameOfMeasure,
-                    )
-                },
+            dataQualityMeasures =
+                record.dataQualityMeasures
+                    .mapNotNull { m ->
+                        if (m.value == null) return@mapNotNull null
+                        ProductDataQualityMeasure(
+                            explanation = m.measureDescription,
+                            quantitativeResult = m.value,
+                            quantitativeResultValueUnit = getSimpleValueUnit(m.valueUnit),
+                            title = m.nameOfMeasure,
+                        )
+                    },
         )
     }
 
@@ -208,9 +209,12 @@ class MetadataSummaryService(
     private fun getSimpleValueUnit(value: String?): String? {
         if (value == null) return null
         return when {
-            value == "http://www.opengis.net/def/uom/SI/second" || value.contains("second", ignoreCase = true) -> "second"
-            value == "urn:ogc:def:uom:OGC::percent" || value.contains("percent", ignoreCase = true) -> "percent"
-            value == "http://www.opengis.net/def/uom/OGC/1.0/unity" || value.contains("integer", ignoreCase = true) -> "integer"
+            value == "http://www.opengis.net/def/uom/SI/second" ||
+                value.contains("second", ignoreCase = true) -> "second"
+            value == "urn:ogc:def:uom:OGC::percent" ||
+                value.contains("percent", ignoreCase = true) -> "percent"
+            value == "http://www.opengis.net/def/uom/OGC/1.0/unity" ||
+                value.contains("integer", ignoreCase = true) -> "integer"
             else -> value
         }
     }

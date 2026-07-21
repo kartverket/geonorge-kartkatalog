@@ -1,7 +1,6 @@
 package no.kartverket.geonorge.kartkatalog.metadata.models
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerialName
 
 @Serializable
 data class ProductMetadataSummary(
@@ -40,4 +39,3 @@ data class ProductDataQualityMeasure(
     val quantitativeResultValueUnit: String? = null,
     val title: String? = null,
 )
-

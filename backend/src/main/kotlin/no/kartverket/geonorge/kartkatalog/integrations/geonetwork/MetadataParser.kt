@@ -490,10 +490,11 @@ object MetadataParser {
                 val desc = node.text("gmd:measureDescription/gco:CharacterString")
 
                 // valueUnit is typically an element with xlink:href attribute
-                val unit = node.attr(
-                    "gmd:result/gmd:DQ_QuantitativeResult/gmd:valueUnit",
-                    "xlink:href",
-                )
+                val unit =
+                    node.attr(
+                        "gmd:result/gmd:DQ_QuantitativeResult/gmd:valueUnit",
+                        "xlink:href",
+                    )
 
                 // value may be in a record wrapper, try the usual places
                 val valueStr =

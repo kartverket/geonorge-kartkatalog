@@ -239,11 +239,15 @@ class MetadataParserTest {
         assertEquals("inspire-networkservice", spec3.specificationIdentifier)
         assertNotNull(spec3.specificationHref)
     }
+
     @Test
     fun `parses quantitation specifications`() {
         // assuming record variable is the parsed MetadataRecord already used in this test class
         assertTrue(recordWithQuantitativeResult.dataQualityMeasures.isNotEmpty())
-        val measure = recordWithQuantitativeResult.dataQualityMeasures.find { it.nameOfMeasure?.contains("FAIR", ignoreCase = true) == true }
+        val measure =
+            recordWithQuantitativeResult.dataQualityMeasures.find {
+                it.nameOfMeasure?.contains("FAIR", ignoreCase = true) == true
+            }
         assertNotNull(measure)
         assertEquals(87, measure!!.value)
         assertTrue(measure.valueUnit?.contains("percent") == true)
