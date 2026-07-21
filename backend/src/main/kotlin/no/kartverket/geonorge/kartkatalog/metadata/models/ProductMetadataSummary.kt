@@ -13,6 +13,7 @@ data class ProductMetadataSummary(
     val dateUpdated: String?,
     val maintenanceFrequency: String,
     val spatialRepresentation: String,
+    val spatialScope: String? = null,
     val resolutionScale: String? = null,
     val keywordsTheme: List<ProductKeyword>,
     val nationalKeywords: List<ProductKeyword>,
