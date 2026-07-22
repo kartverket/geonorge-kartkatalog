@@ -45,7 +45,7 @@ export const ProductMetadataSummarySchema = z.object({
     .array(ProductDistributionFormatSchema)
     .nullable()
     .optional(),
-  thumbnailUrl: z.string().nullable().optional(),
+  thumbnailUrl: z.string().nullable(),
   dataQualityMeasures: z
     .array(ProductDataQualityMeasureSchema)
     .nullable()

@@ -12,8 +12,6 @@ export default async function DatasetPage({
   params: Promise<{ uuid: string }>;
 }) {
   const d = getData;
-  const thumb =
-    d.Thumbnails.find((t) => t.Type === "medium")?.URL ?? d.Thumbnails[0]?.URL;
 
   const { uuid } = await params;
   const metadataSummary = await getMetadataSummary(uuid);
@@ -26,7 +24,7 @@ export default async function DatasetPage({
         isOpen={metadataSummary.accessIsOpenData}
       />
       <div className={styles.metaRow}>
-        <DatasetThumbnail thumbnailUrl={thumb} />
+        <DatasetThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
         <DatasetMeta
           // TODO: oversettes når i18n er på plass (SpatialScope kommer som engelsk fra getData)
           spatialScope={d.SpatialScope}

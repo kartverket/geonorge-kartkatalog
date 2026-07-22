@@ -76,7 +76,7 @@ class MetadataSummaryService(
                 record.distributionInfo?.formats.orEmpty().map {
                     it.toProductDistributionFormat()
                 },
-            thumbnailUrl = record.thumbnails.firstOrNull { it.type?.equals("medium", ignoreCase = true) == true }?.url,
+            thumbnailUrl = record.thumbnails.firstOrNull() { it.type?.equals("medium", ignoreCase = true) == true }?.url ?: record.thumbnails.firstOrNull()?.url ,
             dataQualityMeasures =
                 record.dataQualityMeasures
                     .mapNotNull { m ->
@@ -144,7 +144,6 @@ class MetadataSummaryService(
 
     private fun resolveAccessState(
         record: MetadataRecord,
-//        solrDocument: SolrDocument,
     ): AccessState =
         when {
             isRestricted(record) -> AccessState(restricted = true, openData = false, protected = false)
