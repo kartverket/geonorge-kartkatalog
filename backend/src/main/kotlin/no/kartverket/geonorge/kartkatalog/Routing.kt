@@ -9,7 +9,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataSummaryService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 

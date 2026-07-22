@@ -76,7 +76,10 @@ class MetadataSummaryService(
                 record.distributionInfo?.formats.orEmpty().map {
                     it.toProductDistributionFormat()
                 },
-            thumbnailUrl = record.thumbnails.firstOrNull() { it.type?.equals("medium", ignoreCase = true) == true }?.url ?: record.thumbnails.firstOrNull()?.url ,
+            thumbnailUrl =
+                record.thumbnails.firstOrNull {
+                    it.type?.equals("medium", ignoreCase = true) == true
+                }?.url ?: record.thumbnails.firstOrNull()?.url,
             dataQualityMeasures =
                 record.dataQualityMeasures
                     .mapNotNull { m ->
@@ -142,9 +145,7 @@ class MetadataSummaryService(
                 }
             }
 
-    private fun resolveAccessState(
-        record: MetadataRecord,
-    ): AccessState =
+    private fun resolveAccessState(record: MetadataRecord): AccessState =
         when {
             isRestricted(record) -> AccessState(restricted = true, openData = false, protected = false)
             isProtected(record) -> AccessState(restricted = false, openData = false, protected = true)
@@ -152,9 +153,7 @@ class MetadataSummaryService(
             else -> AccessState(restricted = false, openData = false, protected = false)
         }
 
-    private fun isOpenData(
-        record: MetadataRecord,
-    ): Boolean {
+    private fun isOpenData(record: MetadataRecord): Boolean {
         val accessText =
             listOfNotNull(record.legalConstraints?.otherConstraintsAccess)
                 .joinToString(" ")
@@ -167,9 +166,7 @@ class MetadataSummaryService(
         )
     }
 
-    private fun isRestricted(
-        record: MetadataRecord,
-    ): Boolean {
+    private fun isRestricted(record: MetadataRecord): Boolean {
         val accessText =
             listOfNotNull(record.legalConstraints?.otherConstraintsAccess)
                 .joinToString(" ")
@@ -180,9 +177,7 @@ class MetadataSummaryService(
         )
     }
 
-    private fun isProtected(
-        record: MetadataRecord,
-    ): Boolean {
+    private fun isProtected(record: MetadataRecord): Boolean {
         val accessConstraint =
             listOfNotNull(record.legalConstraints?.otherConstraintsAccess)
                 .joinToString(" ")
