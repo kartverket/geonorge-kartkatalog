@@ -25,7 +25,7 @@ export const ProductMetadataSummarySchema = z.object({
   accessIsOpenData: z.boolean().nullable().default(true),
   accessIsProtected: z.boolean().nullable().default(false),
   // dateUpdated will be returned as Date | null | undefined
-  dateUpdated: z.string().nullable().default("-"),
+  dateUpdated: z.string().nullable(),
   maintenanceFrequency: z.string().nullable().default("-"),
   spatialRepresentation: z.string().nullable().default("-"),
   spatialScope: z.string().nullable().default("-"),
