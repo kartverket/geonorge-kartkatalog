@@ -104,7 +104,6 @@ class MetadataRoutesTest {
         return MetadataSummaryService(
             GeonetworkClient(client),
             RegisterClient(client),
-            SolrClient(client),
         )
     }
 
