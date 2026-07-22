@@ -27,11 +27,11 @@ const DateOrUndefined = z.preprocess((val) => {
 }, z.date().nullable().optional());
 
 export const ProductMetadataSummarySchema = z.object({
-  title: z.string().nullable().optional(),
-  organization: z.string().nullable().optional(),
+  title: z.string().default("Ingen tittel"),
+  organization: z.string().default("Ingen organisasjon"),
   hierarchyLevel: z.string().nullable().optional(),
   accessIsRestricted: z.boolean().nullable().optional(),
-  accessIsOpenData: z.boolean().nullable().optional(),
+  accessIsOpenData: z.boolean().default(true),
   accessIsProtected: z.boolean().nullable().optional(),
   // dateUpdated will be returned as Date | null | undefined
   dateUpdated: DateOrUndefined,

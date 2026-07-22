@@ -21,9 +21,9 @@ export default async function DatasetPage({
   return (
     <div className={styles.content}>
       <DatasetHeader
-        title={metadataSummary.title ?? "tittel"}
-        organization={metadataSummary.organization ?? "org"}
-        isOpen={metadataSummary.accessIsOpenData ?? true}
+        title={metadataSummary.title}
+        organization={metadataSummary.organization}
+        isOpen={metadataSummary.accessIsOpenData}
       />
       <div className={styles.metaRow}>
         <DatasetThumbnail thumbnailUrl={thumb} />
