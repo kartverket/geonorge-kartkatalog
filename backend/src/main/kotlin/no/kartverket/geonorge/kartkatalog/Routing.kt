@@ -17,8 +17,7 @@ fun Application.configureRouting() {
     val httpClient = HttpClient(CIO)
     val geonetworkClient = GeonetworkClient(httpClient)
     val registerClient = RegisterClient(httpClient)
-    val solrClient = SolrClient(httpClient)
-    val metadataSummaryService = MetadataSummaryService(geonetworkClient, registerClient, solrClient)
+    val metadataSummaryService = MetadataSummaryService(geonetworkClient, registerClient)
 
     monitor.subscribe(ApplicationStopping) { httpClient.close() }
 

@@ -7,8 +7,6 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordG
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
@@ -21,7 +19,6 @@ import kotlin.coroutines.cancellation.CancellationException
 class MetadataSummaryService(
     private val geonetworkClient: GeonetworkClient,
     private val registerClient: RegisterClient,
-    private val solrClient: SolrClient,
 ) {
     suspend fun getMetadataInformation(uuid: UUID): ProductMetadataInfo {
         val geonetworkRecord =
@@ -50,20 +47,12 @@ class MetadataSummaryService(
             geonetworkClient.getRecordByUuid(uuid)
                 ?: throw MetadataRecordNotFoundException(uuid)
 
-        val solrDocument =
-            solrClient
-                .getMetadataByUuid(uuid)
-                .response
-                .docs
-                .firstOrNull()
-                ?: SolrDocument(uuid = uuid.toString())
-        val accessState = resolveAccessState(record, solrDocument)
+        val accessState = resolveAccessState(record)
 
         return ProductMetadataSummary(
-            title = record.title.ifBlank { solrDocument.title.orEmpty() },
+            title = record.title,
             organization =
-                record.metadataContact.organization?.takeIf { it.isNotBlank() }
-                    ?: solrDocument.organization.orEmpty(),
+                record.metadataContact.organization.orEmpty(),
             hierarchyLevel = record.hierarchyLevel,
             accessIsRestricted = accessState.restricted,
             accessIsOpenData = accessState.openData,
@@ -155,21 +144,20 @@ class MetadataSummaryService(
 
     private fun resolveAccessState(
         record: MetadataRecord,
-        solrDocument: SolrDocument,
+//        solrDocument: SolrDocument,
     ): AccessState =
         when {
-            isRestricted(record, solrDocument) -> AccessState(restricted = true, openData = false, protected = false)
-            isProtected(record, solrDocument) -> AccessState(restricted = false, openData = false, protected = true)
-            isOpenData(record, solrDocument) -> AccessState(restricted = false, openData = true, protected = false)
+            isRestricted(record) -> AccessState(restricted = true, openData = false, protected = false)
+            isProtected(record) -> AccessState(restricted = false, openData = false, protected = true)
+            isOpenData(record) -> AccessState(restricted = false, openData = true, protected = false)
             else -> AccessState(restricted = false, openData = false, protected = false)
         }
 
     private fun isOpenData(
         record: MetadataRecord,
-        solrDocument: SolrDocument,
     ): Boolean {
         val accessText =
-            listOfNotNull(record.legalConstraints?.otherConstraintsAccess, solrDocument.otherconstraintsaccess)
+            listOfNotNull(record.legalConstraints?.otherConstraintsAccess)
                 .joinToString(" ")
         return containsAny(
             accessText,
@@ -177,15 +165,14 @@ class MetadataSummaryService(
             "noLimitations",
             "no limitations",
             "åpne data",
-        ) || solrDocument.dataaccess.equals("open", ignoreCase = true)
+        )
     }
 
     private fun isRestricted(
         record: MetadataRecord,
-        solrDocument: SolrDocument,
     ): Boolean {
         val accessText =
-            listOfNotNull(record.legalConstraints?.otherConstraintsAccess, solrDocument.otherconstraintsaccess)
+            listOfNotNull(record.legalConstraints?.otherConstraintsAccess)
                 .joinToString(" ")
         return containsAny(
             accessText,
@@ -196,13 +183,11 @@ class MetadataSummaryService(
 
     private fun isProtected(
         record: MetadataRecord,
-        solrDocument: SolrDocument,
     ): Boolean {
         val accessConstraint =
-            listOfNotNull(record.legalConstraints?.otherConstraintsAccess, solrDocument.otherconstraintsaccess)
+            listOfNotNull(record.legalConstraints?.otherConstraintsAccess)
                 .joinToString(" ")
         return containsAny(accessConstraint, "Beskyttet", "restricted", "INSPIRE_Directive_Article13_1b") ||
-            solrDocument.dataaccess.equals("protected", ignoreCase = true) ||
             record.securityConstraints?.classification.equals("restricted", ignoreCase = true)
     }
 
