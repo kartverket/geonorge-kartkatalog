@@ -19,7 +19,6 @@ import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataSummaryService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 import kotlin.test.Test
@@ -104,7 +103,6 @@ class MetadataRoutesTest {
         return MetadataSummaryService(
             GeonetworkClient(client),
             RegisterClient(client),
-            SolrClient(client),
         )
     }
 
