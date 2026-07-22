@@ -17,15 +17,7 @@ export const ProductDataQualityMeasureSchema = z.object({
   title: z.string().nullable().optional(),
 });
 
-const DateOrUndefined = z.preprocess((val) => {
-  if (val === null) return null;
-  if (typeof val === "string") {
-    const d = new Date(val);
-    return isNaN(d.getTime()) ? null : d;
-  }
-  return val;
-}, z.date().nullable().optional());
-
+// TODO: tror egentlig mange av disse verdiene egentlig kommer inn som null, burde mappe nullverdier til noe annet i stedet for å bruke default
 export const ProductMetadataSummarySchema = z.object({
   title: z.string().default("Ingen tittel"),
   organization: z.string().default("Ingen organisasjon"),
@@ -34,17 +26,16 @@ export const ProductMetadataSummarySchema = z.object({
   accessIsOpenData: z.boolean().default(true),
   accessIsProtected: z.boolean().nullable().optional(),
   // dateUpdated will be returned as Date | null | undefined
-  dateUpdated: DateOrUndefined,
-  maintenanceFrequency: z.string().nullable().optional(),
-  spatialRepresentation: z.string().nullable().optional(),
-  spatialScope: z.string().nullable().optional(),
-  resolutionScale: z.string().nullable().optional(),
-  keywordsTheme: z.array(ProductKeywordSchema).nullable().optional(),
-  nationalKeywords: z.array(ProductKeywordSchema).nullable().optional(),
+  dateUpdated: z.string().default("-"),
+  maintenanceFrequency: z.string().default("-"),
+  spatialRepresentation: z.string().default("-"),
+  spatialScope: z.string().default("-"),
+  resolutionScale: z.string().default("-"),
+  keywordsTheme: z.array(ProductKeywordSchema).default([]),
+  nationalKeywords: z.array(ProductKeywordSchema).default([]),
   distributionFormats: z
     .array(ProductDistributionFormatSchema)
-    .nullable()
-    .optional(),
+    .default([]),
   thumbnailUrl: z.string().nullable(),
   dataQualityMeasures: z
     .array(ProductDataQualityMeasureSchema)

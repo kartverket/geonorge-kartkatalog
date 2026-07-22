@@ -27,13 +27,13 @@ export default async function DatasetPage({
         <DatasetThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
         <DatasetMeta
           // TODO: oversettes når i18n er på plass (SpatialScope kommer som engelsk fra getData)
-          spatialScope={d.SpatialScope}
-          representation={d.SpatialRepresentation}
-          maintenanceFrequency={d.MaintenanceFrequency}
-          resolutionScale={d.ResolutionScale}
-          dateUpdated={d.DateUpdated}
-          themes={d.KeywordsTheme.map((k) => k.KeywordValue)}
-          formats={[...new Set(d.DistributionFormats.map((f) => f.Name))]}
+          spatialScope={metadataSummary.spatialScope}
+          representation={metadataSummary.spatialRepresentation}
+          maintenanceFrequency={metadataSummary.maintenanceFrequency}
+          resolutionScale={metadataSummary.resolutionScale}
+          dateUpdated={metadataSummary.dateUpdated}
+          themes={[...metadataSummary.keywordsTheme.map((k) => k.keywordValue), ...metadataSummary.nationalKeywords.map((k) => k.keywordValue) ].filter((item): item is string => !!item)}
+          formats={[...new Set(metadataSummary.distributionFormats.map((f) => f.name))].filter((item): item is string => !!item)}
         />
       </div>
       <DatasetActions
