@@ -1,0 +1,11 @@
+.panel {
+  padding-block: var(--ds-size-6);
+}
+
+.abstract {
+  white-space: pre-line;
+}
+
+.tabs :global([role="tablist"]) {
+  width: fit-content;
+}

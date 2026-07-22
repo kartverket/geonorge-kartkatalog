@@ -2,6 +2,7 @@ import getData from "../../../mocks/getData.json";
 import { DatasetActions } from "./_components/DatasetActions";
 import { DatasetHeader } from "./_components/DatasetHeader";
 import { DatasetMeta } from "./_components/DatasetMeta";
+import { DatasetTabs } from "./_components/DatasetTabs";
 import { DatasetThumbnail } from "./_components/DatasetThumbnail";
 import styles from "./page.module.css";
 
@@ -35,6 +36,7 @@ export default async function DatasetPage() {
         metadataXmlUrl={d.MetadataXmlUrl}
         editUrl={d.MetadataEditUrl}
       />
+      <DatasetTabs />
     </div>
   );
 }
