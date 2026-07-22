@@ -11,13 +11,13 @@ import {
 } from "@navikt/aksel-icons";
 import Image from "next/image";
 import Link from "next/link";
-import posthog from "posthog-js";
 import { useEffect, useRef, useState } from "react";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
 import { HeaderSearch } from "./HeaderSearch";
 import { ProfileDropdown } from "./ProfileDropdown";
+import {trackEvent} from "@/posthog/posthog";
 
 export function Header() {
   const [openPanel, setOpenPanel] = useState<
@@ -25,7 +25,7 @@ export function Header() {
   >(null);
   const togglePanel = (panel: "search" | "menu" | "profile") => {
     setOpenPanel((prev) => (prev === panel ? null : panel));
-    posthog.capture(`${panel}-clicked`);
+    trackEvent(`${panel}-clicked`, {component: "header"});
   };
 
   // Midlertidig til vi har innlogging koblet på
