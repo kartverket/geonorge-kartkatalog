@@ -19,28 +19,27 @@ export const ProductDataQualityMeasureSchema = z.object({
 
 // TODO: tror egentlig mange av disse verdiene egentlig kommer inn som null, burde mappe nullverdier til noe annet i stedet for å bruke default
 export const ProductMetadataSummarySchema = z.object({
-  title: z.string().default("Ingen tittel"),
-  organization: z.string().default("Ingen organisasjon"),
-  hierarchyLevel: z.string().nullable().optional(),
-  accessIsRestricted: z.boolean().nullable().optional(),
-  accessIsOpenData: z.boolean().default(true),
-  accessIsProtected: z.boolean().nullable().optional(),
+  title: z.string().nullable().default("-"),
+  organization: z.string().nullable().default("-"),
+  hierarchyLevel: z.string().nullable().default("-"),
+  accessIsRestricted: z.boolean().nullable().default(false),
+  accessIsOpenData: z.boolean().nullable().default(true),
+  accessIsProtected: z.boolean().nullable().default(false),
   // dateUpdated will be returned as Date | null | undefined
-  dateUpdated: z.string().default("-"),
-  maintenanceFrequency: z.string().default("-"),
-  spatialRepresentation: z.string().default("-"),
-  spatialScope: z.string().default("-"),
-  resolutionScale: z.string().default("-"),
+  dateUpdated: z.string().nullable().default("-"),
+  maintenanceFrequency: z.string().nullable().default("-"),
+  spatialRepresentation: z.string().nullable().default("-"),
+  spatialScope: z.string().nullable().default("-"),
+  resolutionScale: z.string().nullable().default("-"),
   keywordsTheme: z.array(ProductKeywordSchema).default([]),
   nationalKeywords: z.array(ProductKeywordSchema).default([]),
   distributionFormats: z
     .array(ProductDistributionFormatSchema)
     .default([]),
-  thumbnailUrl: z.string().nullable(),
+  thumbnailUrl: z.string().nullable().default("-"),
   dataQualityMeasures: z
     .array(ProductDataQualityMeasureSchema)
-    .nullable()
-    .optional(),
+    .default([]),
 });
 
 export type ProductMetadataSummary = z.infer<
