@@ -17,7 +17,6 @@ export const ProductDataQualityMeasureSchema = z.object({
   title: z.string().nullable().optional(),
 });
 
-// TODO: tror egentlig mange av disse verdiene egentlig kommer inn som null, burde mappe nullverdier til noe annet i stedet for å bruke default
 export const ProductMetadataSummarySchema = z.object({
   title: z.string().nullable().default("-"),
   organization: z.string().nullable().default("-"),
