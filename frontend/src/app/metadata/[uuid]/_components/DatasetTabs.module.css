@@ -1,5 +1,11 @@
 .panel {
   padding-block: var(--ds-size-6);
+  display: grid;
+  gap: var(--ds-size-4);
+}
+
+.panel[hidden] {
+  display: none;
 }
 
 .abstract {

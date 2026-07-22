@@ -36,7 +36,16 @@ export default async function DatasetPage() {
         metadataXmlUrl={d.MetadataXmlUrl}
         editUrl={d.MetadataEditUrl}
       />
-      <DatasetTabs />
+      <DatasetTabs
+        abstract={d.Abstract}
+        purpose={d.Purpose}
+        specificUsage={d.SpecificUsage}
+        constraints={d.Constraints}
+        dateCreated={d.DateCreated}
+        metadataStandard={d.MetadataStandard}
+        metadataStandardVersion={d.MetadataStandardVersion}
+        referenceSystems={d.ReferenceSystems}
+      />
     </div>
   );
 }
