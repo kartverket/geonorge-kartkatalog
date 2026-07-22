@@ -1,0 +1,20 @@
+.actions {
+  display: flex;
+  gap: var(--ds-size-9);
+  padding-block: var(--ds-size-8) var(--ds-size-10);
+  flex-wrap: wrap;
+}
+
+.actions :global(.ds-button) {
+  width: 280px;
+  height: var(--ds-size-12);
+}
+
+.actions :global(.ds-button[data-variant="primary"]) {
+  --dsc-button-background: var(--ds-color-info-text-default);
+}
+
+.actions :global(.ds-button[data-variant="secondary"]) {
+  --dsc-button-border-color: var(--ds-color-info-text-default);
+  --dsc-button-color: var(--ds-color-info-text-default);
+}

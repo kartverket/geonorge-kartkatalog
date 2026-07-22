@@ -1,4 +1,5 @@
 import getData from "../../../mocks/getData.json";
+import { DatasetActions } from "./_components/DatasetActions";
 import { DatasetHeader } from "./_components/DatasetHeader";
 import { DatasetMeta } from "./_components/DatasetMeta";
 import { DatasetThumbnail } from "./_components/DatasetThumbnail";
@@ -28,6 +29,12 @@ export default async function DatasetPage() {
           formats={[...new Set(d.DistributionFormats.map((f) => f.Name))]}
         />
       </div>
+      <DatasetActions
+        downloadUrl={d.DownloadUrl}
+        coverageUrl={d.CoverageUrl}
+        metadataXmlUrl={d.MetadataXmlUrl}
+        editUrl={d.MetadataEditUrl}
+      />
     </div>
   );
 }

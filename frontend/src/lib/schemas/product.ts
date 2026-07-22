@@ -41,18 +41,29 @@ export const ProductMetadataSummarySchema = z.object({
   resolutionScale: z.string().nullable().optional(),
   keywordsTheme: z.array(ProductKeywordSchema).nullable().optional(),
   nationalKeywords: z.array(ProductKeywordSchema).nullable().optional(),
-  distributionFormats: z.array(ProductDistributionFormatSchema).nullable().optional(),
+  distributionFormats: z
+    .array(ProductDistributionFormatSchema)
+    .nullable()
+    .optional(),
   thumbnailUrl: z.string().nullable().optional(),
-  dataQualityMeasures: z.array(ProductDataQualityMeasureSchema).nullable().optional(),
+  dataQualityMeasures: z
+    .array(ProductDataQualityMeasureSchema)
+    .nullable()
+    .optional(),
 });
 
+export type ProductMetadataSummary = z.infer<
+  typeof ProductMetadataSummarySchema
+>;
 
-export type ProductMetadataSummary = z.infer<typeof ProductMetadataSummarySchema>;
-
-export function parseProductMetadataSummary(body: unknown): ProductMetadataSummary {
+export function parseProductMetadataSummary(
+  body: unknown,
+): ProductMetadataSummary {
   const res = ProductMetadataSummarySchema.safeParse(body);
   if (!res.success) {
-    throw new Error("Invalid metadata summary from server", { cause: res.error });
+    throw new Error("Invalid metadata summary from server", {
+      cause: res.error,
+    });
   }
 
   return res.data;
@@ -94,4 +105,3 @@ export function parseProductMetadataInfo(body: unknown): ProductMetadataInfo {
   }
   return res.data;
 }
-
