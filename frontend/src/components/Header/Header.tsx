@@ -17,7 +17,7 @@ import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
 import { HeaderSearch } from "./HeaderSearch";
 import { ProfileDropdown } from "./ProfileDropdown";
-import {trackEvent} from "@/posthog/posthog";
+import { trackEvent } from "@/posthog/posthog";
 
 export function Header() {
   const [openPanel, setOpenPanel] = useState<
