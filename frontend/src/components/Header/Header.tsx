@@ -140,6 +140,7 @@ export function Header() {
                 <ProfileDropdown
                   userName={user.name}
                   className={styles.showFromLg}
+                  posthogClick={() => trackClick("profile")}
                 />
                 <Button
                   ref={profileButtonRef}
