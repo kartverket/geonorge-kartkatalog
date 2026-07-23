@@ -53,7 +53,6 @@ export default async function DatasetPage({
         purpose={d.Purpose}
         specificUsage={d.SpecificUsage}
         constraints={d.Constraints}
-        representation={d.SpatialRepresentation}
         referenceSystems={d.ReferenceSystems}
         distributionGroups={d.DistributionFormatsGrouped}
         dateUpdated={d.DateUpdated}
