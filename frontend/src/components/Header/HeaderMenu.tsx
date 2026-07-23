@@ -74,8 +74,8 @@ function MenuLinkList({
   closePanel: () => void;
 }) {
   const onNavigate = (eventClicked: string) => {
-    closePanel();
     trackEvent(`${eventClicked}-clicked`, { location: LOCATIONS.HeaderMenu });
+    closePanel();
   };
 
   return (
@@ -96,11 +96,13 @@ export function HeaderMenu({
   userName,
   mapCount,
   downloadCount,
+  posthogClick,
 }: {
   closePanel: () => void;
   userName?: string;
   mapCount: number;
   downloadCount: number;
+  posthogClick: (clickItem: string) => void;
 }) {
   const [view, setView] = useState<"nav" | "search" | "profile">("nav");
   return (
@@ -112,7 +114,10 @@ export function HeaderMenu({
             data-color="neutral"
             className={styles.inMenuFromSm}
             aria-expanded={view === "search"}
-            onClick={() => setView(view === "search" ? "nav" : "search")}
+            onClick={() => {
+              setView(view === "search" ? "nav" : "search")
+              posthogClick("search")
+            }}
           >
             <MagnifyingGlassIcon aria-hidden />
             Søk
@@ -121,6 +126,7 @@ export function HeaderMenu({
             variant="tertiary"
             data-color="neutral"
             className={styles.inMenuFromXl}
+            onClick={()=> posthogClick("map")}
           >
             <Badge.Position
               overlap="circle"
@@ -136,6 +142,7 @@ export function HeaderMenu({
             variant="tertiary"
             data-color="neutral"
             className={styles.inMenuFromXl}
+            onClick={()=> posthogClick("cart")}
           >
             <Badge.Position
               overlap="circle"
@@ -149,7 +156,7 @@ export function HeaderMenu({
             </Badge.Position>
             Nedlastingskurv
           </Button>
-          <Button variant="tertiary" data-color="neutral">
+          <Button variant="tertiary" data-color="neutral" onClick={()=> posthogClick("change-language")}>
             <LanguageIcon aria-hidden />
             <span>EN</span>
           </Button>
@@ -159,7 +166,10 @@ export function HeaderMenu({
               data-color="neutral"
               className={styles.inMenuFromSm}
               aria-expanded={view === "profile"}
-              onClick={() => setView(view === "profile" ? "nav" : "profile")}
+              onClick={() => {
+                setView(view === "profile" ? "nav" : "profile")
+                posthogClick("profile")
+              }}
             >
               <Avatar aria-hidden data-size="xs" />
               {userName}
@@ -169,6 +179,7 @@ export function HeaderMenu({
               variant="tertiary"
               data-color="neutral"
               className={styles.inMenuFromSm}
+              onClick={()=>posthogClick("login")}
             >
               <EnterIcon aria-hidden />
               Logg inn

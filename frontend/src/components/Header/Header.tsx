@@ -24,7 +24,7 @@ export function Header() {
     "search" | "menu" | "profile" | null
   >(null);
 
-  const trackClick =(clickItem: string) =>  trackEvent(`${clickItem}-clicked`, { location: LOCATIONS.Header })
+  const trackClick = (clickItem: string) =>  trackEvent(`${clickItem}-clicked`, { location: LOCATIONS.Header })
   const togglePanel = (panel: "search" | "menu" | "profile") => {
     setOpenPanel((prev) => (prev === panel ? null : panel));
     trackClick(panel)
@@ -121,7 +121,7 @@ export function Header() {
               variant="tertiary"
               data-color="neutral"
               className={styles.showFromXl}
-              onClick={() => trackClick("download-cart")}
+              onClick={() => trackClick("cart")}
             >
               <Badge.Position
                 overlap="circle"
@@ -192,6 +192,7 @@ export function Header() {
           userName={user?.name}
           mapCount={mapCount}
           downloadCount={downloadCount}
+          posthogClick={trackClick}
         />
       )}
       {openPanel === "profile" && <HeaderProfile />}
