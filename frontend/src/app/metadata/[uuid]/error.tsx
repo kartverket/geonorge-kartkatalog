@@ -1,5 +1,7 @@
 "use client";
+import { Button, Heading } from "@kv-designsystem/react";
 import { useEffect } from "react";
+import styles from "@/app/metadata/[uuid]/error.module.css";
 
 export default function ErrorPage({
   error,
@@ -13,5 +15,12 @@ export default function ErrorPage({
     console.error(error);
   }, [error]);
 
-  return <div>Feil</div>;
+  return (
+    <div className={styles.content}>
+      <Heading>Noe gikk galt</Heading>
+      <Button variant="primary" data-color="neutral" onClick={unstable_retry}>
+        Last på nytt
+      </Button>
+    </div>
+  );
 }
