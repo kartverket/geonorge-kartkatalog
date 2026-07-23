@@ -45,7 +45,7 @@
 
 .fieldList {
   display: grid;
-  grid-template-columns: 12rem 1fr;
+  grid-template-columns: 14rem minmax(0, 1fr);
   row-gap: var(--ds-size-6);
   column-gap: var(--ds-size-6);
   margin: 0;
@@ -77,7 +77,7 @@
 .urlBox {
   display: flex;
   align-items: stretch;
-  flex: 1;
+  min-width: 0;
   border: 1px solid var(--ds-color-neutral-border-default);
   border-radius: var(--ds-border-radius-md);
   overflow: hidden;
@@ -87,12 +87,17 @@
   flex: 1;
   min-width: 0;
   padding: var(--ds-size-2) var(--ds-size-3);
-  text-decoration: underline;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   display: flex;
   align-items: center;
+}
+
+.urlText {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: underline;
   font-size: var(--ds-body-md-font-size);
 }
 

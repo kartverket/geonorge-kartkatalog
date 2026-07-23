@@ -76,7 +76,9 @@ function UrlLink({ url }: { url: string }) {
   };
   return (
     <div className={styles.urlBox}>
-      <span className={styles.urlValue}>{url}</span>
+      <span className={styles.urlValue}>
+        <span className={styles.urlText}>{url}</span>
+      </span>
       <button type="button" className={styles.copyButton} onClick={copy}>
         <LinkIcon aria-hidden />
         {copied ? "Kopiert" : "Kopiér lenke"}
