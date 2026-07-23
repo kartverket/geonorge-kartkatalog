@@ -158,13 +158,11 @@ function buildInfoDetails({
 
 function buildDistributionDetails({
   groups,
-  representation,
   referenceSystems,
   dateUpdated,
   maintenanceFrequency,
 }: {
   groups: DistributionGroup[];
-  representation: string;
   referenceSystems: ReferenceSystem[];
   dateUpdated: string;
   maintenanceFrequency: string;
@@ -233,7 +231,6 @@ export function DatasetTabs({
   purpose,
   specificUsage,
   constraints,
-  representation,
   referenceSystems,
   distributionGroups,
   dateUpdated,
@@ -243,7 +240,6 @@ export function DatasetTabs({
   purpose: string;
   specificUsage: string;
   constraints: Constraints;
-  representation: string;
   referenceSystems: ReferenceSystem[];
   distributionGroups: DistributionGroup[];
   dateUpdated: string;
@@ -256,7 +252,6 @@ export function DatasetTabs({
   });
   const distributionDetails = buildDistributionDetails({
     groups: distributionGroups,
-    representation,
     referenceSystems,
     dateUpdated,
     maintenanceFrequency,
