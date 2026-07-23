@@ -22,6 +22,14 @@
   overflow: hidden;
 }
 
+.accordionGroup :global(summary) {
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
+.accordionGroup p {
+  margin: 0 0 var(--ds-size-10);
+}
+
 .accordionGroup :global(.ds-details:first-child) {
   border-top: 0;
 }
@@ -35,16 +43,29 @@
   font-style: italic;
 }
 
+.fieldList {
+  display: grid;
+  grid-template-columns: 12rem 1fr;
+  row-gap: var(--ds-size-6);
+  column-gap: var(--ds-size-6);
+  margin: 0;
+}
+
 .fieldRow {
-  display: flex;
-  gap: var(--ds-size-4);
-  align-items: center;
+  display: contents;
 }
 
 .fieldLabel {
-  width: 10rem;
-  flex-shrink: 0;
-  color: var(--ds-color-neutral-text-subtle);
+  margin: 0;
+}
+
+.fieldValue {
+  margin: 0;
+}
+
+.urlStack {
+  display: grid;
+  gap: var(--ds-size-3);
 }
 
 .tags {

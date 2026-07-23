@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Details,
-  Heading,
-  Tabs,
-  Tag,
-  Textfield,
-} from "@kv-designsystem/react";
+import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import styles from "./DatasetTabs.module.css";
@@ -59,25 +52,35 @@ function DetailAccordion({ items }: { items: DetailItem[] }) {
   );
 }
 
-function UrlField({ label, url }: { label: string; url: string }) {
-  const [copied, setCopied] = useState(false);
+type Field = { label: string; content: React.ReactNode };
 
+function FieldList({ fields }: { fields: Field[] }) {
+  return (
+    <dl className={styles.fieldList}>
+      {fields.map((f) => (
+        <div className={styles.fieldRow} key={f.label}>
+          <dt className={styles.fieldLabel}>{f.label}</dt>
+          <dd className={styles.fieldValue}>{f.content}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function UrlLink({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
   const copy = async () => {
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
   return (
-    <div className={styles.fieldRow}>
-      <span className={styles.fieldLabel}>{label}</span>
-      <div className={styles.urlBox}>
-        <span className={styles.urlValue}>{url}</span>
-        <button type="button" className={styles.copyButton} onClick={copy}>
-          <LinkIcon aria-hidden />
-          {copied ? "Kopiert" : "Kopiér lenke"}
-        </button>
-      </div>
+    <div className={styles.urlBox}>
+      <span className={styles.urlValue}>{url}</span>
+      <button type="button" className={styles.copyButton} onClick={copy}>
+        <LinkIcon aria-hidden />
+        {copied ? "Kopiert" : "Kopiér lenke"}
+      </button>
     </div>
   );
 }
@@ -95,31 +98,49 @@ function buildInfoDetails({
     {
       title: "Bruksområde og formål",
       content: (
-        <>
-          <p>{purpose}</p>
-          <p>{specificUsage}</p>
-        </>
+        <FieldList
+          fields={[
+            { label: "Bruksområde", content: purpose },
+            { label: "Spesifikk bruk", content: specificUsage },
+          ]}
+        />
       ),
     },
     {
       title: "Lisens og restriksjoner",
       content: (
-        <>
-          <p>Bruksbegrensninger: {constraints.UseLimitations}</p>
-          <p>Tilgangsrestriksjoner: {constraints.AccessConstraints}</p>
-          <p>Sikkerhetsnivå: {constraints.SecurityConstraints}</p>
-          <p>Brukerrestriksjoner: {constraints.UseConstraints}</p>
-          <p>
-            Lisens:{" "}
-            <a
-              href={constraints.OtherConstraintsLink}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {constraints.OtherConstraintsLinkText}
-            </a>
-          </p>
-        </>
+        <FieldList
+          fields={[
+            {
+              label: "Bruksbegrensninger",
+              content: constraints.UseLimitations,
+            },
+            {
+              label: "Tilgangsrestriksjoner",
+              content: constraints.AccessConstraints,
+            },
+            {
+              label: "Sikkerhetsnivå",
+              content: constraints.SecurityConstraints,
+            },
+            {
+              label: "Brukerrestriksjoner",
+              content: constraints.UseConstraints,
+            },
+            {
+              label: "Lisens",
+              content: (
+                <a
+                  href={constraints.OtherConstraintsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {constraints.OtherConstraintsLinkText}
+                </a>
+              ),
+            },
+          ]}
+        />
       ),
     },
     {
@@ -149,50 +170,55 @@ function buildDistributionDetails({
   return groups.map((group) => ({
     title: group.ProtocolName,
     content: (
-      <>
-        <p>Beskrivelse: {group.ProtocolDescription}</p>
-        <p>Representasjonsform: {representation}</p>
-
-        <div className={styles.fieldRow}>
-          <span className={styles.fieldLabel}>Formater</span>
-          <span className={styles.tags} data-color="neutral">
-            {group.Formats.map((f) => (
-              <Tag key={f.FormatName}>{f.FormatName}</Tag>
-            ))}
-          </span>
-        </div>
-
-        {group.URL.length === group.Formats.length ? (
-          group.Formats.map((f, i) => (
-            <UrlField
-              key={f.FormatName}
-              label={f.FormatName}
-              url={group.URL[i]}
-            />
-          ))
-        ) : (
-          <UrlField label="Tilgangs-URL" url={group.URL[0]} />
-        )}
-
-        {group.UnitsOfDistribution && (
-          <p>
-            Geografisk distribusjonsinndeling:
-            {group.UnitsOfDistribution}
-          </p>
-        )}
-
-        <div className={styles.fieldRow}>
-          <span className={styles.fieldLabel}>Referansesystem</span>
-          <span className={styles.tags} data-color="neutral">
-            {referenceSystems.map((rs) => (
-              <Tag key={rs.CoordinateSystemUrl}>{rs.CoordinateSystem}</Tag>
-            ))}
-          </span>
-        </div>
-
-        <p>Datasett sist oppdatert: {formatDate(dateUpdated)}</p>
-        <p>Oppdateringshyppighet: {maintenanceFrequency}</p>
-      </>
+      <FieldList
+        fields={[
+          { label: "Beskrivelse", content: group.ProtocolDescription },
+          {
+            label: "Tilgangs-URL",
+            content:
+              group.URL.length === group.Formats.length ? (
+                <div className={styles.urlStack}>
+                  {group.Formats.map((f, i) => (
+                    <UrlLink key={f.FormatName} url={group.URL[i]} />
+                  ))}
+                </div>
+              ) : (
+                <UrlLink url={group.URL[0]} />
+              ),
+          },
+          { label: "Representasjonsform", content: representation },
+          {
+            label: "Formater",
+            content: (
+              <span className={styles.tags} data-color="neutral">
+                {group.Formats.map((f) => (
+                  <Tag key={f.FormatName}>{f.FormatName}</Tag>
+                ))}
+              </span>
+            ),
+          },
+          { label: "Oppdateringshyppighet", content: maintenanceFrequency },
+          { label: "Ressurs sist oppdatert", content: formatDate(dateUpdated) },
+          ...(group.UnitsOfDistribution
+            ? [
+                {
+                  label: "Geografisk distribusjonsinndeling",
+                  content: group.UnitsOfDistribution,
+                },
+              ]
+            : []),
+          {
+            label: "Referansesystem",
+            content: (
+              <span className={styles.tags} data-color="neutral">
+                {referenceSystems.map((rs) => (
+                  <Tag key={rs.CoordinateSystemUrl}>{rs.CoordinateSystem}</Tag>
+                ))}
+              </span>
+            ),
+          },
+        ]}
+      />
     ),
   }));
 }
