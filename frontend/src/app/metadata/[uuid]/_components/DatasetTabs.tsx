@@ -175,20 +175,17 @@ function buildDistributionDetails({
       <FieldList
         fields={[
           { label: "Beskrivelse", content: group.ProtocolDescription },
-          {
-            label: "Tilgangs-URL",
-            content:
-              group.URL.length === group.Formats.length ? (
-                <div className={styles.urlStack}>
-                  {group.Formats.map((f, i) => (
-                    <UrlLink key={f.FormatName} url={group.URL[i]} />
-                  ))}
-                </div>
-              ) : (
-                <UrlLink url={group.URL[0]} />
-              ),
-          },
-          { label: "Representasjonsform", content: representation },
+          ...(group.URL.length === group.Formats.length
+            ? group.Formats.map((f, i) => ({
+                label: f.FormatName,
+                content: <UrlLink url={group.URL[i]} />,
+              }))
+            : [
+                {
+                  label: "Tilgangs-URL",
+                  content: <UrlLink url={group.URL[0]} />,
+                },
+              ]),
           {
             label: "Formater",
             content: (
@@ -199,13 +196,19 @@ function buildDistributionDetails({
               </span>
             ),
           },
-          { label: "Oppdateringshyppighet", content: maintenanceFrequency },
+          { label: "Oppdateringsfrekvens", content: maintenanceFrequency },
           { label: "Ressurs sist oppdatert", content: formatDate(dateUpdated) },
           ...(group.UnitsOfDistribution
             ? [
                 {
                   label: "Geografisk distribusjonsinndeling",
-                  content: group.UnitsOfDistribution,
+                  content: (
+                    <span className={styles.tags} data-color="neutral">
+                      {group.UnitsOfDistribution.split(",").map((unit) => (
+                        <Tag key={unit}>{unit.trim()}</Tag>
+                      ))}
+                    </span>
+                  ),
                 },
               ]
             : []),
