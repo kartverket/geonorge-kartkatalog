@@ -1,6 +1,15 @@
 "use client";
 
-import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
+import {
+  Button,
+  Details,
+  Heading,
+  Tabs,
+  Tag,
+  Textfield,
+} from "@kv-designsystem/react";
+import { LinkIcon } from "@navikt/aksel-icons";
+import { useState } from "react";
 import styles from "./DatasetTabs.module.css";
 
 const TABS = [
@@ -47,6 +56,29 @@ function DetailAccordion({ items }: { items: DetailItem[] }) {
         </Details>
       ))}
     </>
+  );
+}
+
+function UrlField({ label, url }: { label: string; url: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className={styles.fieldRow}>
+      <span className={styles.fieldLabel}>{label}</span>
+      <div className={styles.urlBox}>
+        <span className={styles.urlValue}>{url}</span>
+        <button type="button" className={styles.copyButton} onClick={copy}>
+          <LinkIcon aria-hidden />
+          {copied ? "Kopiert" : "Kopiér lenke"}
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -120,40 +152,26 @@ function buildDistributionDetails({
       <>
         <p>Beskrivelse: {group.ProtocolDescription}</p>
         <p>Representasjonsform: {representation}</p>
-        <p>
-          Formater:{" "}
+
+        <div className={styles.fieldRow}>
+          <span className={styles.fieldLabel}>Formater</span>
           <span className={styles.tags} data-color="neutral">
             {group.Formats.map((f) => (
               <Tag key={f.FormatName}>{f.FormatName}</Tag>
             ))}
           </span>
-        </p>
+        </div>
+
         {group.URL.length === group.Formats.length ? (
           group.Formats.map((f, i) => (
-            <p key={f.FormatName}>
-              {f.FormatName}:{" "}
-              <a
-                href={group.URL[i]}
-                target="_blank"
-                rel="noopener
-  noreferrer"
-              >
-                {group.URL[i]}
-              </a>
-            </p>
+            <UrlField
+              key={f.FormatName}
+              label={f.FormatName}
+              url={group.URL[i]}
+            />
           ))
         ) : (
-          <p>
-            Tilgangs-URL:{" "}
-            <a
-              href={group.URL[0]}
-              target="_blank"
-              rel="noopener
-  noreferrer"
-            >
-              {group.URL[0]}
-            </a>
-          </p>
+          <UrlField label="Tilgangs-URL" url={group.URL[0]} />
         )}
 
         {group.UnitsOfDistribution && (
@@ -162,14 +180,16 @@ function buildDistributionDetails({
             {group.UnitsOfDistribution}
           </p>
         )}
-        <p>
-          Romlig referansesystem:{" "}
+
+        <div className={styles.fieldRow}>
+          <span className={styles.fieldLabel}>Romlig referansesystem</span>
           <span className={styles.tags} data-color="neutral">
             {referenceSystems.map((rs) => (
               <Tag key={rs.CoordinateSystemUrl}>{rs.CoordinateSystem}</Tag>
             ))}
           </span>
-        </p>
+        </div>
+
         <p>Datasett sist oppdatert: {formatDate(dateUpdated)}</p>
         <p>Oppdateringshyppighet: {maintenanceFrequency}</p>
       </>

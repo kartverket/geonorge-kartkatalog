@@ -30,13 +30,66 @@
   border-bottom: 0;
 }
 
+.pending {
+  color: var(--ds-color-neutral-text-subtle);
+  font-style: italic;
+}
+
+.fieldRow {
+  display: flex;
+  gap: var(--ds-size-4);
+  align-items: center;
+}
+
+.fieldLabel {
+  width: 10rem;
+  flex-shrink: 0;
+  color: var(--ds-color-neutral-text-subtle);
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;
   gap: var(--ds-size-2);
 }
 
-.pending {
+.urlBox {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  border: 1px solid var(--ds-color-neutral-border-default);
+  border-radius: var(--ds-border-radius-md);
+  overflow: hidden;
+}
+
+.urlValue {
+  flex: 1;
+  min-width: 0;
+  padding: var(--ds-size-2) var(--ds-size-3);
+  text-decoration: underline;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  font-size: var(--ds-body-md-font-size);
+}
+
+.copyButton {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  padding-inline: var(--ds-size-12);
+  border: none;
+  border-left: 1px solid var(--ds-color-neutral-border-default);
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: var(--ds-body-md-font-size);
   color: var(--ds-color-neutral-text-subtle);
-  font-style: italic;
+}
+
+.copyButton svg {
+  width: 24px;
+  height: 24px;
 }
