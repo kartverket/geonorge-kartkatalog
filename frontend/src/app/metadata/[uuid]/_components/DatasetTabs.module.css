@@ -1,3 +1,7 @@
+.tabs :global([role="tablist"]) {
+  width: fit-content;
+}
+
 .panel {
   padding-block: var(--ds-size-6);
   display: grid;
@@ -12,6 +16,27 @@
   white-space: pre-line;
 }
 
-.tabs :global([role="tablist"]) {
-  width: fit-content;
+.accordionGroup {
+  border: 1px solid var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-md);
+  overflow: hidden;
+}
+
+.accordionGroup :global(.ds-details:first-child) {
+  border-top: 0;
+}
+
+.accordionGroup :global(.ds-details:last-child) {
+  border-bottom: 0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-2);
+}
+
+.pending {
+  color: var(--ds-color-neutral-text-subtle);
+  font-style: italic;
 }
