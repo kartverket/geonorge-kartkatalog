@@ -41,10 +41,11 @@ export default async function DatasetPage() {
         purpose={d.Purpose}
         specificUsage={d.SpecificUsage}
         constraints={d.Constraints}
-        dateCreated={d.DateCreated}
-        metadataStandard={d.MetadataStandard}
-        metadataStandardVersion={d.MetadataStandardVersion}
+        representation={d.SpatialRepresentation}
         referenceSystems={d.ReferenceSystems}
+        distributionGroups={d.DistributionFormatsGrouped}
+        dateUpdated={d.DateUpdated}
+        maintenanceFrequency={d.MaintenanceFrequency}
       />
     </div>
   );
