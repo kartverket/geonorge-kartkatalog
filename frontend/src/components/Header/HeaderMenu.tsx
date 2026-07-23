@@ -18,10 +18,10 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { useState } from "react";
+import { LOCATIONS, trackEvent } from "@/posthog/posthog";
 import styles from "./HeaderMenu.module.css";
 import { ProfileContent } from "./ProfileContent";
 import { SearchField } from "./SearchField";
-import {LOCATIONS, trackEvent} from "@/posthog/posthog";
 
 type MenuLink = { label: string; href: Route };
 type MenuSection = { title: string; links: MenuLink[] };
@@ -73,17 +73,16 @@ function MenuLinkList({
   links: MenuLink[];
   closePanel: () => void;
 }) {
-
-  const onNavigate = (eventClicked:string) => {
-    closePanel()
-    trackEvent(`${eventClicked}-clicked`, {location: LOCATIONS.HeaderMenu })
-  }
+  const onNavigate = (eventClicked: string) => {
+    closePanel();
+    trackEvent(`${eventClicked}-clicked`, { location: LOCATIONS.HeaderMenu });
+  };
 
   return (
     <ul className={styles.linkList}>
       {links.map((link) => (
         <li key={link.label}>
-          <Link href={link.href} onClick={()=> onNavigate(link.label)}>
+          <Link href={link.href} onClick={() => onNavigate(link.label)}>
             {link.label}
           </Link>
         </li>

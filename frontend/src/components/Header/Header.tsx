@@ -12,12 +12,12 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { LOCATIONS, trackEvent } from "@/posthog/posthog";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
 import { HeaderSearch } from "./HeaderSearch";
 import { ProfileDropdown } from "./ProfileDropdown";
-import {LOCATIONS, trackEvent} from "@/posthog/posthog";
 
 export function Header() {
   const [openPanel, setOpenPanel] = useState<
