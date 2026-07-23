@@ -178,12 +178,14 @@ function buildDistributionDetails({
                 label: f.FormatName,
                 content: <UrlLink url={group.URL[i]} />,
               }))
-            : [
-                {
-                  label: "Tilgangs-URL",
-                  content: <UrlLink url={group.URL[0]} />,
-                },
-              ]),
+            : group.URL.length > 0
+              ? [
+                  {
+                    label: "Tilgangs-URL",
+                    content: <UrlLink url={group.URL[0]} />,
+                  },
+                ]
+              : []),
           {
             label: "Formater",
             content: (
