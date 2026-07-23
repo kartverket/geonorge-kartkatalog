@@ -17,39 +17,28 @@ export const ProductDataQualityMeasureSchema = z.object({
   title: z.string().nullable().optional(),
 });
 
-const DateOrUndefined = z.preprocess((val) => {
-  if (val === null) return null;
-  if (typeof val === "string") {
-    const d = new Date(val);
-    return isNaN(d.getTime()) ? null : d;
-  }
-  return val;
-}, z.date().nullable().optional());
-
 export const ProductMetadataSummarySchema = z.object({
-  title: z.string().nullable().optional(),
-  organization: z.string().nullable().optional(),
-  hierarchyLevel: z.string().nullable().optional(),
-  accessIsRestricted: z.boolean().nullable().optional(),
-  accessIsOpenData: z.boolean().nullable().optional(),
-  accessIsProtected: z.boolean().nullable().optional(),
+  title: z.string().nullable().default("-"),
+  organization: z.string().nullable().default("-"),
+  hierarchyLevel: z.string().nullable().default("-"),
+  accessIsRestricted: z.boolean().nullable().default(false),
+  accessIsOpenData: z.boolean().nullable().default(true),
+  accessIsProtected: z.boolean().nullable().default(false),
   // dateUpdated will be returned as Date | null | undefined
-  dateUpdated: DateOrUndefined,
-  maintenanceFrequency: z.string().nullable().optional(),
-  spatialRepresentation: z.string().nullable().optional(),
-  spatialScope: z.string().nullable().optional(),
-  resolutionScale: z.string().nullable().optional(),
-  keywordsTheme: z.array(ProductKeywordSchema).nullable().optional(),
-  nationalKeywords: z.array(ProductKeywordSchema).nullable().optional(),
+  dateUpdated: z.string().nullable(),
+  maintenanceFrequency: z.string().nullable().default("-"),
+  spatialRepresentation: z.string().nullable().default("-"),
+  spatialScope: z.string().nullable().default("-"),
+  resolutionScale: z.string().nullable().default("-"),
+  keywordsTheme: z.array(ProductKeywordSchema).default([]),
+  nationalKeywords: z.array(ProductKeywordSchema).default([]),
   distributionFormats: z
     .array(ProductDistributionFormatSchema)
-    .nullable()
-    .optional(),
-  thumbnailUrl: z.string().nullable().optional(),
+    .default([]),
+  thumbnailUrl: z.string().nullable().default(null),
   dataQualityMeasures: z
     .array(ProductDataQualityMeasureSchema)
-    .nullable()
-    .optional(),
+    .default([]),
 });
 
 export type ProductMetadataSummary = z.infer<

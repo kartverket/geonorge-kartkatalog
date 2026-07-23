@@ -9,7 +9,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataSummaryService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 
@@ -17,8 +16,7 @@ fun Application.configureRouting() {
     val httpClient = HttpClient(CIO)
     val geonetworkClient = GeonetworkClient(httpClient)
     val registerClient = RegisterClient(httpClient)
-    val solrClient = SolrClient(httpClient)
-    val metadataSummaryService = MetadataSummaryService(geonetworkClient, registerClient, solrClient)
+    val metadataSummaryService = MetadataSummaryService(geonetworkClient, registerClient)
 
     monitor.subscribe(ApplicationStopping) { httpClient.close() }
 

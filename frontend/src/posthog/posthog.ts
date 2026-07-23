@@ -1,6 +1,15 @@
 import posthog from "posthog-js";
 
-export type AnalyticsProperties = Record<string, unknown>;
+export const LOCATIONS = {
+  Header: 'header',
+  HeaderMenu: 'header-menu'
+
+} as const
+
+export type Location = (typeof LOCATIONS)[keyof typeof LOCATIONS];
+export type AnalyticsProperties = Record<string, unknown> & {
+  location: Location;
+};
 
 export function trackEvent(
   eventName: string,
