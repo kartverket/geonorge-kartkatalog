@@ -65,11 +65,6 @@
   align-self: center;
 }
 
-.urlStack {
-  display: grid;
-  gap: var(--ds-size-3);
-}
-
 .tags {
   display: flex;
   flex-wrap: wrap;
