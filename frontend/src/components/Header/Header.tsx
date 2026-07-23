@@ -24,10 +24,11 @@ export function Header() {
     "search" | "menu" | "profile" | null
   >(null);
 
-  const trackClick = (clickItem: string) =>  trackEvent(`${clickItem}-clicked`, { location: LOCATIONS.Header })
+  const trackClick = (clickItem: string) =>
+    trackEvent(`${clickItem}-clicked`, { location: LOCATIONS.Header });
   const togglePanel = (panel: "search" | "menu" | "profile") => {
     setOpenPanel((prev) => (prev === panel ? null : panel));
-    trackClick(panel)
+    trackClick(panel);
   };
 
   // Midlertidig til vi har innlogging koblet på
@@ -73,7 +74,7 @@ export function Header() {
     <div className={styles.root} ref={rootRef}>
       <header className={styles.header}>
         <div className={styles.inner}>
-          <Link href="/" onNavigate={()=> trackEvent("geonorge-logo")}>
+          <Link href="/" onNavigate={() => trackEvent("geonorge-logo")}>
             <Image
               src="/geonorge-logo.svg"
               alt="Geonorge"

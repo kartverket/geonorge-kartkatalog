@@ -1,7 +1,3 @@
 export default function Loading() {
-  return (
-    <div >
-      Laster
-    </div>
-  )
+  return <div>Laster</div>;
 }

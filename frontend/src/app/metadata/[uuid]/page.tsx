@@ -33,8 +33,13 @@ export default async function DatasetPage({
           maintenanceFrequency={metadataSummary.maintenanceFrequency}
           resolutionScale={metadataSummary.resolutionScale}
           dateUpdated={metadataSummary.dateUpdated}
-          themes={[...metadataSummary.keywordsTheme.map((k) => k.keywordValue), ...metadataSummary.nationalKeywords.map((k) => k.keywordValue) ].filter((item): item is string => !!item)}
-          formats={[...new Set(metadataSummary.distributionFormats.map((f) => f.name))].filter((item): item is string => !!item)}
+          themes={[
+            ...metadataSummary.keywordsTheme.map((k) => k.keywordValue),
+            ...metadataSummary.nationalKeywords.map((k) => k.keywordValue),
+          ].filter((item): item is string => !!item)}
+          formats={[
+            ...new Set(metadataSummary.distributionFormats.map((f) => f.name)),
+          ].filter((item): item is string => !!item)}
         />
       </div>
       <DatasetActions

@@ -32,13 +32,9 @@ export const ProductMetadataSummarySchema = z.object({
   resolutionScale: z.string().nullable().default("-"),
   keywordsTheme: z.array(ProductKeywordSchema).default([]),
   nationalKeywords: z.array(ProductKeywordSchema).default([]),
-  distributionFormats: z
-    .array(ProductDistributionFormatSchema)
-    .default([]),
+  distributionFormats: z.array(ProductDistributionFormatSchema).default([]),
   thumbnailUrl: z.string().nullable().default(null),
-  dataQualityMeasures: z
-    .array(ProductDataQualityMeasureSchema)
-    .default([]),
+  dataQualityMeasures: z.array(ProductDataQualityMeasureSchema).default([]),
 });
 
 export type ProductMetadataSummary = z.infer<
