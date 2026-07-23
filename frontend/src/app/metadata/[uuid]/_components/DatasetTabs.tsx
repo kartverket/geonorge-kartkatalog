@@ -182,7 +182,7 @@ function buildDistributionDetails({
         )}
 
         <div className={styles.fieldRow}>
-          <span className={styles.fieldLabel}>Romlig referansesystem</span>
+          <span className={styles.fieldLabel}>Referansesystem</span>
           <span className={styles.tags} data-color="neutral">
             {referenceSystems.map((rs) => (
               <Tag key={rs.CoordinateSystemUrl}>{rs.CoordinateSystem}</Tag>
