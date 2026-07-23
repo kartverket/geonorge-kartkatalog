@@ -57,10 +57,12 @@
 
 .fieldLabel {
   margin: 0;
+  align-self: center;
 }
 
 .fieldValue {
   margin: 0;
+  align-self: center;
 }
 
 .urlStack {
