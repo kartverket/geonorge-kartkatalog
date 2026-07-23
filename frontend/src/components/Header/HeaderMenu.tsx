@@ -21,6 +21,7 @@ import { useState } from "react";
 import styles from "./HeaderMenu.module.css";
 import { ProfileContent } from "./ProfileContent";
 import { SearchField } from "./SearchField";
+import {LOCATIONS, trackEvent} from "@/posthog/posthog";
 
 type MenuLink = { label: string; href: Route };
 type MenuSection = { title: string; links: MenuLink[] };
@@ -67,16 +68,22 @@ const MENU_SECTIONS: MenuSection[] = [
 
 function MenuLinkList({
   links,
-  onNavigate,
+  closePanel,
 }: {
   links: MenuLink[];
-  onNavigate: () => void;
+  closePanel: () => void;
 }) {
+
+  const onNavigate = (eventClicked:string) => {
+    closePanel()
+    trackEvent(`${eventClicked}-clicked`, {location: LOCATIONS.HeaderMenu })
+  }
+
   return (
     <ul className={styles.linkList}>
       {links.map((link) => (
         <li key={link.label}>
-          <Link href={link.href} onClick={onNavigate}>
+          <Link href={link.href} onClick={()=> onNavigate(link.label)}>
             {link.label}
           </Link>
         </li>
@@ -86,12 +93,12 @@ function MenuLinkList({
 }
 
 export function HeaderMenu({
-  onNavigate,
+  closePanel,
   userName,
   mapCount,
   downloadCount,
 }: {
-  onNavigate: () => void;
+  closePanel: () => void;
   userName?: string;
   mapCount: number;
   downloadCount: number;
@@ -180,7 +187,7 @@ export function HeaderMenu({
               {MENU_SECTIONS.map((section) => (
                 <li key={section.title}>
                   <Heading data-size="sm">{section.title}</Heading>
-                  <MenuLinkList links={section.links} onNavigate={onNavigate} />
+                  <MenuLinkList links={section.links} closePanel={closePanel} />
                 </li>
               ))}
             </ul>
@@ -191,7 +198,7 @@ export function HeaderMenu({
                   <Details.Content>
                     <MenuLinkList
                       links={section.links}
-                      onNavigate={onNavigate}
+                      closePanel={closePanel}
                     />
                   </Details.Content>
                 </Details>
