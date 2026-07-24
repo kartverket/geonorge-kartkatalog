@@ -4,6 +4,7 @@ import {
   parseProductMetadataInfo,
   parseProductMetadataSummary,
 } from "@/lib/schemas/product";
+import { notFound } from "next/navigation";
 
 const API_BASE = "http://localhost:8080";
 
@@ -45,6 +46,10 @@ async function fetchJson(
     } else {
       // Fallback to text for non-json responses (useful for error messages)
       body = await res.text();
+    }
+
+    if (res.status === 404) {
+      notFound();
     }
 
     if (!res.ok) {
