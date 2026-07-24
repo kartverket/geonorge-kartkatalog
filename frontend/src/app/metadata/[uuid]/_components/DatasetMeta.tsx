@@ -46,10 +46,10 @@ export function DatasetMeta({
 }: {
   // TODO: deale med null-verdier når vi har landet backendtyping
   spatialScope: string | null;
-  representation: string| null;
-  maintenanceFrequency: string| null;
-  resolutionScale: string| null;
-  dateUpdated: string| null;
+  representation: string | null;
+  maintenanceFrequency: string | null;
+  resolutionScale: string | null;
+  dateUpdated: string | null;
   themes: string[];
   formats: string[];
 }) {
@@ -59,13 +59,13 @@ export function DatasetMeta({
         label="Dekningsområde"
         help="Hvor stort geografisk område datasettet dekker"
       >
-        {spatialScope ?? '-'}
+        {spatialScope ?? "-"}
       </MetaField>
       <MetaField
         label="Oppdateringshyppighet"
         help="Hvor ofte datasettet oppdateres"
       >
-        {maintenanceFrequency ?? '-'}
+        {maintenanceFrequency ?? "-"}
       </MetaField>
       <MetaField
         label="Sist oppdatert"
@@ -77,10 +77,10 @@ export function DatasetMeta({
         label="Representasjonsform"
         help="Hvordan geodataene er representert"
       >
-        <Tag data-color="neutral">{representation ?? '-'}</Tag>
+        <Tag data-color="neutral">{representation ?? "-"}</Tag>
       </MetaField>
       <MetaField label="Målestokktall" help="Målestokk datasettet er egnet for">
-        {resolutionScale ?? '-'}
+        {resolutionScale ?? "-"}
       </MetaField>
       {/* Datakvalitet: ikke tilgjengelig */}
       <MetaField

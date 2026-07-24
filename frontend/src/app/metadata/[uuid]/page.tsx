@@ -3,6 +3,7 @@ import getData from "../../../mocks/getData.json";
 import { DatasetActions } from "./_components/DatasetActions";
 import { DatasetHeader } from "./_components/DatasetHeader";
 import { DatasetMeta } from "./_components/DatasetMeta";
+import { DatasetTabs } from "./_components/DatasetTabs";
 import { DatasetThumbnail } from "./_components/DatasetThumbnail";
 import styles from "./page.module.css";
 
@@ -32,8 +33,13 @@ export default async function DatasetPage({
           maintenanceFrequency={metadataSummary.maintenanceFrequency}
           resolutionScale={metadataSummary.resolutionScale}
           dateUpdated={metadataSummary.dateUpdated}
-          themes={[...metadataSummary.keywordsTheme.map((k) => k.keywordValue), ...metadataSummary.nationalKeywords.map((k) => k.keywordValue) ].filter((item): item is string => !!item)}
-          formats={[...new Set(metadataSummary.distributionFormats.map((f) => f.name))].filter((item): item is string => !!item)}
+          themes={[
+            ...metadataSummary.keywordsTheme.map((k) => k.keywordValue),
+            ...metadataSummary.nationalKeywords.map((k) => k.keywordValue),
+          ].filter((item): item is string => !!item)}
+          formats={[
+            ...new Set(metadataSummary.distributionFormats.map((f) => f.name)),
+          ].filter((item): item is string => !!item)}
         />
       </div>
       <DatasetActions
@@ -41,6 +47,16 @@ export default async function DatasetPage({
         coverageUrl={d.CoverageUrl}
         metadataXmlUrl={d.MetadataXmlUrl}
         editUrl={d.MetadataEditUrl}
+      />
+      <DatasetTabs
+        abstract={d.Abstract}
+        purpose={d.Purpose}
+        specificUsage={d.SpecificUsage}
+        constraints={d.Constraints}
+        referenceSystems={d.ReferenceSystems}
+        distributionGroups={d.DistributionFormatsGrouped}
+        dateUpdated={d.DateUpdated}
+        maintenanceFrequency={d.MaintenanceFrequency}
       />
     </div>
   );

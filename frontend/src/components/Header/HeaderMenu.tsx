@@ -115,8 +115,8 @@ export function HeaderMenu({
             className={styles.inMenuFromSm}
             aria-expanded={view === "search"}
             onClick={() => {
-              setView(view === "search" ? "nav" : "search")
-              posthogClick("search")
+              setView(view === "search" ? "nav" : "search");
+              posthogClick("search");
             }}
           >
             <MagnifyingGlassIcon aria-hidden />
@@ -126,7 +126,7 @@ export function HeaderMenu({
             variant="tertiary"
             data-color="neutral"
             className={styles.inMenuFromXl}
-            onClick={()=> posthogClick("map")}
+            onClick={() => posthogClick("map")}
           >
             <Badge.Position
               overlap="circle"
@@ -142,7 +142,7 @@ export function HeaderMenu({
             variant="tertiary"
             data-color="neutral"
             className={styles.inMenuFromXl}
-            onClick={()=> posthogClick("cart")}
+            onClick={() => posthogClick("cart")}
           >
             <Badge.Position
               overlap="circle"
@@ -156,7 +156,11 @@ export function HeaderMenu({
             </Badge.Position>
             Nedlastingskurv
           </Button>
-          <Button variant="tertiary" data-color="neutral" onClick={()=> posthogClick("change-language")}>
+          <Button
+            variant="tertiary"
+            data-color="neutral"
+            onClick={() => posthogClick("change-language")}
+          >
             <LanguageIcon aria-hidden />
             <span>EN</span>
           </Button>
@@ -167,8 +171,8 @@ export function HeaderMenu({
               className={styles.inMenuFromSm}
               aria-expanded={view === "profile"}
               onClick={() => {
-                setView(view === "profile" ? "nav" : "profile")
-                posthogClick("profile")
+                setView(view === "profile" ? "nav" : "profile");
+                posthogClick("profile");
               }}
             >
               <Avatar aria-hidden data-size="xs" />
@@ -179,7 +183,7 @@ export function HeaderMenu({
               variant="tertiary"
               data-color="neutral"
               className={styles.inMenuFromSm}
-              onClick={()=>posthogClick("login")}
+              onClick={() => posthogClick("login")}
             >
               <EnterIcon aria-hidden />
               Logg inn

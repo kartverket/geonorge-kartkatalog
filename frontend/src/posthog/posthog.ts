@@ -1,10 +1,9 @@
 import posthog from "posthog-js";
 
 export const LOCATIONS = {
-  Header: 'header',
-  HeaderMenu: 'header-menu'
-
-} as const
+  Header: "header",
+  HeaderMenu: "header-menu",
+} as const;
 
 export type Location = (typeof LOCATIONS)[keyof typeof LOCATIONS];
 export type AnalyticsProperties = Record<string, unknown> & {

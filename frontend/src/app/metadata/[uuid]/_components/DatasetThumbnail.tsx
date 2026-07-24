@@ -1,7 +1,11 @@
 import Image from "next/image";
 import styles from "./DatasetThumbnail.module.css";
 
-export function DatasetThumbnail({ thumbnailUrl }: { thumbnailUrl: string | null }) {
+export function DatasetThumbnail({
+  thumbnailUrl,
+}: {
+  thumbnailUrl: string | null;
+}) {
   if (!thumbnailUrl) return null;
   return (
     <div className={styles.wrapper}>

@@ -19,7 +19,7 @@ export function DatasetHeader({
     <div className={styles.header}>
       <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
         <Link href="/">Geonorge</Link> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
-        {"›"} <span className={styles.current}>{title ?? '-'}</span>
+        {"›"} <span className={styles.current}>{title ?? "-"}</span>
       </nav>
       <Tag data-color="info">
         {isOpen ? (
@@ -29,9 +29,9 @@ export function DatasetHeader({
         )}
         {isOpen ? "Åpent datasett" : "Lukket datasett"}
       </Tag>
-      <h1 className={styles.title}>{title ?? '-'}</h1>
+      <h1 className={styles.title}>{title ?? "-"}</h1>
       <p className={styles.organization}>
-        Datasett fra <Link href="#">{organization ?? '-'}</Link>
+        Datasett fra <Link href="#">{organization ?? "-"}</Link>
       </p>
     </div>
   );

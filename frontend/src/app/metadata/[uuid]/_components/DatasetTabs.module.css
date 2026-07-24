@@ -1,0 +1,118 @@
+.tabs :global([role="tablist"]) {
+  width: fit-content;
+}
+
+.panel {
+  padding-block: var(--ds-size-6);
+  display: grid;
+  gap: var(--ds-size-4);
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.abstract {
+  white-space: pre-line;
+}
+
+.accordionGroup {
+  border: 1px solid var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-md);
+  overflow: hidden;
+}
+
+.accordionGroup :global(summary) {
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
+.accordionGroup p {
+  margin: 0 0 var(--ds-size-10);
+}
+
+.accordionGroup :global(.ds-details:first-child) {
+  border-top: 0;
+}
+
+.accordionGroup :global(.ds-details:last-child) {
+  border-bottom: 0;
+}
+
+.pending {
+  color: var(--ds-color-neutral-text-subtle);
+  font-style: italic;
+}
+
+.fieldList {
+  display: grid;
+  grid-template-columns: 14rem minmax(0, 1fr);
+  row-gap: var(--ds-size-6);
+  column-gap: var(--ds-size-6);
+  margin: 0;
+}
+
+.fieldRow {
+  display: contents;
+}
+
+.fieldLabel {
+  margin: 0;
+  align-self: center;
+}
+
+.fieldValue {
+  margin: 0;
+  align-self: center;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-2);
+}
+
+.urlBox {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  border: 1px solid var(--ds-color-neutral-border-default);
+  border-radius: var(--ds-border-radius-md);
+  overflow: hidden;
+}
+
+.urlValue {
+  flex: 1;
+  min-width: 0;
+  padding: var(--ds-size-2) var(--ds-size-3);
+  display: flex;
+  align-items: center;
+}
+
+.urlText {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: underline;
+  font-size: var(--ds-body-md-font-size);
+}
+
+.copyButton {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  padding-inline: var(--ds-size-12);
+  border: none;
+  border-left: 1px solid var(--ds-color-neutral-border-default);
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: var(--ds-body-md-font-size);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.copyButton svg {
+  width: 24px;
+  height: 24px;
+}
