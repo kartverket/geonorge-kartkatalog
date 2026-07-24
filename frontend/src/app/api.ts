@@ -1,10 +1,10 @@
+import { notFound } from "next/navigation";
 import {
   type ProductMetadataInfo,
   type ProductMetadataSummary,
   parseProductMetadataInfo,
   parseProductMetadataSummary,
 } from "@/lib/schemas/product";
-import { notFound } from "next/navigation";
 
 const API_BASE = "http://localhost:8080";
 

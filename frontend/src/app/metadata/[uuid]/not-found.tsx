@@ -1,8 +1,8 @@
 "use client";
-import styles from "@/app/metadata/[uuid]/not-found.module.css";
 
 import { Heading } from "@kv-designsystem/react";
 import Link from "next/link";
+import styles from "@/app/metadata/[uuid]/not-found.module.css";
 
 export default function NotFound() {
   return (
