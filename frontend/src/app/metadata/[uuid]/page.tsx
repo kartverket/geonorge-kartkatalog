@@ -1,4 +1,5 @@
 import { getMetadataSummary } from "@/app/api";
+import { getUniqueItemsFromListByKey } from "@/app/metadata/[uuid]/_utils/metadataUtils";
 import getData from "../../../mocks/getData.json";
 import { DatasetActions } from "./_components/DatasetActions";
 import { DatasetHeader } from "./_components/DatasetHeader";
@@ -33,13 +34,17 @@ export default async function DatasetPage({
           maintenanceFrequency={metadataSummary.maintenanceFrequency}
           resolutionScale={metadataSummary.resolutionScale}
           dateUpdated={metadataSummary.dateUpdated}
-          themes={[
-            ...metadataSummary.keywordsTheme.map((k) => k.keywordValue),
-            ...metadataSummary.nationalKeywords.map((k) => k.keywordValue),
-          ].filter((item): item is string => !!item)}
-          formats={[
-            ...new Set(metadataSummary.distributionFormats.map((f) => f.name)),
-          ].filter((item): item is string => !!item)}
+          themes={getUniqueItemsFromListByKey(
+            [
+              ...metadataSummary.nationalKeywords,
+              ...metadataSummary.keywordsTheme,
+            ],
+            "keywordValue",
+          )}
+          formats={getUniqueItemsFromListByKey(
+            metadataSummary.distributionFormats,
+            "name",
+          )}
         />
       </div>
       <DatasetActions
