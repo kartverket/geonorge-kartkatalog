@@ -5,7 +5,7 @@ import {
   parseProductMetadataSummary,
 } from "@/lib/schemas/product";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = process.env.API_BASE;
 
 export class HttpError extends Error {
   status: number;

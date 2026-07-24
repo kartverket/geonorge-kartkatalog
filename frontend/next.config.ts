@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  /* config options here */
+  output: "standalone",
   typedRoutes: true,
   reactCompiler: true,
 };
