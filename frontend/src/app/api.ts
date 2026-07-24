@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import {
   type ProductMetadataInfo,
   type ProductMetadataSummary,
@@ -45,6 +46,10 @@ async function fetchJson(
     } else {
       // Fallback to text for non-json responses (useful for error messages)
       body = await res.text();
+    }
+
+    if (res.status === 404) {
+      notFound();
     }
 
     if (!res.ok) {
