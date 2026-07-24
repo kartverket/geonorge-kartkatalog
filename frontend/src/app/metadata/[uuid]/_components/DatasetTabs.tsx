@@ -16,12 +16,12 @@ const formatDate = (s?: string) =>
   s ? new Date(s).toLocaleDateString("nb-NO", { dateStyle: "long" }) : "-";
 
 type Constraints = {
-  UseLimitations: string;
-  AccessConstraints: string;
-  SecurityConstraints: string;
-  UseConstraints: string;
-  OtherConstraintsLink: string;
-  OtherConstraintsLinkText: string;
+  useLimitations?: string[] | null;
+  accessConstraints?: string | null;
+  SecurityConstraints: string; // midlertidig fra mock
+  useConstraints?: string | null;
+  otherConstraintsLink?: string | null;
+  otherConstraintsLinkText?: string | null;
 };
 
 type ReferenceSystem = {
@@ -122,11 +122,11 @@ function buildInfoDetails({
           fields={[
             {
               label: "Bruksbegrensninger",
-              content: constraints.UseLimitations,
+              content: constraints.useLimitations?.join(", ") ?? "-",
             },
             {
               label: "Tilgangsrestriksjoner",
-              content: constraints.AccessConstraints,
+              content: constraints.accessConstraints ?? "-",
             },
             {
               label: "Sikkerhetsnivå",
@@ -134,18 +134,20 @@ function buildInfoDetails({
             },
             {
               label: "Brukerrestriksjoner",
-              content: constraints.UseConstraints,
+              content: constraints.useConstraints ?? "-",
             },
             {
               label: "Lisens",
-              content: (
+              content: constraints.otherConstraintsLink ? (
                 <a
-                  href={constraints.OtherConstraintsLink}
+                  href={constraints.otherConstraintsLink}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {constraints.OtherConstraintsLinkText}
+                  {constraints.otherConstraintsLinkText}
                 </a>
+              ) : (
+                "-"
               ),
             },
           ]}
