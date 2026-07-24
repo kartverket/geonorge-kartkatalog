@@ -26,8 +26,11 @@ class MetadataSummaryService(
                 ?: throw MetadataRecordNotFoundException(uuid)
         return ProductMetadataInfo(
             abstractText = geonetworkRecord.abstract,
+            purpose = geonetworkRecord.purpose,
             specificUsage = geonetworkRecord.specificUsage,
             constraints = geonetworkRecord.legalConstraints,
+            securityClassification =
+                geonetworkRecord.securityConstraints?.classification,
             contactMetadata = geonetworkRecord.metadataContact.toProductMetadataContact(),
             contactOwner =
                 geonetworkRecord.contacts

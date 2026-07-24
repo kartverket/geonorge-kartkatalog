@@ -1,4 +1,4 @@
-import { getMetadataSummary } from "@/app/api";
+import { getMetadataInfo, getMetadataSummary } from "@/app/api";
 import { getUniqueItemsFromListByKey } from "@/app/metadata/[uuid]/_utils/metadataUtils";
 import getData from "../../../mocks/getData.json";
 import { DatasetActions } from "./_components/DatasetActions";
@@ -17,6 +17,7 @@ export default async function DatasetPage({
 
   const { uuid } = await params;
   const metadataSummary = await getMetadataSummary(uuid);
+  const metadataInfo = await getMetadataInfo(uuid);
 
   return (
     <div className={styles.content}>
@@ -54,14 +55,19 @@ export default async function DatasetPage({
         editUrl={d.MetadataEditUrl}
       />
       <DatasetTabs
-        abstract={d.Abstract}
-        purpose={d.Purpose}
-        specificUsage={d.SpecificUsage}
-        constraints={d.Constraints}
+        abstract={metadataInfo.abstractText ?? ""}
+        purpose={metadataInfo.purpose ?? ""}
+        specificUsage={metadataInfo.specificUsage ?? ""}
+        // securityConstraints finnes ikke i LegalConstraints
+        // bruk mock
+        constraints={{
+          ...metadataInfo.constraints,
+          SecurityConstraints: metadataInfo.securityClassification ?? "-",
+        }}
         referenceSystems={d.ReferenceSystems}
         distributionGroups={d.DistributionFormatsGrouped}
-        dateUpdated={d.DateUpdated}
-        maintenanceFrequency={d.MaintenanceFrequency}
+        dateUpdated={metadataSummary.dateUpdated ?? ""}
+        maintenanceFrequency={metadataSummary.maintenanceFrequency ?? ""}
       />
     </div>
   );
