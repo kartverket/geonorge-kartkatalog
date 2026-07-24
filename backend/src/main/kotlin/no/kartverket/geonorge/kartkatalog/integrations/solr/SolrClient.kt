@@ -12,9 +12,8 @@ import java.util.UUID
 
 class SolrClient(
     private val httpClient: HttpClient,
+    private val baseUrl: String,
 ) {
-    private val baseUrl = "https://geonorge-kartkatalog-solr-dev.atkv3-dev.kartverket-intern.cloud/"
-
     // norsk versjon
     private val norskPath = "solr/metadata/select"
 
@@ -24,7 +23,7 @@ class SolrClient(
         val solrQuery = buildMetadataSolrQuery(uuid)
 
         val response =
-            httpClient.post(baseUrl + norskPath) {
+            httpClient.post("$baseUrl/$norskPath") {
                 setBody(FormDataContent(solrQuery.toParameters()))
             }
 

@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.routes
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
+import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
@@ -18,7 +19,15 @@ class ServerTest {
                 configureHttp()
                 configureSerialization()
                 configureStatusPages()
-                configureRouting()
+                configureRouting(
+                    AppConfig(
+                        mapOf(
+                            "GEONETWORK_BASE_URL" to "https://test.example.com/geonetwork",
+                            "REGISTER_BASE_URL" to "https://test.example.com/register",
+                            "SOLR_BASE_URL" to "https://test.example.com/solr",
+                        ),
+                    ),
+                )
             }
             assertEquals(HttpStatusCode.OK, client.get("/").status)
         }

@@ -28,6 +28,8 @@ class RegisterClientTest {
     private lateinit var httpClient: HttpClient
     private lateinit var client: RegisterClient
 
+    private val registerBaseUrl = "https://test.example.com"
+
     @BeforeTest
     fun setUp() {
         engine =
@@ -40,7 +42,7 @@ class RegisterClientTest {
                 )
             }
         httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
-        client = RegisterClient(httpClient)
+        client = RegisterClient(httpClient, registerBaseUrl)
     }
 
     @AfterTest

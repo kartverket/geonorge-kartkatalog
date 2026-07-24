@@ -52,6 +52,9 @@ class MetadataRoutesTest {
         }
         """.trimIndent()
 
+    private val geonetworkBaseUrl = "https://test.example.com/geonetwork"
+    private val registerBaseUrl = "https://test.example.com/register"
+
     private fun createSummaryService(xml: String): MetadataSummaryService {
         val client =
             HttpClient(
@@ -101,8 +104,14 @@ class MetadataRoutesTest {
             }
 
         return MetadataSummaryService(
-            GeonetworkClient(client),
-            RegisterClient(client),
+            GeonetworkClient(
+                client,
+                geonetworkBaseUrl,
+            ),
+            RegisterClient(
+                client,
+                registerBaseUrl,
+            ),
         )
     }
 
