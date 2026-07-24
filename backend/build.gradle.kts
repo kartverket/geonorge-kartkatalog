@@ -16,6 +16,12 @@ kotlin {
     jvmToolchain(21)
 }
 
+ktor {
+    fatJar {
+        archiveFileName.set("application.jar")
+    }
+}
+
 dependencies {
     implementation(ktorLibs.server.callLogging)
     implementation(ktorLibs.server.contentNegotiation)
