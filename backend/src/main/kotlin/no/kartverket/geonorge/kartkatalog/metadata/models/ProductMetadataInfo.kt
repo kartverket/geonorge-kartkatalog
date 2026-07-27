@@ -5,15 +5,15 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalCon
 
 @Serializable
 class ProductMetadataInfo(
-    val abstractText: String?,
-    val purpose: String?,
-    val specificUsage: String?,
-    val processHistory: String?,
-    val constraints: LegalConstraints?,
-    val securityClassification: String?,
-    val contactMetadata: ProductMetadataContact?,
-    val contactOwner: ProductMetadataContact?,
-    val contactPublisher: ProductMetadataContact?,
+    val abstractText: String? = null,
+    val purpose: String? = null,
+    val specificUsage: String? = null,
+    val processHistory: String? = null,
+    val constraints: LegalConstraints? = null,
+    val securityClassification: String? = null,
+    val contactMetadata: ProductMetadataContact? = null,
+    val contactOwner: ProductMetadataContact? = null,
+    val contactPublisher: ProductMetadataContact? = null,
 )
 
 @Serializable
