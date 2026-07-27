@@ -1,40 +1,39 @@
 import { z } from "zod";
 
 export const ProductDistributionFormatSchema = z.object({
-  name: z.string().nullable().optional(),
-  version: z.string().nullable().optional(),
+  name: z.string().nullable(),
+  version: z.string().nullable(),
 });
 
 export const ProductKeywordSchema = z.object({
-  keywordValue: z.string().nullable().optional(),
-  type: z.string().nullable().optional(),
+  keywordValue: z.string().nullable(),
+  type: z.string().nullable(),
 });
 
 export const ProductDataQualityMeasureSchema = z.object({
-  explanation: z.string().nullable().optional(),
-  quantitativeResult: z.number().nullable().optional(),
-  quantitativeResultValueUnit: z.string().nullable().optional(),
-  title: z.string().nullable().optional(),
+  explanation: z.string().nullable(),
+  quantitativeResult: z.number().nullable(),
+  quantitativeResultValueUnit: z.string().nullable(),
+  title: z.string().nullable(),
 });
 
 export const ProductMetadataSummarySchema = z.object({
-  title: z.string().nullable().default("-"),
-  organization: z.string().nullable().default("-"),
-  hierarchyLevel: z.string().nullable().default("-"),
-  accessIsRestricted: z.boolean().nullable().default(false),
-  accessIsOpenData: z.boolean().nullable().default(true),
-  accessIsProtected: z.boolean().nullable().default(false),
-  // dateUpdated will be returned as Date | null | undefined
+  title: z.string(),
+  organization: z.string().nullable(),
+  hierarchyLevel: z.string(),
+  accessIsRestricted: z.boolean().nullable(),
+  accessIsOpenData: z.boolean().nullable(),
+  accessIsProtected: z.boolean().nullable(),
   dateUpdated: z.string().nullable(),
-  maintenanceFrequency: z.string().nullable().default("-"),
-  spatialRepresentation: z.string().nullable().default("-"),
-  spatialScope: z.string().nullable().default("-"),
-  resolutionScale: z.string().nullable().default("-"),
-  keywordsTheme: z.array(ProductKeywordSchema).default([]),
-  nationalKeywords: z.array(ProductKeywordSchema).default([]),
-  distributionFormats: z.array(ProductDistributionFormatSchema).default([]),
-  thumbnailUrl: z.string().nullable().default(null),
-  dataQualityMeasures: z.array(ProductDataQualityMeasureSchema).default([]),
+  maintenanceFrequency: z.string().nullable(),
+  spatialRepresentation: z.string().nullable(),
+  spatialScope: z.string().nullable(),
+  resolutionScale: z.string().nullable(),
+  keywordsTheme: z.array(ProductKeywordSchema),
+  nationalKeywords: z.array(ProductKeywordSchema),
+  distributionFormats: z.array(ProductDistributionFormatSchema),
+  thumbnailUrl: z.string().nullable(),
+  dataQualityMeasures: z.array(ProductDataQualityMeasureSchema),
 });
 
 export type ProductMetadataSummary = z.infer<
@@ -54,34 +53,33 @@ export function parseProductMetadataSummary(
   return res.data;
 }
 
-// ---------- ProductMetadataInfo and related schemas ----------
 export const LegalConstraintsSchema = z.object({
-  accessConstraints: z.string().nullable().optional(),
-  useConstraints: z.string().nullable().optional(),
-  useLimitations: z.array(z.string()).nullable().optional(),
-  otherConstraintsLink: z.string().nullable().optional(),
-  otherConstraintsLinkText: z.string().nullable().optional(),
-  otherConstraintsAccess: z.string().nullable().optional(),
+  accessConstraints: z.string().nullable(),
+  useConstraints: z.string().nullable(),
+  useLimitations: z.array(z.string()),
+  otherConstraintsLink: z.string().nullable(),
+  otherConstraintsLinkText: z.string().nullable(),
+  otherConstraintsAccess: z.string().nullable(),
 });
 
 export const ProductMetadataContactSchema = z.object({
-  email: z.string().nullable().optional(),
-  name: z.string().nullable().optional(),
-  organization: z.string().nullable().optional(),
-  organizationEnglish: z.string().nullable().optional(),
-  role: z.string().nullable().optional(),
+  email: z.string().nullable(),
+  name: z.string().nullable(),
+  organization: z.string().nullable(),
+  organizationEnglish: z.string().nullable(),
+  role: z.string().nullable(),
 });
 
 export const ProductMetadataInfoSchema = z.object({
-  abstractText: z.string().nullable().optional(),
-  purpose: z.string().nullable().optional(),
-  specificUsage: z.string().nullable().optional(),
-  processHistory: z.string().nullable().optional(),
-  constraints: LegalConstraintsSchema.nullable().optional(),
-  securityClassification: z.string().nullable().optional(),
-  contactMetadata: ProductMetadataContactSchema.nullable().optional(),
-  contactOwner: ProductMetadataContactSchema.nullable().optional(),
-  contactPublisher: ProductMetadataContactSchema.nullable().optional(),
+  abstractText: z.string().nullable(),
+  purpose: z.string().nullable(),
+  specificUsage: z.string().nullable(),
+  processHistory: z.string().nullable(),
+  constraints: LegalConstraintsSchema.nullable(),
+  securityClassification: z.string().nullable(),
+  contactMetadata: ProductMetadataContactSchema.nullable(),
+  contactOwner: ProductMetadataContactSchema.nullable(),
+  contactPublisher: ProductMetadataContactSchema.nullable(),
 });
 
 export type ProductMetadataInfo = z.infer<typeof ProductMetadataInfoSchema>;
