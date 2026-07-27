@@ -29,7 +29,19 @@ class MetadataSummaryService(
             purpose = geonetworkRecord.purpose,
             specificUsage = geonetworkRecord.specificUsage,
             processHistory = geonetworkRecord.processHistory,
-            constraints = geonetworkRecord.legalConstraints,
+            constraints =
+                geonetworkRecord.legalConstraints?.let {
+                        constraints ->
+                    constraints.copy(
+                        accessConstraints =
+                            describeAccessConstraints(geonetworkRecord),
+                        useConstraints =
+                            describeUseConstraints(
+                                constraints.useConstraints,
+                                constraints.otherConstraintsLink,
+                            ),
+                    )
+                },
             securityClassification =
                 geonetworkRecord.securityConstraints?.classification,
             contactMetadata = geonetworkRecord.metadataContact.toProductMetadataContact(),
@@ -96,6 +108,29 @@ class MetadataSummaryService(
                         )
                     },
         )
+    }
+
+    private fun describeAccessConstraints(record: MetadataRecord): String {
+        val state = resolveAccessState(record)
+        return when {
+            state.openData -> "Åpne data"
+            state.restricted -> "Norge digitalt-begrenset"
+            else -> record.legalConstraints?.accessConstraints ?: "-"
+        }
+    }
+
+    private suspend fun describeUseConstraints(
+        useConstraints: String?,
+        otherConstraintsLink: String?,
+    ): String {
+    ): String {
+        val code =
+            if (!otherConstraintsLink.isNullOrEmpty()) {
+                "license"
+            } else {
+                useConstraints
+            }
+        return translateCodeListValue(CodeList.RESTRICTIONS, code)
     }
 
     private suspend fun translateCodeListValue(
