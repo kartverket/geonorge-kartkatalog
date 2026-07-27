@@ -19,5 +19,11 @@ fun Route.metadataRoutes(metadataSummaryService: MetadataSummaryService) {
             val result = metadataSummaryService.getMetadataInformation(uuid)
             call.respond(result)
         }
+
+        get("fair/{uuid}") {
+            val uuid = UUID.fromString(call.parameters["uuid"])
+            val result = metadataSummaryService.getFairStatus(uuid)
+            call.respond(result)
+        }
     }
 }

@@ -113,6 +113,17 @@ class MetadataSummaryService(
         )
     }
 
+    suspend fun getFairStatus(uuid: UUID): ProductFairStatus {
+        val fair = registerClient.getFairStatus(uuid)
+        return ProductFairStatus(
+            totalPercent = fair.totalPercent,
+            findablePercent = fair.findablePercent,
+            accessiblePercent = fair.accessiblePercent,
+            interoperablePercent = fair.interoperablePercent,
+            reusablePercent = fair.reusablePercent,
+        )
+    }
+
     private fun describeAccessConstraints(record: MetadataRecord): String {
         val state = resolveAccessState(record)
         return when {

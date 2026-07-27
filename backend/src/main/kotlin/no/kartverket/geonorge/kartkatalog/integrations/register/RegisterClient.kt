@@ -8,6 +8,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
+import java.util.UUID
 
 enum class CodeList(
     val systemId: String,
@@ -60,6 +61,9 @@ class RegisterClient(
             throw RegisterException("Failed to parse Register response from $path", e)
         }
     }
+
+    suspend fun getFairStatus(uuid: UUID): FairStatusResponse =
+        fetch("/api/fair/$uuid", FairStatusResponse.serializer())
 }
 
 class RegisterException(

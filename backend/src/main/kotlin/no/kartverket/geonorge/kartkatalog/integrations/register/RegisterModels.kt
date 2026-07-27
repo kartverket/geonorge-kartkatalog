@@ -42,3 +42,17 @@ data class RegisterSubRegisterItem(
     val label: String,
     val id: String? = null,
 )
+
+@Serializable
+data class FairStatusResponse(
+    @SerialName("FAIRStatusPerCent")
+    val totalPercent: Double? = null,
+    @SerialName("FindableStatusPerCent")
+    val findablePercent: Double? = null,
+    @SerialName("AccesibleStatusPerCent")
+    val accessiblePercent: Double? = null,
+    @SerialName("InteroperableStatusPerCent")
+    val interoperablePercent: Double? = null,
+    @SerialName("ReUseableStatusPerCent")
+    val reusablePercent: Double? = null,
+)
