@@ -27,7 +27,7 @@
 }
 
 .accordionGroup p {
-  margin: 0 0 var(--ds-size-10);
+  margin: var(--ds-size-8) var(--ds-size-8) var(--ds-size-8);
 }
 
 .accordionGroup :global(.ds-details:first-child) {
