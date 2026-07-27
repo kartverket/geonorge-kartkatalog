@@ -202,7 +202,7 @@ function buildDistributionDetails({
           {
             label: "Formater",
             content: (
-              <span className={styles.tags} data-color="neutral">
+              <span className={styles.tags} data-color="info">
                 {group.Formats.map((f) => (
                   <Tag key={f.FormatName}>{f.FormatName}</Tag>
                 ))}
