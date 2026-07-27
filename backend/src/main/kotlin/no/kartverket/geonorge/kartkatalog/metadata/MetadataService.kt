@@ -8,8 +8,8 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Metadata
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductFairStatus
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductFairStatus
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataInfo
