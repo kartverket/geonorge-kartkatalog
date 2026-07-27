@@ -95,13 +95,13 @@ function UrlLink({ url }: { url: string }) {
 }
 
 function buildInfoDetails({
-  purpose,
   specificUsage,
+  purpose,
   processHistory,
   constraints,
 }: {
-  purpose: string;
   specificUsage: string;
+  purpose: string;
   processHistory?: string | null;
   constraints: Constraints;
 }): DetailItem[] {
@@ -109,12 +109,10 @@ function buildInfoDetails({
     {
       title: "Bruksområde og formål",
       content: (
-        <FieldList
-          fields={[
-            { label: "Bruksområde", content: purpose },
-            { label: "Spesifikk bruk", content: specificUsage },
-          ]}
-        />
+        <>
+          <p>{specificUsage}</p>
+          <p>{purpose}</p>
+        </>
       ),
     },
     {
@@ -204,7 +202,7 @@ function buildDistributionDetails({
           {
             label: "Formater",
             content: (
-              <span className={styles.tags} data-color="neutral">
+              <span className={styles.tags} data-color="info">
                 {group.Formats.map((f) => (
                   <Tag key={f.FormatName}>{f.FormatName}</Tag>
                 ))}
@@ -245,8 +243,8 @@ function buildDistributionDetails({
 
 export function DatasetTabs({
   abstract,
-  purpose,
   specificUsage,
+  purpose,
   processHistory,
   constraints,
   referenceSystems,
@@ -255,8 +253,8 @@ export function DatasetTabs({
   maintenanceFrequency,
 }: {
   abstract: string;
-  purpose: string;
   specificUsage: string;
+  purpose: string;
   processHistory?: string | null;
   constraints: Constraints;
   referenceSystems: ReferenceSystem[];
@@ -265,8 +263,8 @@ export function DatasetTabs({
   maintenanceFrequency: string;
 }) {
   const infoDetails = buildInfoDetails({
-    purpose,
     specificUsage,
+    purpose,
     processHistory,
     constraints,
   });
