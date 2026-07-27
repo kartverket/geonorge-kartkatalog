@@ -43,7 +43,10 @@ class MetadataSummaryService(
                     )
                 },
             securityClassification =
-                geonetworkRecord.securityConstraints?.classification,
+                translateCodeListValue(
+                    CodeList.CLASSIFICATION,
+                    geonetworkRecord.securityConstraints?.classification,
+                ),
             contactMetadata = geonetworkRecord.metadataContact.toProductMetadataContact(),
             contactOwner =
                 geonetworkRecord.contacts
@@ -122,7 +125,6 @@ class MetadataSummaryService(
     private suspend fun describeUseConstraints(
         useConstraints: String?,
         otherConstraintsLink: String?,
-    ): String {
     ): String {
         val code =
             if (!otherConstraintsLink.isNullOrEmpty()) {
