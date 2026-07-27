@@ -129,10 +129,6 @@ function buildInfoDetails({
               content: constraints.accessConstraints ?? "-",
             },
             {
-              label: "Sikkerhetsnivå",
-              content: constraints.SecurityConstraints,
-            },
-            {
               label: "Brukerrestriksjoner",
               content: constraints.useConstraints ?? "-",
             },
@@ -149,6 +145,10 @@ function buildInfoDetails({
               ) : (
                 "-"
               ),
+            },
+            {
+              label: "Sikkerhetsnivå",
+              content: constraints.SecurityConstraints,
             },
           ]}
         />
