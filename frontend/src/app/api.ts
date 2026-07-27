@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import {
+  type ProductFairStatus,
   type ProductMetadataInfo,
   type ProductMetadataSummary,
+  parseProductFairStatus,
   parseProductMetadataInfo,
   parseProductMetadataSummary,
 } from "@/lib/schemas/product";
@@ -92,4 +94,15 @@ export async function getMetadataInfo(
   const url = `${API_BASE}/metadata/info/${encodeURIComponent(uuid)}`;
   const body = await fetchJson(url, { method: "GET" });
   return parseProductMetadataInfo(body);
+}
+
+/**
+ * Fetch FAIR status for a dataset by UUID.
+ * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
+ */
+export async function getFairStatus(uuid: string): Promise<ProductFairStatus> {
+  if (!uuid) throw new Error("uuid is required");
+  const url = `${API_BASE}/metadata/fair/${encodeURIComponent(uuid)}`;
+  const body = await fetchJson(url, { method: "GET" });
+  return parseProductFairStatus(body);
 }
