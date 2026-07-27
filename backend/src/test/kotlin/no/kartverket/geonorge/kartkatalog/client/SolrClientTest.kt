@@ -23,6 +23,8 @@ class SolrClientTest {
             "response": {"numFound": 1, "start": 0, "docs": [{"uuid": "test-uuid"}]}
         }"""
 
+    private val solrBaseUrl = "https://test.example.com"
+
     @Test
     fun `posts form-url-encoded metadata query`() =
         runBlocking {
@@ -43,7 +45,7 @@ class SolrClientTest {
                 }
 
             val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
-            val solrClient = SolrClient(httpClient)
+            val solrClient = SolrClient(httpClient, solrBaseUrl)
 
             try {
                 val response = solrClient.getMetadataByUuid(uuid)
@@ -77,7 +79,7 @@ class SolrClientTest {
                 }
 
             val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
-            val solrClient = SolrClient(httpClient)
+            val solrClient = SolrClient(httpClient, solrBaseUrl)
 
             httpClient.use { _ ->
                 val response: SolrResponse = solrClient.getMetadataByUuid(uuid)

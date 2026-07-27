@@ -12,8 +12,8 @@ import java.util.UUID
 
 class GeonetworkClient(
     private val httpClient: HttpClient,
+    private val baseUrl: String,
 ) {
-    private val baseUrl = "https://www.geonorge.no/geonetworktest/".trimEnd('/')
     private val cswUrl: String = "$baseUrl/srv/nor/csw"
 
     suspend fun getRecordByUuid(uuid: UUID): MetadataRecord? {

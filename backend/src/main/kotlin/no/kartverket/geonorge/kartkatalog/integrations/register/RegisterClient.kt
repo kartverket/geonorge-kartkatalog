@@ -25,21 +25,21 @@ enum class CodeList(
 
 class RegisterClient(
     private val httpClient: HttpClient,
+    private val baseUrl: String,
 ) {
-    private val baseUrl = "https://register.geonorge.no/"
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun getCodeList(codeList: CodeList): RegisterCodeListResponse =
-        fetch("api/kodelister/${codeList.systemId}", RegisterCodeListResponse.serializer())
+        fetch("/api/kodelister/${codeList.systemId}", RegisterCodeListResponse.serializer())
 
     suspend fun getCodeListByName(name: String): RegisterCodeListResponse =
-        fetch("api/metadata-kodelister/$name", RegisterCodeListResponse.serializer())
+        fetch("/api/metadata-kodelister/$name", RegisterCodeListResponse.serializer())
 
     suspend fun getSubRegister(registerName: String): RegisterSubRegisterResponse =
-        fetch("api/subregister/$registerName", RegisterSubRegisterResponse.serializer())
+        fetch("/api/subregister/$registerName", RegisterSubRegisterResponse.serializer())
 
     suspend fun getOrganizations(): RegisterOrganizationsResponse =
-        fetch("api/register/organisasjoner", RegisterOrganizationsResponse.serializer())
+        fetch("/api/register/organisasjoner", RegisterOrganizationsResponse.serializer())
 
     private suspend fun <T> fetch(
         path: String,
