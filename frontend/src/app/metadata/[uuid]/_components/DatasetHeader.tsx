@@ -10,7 +10,6 @@ export function DatasetHeader({
   organization,
   isOpen,
 }: {
-  // TODO: deale med null-verdier når vi har landet backendtyping
   title: string | null;
   organization: string | null;
   isOpen: boolean | null;
