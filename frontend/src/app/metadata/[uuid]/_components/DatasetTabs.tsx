@@ -97,10 +97,12 @@ function UrlLink({ url }: { url: string }) {
 function buildInfoDetails({
   purpose,
   specificUsage,
+  processHistory,
   constraints,
 }: {
   purpose: string;
   specificUsage: string;
+  processHistory?: string | null;
   constraints: Constraints;
 }): DetailItem[] {
   return [
@@ -154,10 +156,14 @@ function buildInfoDetails({
         />
       ),
     },
-    {
-      title: "Prosesshistorie",
-      content: <p className={styles.pending}>Innhold kommer</p>,
-    },
+    ...(processHistory
+      ? [
+          {
+            title: "Prosesshistorie",
+            content: <p>{processHistory}</p>,
+          },
+        ]
+      : []),
     {
       title: "Detaljert informasjon",
       content: <p className={styles.pending}>Innhold kommer</p>,
@@ -241,6 +247,7 @@ export function DatasetTabs({
   abstract,
   purpose,
   specificUsage,
+  processHistory,
   constraints,
   referenceSystems,
   distributionGroups,
@@ -250,6 +257,7 @@ export function DatasetTabs({
   abstract: string;
   purpose: string;
   specificUsage: string;
+  processHistory?: string | null;
   constraints: Constraints;
   referenceSystems: ReferenceSystem[];
   distributionGroups: DistributionGroup[];
@@ -259,6 +267,7 @@ export function DatasetTabs({
   const infoDetails = buildInfoDetails({
     purpose,
     specificUsage,
+    processHistory,
     constraints,
   });
   const distributionDetails = buildDistributionDetails({

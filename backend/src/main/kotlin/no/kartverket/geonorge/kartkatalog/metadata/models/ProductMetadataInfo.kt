@@ -8,6 +8,7 @@ class ProductMetadataInfo(
     val abstractText: String?,
     val purpose: String?,
     val specificUsage: String?,
+    val processHistory: String?,
     val constraints: LegalConstraints?,
     val securityClassification: String?,
     val contactMetadata: ProductMetadataContact?,

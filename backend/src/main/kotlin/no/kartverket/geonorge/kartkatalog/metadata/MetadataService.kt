@@ -28,6 +28,7 @@ class MetadataSummaryService(
             abstractText = geonetworkRecord.abstract,
             purpose = geonetworkRecord.purpose,
             specificUsage = geonetworkRecord.specificUsage,
+            processHistory = geonetworkRecord.processHistory,
             constraints = geonetworkRecord.legalConstraints,
             securityClassification =
                 geonetworkRecord.securityConstraints?.classification,

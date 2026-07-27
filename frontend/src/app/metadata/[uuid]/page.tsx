@@ -58,6 +58,7 @@ export default async function DatasetPage({
         abstract={metadataInfo.abstractText ?? ""}
         purpose={metadataInfo.purpose ?? ""}
         specificUsage={metadataInfo.specificUsage ?? ""}
+        processHistory={metadataInfo.processHistory}
         // securityConstraints finnes ikke i LegalConstraints
         // bruk mock
         constraints={{
