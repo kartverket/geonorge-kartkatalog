@@ -54,7 +54,7 @@ async function fetchJson(
     if (res.status === 404) {
       if (notFoundOn404) {
         notFound();
-      }
+      } else return null;
     }
 
     if (!res.ok) {
