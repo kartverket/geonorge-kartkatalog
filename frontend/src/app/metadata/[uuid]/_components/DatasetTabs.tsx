@@ -9,7 +9,6 @@ const TABS = [
   { value: "info", label: "Informasjon om datasettet" },
   { value: "distribution", label: "Distribusjoner for datasett" },
   { value: "documentation", label: "Dokumentasjon" },
-  { value: "quality", label: "Datakvalitet (FAIR)" },
 ];
 
 const formatDate = (s?: string) =>
@@ -293,7 +292,7 @@ export function DatasetTabs({
   distributionGroups: DistributionGroup[];
   dateUpdated: string;
   maintenanceFrequency: string;
-  fairStatus: FairStatus;
+  fairStatus: FairStatus | null;
 }) {
   const infoDetails = buildInfoDetails({
     specificUsage,
@@ -307,12 +306,16 @@ export function DatasetTabs({
     dateUpdated,
     maintenanceFrequency,
   });
-  const fairDetails = buildFairDetails(fairStatus);
+  const tabs = [
+    ...TABS,
+    ...(fairStatus ? [{ value: "quality", label: "Datakvalitet (FAIR)" }] : []),
+  ];
+  const fairDetails = fairStatus ? buildFairDetails(fairStatus) : null;
   return (
     <div data-color="info">
       <Tabs defaultValue="info" className={styles.tabs}>
         <Tabs.List>
-          {TABS.map((t) => (
+          {tabs.map((t) => (
             <Tabs.Tab key={t.value} value={t.value}>
               {t.label}
             </Tabs.Tab>
@@ -337,24 +340,26 @@ export function DatasetTabs({
         <Tabs.Panel value="documentation" className={styles.panel}>
           Dokumentasjon-innhold kommer
         </Tabs.Panel>
-        <Tabs.Panel value="quality" className={styles.panel}>
-          <div className={styles.headingGroup}>
-            <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
-            <p>
-              En FAIR-status gir en kort vurdering av hvor godt et datasett
-              følger FAIR-prinsippene: Findable (søkbarhet), Accessible
-              (tilgjengelighet), Interoperabel (interoperabilitet), Reusable
-              (gjenbrukbar).
-            </p>
-          </div>
-          <div className={styles.headingGroup}>
-            <Heading data-size="sm">Resultater for dette datasettet</Heading>
-            <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
-          </div>
-          <div className={styles.accordionGroup} data-color="neutral">
-            <DetailAccordion items={fairDetails} />
-          </div>
-        </Tabs.Panel>
+        {fairStatus && (
+          <Tabs.Panel value="quality" className={styles.panel}>
+            <div className={styles.headingGroup}>
+              <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
+              <p>
+                En FAIR-status gir en kort vurdering av hvor godt et datasett
+                følger FAIR-prinsippene: Findable (søkbarhet), Accessible
+                (tilgjengelighet), Interoperabel (interoperabilitet), Reusable
+                (gjenbrukbar).
+              </p>
+            </div>
+            <div className={styles.headingGroup}>
+              <Heading data-size="sm">Resultater for dette datasettet</Heading>
+              <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
+            </div>
+            <div className={styles.accordionGroup} data-color="neutral">
+              <DetailAccordion items={fairDetails ?? []} />
+            </div>
+          </Tabs.Panel>
+        )}
       </Tabs>
     </div>
   );

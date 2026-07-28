@@ -41,6 +41,10 @@ async function fetchJson(
 
     clearTimeout(id);
 
+    if (res.status === 204) {
+      return null;
+    }
+
     const contentType = res.headers.get("content-type") || "";
     let body: unknown = null;
     if (contentType.includes("application/json")) {
@@ -100,9 +104,12 @@ export async function getMetadataInfo(
  * Fetch FAIR status for a dataset by UUID.
  * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
  */
-export async function getFairStatus(uuid: string): Promise<ProductFairStatus> {
+export async function getFairStatus(
+  uuid: string,
+): Promise<ProductFairStatus | null> {
   if (!uuid) throw new Error("uuid is required");
   const url = `${API_BASE}/metadata/fair/${encodeURIComponent(uuid)}`;
   const body = await fetchJson(url, { method: "GET" });
+  if (body === null) return null;
   return parseProductFairStatus(body);
 }
