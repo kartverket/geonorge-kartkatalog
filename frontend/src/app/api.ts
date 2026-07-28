@@ -9,6 +9,7 @@ import {
 } from "@/lib/schemas/product";
 
 const API_BASE = process.env.API_BASE;
+const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
 
 export class HttpError extends Error {
   status: number;
@@ -24,7 +25,7 @@ export class HttpError extends Error {
 async function fetchJson(
   url: string,
   options: RequestInit = {},
-  timeout = 8000,
+  { timeout = 8000, notFoundOn404 = true } = {},
 ): Promise<unknown> {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
@@ -51,7 +52,9 @@ async function fetchJson(
     }
 
     if (res.status === 404) {
-      notFound();
+      if (notFoundOn404) {
+        notFound();
+      }
     }
 
     if (!res.ok) {
@@ -100,20 +103,18 @@ export async function getMetadataInfo(
  * Fetch FAIR status for a dataset by UUID.
  * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
  */
-const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
-
 export async function getFairStatus(
   uuid: string,
 ): Promise<ProductFairStatus | null> {
   if (!uuid) throw new Error("uuid is required");
   const url = `${REGISTER_BASE_URL}/api/fair/${encodeURIComponent(uuid)}`;
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
-
-  if (res.status === 404) {
-    return null;
-  }
-  if (!res.ok) {
-    throw new HttpError(res.status, res.statusText, await res.text());
-  }
-  return parseProductFairStatus(await res.json());
+  const body = await fetchJson(
+    url,
+    { method: "GET" },
+    {
+      notFoundOn404: false,
+    },
+  );
+  if (body === null) return null;
+  return parseProductFairStatus(body);
 }
