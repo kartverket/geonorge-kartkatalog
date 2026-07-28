@@ -1,6 +1,3 @@
-"use client";
-
-import { Tag } from "@kv-designsystem/react";
 import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import styles from "./DatasetHeader.module.css";
@@ -20,14 +17,14 @@ export function DatasetHeader({
         <Link href="/">Geonorge</Link> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
         {"›"} <span className={styles.current}>{title ?? "-"}</span>
       </nav>
-      <Tag data-color="info">
+      <span className="ds-tag" data-color="info">
         {isOpen ? (
           <PadlockUnlockedIcon aria-hidden className={styles.tagIcon} />
         ) : (
           <PadlockLockedIcon aria-hidden className={styles.tagIcon} />
         )}
         {isOpen ? "Åpent datasett" : "Lukket datasett"}
-      </Tag>
+      </span>
       <h1 className={styles.title}>{title ?? "-"}</h1>
       <p className={styles.organization}>
         Datasett fra <Link href="#">{organization ?? "-"}</Link>

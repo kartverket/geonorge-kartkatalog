@@ -14,3 +14,6 @@ export const getUniqueItemsFromListByKey = <
     ),
   ];
 };
+
+export const formatDate = (s?: string) =>
+  s ? new Date(s).toLocaleDateString("nb-NO", { dateStyle: "long" }) : "-";

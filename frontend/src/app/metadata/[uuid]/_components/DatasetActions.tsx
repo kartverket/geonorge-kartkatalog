@@ -1,6 +1,3 @@
-"use client";
-
-import { Button } from "@kv-designsystem/react";
 import {
   DownloadIcon,
   ExternalLinkIcon,
@@ -22,27 +19,47 @@ export function DatasetActions({
 }) {
   return (
     <div className={styles.actions}>
-      <Button variant="primary" data-color="neutral">
+      <button
+        className="ds-button"
+        type="button"
+        data-variant="primary"
+        data-color="neutral"
+      >
         <DownloadIcon aria-hidden />
         Legg i nedlastingskurv
-      </Button>
+      </button>
       {coverageUrl && (
-        <Button variant="secondary" data-color="neutral">
+        <button
+          className="ds-button"
+          type="button"
+          data-variant="secondary"
+          data-color="neutral"
+        >
           <ExternalLinkIcon aria-hidden />
           Vis dekningskart
-        </Button>
+        </button>
       )}
       {metadataXmlUrl && (
-        <Button variant="secondary" data-color="neutral">
+        <button
+          className="ds-button"
+          type="button"
+          data-variant="secondary"
+          data-color="neutral"
+        >
           <FileTextIcon aria-hidden />
           Last ned metadata XML
-        </Button>
+        </button>
       )}
       {editUrl && (
-        <Button variant="secondary" data-color="neutral">
+        <button
+          className="ds-button"
+          type="button"
+          data-variant="secondary"
+          data-color="neutral"
+        >
           <PencilIcon aria-hidden />
           Rediger metadata
-        </Button>
+        </button>
       )}
     </div>
   );
