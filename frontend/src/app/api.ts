@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
+import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
   type ProductMetadataInfo,
   type ProductMetadataSummary,
   parseProductMetadataInfo,
   parseProductMetadataSummary,
 } from "@/lib/schemas/product";
-import { Alerts, parseAlert } from "@/lib/schemas/alerts";
 
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
@@ -50,9 +50,9 @@ async function fetchJson(
       body = await res.text();
     }
 
-    // if (res.status === 404) {
-    //   notFound();
-    // }
+    if (res.status === 404) {
+      notFound();
+    }
 
     if (!res.ok) {
       throw new HttpError(res.status, res.statusText, body);
