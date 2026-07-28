@@ -320,8 +320,10 @@ export function DatasetTabs({
         </Tabs.List>
 
         <Tabs.Panel value="info" className={styles.panel}>
-          <Heading data-size="xs">Om datasettet</Heading>
-          <p className={styles.abstract}>{abstract}</p>
+          <div className={styles.headingGroup}>
+            <Heading data-size="xs">Om datasettet</Heading>
+            <p className={styles.abstract}>{abstract}</p>
+          </div>
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={infoDetails} />
           </div>
@@ -336,15 +338,19 @@ export function DatasetTabs({
           Dokumentasjon-innhold kommer
         </Tabs.Panel>
         <Tabs.Panel value="quality" className={styles.panel}>
-          <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
-          <p>
-            En FAIR-status gir en kort vurdering av hvor godt et datasett følger
-            FAIR-prinsippene: Findable (søkbarhet), Accessible
-            (tilgjengelighet), Interoperabel (interoperabilitet), Reusable
-            (gjenbrukbar).
-          </p>
-          <Heading data-size="sm">Resultater for dette datasettet</Heading>
-          <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
+          <div className={styles.headingGroup}>
+            <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
+            <p>
+              En FAIR-status gir en kort vurdering av hvor godt et datasett
+              følger FAIR-prinsippene: Findable (søkbarhet), Accessible
+              (tilgjengelighet), Interoperabel (interoperabilitet), Reusable
+              (gjenbrukbar).
+            </p>
+          </div>
+          <div className={styles.headingGroup}>
+            <Heading data-size="sm">Resultater for dette datasettet</Heading>
+            <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
+          </div>
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={fairDetails} />
           </div>
