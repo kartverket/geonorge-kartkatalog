@@ -8,7 +8,9 @@ export default async function ProductAlert() {
     <>
       {varsler.map((varsel, index) => (
         <div key={varsel.systemId} className="ds-alert" data-color="info">
-          <h1 className="ds-heading">{varsel.alertType}</h1>
+          <h3 className="ds-heading" data-size="xs">
+            {varsel.alertType}
+          </h3>
         </div>
       ))}
     </>

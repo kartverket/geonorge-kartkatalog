@@ -22,12 +22,12 @@ export default async function DatasetPage({
 
   return (
     <div className={styles.content}>
-      <ProductAlert />
       <DatasetHeader
         title={metadataSummary.title}
         organization={metadataSummary.organization}
         isOpen={metadataSummary.accessIsOpenData}
       />
+      <ProductAlert />
       <div className={styles.metaRow}>
         <DatasetThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
         <DatasetMeta

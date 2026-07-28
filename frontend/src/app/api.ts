@@ -8,7 +8,7 @@ import {
 import { Alerts, parseAlert } from "@/lib/schemas/alerts";
 
 const API_BASE = process.env.API_BASE;
-const REGISTER_API_URL = process.env.REGISTER_API_URL;
+const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
 
 export class HttpError extends Error {
   status: number;
@@ -102,7 +102,7 @@ export async function getMetadataInfo(
  */
 export async function getProductAlerts(uuid: string): Promise<Alerts> {
   if (!uuid) throw new Error("uuid is required");
-  const url = `${REGISTER_API_URL}/api/alerts/${encodeURIComponent(uuid)}`;
+  const url = `${REGISTER_BASE_URL}/api/alerts/${encodeURIComponent(uuid)}`;
   const body = await fetchJson(url, { method: "GET" });
   return parseAlert(body);
 }
