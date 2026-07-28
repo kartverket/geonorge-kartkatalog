@@ -114,8 +114,8 @@ class MetadataSummaryService(
         )
     }
 
-    suspend fun getFairStatus(uuid: UUID): ProductFairStatus {
-        val fair = registerClient.getFairStatus(uuid)
+    suspend fun getFairStatus(uuid: UUID): ProductFairStatus? {
+        val fair = registerClient.getFairStatus(uuid) ?: return null
         return ProductFairStatus(
             totalPercent = fair.totalPercent,
             findablePercent = fair.findablePercent,
