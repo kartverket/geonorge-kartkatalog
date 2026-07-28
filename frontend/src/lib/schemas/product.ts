@@ -91,3 +91,32 @@ export function parseProductMetadataInfo(body: unknown): ProductMetadataInfo {
   }
   return res.data;
 }
+
+export const ProductFairStatusSchema = z
+  .object({
+    FAIRStatusPerCent: z.number().nullable(),
+    FindableStatusPerCent: z.number().nullable(),
+    AccesibleStatusPerCent: z.number().nullable(),
+    InteroperableStatusPerCent: z.number().nullable(),
+    ReUseableStatusPerCent: z.number().nullable(),
+  })
+  .transform((status) => ({
+    totalPercent: status.FAIRStatusPerCent,
+    findablePercent: status.FindableStatusPerCent,
+    accessiblePercent: status.AccesibleStatusPerCent,
+    interoperablePercent: status.InteroperableStatusPerCent,
+    reusablePercent: status.ReUseableStatusPerCent,
+  }));
+
+export type ProductFairStatus = z.infer<typeof ProductFairStatusSchema>;
+
+export function parseProductFairStatus(body: unknown): ProductFairStatus {
+  const res = ProductFairStatusSchema.safeParse(body);
+  if (!res.success) {
+    throw new Error("Invalid FAIR status from register", {
+      cause: res.error,
+    });
+  }
+  return res.data;
+}
+

@@ -10,7 +10,6 @@ const TABS = [
   { value: "info", label: "Informasjon om datasettet" },
   { value: "distribution", label: "Distribusjoner for datasett" },
   { value: "documentation", label: "Dokumentasjon" },
-  { value: "quality", label: "Datakvalitet (FAIR)" },
 ];
 
 type Constraints = {
@@ -33,6 +32,14 @@ type DistributionGroup = {
   Formats: { FormatName: string }[];
   URL: string[];
   UnitsOfDistribution?: string;
+};
+
+type FairStatus = {
+  totalPercent: number | null;
+  findablePercent: number | null;
+  accessiblePercent: number | null;
+  interoperablePercent: number | null;
+  reusablePercent: number | null;
 };
 
 type DetailItem = { title: string; content: React.ReactNode };
@@ -239,6 +246,29 @@ function buildDistributionDetails({
   }));
 }
 
+function buildFairDetails(fairStatus: FairStatus): DetailItem[] {
+  return [
+    {
+      title: "Søkbarhet (Findable)",
+      content: <p>Søkbarhet: {fairStatus.findablePercent ?? "-"}%</p>,
+    },
+    {
+      title: "Tilgjengelighet (Accessible)",
+      content: <p>Tilgjengelighet: {fairStatus.accessiblePercent ?? "-"}%</p>,
+    },
+    {
+      title: "Interoperabilitet (Interoperable)",
+      content: (
+        <p>Interoperabilitet: {fairStatus.interoperablePercent ?? "-"}%</p>
+      ),
+    },
+    {
+      title: "Gjenbrukbar (Reusable)",
+      content: <p>Gjenbrukbar: {fairStatus.reusablePercent ?? "-"}%</p>,
+    },
+  ];
+}
+
 export function DatasetTabs({
   abstract,
   specificUsage,
@@ -249,6 +279,7 @@ export function DatasetTabs({
   distributionGroups,
   dateUpdated,
   maintenanceFrequency,
+  fairStatus,
 }: {
   abstract: string;
   specificUsage: string;
@@ -259,6 +290,7 @@ export function DatasetTabs({
   distributionGroups: DistributionGroup[];
   dateUpdated: string;
   maintenanceFrequency: string;
+  fairStatus: FairStatus | null;
 }) {
   const infoDetails = buildInfoDetails({
     specificUsage,
@@ -272,11 +304,16 @@ export function DatasetTabs({
     dateUpdated,
     maintenanceFrequency,
   });
+  const tabs = [
+    ...TABS,
+    ...(fairStatus ? [{ value: "quality", label: "Datakvalitet (FAIR)" }] : []),
+  ];
+  const fairDetails = fairStatus ? buildFairDetails(fairStatus) : null;
   return (
     <div data-color="info">
       <Tabs defaultValue="info" className={styles.tabs}>
         <Tabs.List>
-          {TABS.map((t) => (
+          {tabs.map((t) => (
             <Tabs.Tab key={t.value} value={t.value}>
               {t.label}
             </Tabs.Tab>
@@ -284,8 +321,10 @@ export function DatasetTabs({
         </Tabs.List>
 
         <Tabs.Panel value="info" className={styles.panel}>
-          <Heading data-size="xs">Om datasettet</Heading>
-          <p className={styles.abstract}>{abstract}</p>
+          <div className={styles.headingGroup}>
+            <Heading data-size="xs">Om datasettet</Heading>
+            <p className={styles.abstract}>{abstract}</p>
+          </div>
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={infoDetails} />
           </div>
@@ -299,9 +338,26 @@ export function DatasetTabs({
         <Tabs.Panel value="documentation" className={styles.panel}>
           Dokumentasjon-innhold kommer
         </Tabs.Panel>
-        <Tabs.Panel value="quality" className={styles.panel}>
-          Datakvalitet-innhold kommer
-        </Tabs.Panel>
+        {fairStatus && (
+          <Tabs.Panel value="quality" className={styles.panel}>
+            <div className={styles.headingGroup}>
+              <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
+              <p>
+                En FAIR-status gir en kort vurdering av hvor godt et datasett
+                følger FAIR-prinsippene: Findable (søkbarhet), Accessible
+                (tilgjengelighet), Interoperabel (interoperabilitet), Reusable
+                (gjenbrukbar).
+              </p>
+            </div>
+            <div className={styles.headingGroup}>
+              <Heading data-size="sm">Resultater for dette datasettet</Heading>
+              <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
+            </div>
+            <div className={styles.accordionGroup} data-color="neutral">
+              <DetailAccordion items={fairDetails ?? []} />
+            </div>
+          </Tabs.Panel>
+        )}
       </Tabs>
     </div>
   );

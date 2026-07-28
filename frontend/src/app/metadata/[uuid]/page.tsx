@@ -1,4 +1,4 @@
-import { getMetadataInfo, getMetadataSummary } from "@/app/api";
+import { getFairStatus, getMetadataInfo, getMetadataSummary } from "@/app/api";
 import { getUniqueItemsFromListByKey } from "@/app/metadata/[uuid]/_utils/utils";
 import getData from "../../../mocks/getData.json";
 import { DatasetActions } from "./_components/DatasetActions";
@@ -16,8 +16,11 @@ export default async function DatasetPage({
   const d = getData;
 
   const { uuid } = await params;
-  const metadataSummary = await getMetadataSummary(uuid);
-  const metadataInfo = await getMetadataInfo(uuid);
+  const [metadataSummary, metadataInfo, fairStatus] = await Promise.all([
+    getMetadataSummary(uuid),
+    getMetadataInfo(uuid),
+    getFairStatus(uuid),
+  ]);
 
   return (
     <div className={styles.content}>
@@ -46,6 +49,7 @@ export default async function DatasetPage({
             metadataSummary.distributionFormats,
             "name",
           )}
+          fairStatusPercent={fairStatus?.totalPercent ?? null}
         />
       </div>
       <DatasetActions
@@ -69,6 +73,7 @@ export default async function DatasetPage({
         distributionGroups={d.DistributionFormatsGrouped}
         dateUpdated={metadataSummary.dateUpdated ?? ""}
         maintenanceFrequency={metadataSummary.maintenanceFrequency ?? ""}
+        fairStatus={fairStatus}
       />
     </div>
   );
