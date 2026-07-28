@@ -4,15 +4,13 @@ import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import styles from "./DatasetTabs.module.css";
+import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 
 const TABS = [
   { value: "info", label: "Informasjon om datasettet" },
   { value: "distribution", label: "Distribusjoner for datasett" },
   { value: "documentation", label: "Dokumentasjon" },
 ];
-
-const formatDate = (s?: string) =>
-  s ? new Date(s).toLocaleDateString("nb-NO", { dateStyle: "long" }) : "-";
 
 type Constraints = {
   useLimitations?: string[] | null;

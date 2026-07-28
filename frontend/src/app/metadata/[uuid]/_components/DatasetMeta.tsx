@@ -1,39 +1,6 @@
-"use client";
-
-import { Button, Tag, Tooltip } from "@kv-designsystem/react";
-import { QuestionmarkCircleIcon } from "@navikt/aksel-icons";
+import { MetaField } from "@/app/metadata/[uuid]/_components/MetaField";
+import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import styles from "./DatasetMeta.module.css";
-
-const formatDate = (s?: string) =>
-  s ? new Date(s).toLocaleDateString("nb-NO", { dateStyle: "long" }) : "-";
-
-function MetaField({
-  label,
-  help,
-  children,
-}: {
-  label: string;
-  help: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <dt className={styles.dt}>
-        {label}
-        <Tooltip content={help} placement="top">
-          <Button
-            aria-label={`Mer informasjon om ${label}`}
-            variant="tertiary"
-            icon
-          >
-            <QuestionmarkCircleIcon aria-hidden />
-          </Button>
-        </Tooltip>
-      </dt>
-      <dd>{children}</dd>
-    </div>
-  );
-}
 
 export function DatasetMeta({
   spatialScope,
@@ -45,7 +12,6 @@ export function DatasetMeta({
   formats,
   fairStatusPercent,
 }: {
-  // TODO: deale med null-verdier når vi har landet backendtyping
   spatialScope: string | null;
   representation: string | null;
   maintenanceFrequency: string | null;
@@ -79,7 +45,9 @@ export function DatasetMeta({
         label="Representasjonsform"
         help="Hvordan geodataene er representert"
       >
-        <Tag data-color="neutral">{representation ?? "-"}</Tag>
+        <span className="ds-tag" data-color="neutral">
+          {representation ?? "-"}
+        </span>
       </MetaField>
       <MetaField label="Målestokktall" help="Målestokk datasettet er egnet for">
         {resolutionScale ?? "-"}
@@ -100,14 +68,18 @@ export function DatasetMeta({
       <MetaField label="Tema" help="Emneord knyttet til datasettet">
         <div className={styles.tags} data-color="success">
           {themes.map((t) => (
-            <Tag key={t}>{t}</Tag>
+            <span className="ds-tag" key={t}>
+              {t}
+            </span>
           ))}
         </div>
       </MetaField>
       <MetaField label="Filformater" help="Tilgjengelige nedlastingsformater">
         <div className={styles.tags} data-color="info">
           {formats.map((f) => (
-            <Tag key={f}>{f}</Tag>
+            <span className="ds-tag" key={f}>
+              {f}
+            </span>
           ))}
         </div>
       </MetaField>
