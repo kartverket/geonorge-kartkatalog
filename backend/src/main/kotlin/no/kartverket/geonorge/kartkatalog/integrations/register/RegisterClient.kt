@@ -5,11 +5,9 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
-import java.util.UUID
 
 enum class CodeList(
     val systemId: String,
@@ -60,32 +58,6 @@ class RegisterClient(
             json.decodeFromString(deserializer, response.bodyAsText())
         } catch (e: Exception) {
             throw RegisterException("Failed to parse Register response from $path", e)
-        }
-    }
-
-    suspend fun getFairStatus(uuid: UUID): FairStatusResponse? {
-        val response =
-            httpClient.get("$baseUrl/api/fair/$uuid") {
-                headers {
-                    append(HttpHeaders.AcceptLanguage, "no")
-                }
-            }
-
-        if (response.status == HttpStatusCode.NotFound) {
-            return null
-        }
-
-        if (!response.status.isSuccess()) {
-            throw RegisterException("Register request to /api/fair/$uuid failed with status ${response.status}")
-        }
-
-        return try {
-            json.decodeFromString(
-                FairStatusResponse.serializer(),
-                response.bodyAsText(),
-            )
-        } catch (e: Exception) {
-            throw RegisterException("Failed to parse Register response from /api/fair/$uuid", e)
         }
     }
 }

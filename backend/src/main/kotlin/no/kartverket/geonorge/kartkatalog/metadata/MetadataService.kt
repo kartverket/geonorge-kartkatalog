@@ -9,7 +9,6 @@ import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductFairStatus
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataInfo
@@ -111,17 +110,6 @@ class MetadataSummaryService(
                             title = m.nameOfMeasure,
                         )
                     },
-        )
-    }
-
-    suspend fun getFairStatus(uuid: UUID): ProductFairStatus? {
-        val fair = registerClient.getFairStatus(uuid) ?: return null
-        return ProductFairStatus(
-            totalPercent = fair.totalPercent,
-            findablePercent = fair.findablePercent,
-            accessiblePercent = fair.accessiblePercent,
-            interoperablePercent = fair.interoperablePercent,
-            reusablePercent = fair.reusablePercent,
         )
     }
 

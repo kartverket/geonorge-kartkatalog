@@ -1,6 +1,5 @@
 package no.kartverket.geonorge.kartkatalog.metadata
 
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -19,16 +18,6 @@ fun Route.metadataRoutes(metadataSummaryService: MetadataSummaryService) {
             val uuid = UUID.fromString(call.parameters["uuid"])
             val result = metadataSummaryService.getMetadataInformation(uuid)
             call.respond(result)
-        }
-
-        get("fair/{uuid}") {
-            val uuid = UUID.fromString(call.parameters["uuid"])
-            val result = metadataSummaryService.getFairStatus(uuid)
-            if (result == null) {
-                call.respond(HttpStatusCode.NoContent)
-            } else {
-                call.respond(result)
-            }
         }
     }
 }
