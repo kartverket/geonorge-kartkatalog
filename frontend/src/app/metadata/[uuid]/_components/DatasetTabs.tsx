@@ -37,6 +37,14 @@ type DistributionGroup = {
   UnitsOfDistribution?: string;
 };
 
+type FairStatus = {
+  totalPercent: number | null;
+  findablePercent: number | null;
+  accessiblePercent: number | null;
+  interoperablePercent: number | null;
+  reusablePercent: number | null;
+};
+
 type DetailItem = { title: string; content: React.ReactNode };
 
 function DetailAccordion({ items }: { items: DetailItem[] }) {
@@ -241,6 +249,29 @@ function buildDistributionDetails({
   }));
 }
 
+function buildFairDetails(fairStatus: FairStatus): DetailItem[] {
+  return [
+    {
+      title: "Søkbarhet (Findable)",
+      content: <p>Søkbarhet: {fairStatus.findablePercent ?? "-"}%</p>,
+    },
+    {
+      title: "Tilgjengelighet (Accessible)",
+      content: <p>Tilgjengelighet: {fairStatus.accessiblePercent ?? "-"}%</p>,
+    },
+    {
+      title: "Interoperabilitet (Interoperable)",
+      content: (
+        <p>Interoperabilitet: {fairStatus.interoperablePercent ?? "-"}%</p>
+      ),
+    },
+    {
+      title: "Gjenbrukbar (Reusable)",
+      content: <p>Gjenbrukbar: {fairStatus.reusablePercent ?? "-"}%</p>,
+    },
+  ];
+}
+
 export function DatasetTabs({
   abstract,
   specificUsage,
@@ -251,6 +282,7 @@ export function DatasetTabs({
   distributionGroups,
   dateUpdated,
   maintenanceFrequency,
+  fairStatus,
 }: {
   abstract: string;
   specificUsage: string;
@@ -261,6 +293,7 @@ export function DatasetTabs({
   distributionGroups: DistributionGroup[];
   dateUpdated: string;
   maintenanceFrequency: string;
+  fairStatus: FairStatus;
 }) {
   const infoDetails = buildInfoDetails({
     specificUsage,
@@ -274,6 +307,7 @@ export function DatasetTabs({
     dateUpdated,
     maintenanceFrequency,
   });
+  const fairDetails = buildFairDetails(fairStatus);
   return (
     <div data-color="info">
       <Tabs defaultValue="info" className={styles.tabs}>
@@ -302,7 +336,13 @@ export function DatasetTabs({
           Dokumentasjon-innhold kommer
         </Tabs.Panel>
         <Tabs.Panel value="quality" className={styles.panel}>
-          Datakvalitet-innhold kommer
+          <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
+          <p>Definisjon kommer</p>
+          <Heading data-size="sm">Resultater for dette datasettet</Heading>
+          <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
+          <div className={styles.accordionGroup} data-color="neutral">
+            <DetailAccordion items={fairDetails} />
+          </div>
         </Tabs.Panel>
       </Tabs>
     </div>
