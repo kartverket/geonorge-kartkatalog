@@ -5,8 +5,10 @@ import {
   parseProductMetadataInfo,
   parseProductMetadataSummary,
 } from "@/lib/schemas/product";
+import { Alerts, parseAlert } from "@/lib/schemas/alerts";
 
 const API_BASE = process.env.API_BASE;
+const REGISTER_API_URL = process.env.REGISTER_API_URL;
 
 export class HttpError extends Error {
   status: number;
@@ -48,9 +50,9 @@ async function fetchJson(
       body = await res.text();
     }
 
-    if (res.status === 404) {
-      notFound();
-    }
+    // if (res.status === 404) {
+    //   notFound();
+    // }
 
     if (!res.ok) {
       throw new HttpError(res.status, res.statusText, body);
@@ -92,4 +94,15 @@ export async function getMetadataInfo(
   const url = `${API_BASE}/metadata/info/${encodeURIComponent(uuid)}`;
   const body = await fetchJson(url, { method: "GET" });
   return parseProductMetadataInfo(body);
+}
+
+/**
+ * Fetch metadata info for a dataset by UUID.
+ * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
+ */
+export async function getProductAlerts(uuid: string): Promise<Alerts> {
+  if (!uuid) throw new Error("uuid is required");
+  const url = `${REGISTER_API_URL}/api/alerts/${encodeURIComponent(uuid)}`;
+  const body = await fetchJson(url, { method: "GET" });
+  return parseAlert(body);
 }

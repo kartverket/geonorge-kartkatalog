@@ -7,6 +7,7 @@ import { DatasetMeta } from "./_components/DatasetMeta";
 import { DatasetTabs } from "./_components/DatasetTabs";
 import { DatasetThumbnail } from "./_components/DatasetThumbnail";
 import styles from "./page.module.css";
+import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
 
 export default async function DatasetPage({
   params,
@@ -21,6 +22,7 @@ export default async function DatasetPage({
 
   return (
     <div className={styles.content}>
+      <ProductAlert />
       <DatasetHeader
         title={metadataSummary.title}
         organization={metadataSummary.organization}
