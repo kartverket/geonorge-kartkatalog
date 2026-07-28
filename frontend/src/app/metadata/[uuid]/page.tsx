@@ -49,6 +49,7 @@ export default async function DatasetPage({
             metadataSummary.distributionFormats,
             "name",
           )}
+          fairStatusPercent={fairStatus.totalPercent}
         />
       </div>
       <DatasetActions
