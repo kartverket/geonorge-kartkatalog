@@ -1,5 +1,5 @@
 import { getFairStatus, getMetadataInfo, getMetadataSummary } from "@/app/api";
-import { getUniqueItemsFromListByKey } from "@/app/metadata/[uuid]/_utils/metadataUtils";
+import { getUniqueItemsFromListByKey } from "@/app/metadata/[uuid]/_utils/utils";
 import getData from "../../../mocks/getData.json";
 import { DatasetActions } from "./_components/DatasetActions";
 import { DatasetHeader } from "./_components/DatasetHeader";
