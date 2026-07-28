@@ -337,7 +337,12 @@ export function DatasetTabs({
         </Tabs.Panel>
         <Tabs.Panel value="quality" className={styles.panel}>
           <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
-          <p>Definisjon kommer</p>
+          <p>
+            En FAIR-status gir en kort vurdering av hvor godt et datasett følger
+            FAIR-prinsippene: Findable (søkbarhet), Accessible
+            (tilgjengelighet), Interoperabel (interoperabilitet), Reusable
+            (gjenbrukbar).
+          </p>
           <Heading data-size="sm">Resultater for dette datasettet</Heading>
           <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
           <div className={styles.accordionGroup} data-color="neutral">
