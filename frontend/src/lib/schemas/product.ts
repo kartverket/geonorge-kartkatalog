@@ -92,20 +92,34 @@ export function parseProductMetadataInfo(body: unknown): ProductMetadataInfo {
   return res.data;
 }
 
-export const ProductFairStatusSchema = z.object({
-  totalPercent: z.number().nullable(),
-  findablePercent: z.number().nullable(),
-  accessiblePercent: z.number().nullable(),
-  interoperablePercent: z.number().nullable(),
-  reusablePercent: z.number().nullable(),
+export type ProductFairStatus = {
+  totalPercent: number | null;
+  findablePercent: number | null;
+  accessiblePercent: number | null;
+  interoperablePercent: number | null;
+  reusablePercent: number | null;
+};
+
+const RawFairStatusSchema = z.object({
+  FAIRStatusPerCent: z.number().nullable(),
+  FindableStatusPerCent: z.number().nullable(),
+  AccesibleStatusPerCent: z.number().nullable(),
+  InteroperableStatusPerCent: z.number().nullable(),
+  ReUseableStatusPerCent: z.number().nullable(),
 });
 
-export type ProductFairStatus = z.infer<typeof ProductFairStatusSchema>;
-
 export function parseProductFairStatus(body: unknown): ProductFairStatus {
-  const res = ProductFairStatusSchema.safeParse(body);
+  const res = RawFairStatusSchema.safeParse(body);
   if (!res.success) {
-    throw new Error("Invalid FAIR status from server", { cause: res.error });
+    throw new Error("Invalid FAIR status from register", {
+      cause: res.error,
+    });
   }
-  return res.data;
+  return {
+    totalPercent: res.data.FAIRStatusPerCent,
+    findablePercent: res.data.FindableStatusPerCent,
+    accessiblePercent: res.data.AccesibleStatusPerCent,
+    interoperablePercent: res.data.InteroperableStatusPerCent,
+    reusablePercent: res.data.ReUseableStatusPerCent,
+  };
 }
