@@ -1,8 +1,8 @@
 import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
-import styles from "./DatasetHeader.module.css";
+import styles from "./ProductHeader.module.css";
 
-export function DatasetHeader({
+export function ProductHeader({
   title,
   organization,
   isOpen,

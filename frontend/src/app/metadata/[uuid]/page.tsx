@@ -9,11 +9,11 @@ import {
   getUniqueItemsFromListByKey,
 } from "@/app/metadata/[uuid]/_utils/utils";
 import getData from "../../../mocks/getData.json";
-import { DatasetActions } from "./_components/DatasetActions";
-import { DatasetHeader } from "./_components/DatasetHeader";
-import { DatasetMeta } from "./_components/DatasetMeta";
-import { DatasetTabs } from "./_components/DatasetTabs";
-import { DatasetThumbnail } from "./_components/DatasetThumbnail";
+import { ProductActions } from "./_components/ProductActions";
+import { ProductHeader } from "./_components/ProductHeader";
+import { ProductMeta } from "./_components/ProductMeta";
+import { ProductTabs } from "./_components/ProductTabs";
+import { ProductThumbnail } from "./_components/ProductThumbnail";
 import styles from "./page.module.css";
 
 export default async function DatasetPage({
@@ -34,7 +34,7 @@ export default async function DatasetPage({
 
   return (
     <div className={styles.content}>
-      <DatasetHeader
+      <ProductHeader
         title={metadataSummary.title}
         organization={metadataSummary.organization}
         isOpen={metadataSummary.accessIsOpenData}
@@ -46,8 +46,8 @@ export default async function DatasetPage({
         />
       ))}
       <div className={styles.metaRow}>
-        <DatasetThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
-        <DatasetMeta
+        <ProductThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
+        <ProductMeta
           // TODO: oversettes når i18n er på plass (SpatialScope kommer som engelsk fra getData)
           spatialScope={metadataSummary.spatialScope}
           representation={metadataSummary.spatialRepresentation}
@@ -68,13 +68,13 @@ export default async function DatasetPage({
           fairStatusPercent={fairStatus?.totalPercent ?? null}
         />
       </div>
-      <DatasetActions
+      <ProductActions
         downloadUrl={d.DownloadUrl}
         coverageUrl={d.CoverageUrl}
         metadataXmlUrl={d.MetadataXmlUrl}
         editUrl={d.MetadataEditUrl}
       />
-      <DatasetTabs
+      <ProductTabs
         abstract={metadataInfo.abstractText ?? ""}
         specificUsage={metadataInfo.specificUsage ?? ""}
         purpose={metadataInfo.purpose ?? ""}

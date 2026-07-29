@@ -3,7 +3,7 @@
 import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
-import styles from "./DatasetTabs.module.css";
+import styles from "./ProductTabs.module.css";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 
 const TABS = [
@@ -269,7 +269,7 @@ function buildFairDetails(fairStatus: FairStatus): DetailItem[] {
   ];
 }
 
-export function DatasetTabs({
+export function ProductTabs({
   abstract,
   specificUsage,
   purpose,
