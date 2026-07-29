@@ -1,5 +1,13 @@
-import { getMetadataInfo, getMetadataSummary } from "@/app/api";
-import { getUniqueItemsFromListByKey } from "@/app/metadata/[uuid]/_utils/utils";
+import {
+  getMetadataInfo,
+  getMetadataSummary,
+  getProductAlerts,
+} from "@/app/api";
+import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
+import {
+  getRelevantAlerts,
+  getUniqueItemsFromListByKey,
+} from "@/app/metadata/[uuid]/_utils/utils";
 import getData from "../../../mocks/getData.json";
 import { DatasetActions } from "./_components/DatasetActions";
 import { DatasetHeader } from "./_components/DatasetHeader";
@@ -7,7 +15,6 @@ import { DatasetMeta } from "./_components/DatasetMeta";
 import { DatasetTabs } from "./_components/DatasetTabs";
 import { DatasetThumbnail } from "./_components/DatasetThumbnail";
 import styles from "./page.module.css";
-import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
 
 export default async function DatasetPage({
   params,
@@ -19,6 +26,8 @@ export default async function DatasetPage({
   const { uuid } = await params;
   const metadataSummary = await getMetadataSummary(uuid);
   const metadataInfo = await getMetadataInfo(uuid);
+  const alerts = await getProductAlerts(uuid);
+  const relevantAlerts = getRelevantAlerts(alerts);
 
   return (
     <div className={styles.content}>
@@ -27,7 +36,12 @@ export default async function DatasetPage({
         organization={metadataSummary.organization}
         isOpen={metadataSummary.accessIsOpenData}
       />
-      <ProductAlert />
+      {relevantAlerts.map((alert, index) => (
+        <ProductAlert
+          key={`${alert.alertType ?? "alert"}-${index}`}
+          alert={alert}
+        />
+      ))}
       <div className={styles.metaRow}>
         <DatasetThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
         <DatasetMeta

@@ -1,18 +1,12 @@
-import { getProductAlerts } from "@/app/api";
+import type { Alert } from "@/lib/schemas/alerts";
 
-export default async function ProductAlert() {
-  const varsler = await getProductAlerts(
-    "a8456aed-441a-40c4-831f-46bcbe4e6ff1",
-  ); // Example UUID, replace with actual UUID as needed
+export default function ProductAlert({ alert }: { alert: Alert }) {
   return (
-    <>
-      {varsler.map((varsel, index) => (
-        <div key={varsel.systemId} className="ds-alert" data-color="info">
-          <h3 className="ds-heading" data-size="xs">
-            {varsel.alertType}
-          </h3>
-        </div>
-      ))}
-    </>
+    <div className="ds-alert" data-color="info">
+      <h3 className="ds-heading" data-size="xs">
+        {alert.alertType}
+      </h3>
+      <p className="ds-paragraph">{alert.note}</p>
+    </div>
   );
 }
