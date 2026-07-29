@@ -2,7 +2,7 @@ import { getFairStatus, getMetadataInfo, getMetadataSummary } from "@/app/api";
 import { getUniqueItemsFromListByKey } from "@/app/metadata/[uuid]/_utils/utils";
 import getData from "../../../mocks/getData.json";
 import { ProductActions } from "./_components/ProductActions";
-import { DatasetHeader } from "./_components/DatasetHeader";
+import { ProductHeader } from "./_components/ProductHeader";
 import { DatasetMeta } from "./_components/DatasetMeta";
 import { DatasetTabs } from "./_components/DatasetTabs";
 import { DatasetThumbnail } from "./_components/DatasetThumbnail";
@@ -24,7 +24,7 @@ export default async function DatasetPage({
 
   return (
     <div className={styles.content}>
-      <DatasetHeader
+      <ProductHeader
         title={metadataSummary.title}
         organization={metadataSummary.organization}
         isOpen={metadataSummary.accessIsOpenData}
