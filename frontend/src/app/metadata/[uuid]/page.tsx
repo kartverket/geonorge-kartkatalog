@@ -3,7 +3,7 @@ import { getUniqueItemsFromListByKey } from "@/app/metadata/[uuid]/_utils/utils"
 import getData from "../../../mocks/getData.json";
 import { ProductActions } from "./_components/ProductActions";
 import { ProductHeader } from "./_components/ProductHeader";
-import { DatasetMeta } from "./_components/DatasetMeta";
+import { ProductMeta } from "./_components/ProductMeta";
 import { DatasetTabs } from "./_components/DatasetTabs";
 import { DatasetThumbnail } from "./_components/DatasetThumbnail";
 import styles from "./page.module.css";
@@ -31,7 +31,7 @@ export default async function DatasetPage({
       />
       <div className={styles.metaRow}>
         <DatasetThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
-        <DatasetMeta
+        <ProductMeta
           // TODO: oversettes når i18n er på plass (SpatialScope kommer som engelsk fra getData)
           spatialScope={metadataSummary.spatialScope}
           representation={metadataSummary.spatialRepresentation}
