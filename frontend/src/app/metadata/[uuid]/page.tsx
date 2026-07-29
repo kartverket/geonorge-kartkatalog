@@ -1,4 +1,5 @@
-import {getFairStatus, getMetadata, getProductAlerts} from "@/app/api";
+import { Suspense } from "react";
+import { getFairStatus, getMetadata, getProductAlerts } from "@/app/api";
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
 import {
   getRelevantAlerts,
@@ -20,10 +21,7 @@ export default async function DatasetPage({
   const d = getData;
 
   const { uuid } = await params;
-  const [metadata, fairStatus] = await Promise.all([
-    getMetadata(uuid),
-    getFairStatus(uuid),
-  ]);
+  const metadata = await getMetadata(uuid);
   const alerts = await getProductAlerts(uuid);
   const relevantAlerts = getRelevantAlerts(alerts);
 
@@ -66,23 +64,41 @@ export default async function DatasetPage({
         metadataXmlUrl={d.MetadataXmlUrl}
         editUrl={d.MetadataEditUrl}
       />
-      <ProductTabs
-        abstract={metadata.abstractText ?? ""}
-        specificUsage={metadata.specificUsage ?? ""}
-        purpose={metadata.purpose ?? ""}
-        processHistory={metadata.processHistory}
-        // securityConstraints finnes ikke i LegalConstraints
-        // bruk mock
-        constraints={{
-          ...metadata.constraints,
-          SecurityConstraints: metadata.securityClassification ?? "-",
-        }}
-        referenceSystems={d.ReferenceSystems}
-        distributionGroups={d.DistributionFormatsGrouped}
-        dateUpdated={metadata.dateUpdated ?? ""}
-        maintenanceFrequency={metadata.maintenanceFrequency ?? ""}
-        fairStatus={fairStatus}
-      />
+      {/* trenger kanskje ikke vise noe tekst mens det laster?
+       "Later mer informasjon" står enn så lenge*/}
+      <Suspense fallback={<p>Laster mer informasjon...</p>}>
+        <ProductTabsSection uuid={uuid} metadata={metadata} d={d} />
+      </Suspense>
     </div>
+  );
+}
+
+async function ProductTabsSection({
+  uuid,
+  metadata,
+  d,
+}: {
+  uuid: string;
+  metadata: Awaited<ReturnType<typeof getMetadata>>;
+  d: typeof getData;
+}) {
+  const fairStatus = await getFairStatus(uuid);
+
+  return (
+    <ProductTabs
+      abstract={metadata.abstractText ?? ""}
+      specificUsage={metadata.specificUsage ?? ""}
+      purpose={metadata.purpose ?? ""}
+      processHistory={metadata.processHistory}
+      constraints={{
+        ...metadata.constraints,
+        SecurityConstraints: metadata.securityClassification ?? "-",
+      }}
+      referenceSystems={d.ReferenceSystems}
+      distributionGroups={d.DistributionFormatsGrouped}
+      dateUpdated={metadata.dateUpdated ?? ""}
+      maintenanceFrequency={metadata.maintenanceFrequency ?? ""}
+      fairStatus={fairStatus}
+    />
   );
 }
