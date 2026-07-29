@@ -17,43 +17,6 @@ export const ProductDataQualityMeasureSchema = z.object({
   title: z.string().nullable(),
 });
 
-export const ProductMetadataSummarySchema = z.object({
-  title: z.string(),
-  organization: z.string().nullable(),
-  hierarchyLevel: z.string(),
-  accessIsRestricted: z.boolean().nullable(),
-  accessIsOpenData: z.boolean().nullable(),
-  accessIsProtected: z.boolean().nullable(),
-  dateUpdated: z.string().nullable(),
-  maintenanceFrequency: z.string().nullable(),
-  spatialRepresentation: z.string().nullable(),
-  spatialScope: z.string().nullable(),
-  resolutionScale: z.string().nullable(),
-  keywordsTheme: z.array(ProductKeywordSchema),
-  nationalKeywords: z.array(ProductKeywordSchema),
-  distributionFormats: z.array(ProductDistributionFormatSchema),
-  thumbnailUrl: z.string().nullable(),
-  dataQualityMeasures: z.array(ProductDataQualityMeasureSchema),
-  fairStatusPercentFromMetadata: z.number().nullable(),
-});
-
-export type ProductMetadataSummary = z.infer<
-  typeof ProductMetadataSummarySchema
->;
-
-export function parseProductMetadataSummary(
-  body: unknown,
-): ProductMetadataSummary {
-  const res = ProductMetadataSummarySchema.safeParse(body);
-  if (!res.success) {
-    throw new Error("Invalid metadata summary from server", {
-      cause: res.error,
-    });
-  }
-
-  return res.data;
-}
-
 export const LegalConstraintsSchema = z.object({
   accessConstraints: z.string().nullable(),
   useConstraints: z.string().nullable(),
@@ -71,7 +34,24 @@ export const ProductMetadataContactSchema = z.object({
   role: z.string().nullable(),
 });
 
-export const ProductMetadataInfoSchema = z.object({
+export const ProductMetadataSchema = z.object({
+  title: z.string(),
+  organization: z.string().nullable(),
+  hierarchyLevel: z.string(),
+  accessIsRestricted: z.boolean().nullable(),
+  accessIsOpenData: z.boolean().nullable(),
+  accessIsProtected: z.boolean().nullable(),
+  dateUpdated: z.string().nullable(),
+  maintenanceFrequency: z.string().nullable(),
+  spatialRepresentation: z.string().nullable(),
+  spatialScope: z.string().nullable(),
+  resolutionScale: z.string().nullable(),
+  keywordsTheme: z.array(ProductKeywordSchema),
+  nationalKeywords: z.array(ProductKeywordSchema),
+  distributionFormats: z.array(ProductDistributionFormatSchema),
+  thumbnailUrl: z.string().nullable(),
+  dataQualityMeasures: z.array(ProductDataQualityMeasureSchema),
+  fairStatusPercentFromMetadata: z.number().nullable(),
   abstractText: z.string().nullable(),
   purpose: z.string().nullable(),
   specificUsage: z.string().nullable(),
@@ -83,13 +63,16 @@ export const ProductMetadataInfoSchema = z.object({
   contactPublisher: ProductMetadataContactSchema.nullable(),
 });
 
-export type ProductMetadataInfo = z.infer<typeof ProductMetadataInfoSchema>;
+export type ProductMetadata = z.infer<typeof ProductMetadataSchema>;
 
-export function parseProductMetadataInfo(body: unknown): ProductMetadataInfo {
-  const res = ProductMetadataInfoSchema.safeParse(body);
+export function parseProductMetadata(body: unknown): ProductMetadata {
+  const res = ProductMetadataSchema.safeParse(body);
   if (!res.success) {
-    throw new Error("Invalid metadata info from server", { cause: res.error });
+    throw new Error("Invalid metadata from server", {
+      cause: res.error,
+    });
   }
+
   return res.data;
 }
 

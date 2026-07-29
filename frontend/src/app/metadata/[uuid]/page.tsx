@@ -1,4 +1,4 @@
-import { getFairStatus, getMetadataInfo, getMetadataSummary } from "@/app/api";
+import { getFairStatus, getMetadata } from "@/app/api";
 import { getUniqueItemsFromListByKey } from "@/app/metadata/[uuid]/_utils/utils";
 import getData from "../../../mocks/getData.json";
 import { DatasetActions } from "./_components/DatasetActions";
@@ -16,40 +16,36 @@ export default async function DatasetPage({
   const d = getData;
 
   const { uuid } = await params;
-  const [metadataSummary, metadataInfo, fairStatus] = await Promise.all([
-    getMetadataSummary(uuid),
-    getMetadataInfo(uuid),
+  const [metadata, fairStatus] = await Promise.all([
+    getMetadata(uuid),
     getFairStatus(uuid),
   ]);
 
   return (
     <div className={styles.content}>
       <DatasetHeader
-        title={metadataSummary.title}
-        organization={metadataSummary.organization}
-        isOpen={metadataSummary.accessIsOpenData}
+        title={metadata.title}
+        organization={metadata.organization}
+        isOpen={metadata.accessIsOpenData}
       />
       <div className={styles.metaRow}>
-        <DatasetThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
+        <DatasetThumbnail thumbnailUrl={metadata.thumbnailUrl} />
         <DatasetMeta
           // TODO: oversettes når i18n er på plass (SpatialScope kommer som engelsk fra getData)
-          spatialScope={metadataSummary.spatialScope}
-          representation={metadataSummary.spatialRepresentation}
-          maintenanceFrequency={metadataSummary.maintenanceFrequency}
-          resolutionScale={metadataSummary.resolutionScale}
-          dateUpdated={metadataSummary.dateUpdated}
+          spatialScope={metadata.spatialScope}
+          representation={metadata.spatialRepresentation}
+          maintenanceFrequency={metadata.maintenanceFrequency}
+          resolutionScale={metadata.resolutionScale}
+          dateUpdated={metadata.dateUpdated}
           themes={getUniqueItemsFromListByKey(
-            [
-              ...metadataSummary.nationalKeywords,
-              ...metadataSummary.keywordsTheme,
-            ],
+            [...metadata.nationalKeywords, ...metadata.keywordsTheme],
             "keywordValue",
           )}
           formats={getUniqueItemsFromListByKey(
-            metadataSummary.distributionFormats,
+            metadata.distributionFormats,
             "name",
           )}
-          fairStatusPercent={metadataSummary.fairStatusPercentFromMetadata}
+          fairStatusPercent={metadata.fairStatusPercentFromMetadata}
         />
       </div>
       <DatasetActions
@@ -59,20 +55,20 @@ export default async function DatasetPage({
         editUrl={d.MetadataEditUrl}
       />
       <DatasetTabs
-        abstract={metadataInfo.abstractText ?? ""}
-        specificUsage={metadataInfo.specificUsage ?? ""}
-        purpose={metadataInfo.purpose ?? ""}
-        processHistory={metadataInfo.processHistory}
+        abstract={metadata.abstractText ?? ""}
+        specificUsage={metadata.specificUsage ?? ""}
+        purpose={metadata.purpose ?? ""}
+        processHistory={metadata.processHistory}
         // securityConstraints finnes ikke i LegalConstraints
         // bruk mock
         constraints={{
-          ...metadataInfo.constraints,
-          SecurityConstraints: metadataInfo.securityClassification ?? "-",
+          ...metadata.constraints,
+          SecurityConstraints: metadata.securityClassification ?? "-",
         }}
         referenceSystems={d.ReferenceSystems}
         distributionGroups={d.DistributionFormatsGrouped}
-        dateUpdated={metadataSummary.dateUpdated ?? ""}
-        maintenanceFrequency={metadataSummary.maintenanceFrequency ?? ""}
+        dateUpdated={metadata.dateUpdated ?? ""}
+        maintenanceFrequency={metadata.maintenanceFrequency ?? ""}
         fairStatus={fairStatus}
       />
     </div>
