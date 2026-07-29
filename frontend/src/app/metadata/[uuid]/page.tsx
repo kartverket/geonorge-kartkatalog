@@ -5,7 +5,7 @@ import { ProductActions } from "./_components/ProductActions";
 import { ProductHeader } from "./_components/ProductHeader";
 import { ProductMeta } from "./_components/ProductMeta";
 import { ProductTabs } from "./_components/ProductTabs";
-import { DatasetThumbnail } from "./_components/DatasetThumbnail";
+import { ProductThumbnail } from "./_components/ProductThumbnail";
 import styles from "./page.module.css";
 
 export default async function DatasetPage({
@@ -30,7 +30,7 @@ export default async function DatasetPage({
         isOpen={metadataSummary.accessIsOpenData}
       />
       <div className={styles.metaRow}>
-        <DatasetThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
+        <ProductThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
         <ProductMeta
           // TODO: oversettes når i18n er på plass (SpatialScope kommer som engelsk fra getData)
           spatialScope={metadataSummary.spatialScope}
