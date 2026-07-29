@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
   type ProductFairStatus,
   type ProductMetadata,
@@ -100,4 +101,23 @@ export async function getFairStatus(
   );
   if (body === null) return null;
   return parseProductFairStatus(body);
+}
+
+/**
+ * Fetch alerts for a product by UUID.
+ * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
+ */
+export async function getProductAlerts(uuid: string): Promise<Alerts | null> {
+  if (!uuid) throw new Error("uuid is required");
+  const url = `${REGISTER_BASE_URL}/api/alerts/${encodeURIComponent(uuid)}`;
+  const body = await fetchJson(
+    url,
+    { method: "GET" },
+    {
+      notFoundOn404: false,
+    },
+  );
+  if (body === null) return null;
+
+  return parseAlert(body);
 }
