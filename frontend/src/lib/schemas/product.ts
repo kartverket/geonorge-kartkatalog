@@ -34,6 +34,13 @@ export const ProductMetadataSummarySchema = z.object({
   distributionFormats: z.array(ProductDistributionFormatSchema),
   thumbnailUrl: z.string().nullable(),
   dataQualityMeasures: z.array(ProductDataQualityMeasureSchema),
+  // TODO: rydd opp her
+  coverageUrl: z
+    .string()
+    .nullable()
+    .default(
+      "https://geonorge-nkg.atkv3-dev.kartverket.cloud/geoportal/#!?zoom=5&project=geonorge&layers=1002&lat=6768825.17&lon=217236.30&wms=https%3a%2f%2fwms.geonorge.no%2fskwms1%2fwms.geonorge_dekningskart%3fdatasett%3dkv_adminomr_kommune%2chttps%3a%2f%2fwms.geonorge.no%2fskwms1%2fwms.gp_dek_oversikt%3fdatasett%3dkv_adminomr_kommune&addLayers=geonorgedekningskart%2cgp_dek_oversikt_wms%2cgeojson&type=dek&geojson=https%3a%2f%2fnedlasting.geonorge.no%2fgeonorge%2fBasisdata%2fDOKFullstendighetsdekningskart%2fKartkatalogen%2fdekning_kommuner.geojson",
+    ),
 });
 
 export type ProductMetadataSummary = z.infer<
@@ -119,4 +126,3 @@ export function parseProductFairStatus(body: unknown): ProductFairStatus {
   }
   return res.data;
 }
-

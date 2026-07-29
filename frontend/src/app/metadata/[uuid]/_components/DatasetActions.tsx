@@ -13,7 +13,7 @@ export function DatasetActions({
   editUrl,
 }: {
   downloadUrl?: string;
-  coverageUrl?: string;
+  coverageUrl: string | null;
   metadataXmlUrl?: string;
   editUrl?: string;
 }) {
@@ -29,15 +29,17 @@ export function DatasetActions({
         Legg i nedlastingskurv
       </button>
       {coverageUrl && (
-        <button
-          className="ds-button"
-          type="button"
+        <a
           data-variant="secondary"
+          target="_blank"
+          rel="noreferrer"
+          href={coverageUrl}
+          className="ds-button"
           data-color="neutral"
         >
           <ExternalLinkIcon aria-hidden />
           Vis dekningskart
-        </button>
+        </a>
       )}
       {metadataXmlUrl && (
         <button

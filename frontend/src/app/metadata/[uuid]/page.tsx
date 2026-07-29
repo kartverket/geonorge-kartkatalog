@@ -54,7 +54,7 @@ export default async function DatasetPage({
       </div>
       <DatasetActions
         downloadUrl={d.DownloadUrl}
-        coverageUrl={d.CoverageUrl}
+        coverageUrl={metadataSummary.coverageUrl}
         metadataXmlUrl={d.MetadataXmlUrl}
         editUrl={d.MetadataEditUrl}
       />
