@@ -34,6 +34,7 @@ export const ProductMetadataSummarySchema = z.object({
   distributionFormats: z.array(ProductDistributionFormatSchema),
   thumbnailUrl: z.string().nullable(),
   dataQualityMeasures: z.array(ProductDataQualityMeasureSchema),
+  fairStatusPercent: z.number().nullable(),
 });
 
 export type ProductMetadataSummary = z.infer<
@@ -119,4 +120,3 @@ export function parseProductFairStatus(body: unknown): ProductFairStatus {
   }
   return res.data;
 }
-
