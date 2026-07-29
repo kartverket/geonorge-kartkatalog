@@ -6,17 +6,20 @@ import {
 } from "@navikt/aksel-icons";
 import styles from "./ProductActions.module.css";
 
-export function ProductActions({
+export async function ProductActions({
   downloadUrl,
   coverageUrl,
   metadataXmlUrl,
-  editUrl,
+  uuid,
 }: {
   downloadUrl?: string;
   coverageUrl?: string;
   metadataXmlUrl?: string;
-  editUrl: string | null;
+  uuid: string;
 }) {
+  const EDITOR_BASE_URL = process.env.EDITOR_BASE_URL;
+  const editUrl = `${EDITOR_BASE_URL}/Metadata/Edit?uuid=${uuid}`;
+
   return (
     <div className={styles.actions}>
       <button

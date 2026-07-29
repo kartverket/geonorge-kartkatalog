@@ -73,7 +73,7 @@ export default async function DatasetPage({
         downloadUrl={d.DownloadUrl}
         coverageUrl={d.CoverageUrl}
         metadataXmlUrl={d.MetadataXmlUrl}
-        editUrl={metadataSummary.metadataEditUrl}
+        uuid={uuid}
       />
       <ProductTabs
         abstract={metadataInfo.abstractText ?? ""}
