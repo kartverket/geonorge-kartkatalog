@@ -13,7 +13,7 @@ import { ProductTabs } from "./_components/ProductTabs";
 import { ProductThumbnail } from "./_components/ProductThumbnail";
 import styles from "./page.module.css";
 
-export default async function DatasetPage({
+export default async function ProductPage({
   params,
 }: {
   params: Promise<{ uuid: string }>;
