@@ -1,8 +1,8 @@
 import { MetaField } from "@/app/metadata/[uuid]/_components/MetaField";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
-import styles from "./DatasetMeta.module.css";
+import styles from "./ProductMeta.module.css";
 
-export function DatasetMeta({
+export function ProductMeta({
   spatialScope,
   representation,
   maintenanceFrequency,

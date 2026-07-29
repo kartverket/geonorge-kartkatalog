@@ -1,7 +1,7 @@
 import Image from "next/image";
-import styles from "./DatasetThumbnail.module.css";
+import styles from "./ProductThumbnail.module.css";
 
-export function DatasetThumbnail({
+export function ProductThumbnail({
   thumbnailUrl,
 }: {
   thumbnailUrl: string | null;
