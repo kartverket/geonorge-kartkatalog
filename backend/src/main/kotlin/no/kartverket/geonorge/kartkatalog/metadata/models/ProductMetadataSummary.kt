@@ -20,6 +20,7 @@ data class ProductMetadataSummary(
     val distributionFormats: List<ProductDistributionFormat> = emptyList(),
     val thumbnailUrl: String? = null,
     val dataQualityMeasures: List<ProductDataQualityMeasure> = emptyList(),
+    val fairStatusPercent: Int? = null,
 )
 
 @Serializable

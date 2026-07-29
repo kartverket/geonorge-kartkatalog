@@ -110,6 +110,7 @@ class MetadataSummaryService(
                             title = m.nameOfMeasure,
                         )
                     },
+            fairStatusPercent = findFairPercent(record),
         )
     }
 
@@ -267,6 +268,11 @@ class MetadataSummaryService(
             organizationEnglish = organizationEnglish,
             role = role,
         )
+
+    private fun findFairPercent(record: MetadataRecord): Int? =
+        record.dataQualityMeasures
+            .firstOrNull { it.nameOfMeasure == "Prosentvis oppfyllelse av FAIR-prinsipper" }
+            ?.value
 }
 
 class MetadataRecordNotFoundException(
