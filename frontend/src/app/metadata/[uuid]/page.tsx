@@ -64,9 +64,7 @@ export default async function ProductPage({
         metadataXmlUrl={d.MetadataXmlUrl}
         editUrl={d.MetadataEditUrl}
       />
-      {/* trenger kanskje ikke vise noe tekst mens det laster?
-       "Later mer informasjon" står enn så lenge*/}
-      <Suspense fallback={<p>Laster mer informasjon...</p>}>
+      <Suspense>
         <ProductTabsSection uuid={uuid} metadata={metadata} d={d} />
       </Suspense>
     </div>
