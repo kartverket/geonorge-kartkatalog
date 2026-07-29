@@ -34,6 +34,13 @@ export const ProductMetadataSummarySchema = z.object({
   distributionFormats: z.array(ProductDistributionFormatSchema),
   thumbnailUrl: z.string().nullable(),
   dataQualityMeasures: z.array(ProductDataQualityMeasureSchema),
+  // TODO: rydd opp her
+  metadataEditUrl: z
+    .string()
+    .nullable()
+    .default(
+      "https://editor.geonorge.no/Metadata/Edit?uuid=041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+    ),
 });
 
 export type ProductMetadataSummary = z.infer<
@@ -119,4 +126,3 @@ export function parseProductFairStatus(body: unknown): ProductFairStatus {
   }
   return res.data;
 }
-

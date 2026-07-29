@@ -1,5 +1,6 @@
 import {
- getFairStatus, getMetadataInfo,
+  getFairStatus,
+  getMetadataInfo,
   getMetadataSummary,
   getProductAlerts,
 } from "@/app/api";
@@ -72,7 +73,7 @@ export default async function DatasetPage({
         downloadUrl={d.DownloadUrl}
         coverageUrl={d.CoverageUrl}
         metadataXmlUrl={d.MetadataXmlUrl}
-        editUrl={d.MetadataEditUrl}
+        editUrl={metadataSummary.metadataEditUrl}
       />
       <DatasetTabs
         abstract={metadataInfo.abstractText ?? ""}

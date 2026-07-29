@@ -15,7 +15,7 @@ export function DatasetActions({
   downloadUrl?: string;
   coverageUrl?: string;
   metadataXmlUrl?: string;
-  editUrl?: string;
+  editUrl: string | null;
 }) {
   return (
     <div className={styles.actions}>
@@ -50,16 +50,19 @@ export function DatasetActions({
           Last ned metadata XML
         </button>
       )}
+      {/*TODO: GN-227 håndtere at noen datasett ikke burde redigeres fra denne editUrl-en*/}
       {editUrl && (
-        <button
-          className="ds-button"
-          type="button"
+        <a
           data-variant="secondary"
+          target="_blank"
+          rel="noreferrer"
+          href={editUrl}
+          className="ds-button"
           data-color="neutral"
         >
           <PencilIcon aria-hidden />
           Rediger metadata
-        </button>
+        </a>
       )}
     </div>
   );
