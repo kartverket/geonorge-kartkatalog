@@ -1,7 +1,7 @@
 import { getFairStatus, getMetadataInfo, getMetadataSummary } from "@/app/api";
 import { getUniqueItemsFromListByKey } from "@/app/metadata/[uuid]/_utils/utils";
 import getData from "../../../mocks/getData.json";
-import { DatasetActions } from "./_components/DatasetActions";
+import { ProductActions } from "./_components/ProductActions";
 import { DatasetHeader } from "./_components/DatasetHeader";
 import { DatasetMeta } from "./_components/DatasetMeta";
 import { DatasetTabs } from "./_components/DatasetTabs";
@@ -52,7 +52,7 @@ export default async function DatasetPage({
           fairStatusPercent={fairStatus?.totalPercent ?? null}
         />
       </div>
-      <DatasetActions
+      <ProductActions
         downloadUrl={d.DownloadUrl}
         coverageUrl={d.CoverageUrl}
         metadataXmlUrl={d.MetadataXmlUrl}
