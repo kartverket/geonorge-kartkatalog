@@ -4,7 +4,7 @@ import getData from "../../../mocks/getData.json";
 import { ProductActions } from "./_components/ProductActions";
 import { ProductHeader } from "./_components/ProductHeader";
 import { ProductMeta } from "./_components/ProductMeta";
-import { DatasetTabs } from "./_components/DatasetTabs";
+import { ProductTabs } from "./_components/ProductTabs";
 import { DatasetThumbnail } from "./_components/DatasetThumbnail";
 import styles from "./page.module.css";
 
@@ -58,7 +58,7 @@ export default async function DatasetPage({
         metadataXmlUrl={d.MetadataXmlUrl}
         editUrl={d.MetadataEditUrl}
       />
-      <DatasetTabs
+      <ProductTabs
         abstract={metadataInfo.abstractText ?? ""}
         specificUsage={metadataInfo.specificUsage ?? ""}
         purpose={metadataInfo.purpose ?? ""}
