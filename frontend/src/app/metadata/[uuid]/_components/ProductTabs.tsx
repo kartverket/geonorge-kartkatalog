@@ -3,8 +3,8 @@
 import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
-import styles from "./ProductTabs.module.css";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
+import styles from "./ProductTabs.module.css";
 
 const TABS = [
   { value: "info", label: "Informasjon om datasettet" },
