@@ -10,6 +10,7 @@ export function DatasetMeta({
   dateUpdated,
   themes,
   formats,
+  fairStatusPercent,
 }: {
   spatialScope: string | null;
   representation: string | null;
@@ -18,6 +19,7 @@ export function DatasetMeta({
   dateUpdated: string | null;
   themes: string[];
   formats: string[];
+  fairStatusPercent: number | null;
 }) {
   return (
     <dl className={styles.grid}>
@@ -50,12 +52,11 @@ export function DatasetMeta({
       <MetaField label="Målestokktall" help="Målestokk datasettet er egnet for">
         {resolutionScale ?? "-"}
       </MetaField>
-      {/* Datakvalitet: ikke tilgjengelig */}
       <MetaField
         label="Datakvalitet (FAIR-status)"
         help="Datasettets FAIR-score"
       >
-        <span className={styles.pending}>Ikke tilgjengelig</span>
+        {fairStatusPercent != null ? `${fairStatusPercent}%` : "-"}
       </MetaField>
       {/* Relevante kategorier: ikke tilgjengelig */}
       <MetaField

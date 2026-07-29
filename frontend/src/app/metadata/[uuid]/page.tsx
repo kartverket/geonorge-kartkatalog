@@ -1,5 +1,5 @@
 import {
-  getMetadataInfo,
+ getFairStatus, getMetadataInfo,
   getMetadataSummary,
   getProductAlerts,
 } from "@/app/api";
@@ -24,8 +24,11 @@ export default async function DatasetPage({
   const d = getData;
 
   const { uuid } = await params;
-  const metadataSummary = await getMetadataSummary(uuid);
-  const metadataInfo = await getMetadataInfo(uuid);
+  const [metadataSummary, metadataInfo, fairStatus] = await Promise.all([
+    getMetadataSummary(uuid),
+    getMetadataInfo(uuid),
+    getFairStatus(uuid),
+  ]);
   const alerts = await getProductAlerts(uuid);
   const relevantAlerts = getRelevantAlerts(alerts);
 
@@ -62,6 +65,7 @@ export default async function DatasetPage({
             metadataSummary.distributionFormats,
             "name",
           )}
+          fairStatusPercent={fairStatus?.totalPercent ?? null}
         />
       </div>
       <DatasetActions
@@ -85,6 +89,7 @@ export default async function DatasetPage({
         distributionGroups={d.DistributionFormatsGrouped}
         dateUpdated={metadataSummary.dateUpdated ?? ""}
         maintenanceFrequency={metadataSummary.maintenanceFrequency ?? ""}
+        fairStatus={fairStatus}
       />
     </div>
   );

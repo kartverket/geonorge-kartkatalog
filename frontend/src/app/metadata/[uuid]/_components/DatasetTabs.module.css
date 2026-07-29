@@ -3,9 +3,9 @@
 }
 
 .panel {
-  padding-block: var(--ds-size-6);
+  padding-block: var(--ds-size-15);
   display: grid;
-  gap: var(--ds-size-4);
+  gap: var(--ds-size-8);
 }
 
 .panel[hidden] {
@@ -14,6 +14,11 @@
 
 .abstract {
   white-space: pre-line;
+}
+
+.headingGroup {
+  display: grid;
+  gap: var(--ds-size-1);
 }
 
 .accordionGroup {

@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
+  type ProductFairStatus,
   type ProductMetadataInfo,
   type ProductMetadataSummary,
+  parseProductFairStatus,
   parseProductMetadataInfo,
   parseProductMetadataSummary,
 } from "@/lib/schemas/product";
@@ -24,7 +26,7 @@ export class HttpError extends Error {
 async function fetchJson(
   url: string,
   options: RequestInit = {},
-  timeout = 8000,
+  { timeout = 8000, notFoundOn404 = true } = {},
 ): Promise<unknown> {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
@@ -51,7 +53,9 @@ async function fetchJson(
     }
 
     if (res.status === 404) {
-      notFound();
+      if (notFoundOn404) {
+        notFound();
+      } else return null;
     }
 
     if (!res.ok) {
@@ -97,12 +101,34 @@ export async function getMetadataInfo(
 }
 
 /**
- * Fetch metadata info for a dataset by UUID.
+ * Fetch FAIR status for a dataset by UUID.
+ * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
+ */
+export async function getFairStatus(
+  uuid: string,
+): Promise<ProductFairStatus | null> {
+  if (!uuid) throw new Error("uuid is required");
+  const url = `${REGISTER_BASE_URL}/api/fair/${encodeURIComponent(uuid)}`;
+  const body = await fetchJson(
+    url,
+    { method: "GET" },
+    {
+      notFoundOn404: false,
+    },
+  );
+  if (body === null) return null;
+  return parseProductFairStatus(body);
+}
+
+/**
+ * Fetch alerts for a product by UUID.
  * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
  */
 export async function getProductAlerts(uuid: string): Promise<Alerts> {
   if (!uuid) throw new Error("uuid is required");
   const url = `${REGISTER_BASE_URL}/api/alerts/${encodeURIComponent(uuid)}`;
-  const body = await fetchJson(url, { method: "GET" });
+  const body = await fetchJson(url, { method: "GET" }, {
+    notFoundOn404: false,
+  });
   return parseAlert(body);
 }
