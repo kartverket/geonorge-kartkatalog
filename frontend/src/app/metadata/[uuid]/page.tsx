@@ -24,7 +24,6 @@ export default async function DatasetPage({
     getMetadata(uuid),
     getFairStatus(uuid),
   ]);
-  const alerts = await getProductAlerts(uuid);
   const relevantAlerts = getRelevantAlerts(alerts);
 
   return (
