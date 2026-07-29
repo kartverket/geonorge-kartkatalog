@@ -1,4 +1,4 @@
-import { getFairStatus, getMetadata } from "@/app/api";
+import {getFairStatus, getMetadata, getProductAlerts} from "@/app/api";
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
 import {
   getRelevantAlerts,
@@ -24,6 +24,7 @@ export default async function DatasetPage({
     getMetadata(uuid),
     getFairStatus(uuid),
   ]);
+  const alerts = await getProductAlerts(uuid);
   const relevantAlerts = getRelevantAlerts(alerts);
 
   return (
