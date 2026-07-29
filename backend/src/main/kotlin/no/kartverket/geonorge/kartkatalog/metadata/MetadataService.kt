@@ -10,9 +10,8 @@ import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataInfo
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataSummary
 import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -20,55 +19,12 @@ class MetadataSummaryService(
     private val geonetworkClient: GeonetworkClient,
     private val registerClient: RegisterClient,
 ) {
-    suspend fun getMetadataInformation(uuid: UUID): ProductMetadataInfo {
-        val geonetworkRecord =
-            geonetworkClient.getRecordByUuid(uuid)
-                ?: throw MetadataRecordNotFoundException(uuid)
-        return ProductMetadataInfo(
-            abstractText = geonetworkRecord.abstract,
-            purpose = geonetworkRecord.purpose,
-            specificUsage = geonetworkRecord.specificUsage,
-            processHistory = geonetworkRecord.processHistory,
-            constraints =
-                geonetworkRecord.legalConstraints?.let {
-                        constraints ->
-                    constraints.copy(
-                        accessConstraints =
-                            describeAccessConstraints(geonetworkRecord),
-                        useConstraints =
-                            describeUseConstraints(
-                                constraints.useConstraints,
-                                constraints.otherConstraintsLink,
-                            ),
-                    )
-                },
-            securityClassification =
-                translateCodeListValue(
-                    CodeList.CLASSIFICATION,
-                    geonetworkRecord.securityConstraints?.classification,
-                ),
-            contactMetadata = geonetworkRecord.metadataContact.toProductMetadataContact(),
-            contactOwner =
-                geonetworkRecord.contacts
-                    .firstOrNull {
-                        it.role.equals("owner", ignoreCase = true)
-                    }?.toProductMetadataContact(),
-            contactPublisher =
-                geonetworkRecord.contacts
-                    .firstOrNull {
-                        it.role.equals("publisher", ignoreCase = true)
-                    }?.toProductMetadataContact(),
-        )
-    }
-
-    suspend fun getMetadataSummary(uuid: UUID): ProductMetadataSummary {
+    suspend fun getMetadata(uuid: UUID): ProductMetadata {
         val record =
             geonetworkClient.getRecordByUuid(uuid)
                 ?: throw MetadataRecordNotFoundException(uuid)
-
         val accessState = resolveAccessState(record)
-
-        return ProductMetadataSummary(
+        return ProductMetadata(
             title = record.title,
             organization =
                 record.metadataContact.organization.orEmpty(),
@@ -110,7 +66,40 @@ class MetadataSummaryService(
                             title = m.nameOfMeasure,
                         )
                     },
-            fairStatusPercent = findFairPercent(record),
+            fairStatusPercentFromMetadata = findFairPercent(record),
+            abstractText = record.abstract,
+            purpose = record.purpose,
+            specificUsage = record.specificUsage,
+            processHistory = record.processHistory,
+            constraints =
+                record.legalConstraints?.let {
+                        constraints ->
+                    constraints.copy(
+                        accessConstraints =
+                            describeAccessConstraints(record),
+                        useConstraints =
+                            describeUseConstraints(
+                                constraints.useConstraints,
+                                constraints.otherConstraintsLink,
+                            ),
+                    )
+                },
+            securityClassification =
+                translateCodeListValue(
+                    CodeList.CLASSIFICATION,
+                    record.securityConstraints?.classification,
+                ),
+            contactMetadata = record.metadataContact.toProductMetadataContact(),
+            contactOwner =
+                record.contacts
+                    .firstOrNull {
+                        it.role.equals("owner", ignoreCase = true)
+                    }?.toProductMetadataContact(),
+            contactPublisher =
+                record.contacts
+                    .firstOrNull {
+                        it.role.equals("publisher", ignoreCase = true)
+                    }?.toProductMetadataContact(),
         )
     }
 

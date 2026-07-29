@@ -1,9 +1,10 @@
 package no.kartverket.geonorge.kartkatalog.metadata.models
 
 import kotlinx.serialization.Serializable
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 
 @Serializable
-data class ProductMetadataSummary(
+data class ProductMetadata(
     val title: String,
     val organization: String? = null,
     val hierarchyLevel: String,
@@ -20,7 +21,16 @@ data class ProductMetadataSummary(
     val distributionFormats: List<ProductDistributionFormat> = emptyList(),
     val thumbnailUrl: String? = null,
     val dataQualityMeasures: List<ProductDataQualityMeasure> = emptyList(),
-    val fairStatusPercent: Int? = null,
+    val fairStatusPercentFromMetadata: Int? = null,
+    val abstractText: String? = null,
+    val purpose: String? = null,
+    val specificUsage: String? = null,
+    val processHistory: String? = null,
+    val constraints: LegalConstraints? = null,
+    val securityClassification: String? = null,
+    val contactMetadata: ProductMetadataContact? = null,
+    val contactOwner: ProductMetadataContact? = null,
+    val contactPublisher: ProductMetadataContact? = null,
 )
 
 @Serializable
@@ -41,4 +51,13 @@ data class ProductDataQualityMeasure(
     val quantitativeResult: Int? = null,
     val quantitativeResultValueUnit: String? = null,
     val title: String? = null,
+)
+
+@Serializable
+data class ProductMetadataContact(
+    var email: String? = null,
+    var name: String? = null,
+    var organization: String? = null,
+    var organizationEnglish: String? = null,
+    var role: String? = null,
 )
