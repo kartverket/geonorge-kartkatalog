@@ -20,7 +20,7 @@ export const getUniqueItemsFromListByKey = <
 export const formatDate = (s?: string) =>
   s ? new Date(s).toLocaleDateString("nb-NO", { dateStyle: "long" }) : "-";
 
-export const getRelevantAlerts = (alerts?: Alerts): Alerts => {
+export const getRelevantAlerts = (alerts: Alerts | null): Alerts => {
   return (
     alerts?.filter((alert) => {
       if (!alert || !alert.effectiveDate || !alert.alertDate) return false;
