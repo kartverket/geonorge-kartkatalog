@@ -29,14 +29,10 @@ export default async function DatasetPage({
 
   return (
     <div className={styles.content}>
-      <DatasetHeader
+      <ProductHeader
         title={metadata.title}
         organization={metadata.organization}
         isOpen={metadata.accessIsOpenData}
-      <ProductHeader
-        title={metadataSummary.title}
-        organization={metadataSummary.organization}
-        isOpen={metadataSummary.accessIsOpenData}
       />
       {relevantAlerts.map((alert, index) => (
         <ProductAlert
@@ -45,9 +41,7 @@ export default async function DatasetPage({
         />
       ))}
       <div className={styles.metaRow}>
-        <DatasetThumbnail thumbnailUrl={metadata.thumbnailUrl} />
-        <DatasetMeta
-        <ProductThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
+        <ProductThumbnail thumbnailUrl={metadata.thumbnailUrl} />
         <ProductMeta
           // TODO: oversettes når i18n er på plass (SpatialScope kommer som engelsk fra getData)
           spatialScope={metadata.spatialScope}
@@ -72,16 +66,11 @@ export default async function DatasetPage({
         metadataXmlUrl={d.MetadataXmlUrl}
         editUrl={d.MetadataEditUrl}
       />
-      <DatasetTabs
+      <ProductTabs
         abstract={metadata.abstractText ?? ""}
         specificUsage={metadata.specificUsage ?? ""}
         purpose={metadata.purpose ?? ""}
         processHistory={metadata.processHistory}
-      <ProductTabs
-        abstract={metadataInfo.abstractText ?? ""}
-        specificUsage={metadataInfo.specificUsage ?? ""}
-        purpose={metadataInfo.purpose ?? ""}
-        processHistory={metadataInfo.processHistory}
         // securityConstraints finnes ikke i LegalConstraints
         // bruk mock
         constraints={{
