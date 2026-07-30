@@ -84,18 +84,18 @@ async function ProductTabsSection({
 
   return (
     <ProductTabs
-      abstract={metadata.abstractText ?? ""}
-      specificUsage={metadata.specificUsage ?? ""}
-      purpose={metadata.purpose ?? ""}
+      abstract={metadata.abstractText}
+      specificUsage={metadata.specificUsage}
+      purpose={metadata.purpose}
       processHistory={metadata.processHistory}
       constraints={{
         ...metadata.constraints,
-        SecurityConstraints: metadata.securityClassification ?? "-",
+        securityConstraints: metadata.securityClassification,
       }}
       referenceSystems={d.ReferenceSystems}
       distributionGroups={d.DistributionFormatsGrouped}
-      dateUpdated={metadata.dateUpdated ?? ""}
-      maintenanceFrequency={metadata.maintenanceFrequency ?? ""}
+      dateUpdated={metadata.dateUpdated}
+      maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}
     />
   );
