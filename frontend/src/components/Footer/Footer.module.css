@@ -1,5 +1,9 @@
 .footer {
   background-color: var(--ds-color-info-text-default);
+  background-image: url("/designelement_geonorge.svg");
+  background-repeat: no-repeat;
+  background-position: 7% 0%;
+  background-size: 120%;
   color: var(--ds-color-neutral-background-default);
   margin-top: auto;
 }
