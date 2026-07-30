@@ -60,7 +60,7 @@ export default async function ProductPage({
       </div>
       <ProductActions
         downloadUrl={d.DownloadUrl}
-        coverageUrl={metadataSummary.coverageUrl}
+        coverageUrl={metadata.coverageUrl}
         metadataXmlUrl={d.MetadataXmlUrl}
         editUrl={d.MetadataEditUrl}
       />
