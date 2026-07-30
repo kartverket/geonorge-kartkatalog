@@ -11,6 +11,7 @@ fun Route.metadataRoutes(metadataSummaryService: MetadataSummaryService) {
         get("{uuid}") {
             val uuid = UUID.fromString(call.parameters["uuid"])
             val result = metadataSummaryService.getMetadata(uuid)
+            println(result.coverageUrl)
             call.respond(result)
         }
     }

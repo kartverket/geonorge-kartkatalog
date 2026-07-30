@@ -12,6 +12,8 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFor
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -100,6 +102,10 @@ class MetadataSummaryService(
                     .firstOrNull {
                         it.role.equals("publisher", ignoreCase = true)
                     }?.toProductMetadataContact(),
+            coverageUrl = getCoverageLink(
+                extensionResources = record.extensionResources,
+                staticNorgeskartUrl = "https://geonorge-nkg.atkv3-dev.kartverket.cloud/geoportal/",
+            )
         )
     }
 
@@ -267,3 +273,59 @@ class MetadataSummaryService(
 class MetadataRecordNotFoundException(
     uuid: UUID,
 ) : RuntimeException("Metadata record not found for UUID: $uuid")
+
+private data class ParsedCoverage(val type: String, val path: String, val layer: String)
+
+private fun parseCoverage(input: String?): ParsedCoverage? {
+    val m = Regex("""^TYPE:(.+?)@PATH:(.+?)@LAYER:(.+)$""").find(input?.trim() ?: return null) ?: return null
+    return ParsedCoverage(m.groupValues[1].trim(), m.groupValues[2].trim(), m.groupValues[3].trim())
+}
+
+private fun String?.removeQueryString(): String = this?.substringBefore('?') ?: ""
+
+fun getCoverageLink(
+    extensionResources: List<no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ExtensionResource>,
+    zoomLevel: Int = 7,
+    staticNorgeskartUrl: String
+): String? {
+    val coverageUrl = extensionResources.firstOrNull() { it.applicationProfile == "dekningsoversikt" }?.url
+    val coverageGridUrl = extensionResources.firstOrNull() { it.applicationProfile == "dekningsoversikt rutenett" }?.url
+    val coverageCellUrl = extensionResources.firstOrNull() { it.applicationProfile == "dekningsoversikt celle" }?.url
+
+    val cov = parseCoverage(coverageUrl)
+    val grid = parseCoverage(coverageGridUrl)
+
+    if (cov == null && grid == null) return coverageUrl
+
+    val base = "$staticNorgeskartUrl#!?zoom=$zoomLevel&"
+    val primary = cov ?: grid!!
+
+    var link = when (primary.type) {
+        "GEONORGE-WMS" -> when {
+            cov != null && grid != null ->
+                "${base}project=geonorge&layers=1002&lat=6768825.17&lon=217236.30" +
+                    "&wms=https://wms.geonorge.no/skwms1/wms.geonorge_dekningskart?datasett=${cov.layer}," +
+                    "https://wms.geonorge.no/skwms1/wms.gp_dek_oversikt?datasett=${cov.layer}" +
+                    "&addLayers=geonorgedekningskart,gp_dek_oversikt_wms&type=dek"
+            cov != null ->
+                "${base}project=geonorge&layers=1002&lat=6768825.17&lon=217236.30" +
+                    "&wms=https://wms.geonorge.no/skwms1/wms.gp_dek_oversikt?datasett=${cov.layer}" +
+                    "&addLayers=geonorgedekningskart,gp_dek_oversikt_wms&type=dek"
+            else -> {
+                val path = grid!!.path.replace("wms?", "")
+                "${base}lon=96090.37&lat=6564869.00&wms=${path}skwms1%2Fwms.geonorge_dekningskart%3Fdatasett%3D${grid.layer}" +
+                    "&project=geonorge&layers=1002&addLayers=datasett_dekning"
+            }
+        }
+        "WMS" -> "${base}lat=269663&long=6802350&wms=${primary.path}&addLayer=${primary.layer}"
+        "WFS" -> "${base}lat=255216&long=6653881&wfs=${primary.path.removeQueryString()}&addLayer=${primary.layer}"
+        "GeoJSON" -> "${base}lat=355422&long=6668909&geojson=${primary.path.removeQueryString()}&addLayer=${primary.layer}"
+        else -> coverageUrl ?: coverageGridUrl
+    }
+
+    if (!coverageCellUrl.isNullOrBlank()) {
+        link += "&geojson=${URLEncoder.encode(coverageCellUrl, StandardCharsets.UTF_8)}"
+    }
+
+    return link
+}
