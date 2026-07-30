@@ -55,7 +55,12 @@ function ButtonCard({
 }) {
   return (
     <Card asChild data-color="neutral" className={styles.card}>
-      <button type="button">
+      <a
+        target="_blank"
+        rel="noreferrer"
+        href={content.url}
+        className="ds-button"
+      >
         <div className={styles.tagGroup}>
           {content.icon}
           <Tag data-color="accent" data-size="sm">
@@ -65,7 +70,7 @@ function ButtonCard({
         <Heading data-size="md">{content.title}</Heading>
         <Paragraph data-size="md">{content.paragraph}</Paragraph>
         <Paragraph data-size="sm">Dato publisert</Paragraph>
-      </button>
+      </a>
     </Card>
   );
 }
