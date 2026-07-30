@@ -3,9 +3,9 @@
 import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
-import styles from "./ProductTabs.module.css";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
+import styles from "./ProductTabs.module.css";
 
 const TABS = [
   { value: "info", label: "Informasjon om datasettet" },
@@ -16,7 +16,7 @@ const TABS = [
 type Constraints = {
   useLimitations?: string[] | null;
   accessConstraints?: string | null;
-  SecurityConstraints: string; // midlertidig fra mock
+  securityConstraints: string | null;
   useConstraints?: string | null;
   otherConstraintsLink?: string | null;
   otherConstraintsLinkText?: string | null;
@@ -106,8 +106,8 @@ function buildInfoDetails({
   processHistory,
   constraints,
 }: {
-  specificUsage: string;
-  purpose: string;
+  specificUsage: string | null;
+  purpose: string | null;
   processHistory?: string | null;
   constraints: Constraints;
 }): DetailItem[] {
@@ -116,8 +116,8 @@ function buildInfoDetails({
       title: "Bruksområde og formål",
       content: (
         <>
-          <p>{specificUsage}</p>
-          <p>{purpose}</p>
+          <p>{specificUsage ?? "-"}</p>
+          <p>{purpose ?? "-"}</p>
         </>
       ),
     },
@@ -154,7 +154,7 @@ function buildInfoDetails({
             },
             {
               label: "Sikkerhetsnivå",
-              content: constraints.SecurityConstraints,
+              content: constraints.securityConstraints ?? "-",
             },
           ]}
         />
@@ -183,8 +183,8 @@ function buildDistributionDetails({
 }: {
   groups: DistributionGroup[];
   referenceSystems: ReferenceSystem[];
-  dateUpdated: string;
-  maintenanceFrequency: string;
+  dateUpdated: string | null;
+  maintenanceFrequency: string | null;
 }): DetailItem[] {
   return groups.map((group) => ({
     title: group.ProtocolName,
@@ -215,7 +215,10 @@ function buildDistributionDetails({
               </span>
             ),
           },
-          { label: "Oppdateringsfrekvens", content: maintenanceFrequency },
+          {
+            label: "Oppdateringsfrekvens",
+            content: maintenanceFrequency ?? "-",
+          },
           { label: "Ressurs sist oppdatert", content: formatDate(dateUpdated) },
           ...(group.UnitsOfDistribution
             ? [
@@ -282,15 +285,15 @@ export function ProductTabs({
   maintenanceFrequency,
   fairStatus,
 }: {
-  abstract: string;
-  specificUsage: string;
-  purpose: string;
+  abstract: string | null;
+  specificUsage: string | null;
+  purpose: string | null;
   processHistory?: string | null;
   constraints: Constraints;
   referenceSystems: ReferenceSystem[];
   distributionGroups: DistributionGroup[];
-  dateUpdated: string;
-  maintenanceFrequency: string;
+  dateUpdated: string | null;
+  maintenanceFrequency: string | null;
   fairStatus: FairStatus | null;
 }) {
   const infoDetails = buildInfoDetails({
@@ -324,7 +327,7 @@ export function ProductTabs({
         <Tabs.Panel value="info" className={styles.panel}>
           <div className={styles.headingGroup}>
             <Heading data-size="xs">Om datasettet</Heading>
-            <p className={styles.abstract}>{abstract}</p>
+            <p className={styles.abstract}>{abstract ?? "-"}</p>
           </div>
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={infoDetails} />

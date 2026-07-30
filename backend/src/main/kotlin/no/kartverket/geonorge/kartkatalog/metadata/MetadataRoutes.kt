@@ -8,15 +8,9 @@ import java.util.UUID
 
 fun Route.metadataRoutes(metadataSummaryService: MetadataSummaryService) {
     route("/metadata/") {
-        get("summary/{uuid}") {
+        get("{uuid}") {
             val uuid = UUID.fromString(call.parameters["uuid"])
-            val result = metadataSummaryService.getMetadataSummary(uuid)
-            call.respond(result)
-        }
-
-        get("info/{uuid}") {
-            val uuid = UUID.fromString(call.parameters["uuid"])
-            val result = metadataSummaryService.getMetadataInformation(uuid)
+            val result = metadataSummaryService.getMetadata(uuid)
             call.respond(result)
         }
     }
