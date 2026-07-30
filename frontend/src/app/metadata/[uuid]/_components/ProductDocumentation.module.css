@@ -1,5 +1,11 @@
-.wrapper {
-  max-width: 320px;
+.cardWrapper {
+  display: flex;
+  gap: 28px var(--ds-size-7);
+  flex-wrap: wrap;
+}
+
+.card {
+  max-width: 355px;
   display: grid;
   grid-auto-flow: row;
 }
@@ -12,11 +18,7 @@
 
 .tagGroup {
   display: flex;
-  padding: var(--ds-size-0);
   justify-content: space-between;
   align-items: center;
-  align-content: center;
-  row-gap: var(--ds-size-3);
-  align-self: stretch;
   flex-wrap: wrap;
 }
