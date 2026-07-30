@@ -1,14 +1,19 @@
-import { getFairStatus, getMetadataInfo, getMetadataSummary } from "@/app/api";
-import { getUniqueItemsFromListByKey } from "@/app/metadata/[uuid]/_utils/utils";
+import { Suspense } from "react";
+import { getFairStatus, getMetadata, getProductAlerts } from "@/app/api";
+import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
+import {
+  getRelevantAlerts,
+  getUniqueItemsFromListByKey,
+} from "@/app/metadata/[uuid]/_utils/utils";
 import getData from "../../../mocks/getData.json";
-import { DatasetActions } from "./_components/DatasetActions";
-import { DatasetHeader } from "./_components/DatasetHeader";
-import { DatasetMeta } from "./_components/DatasetMeta";
-import { DatasetTabs } from "./_components/DatasetTabs";
-import { DatasetThumbnail } from "./_components/DatasetThumbnail";
+import { ProductActions } from "./_components/ProductActions";
+import { ProductHeader } from "./_components/ProductHeader";
+import { ProductMeta } from "./_components/ProductMeta";
+import { ProductTabs } from "./_components/ProductTabs";
+import { ProductThumbnail } from "./_components/ProductThumbnail";
 import styles from "./page.module.css";
 
-export default async function DatasetPage({
+export default async function ProductPage({
   params,
 }: {
   params: Promise<{ uuid: string }>;
@@ -16,65 +21,82 @@ export default async function DatasetPage({
   const d = getData;
 
   const { uuid } = await params;
-  const [metadataSummary, metadataInfo, fairStatus] = await Promise.all([
-    getMetadataSummary(uuid),
-    getMetadataInfo(uuid),
-    getFairStatus(uuid),
-  ]);
+  const metadata = await getMetadata(uuid);
+  const alerts = await getProductAlerts(uuid);
+  const relevantAlerts = getRelevantAlerts(alerts);
 
   return (
     <div className={styles.content}>
-      <DatasetHeader
-        title={metadataSummary.title}
-        organization={metadataSummary.organization}
-        isOpen={metadataSummary.accessIsOpenData}
+      <ProductHeader
+        title={metadata.title}
+        organization={metadata.organization}
+        isOpen={metadata.accessIsOpenData}
       />
+      {relevantAlerts.map((alert, index) => (
+        <ProductAlert
+          key={`${alert.alertType ?? "alert"}-${index}`}
+          alert={alert}
+        />
+      ))}
       <div className={styles.metaRow}>
-        <DatasetThumbnail thumbnailUrl={metadataSummary.thumbnailUrl} />
-        <DatasetMeta
+        <ProductThumbnail thumbnailUrl={metadata.thumbnailUrl} />
+        <ProductMeta
           // TODO: oversettes når i18n er på plass (SpatialScope kommer som engelsk fra getData)
-          spatialScope={metadataSummary.spatialScope}
-          representation={metadataSummary.spatialRepresentation}
-          maintenanceFrequency={metadataSummary.maintenanceFrequency}
-          resolutionScale={metadataSummary.resolutionScale}
-          dateUpdated={metadataSummary.dateUpdated}
+          spatialScope={metadata.spatialScope}
+          representation={metadata.spatialRepresentation}
+          maintenanceFrequency={metadata.maintenanceFrequency}
+          resolutionScale={metadata.resolutionScale}
+          dateUpdated={metadata.dateUpdated}
           themes={getUniqueItemsFromListByKey(
-            [
-              ...metadataSummary.nationalKeywords,
-              ...metadataSummary.keywordsTheme,
-            ],
+            [...metadata.nationalKeywords, ...metadata.keywordsTheme],
             "keywordValue",
           )}
           formats={getUniqueItemsFromListByKey(
-            metadataSummary.distributionFormats,
+            metadata.distributionFormats,
             "name",
           )}
-          fairStatusPercent={fairStatus?.totalPercent ?? null}
+          fairStatusPercent={metadata.fairStatusPercentFromMetadata}
         />
       </div>
-      <DatasetActions
+      <ProductActions
         downloadUrl={d.DownloadUrl}
         coverageUrl={metadataSummary.coverageUrl}
         metadataXmlUrl={d.MetadataXmlUrl}
         editUrl={d.MetadataEditUrl}
       />
-      <DatasetTabs
-        abstract={metadataInfo.abstractText ?? ""}
-        specificUsage={metadataInfo.specificUsage ?? ""}
-        purpose={metadataInfo.purpose ?? ""}
-        processHistory={metadataInfo.processHistory}
-        // securityConstraints finnes ikke i LegalConstraints
-        // bruk mock
-        constraints={{
-          ...metadataInfo.constraints,
-          SecurityConstraints: metadataInfo.securityClassification ?? "-",
-        }}
-        referenceSystems={d.ReferenceSystems}
-        distributionGroups={d.DistributionFormatsGrouped}
-        dateUpdated={metadataSummary.dateUpdated ?? ""}
-        maintenanceFrequency={metadataSummary.maintenanceFrequency ?? ""}
-        fairStatus={fairStatus}
-      />
+      <Suspense>
+        <ProductTabsSection uuid={uuid} metadata={metadata} d={d} />
+      </Suspense>
     </div>
+  );
+}
+
+async function ProductTabsSection({
+  uuid,
+  metadata,
+  d,
+}: {
+  uuid: string;
+  metadata: Awaited<ReturnType<typeof getMetadata>>;
+  d: typeof getData;
+}) {
+  const fairStatus = await getFairStatus(uuid);
+
+  return (
+    <ProductTabs
+      abstract={metadata.abstractText}
+      specificUsage={metadata.specificUsage}
+      purpose={metadata.purpose}
+      processHistory={metadata.processHistory}
+      constraints={{
+        ...metadata.constraints,
+        securityConstraints: metadata.securityClassification,
+      }}
+      referenceSystems={d.ReferenceSystems}
+      distributionGroups={d.DistributionFormatsGrouped}
+      dateUpdated={metadata.dateUpdated}
+      maintenanceFrequency={metadata.maintenanceFrequency}
+      fairStatus={fairStatus}
+    />
   );
 }

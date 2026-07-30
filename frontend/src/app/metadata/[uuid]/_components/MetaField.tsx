@@ -1,7 +1,7 @@
 "use client";
 import { Button, Tooltip } from "@kv-designsystem/react";
 import { QuestionmarkCircleIcon } from "@navikt/aksel-icons";
-import styles from "@/app/metadata/[uuid]/_components/DatasetMeta.module.css";
+import styles from "@/app/metadata/[uuid]/_components/ProductMeta.module.css";
 
 export function MetaField({
   label,

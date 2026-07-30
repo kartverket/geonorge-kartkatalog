@@ -4,9 +4,9 @@ import {
   FileTextIcon,
   PencilIcon,
 } from "@navikt/aksel-icons";
-import styles from "./DatasetActions.module.css";
+import styles from "./ProductActions.module.css";
 
-export function DatasetActions({
+export function ProductActions({
   downloadUrl,
   coverageUrl,
   metadataXmlUrl,

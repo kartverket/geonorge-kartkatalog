@@ -1,11 +1,10 @@
 import { notFound } from "next/navigation";
+import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
   type ProductFairStatus,
-  type ProductMetadataInfo,
-  type ProductMetadataSummary,
+  type ProductMetadata,
   parseProductFairStatus,
-  parseProductMetadataInfo,
-  parseProductMetadataSummary,
+  parseProductMetadata,
 } from "@/lib/schemas/product";
 
 const API_BASE = process.env.API_BASE;
@@ -73,30 +72,15 @@ async function fetchJson(
 }
 
 /**
- * Fetch metadata summary for a dataset by UUID.
+ * Fetch metadata for a dataset by UUID.
  * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
  */
-export async function getMetadataSummary(
-  uuid: string,
-): Promise<ProductMetadataSummary> {
+export async function getMetadata(uuid: string): Promise<ProductMetadata> {
   if (!uuid) throw new Error("uuid is required");
-  const url = `${API_BASE}/metadata/summary/${encodeURIComponent(uuid)}`;
+  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}`;
   // Fetch as unknown and validate the shape with Zod before returning typed data
   const body = await fetchJson(url, { method: "GET" });
-  return parseProductMetadataSummary(body);
-}
-
-/**
- * Fetch metadata info for a dataset by UUID.
- * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
- */
-export async function getMetadataInfo(
-  uuid: string,
-): Promise<ProductMetadataInfo> {
-  if (!uuid) throw new Error("uuid is required");
-  const url = `${API_BASE}/metadata/info/${encodeURIComponent(uuid)}`;
-  const body = await fetchJson(url, { method: "GET" });
-  return parseProductMetadataInfo(body);
+  return parseProductMetadata(body);
 }
 
 /**
@@ -117,4 +101,23 @@ export async function getFairStatus(
   );
   if (body === null) return null;
   return parseProductFairStatus(body);
+}
+
+/**
+ * Fetch alerts for a product by UUID.
+ * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
+ */
+export async function getProductAlerts(uuid: string): Promise<Alerts | null> {
+  if (!uuid) throw new Error("uuid is required");
+  const url = `${REGISTER_BASE_URL}/api/alerts/${encodeURIComponent(uuid)}`;
+  const body = await fetchJson(
+    url,
+    { method: "GET" },
+    {
+      notFoundOn404: false,
+    },
+  );
+  if (body === null) return null;
+
+  return parseAlert(body);
 }

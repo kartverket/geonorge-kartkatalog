@@ -17,49 +17,6 @@ export const ProductDataQualityMeasureSchema = z.object({
   title: z.string().nullable(),
 });
 
-export const ProductMetadataSummarySchema = z.object({
-  title: z.string(),
-  organization: z.string().nullable(),
-  hierarchyLevel: z.string(),
-  accessIsRestricted: z.boolean().nullable(),
-  accessIsOpenData: z.boolean().nullable(),
-  accessIsProtected: z.boolean().nullable(),
-  dateUpdated: z.string().nullable(),
-  maintenanceFrequency: z.string().nullable(),
-  spatialRepresentation: z.string().nullable(),
-  spatialScope: z.string().nullable(),
-  resolutionScale: z.string().nullable(),
-  keywordsTheme: z.array(ProductKeywordSchema),
-  nationalKeywords: z.array(ProductKeywordSchema),
-  distributionFormats: z.array(ProductDistributionFormatSchema),
-  thumbnailUrl: z.string().nullable(),
-  dataQualityMeasures: z.array(ProductDataQualityMeasureSchema),
-  // TODO: rydd opp her
-  coverageUrl: z
-    .string()
-    .nullable()
-    .default(
-      "https://geonorge-nkg.atkv3-dev.kartverket.cloud/geoportal/#!?zoom=5&project=geonorge&layers=1002&lat=6768825.17&lon=217236.30&wms=https%3a%2f%2fwms.geonorge.no%2fskwms1%2fwms.geonorge_dekningskart%3fdatasett%3dkv_adminomr_kommune%2chttps%3a%2f%2fwms.geonorge.no%2fskwms1%2fwms.gp_dek_oversikt%3fdatasett%3dkv_adminomr_kommune&addLayers=geonorgedekningskart%2cgp_dek_oversikt_wms%2cgeojson&type=dek&geojson=https%3a%2f%2fnedlasting.geonorge.no%2fgeonorge%2fBasisdata%2fDOKFullstendighetsdekningskart%2fKartkatalogen%2fdekning_kommuner.geojson",
-    ),
-});
-
-export type ProductMetadataSummary = z.infer<
-  typeof ProductMetadataSummarySchema
->;
-
-export function parseProductMetadataSummary(
-  body: unknown,
-): ProductMetadataSummary {
-  const res = ProductMetadataSummarySchema.safeParse(body);
-  if (!res.success) {
-    throw new Error("Invalid metadata summary from server", {
-      cause: res.error,
-    });
-  }
-
-  return res.data;
-}
-
 export const LegalConstraintsSchema = z.object({
   accessConstraints: z.string().nullable(),
   useConstraints: z.string().nullable(),
@@ -77,7 +34,24 @@ export const ProductMetadataContactSchema = z.object({
   role: z.string().nullable(),
 });
 
-export const ProductMetadataInfoSchema = z.object({
+export const ProductMetadataSchema = z.object({
+  title: z.string(),
+  organization: z.string().nullable(),
+  hierarchyLevel: z.string(),
+  accessIsRestricted: z.boolean().nullable(),
+  accessIsOpenData: z.boolean().nullable(),
+  accessIsProtected: z.boolean().nullable(),
+  dateUpdated: z.string().nullable(),
+  maintenanceFrequency: z.string().nullable(),
+  spatialRepresentation: z.string().nullable(),
+  spatialScope: z.string().nullable(),
+  resolutionScale: z.string().nullable(),
+  keywordsTheme: z.array(ProductKeywordSchema),
+  nationalKeywords: z.array(ProductKeywordSchema),
+  distributionFormats: z.array(ProductDistributionFormatSchema),
+  thumbnailUrl: z.string().nullable(),
+  dataQualityMeasures: z.array(ProductDataQualityMeasureSchema),
+  fairStatusPercentFromMetadata: z.number().nullable(),
   abstractText: z.string().nullable(),
   purpose: z.string().nullable(),
   specificUsage: z.string().nullable(),
@@ -89,13 +63,16 @@ export const ProductMetadataInfoSchema = z.object({
   contactPublisher: ProductMetadataContactSchema.nullable(),
 });
 
-export type ProductMetadataInfo = z.infer<typeof ProductMetadataInfoSchema>;
+export type ProductMetadata = z.infer<typeof ProductMetadataSchema>;
 
-export function parseProductMetadataInfo(body: unknown): ProductMetadataInfo {
-  const res = ProductMetadataInfoSchema.safeParse(body);
+export function parseProductMetadata(body: unknown): ProductMetadata {
+  const res = ProductMetadataSchema.safeParse(body);
   if (!res.success) {
-    throw new Error("Invalid metadata info from server", { cause: res.error });
+    throw new Error("Invalid metadata from server", {
+      cause: res.error,
+    });
   }
+
   return res.data;
 }
 
