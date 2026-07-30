@@ -264,5 +264,5 @@ class MetadataSummaryService(
 }
 
 class MetadataRecordNotFoundException(
-    uuid: string,
+    uuid: String,
 ) : RuntimeException("Metadata record not found for UUID: $uuid")
