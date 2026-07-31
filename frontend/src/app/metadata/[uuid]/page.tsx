@@ -62,7 +62,7 @@ export default async function ProductPage({
         downloadUrl={d.DownloadUrl}
         coverageUrl={metadata.coverageUrl}
         metadataXmlUrl={d.MetadataXmlUrl}
-        editUrl={d.MetadataEditUrl}
+        uuid={uuid}
       />
       <Suspense>
         <ProductTabsSection uuid={uuid} metadata={metadata} d={d} />

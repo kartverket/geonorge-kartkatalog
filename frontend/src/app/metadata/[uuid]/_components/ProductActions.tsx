@@ -6,17 +6,20 @@ import {
 } from "@navikt/aksel-icons";
 import styles from "./ProductActions.module.css";
 
-export function ProductActions({
+export async function ProductActions({
   downloadUrl,
   coverageUrl,
   metadataXmlUrl,
-  editUrl,
+  uuid,
 }: {
   downloadUrl?: string;
   coverageUrl: string | null;
   metadataXmlUrl?: string;
-  editUrl?: string;
+  uuid: string;
 }) {
+  const EDITOR_BASE_URL = process.env.EDITOR_BASE_URL;
+  const editUrl = `${EDITOR_BASE_URL}/Metadata/Edit?uuid=${uuid}`;
+
   return (
     <div className={styles.actions}>
       <button
@@ -52,16 +55,19 @@ export function ProductActions({
           Last ned metadata XML
         </button>
       )}
+      {/*TODO: GN-227 håndtere at noen datasett ikke burde redigeres fra denne editUrl-en*/}
       {editUrl && (
-        <button
-          className="ds-button"
-          type="button"
+        <a
           data-variant="secondary"
+          target="_blank"
+          rel="noreferrer"
+          href={editUrl}
+          className="ds-button"
           data-color="neutral"
         >
           <PencilIcon aria-hidden />
           Rediger metadata
-        </button>
+        </a>
       )}
     </div>
   );
