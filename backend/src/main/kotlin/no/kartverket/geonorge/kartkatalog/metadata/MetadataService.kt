@@ -15,7 +15,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
 import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 
-class MetadataSummaryService(
+class MetadataService(
     private val geonetworkClient: GeonetworkClient,
     private val registerClient: RegisterClient,
 ) {

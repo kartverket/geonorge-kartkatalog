@@ -19,7 +19,7 @@ import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
-import no.kartverket.geonorge.kartkatalog.metadata.MetadataSummaryService
+import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -55,7 +55,7 @@ class MetadataRoutesTest {
     private val geonetworkBaseUrl = "https://test.example.com/geonetwork"
     private val registerBaseUrl = "https://test.example.com/register"
 
-    private fun createSummaryService(xml: String): MetadataSummaryService {
+    private fun createSummaryService(xml: String): MetadataService {
         val client =
             HttpClient(
                 MockEngine { request ->
@@ -103,7 +103,7 @@ class MetadataRoutesTest {
                 }
             }
 
-        return MetadataSummaryService(
+        return MetadataService(
             GeonetworkClient(
                 client,
                 geonetworkBaseUrl,
@@ -116,14 +116,14 @@ class MetadataRoutesTest {
     }
 
     private fun testApp(
-        metadataSummaryService: MetadataSummaryService,
+        metadataService: MetadataService,
         block: suspend io.ktor.server.testing.ApplicationTestBuilder.() -> Unit,
     ) = testApplication {
         application {
             configureHttp()
             configureSerialization()
             configureStatusPages()
-            routing { metadataRoutes(metadataSummaryService) }
+            routing { metadataRoutes(metadataService) }
         }
         block()
     }
