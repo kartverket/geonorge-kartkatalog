@@ -26,7 +26,8 @@ class MetadataMapperTest {
     @Test
     fun `maps open data access state and access constraints`() =
         runBlocking {
-            val mapper = MetadataMapper(createTranslator(responseContent = """{"containeditems": []}"""), staticNorgeskartUrl)
+            val mapper =
+                MetadataMapper(createTranslator(responseContent = """{"containeditems": []}"""), staticNorgeskartUrl)
             val record =
                 minimalRecord(
                     legalConstraints =
@@ -51,7 +52,8 @@ class MetadataMapperTest {
                 MetadataMapper(
                     createTranslator(
                         responseContent = """{"containeditems": [{"label": "Lisens", "codevalue": "license"}]}""",
-                    ), staticNorgeskartUrl = staticNorgeskartUrl
+                    ),
+                    staticNorgeskartUrl = staticNorgeskartUrl,
                 )
             val record =
                 minimalRecord(

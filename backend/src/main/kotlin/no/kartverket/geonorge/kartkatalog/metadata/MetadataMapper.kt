@@ -88,10 +88,11 @@ class MetadataMapper(
                 record.contacts
                     .firstOrNull { it.role.equals("publisher", ignoreCase = true) }
                     ?.toProductMetadataContact(),
-            coverageUrl = getCoverageLink(
-                record.extensionResources,
-                staticNorgeskartUrl = staticNorgeskartUrl,
-            )
+            coverageUrl =
+                getCoverageLink(
+                    record.extensionResources,
+                    staticNorgeskartUrl = staticNorgeskartUrl,
+                ),
         )
     }
 

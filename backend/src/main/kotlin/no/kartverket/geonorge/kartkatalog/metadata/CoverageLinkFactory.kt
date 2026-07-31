@@ -4,7 +4,6 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Extensio
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-
 fun getCoverageLink(
     extensionResources: List<ExtensionResource>,
     zoomLevel: Int = 7,
