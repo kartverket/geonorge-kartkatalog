@@ -289,9 +289,9 @@ fun getCoverageLink(
     zoomLevel: Int = 7,
     staticNorgeskartUrl: String,
 ): String? {
-    val coverageUrl = extensionResources.firstOrNull { it.applicationProfile == "dekningsoversikt" }?.url
-    val coverageGridUrl = extensionResources.firstOrNull { it.applicationProfile == "dekningsoversikt rutenett" }?.url
-    val coverageCellUrl = extensionResources.firstOrNull { it.applicationProfile == "dekningsoversikt celle" }?.url
+    val coverageUrl = extensionResources.firstOrNull { it.applicationProfile.trim().equals("dekningsoversikt", ignoreCase = true) }?.url
+    val coverageGridUrl = extensionResources.firstOrNull { it.applicationProfile.trim().equals("dekningsoversikt rutenett", ignoreCase = true) }?.url
+    val coverageCellUrl = extensionResources.firstOrNull { it.applicationProfile.trim().equals("dekningsoversikt celle", ignoreCase = true) }?.url
 
     val cov = parseCoverage(coverageUrl)
     val grid = parseCoverage(coverageGridUrl)
