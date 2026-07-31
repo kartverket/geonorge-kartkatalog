@@ -57,6 +57,10 @@
 }
 
 @media (max-width: 1024px) {
+  .footer {
+    background-position: -5% -10%;
+    background-size: 170%;
+  }
   .inner {
     flex-direction: column;
     align-items: flex-start;
@@ -69,6 +73,11 @@
 }
 
 @media (max-width: 800px) {
+  .footer {
+    background-position: 0 -40%;
+    background-size: 170%;
+  }
+
   .columns {
     flex-direction: column-reverse;
     gap: var(--ds-size-8);
