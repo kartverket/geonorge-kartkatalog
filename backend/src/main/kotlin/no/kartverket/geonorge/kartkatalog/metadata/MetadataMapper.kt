@@ -90,7 +90,10 @@ class MetadataMapper(
         )
     }
 
-    private fun describeAccessConstraints(record: MetadataRecord, accessState: AccessState): String {
+    private fun describeAccessConstraints(
+        record: MetadataRecord,
+        accessState: AccessState,
+    ): String {
         return when {
             accessState.openData -> "Åpne data"
             accessState.restricted -> "Norge digitalt-begrenset"
