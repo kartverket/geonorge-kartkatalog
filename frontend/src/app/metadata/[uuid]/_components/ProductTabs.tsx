@@ -3,13 +3,13 @@
 import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
+import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
   ProductFairStatus,
   ReferenceSystem,
 } from "@/lib/schemas/product";
-import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
 import styles from "./ProductTabs.module.css";
 
 const TABS = [
