@@ -9,7 +9,7 @@ import type {
   ProductFairStatus,
   ReferenceSystem,
 } from "@/lib/schemas/product";
-import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/";
+import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
 import styles from "./ProductTabs.module.css";
 
 const TABS = [
