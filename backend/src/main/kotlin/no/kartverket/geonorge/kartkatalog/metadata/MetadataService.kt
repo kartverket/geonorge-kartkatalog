@@ -317,7 +317,7 @@ fun getCoverageLink(
     val cov = parseCoverage(coverageUrl)
     val grid = parseCoverage(coverageGridUrl)
 
-    if (cov == null && grid == null) return coverageUrl
+    if (cov == null && grid == null) return coverageUrl ?: coverageGridUrl
 
     val base = "$staticNorgeskartUrl#!?zoom=$zoomLevel&"
     val primary = cov ?: grid!!
