@@ -8,7 +8,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
-import java.util.UUID
 
 class GeonetworkClient(
     private val httpClient: HttpClient,
@@ -16,7 +15,7 @@ class GeonetworkClient(
 ) {
     private val cswUrl: String = "$baseUrl/srv/nor/csw"
 
-    suspend fun getRecordByUuid(uuid: UUID): MetadataRecord? {
+    suspend fun getRecordByUuid(uuid: String): MetadataRecord? {
         val requestXml = buildGetRecordByIdRequest(uuid)
 
         val responseXml =
@@ -40,7 +39,7 @@ class GeonetworkClient(
         return MetadataParser.parse(responseXml.byteInputStream())
     }
 
-    private fun buildGetRecordByIdRequest(uuid: UUID): String =
+    private fun buildGetRecordByIdRequest(uuid: String): String =
         """
         <?xml version="1.0" encoding="UTF-8"?>
         <csw:GetRecordById
