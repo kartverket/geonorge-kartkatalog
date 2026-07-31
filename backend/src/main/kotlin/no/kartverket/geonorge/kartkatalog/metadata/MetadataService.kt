@@ -100,6 +100,26 @@ class MetadataSummaryService(
                     .firstOrNull {
                         it.role.equals("publisher", ignoreCase = true)
                     }?.toProductMetadataContact(),
+            referenceSystems =
+                record.referenceSystems.map {
+                    it.toProductReferenceSystem()
+                },
+            distributionGroups =
+                record.distributionInfo?.onlineResources
+                    .orEmpty()
+                    .groupBy { it.protocol }
+                    .map { (protocol, resources) ->
+                        ProductDistributionGroup(
+                            protocolName = protocol,
+                            protocolDescription =
+                                resources.firstOrNull()?.description,
+                            formats =
+                                record.distributionInfo?.formats.orEmpty().map { it.name },
+                            urls = resources.map { it.url },
+                            unitsOfDistribution =
+                                resources.firstOrNull()?.unitsOfDistribution,
+                        )
+                    },
         )
     }
 
@@ -236,6 +256,12 @@ class MetadataSummaryService(
             else -> value
         }
     }
+
+    private fun ReferenceSystem.toProductReferenceSystem() =
+        ProductReferenceSystem(
+            code = code,
+            codeSpace = codeSpace,
+        )
 
     private data class AccessState(
         val restricted: Boolean,
