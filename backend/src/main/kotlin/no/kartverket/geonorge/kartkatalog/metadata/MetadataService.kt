@@ -302,6 +302,10 @@ fun getCoverageLink(
         extensionResources.firstOrNull {
             it.applicationProfile.trim().equals("dekningsoversikt celle", ignoreCase = true)
         }?.url
+    val surveyAreaMapUrl = extensionResources
+        .firstOrNull { it.applicationProfile.trim().equals("kartleggingsområde", ignoreCase = true) }?.url
+    val surveyAreaMapUrlWms = extensionResources
+        .firstOrNull { it.applicationProfile.trim().equals("kartleggingsområde wms", ignoreCase = true) }?.url
 
     val cov = parseCoverage(coverageUrl)
     val grid = parseCoverage(coverageGridUrl)
@@ -342,6 +346,27 @@ fun getCoverageLink(
 
     if (!coverageCellUrl.isNullOrBlank()) {
         link += "&geojson=${URLEncoder.encode(coverageCellUrl, StandardCharsets.UTF_8)}"
+    }
+    link = link?.let { addSurveyAreaMap(it, surveyAreaMapUrl, surveyAreaMapUrlWms) }
+    return link
+}
+
+private fun addSurveyAreaMap(
+    incomingLink: String,
+    surveyAreaMapUrl: String?,
+    surveyAreaMapUrlWms: String?,
+): String {
+    var link = incomingLink
+
+    val wms = parseCoverage(surveyAreaMapUrlWms)
+    if (wms != null) {
+        link += if (link.contains("&wms=")) ",${wms.path}" else "&wms=${wms.path}"
+        link += if (link.contains("&addLayers=")) ",${wms.layer}" else "&addLayers=${wms.layer}"
+    }
+
+    if (!surveyAreaMapUrl.isNullOrBlank()) {
+        link += "&geojson=${URLEncoder.encode(surveyAreaMapUrl, StandardCharsets.UTF_8)}"
+        link += if (link.contains("&addLayers=")) ",geojson" else "&addLayers=geojson"
     }
 
     return link
