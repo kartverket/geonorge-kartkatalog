@@ -8,7 +8,6 @@ import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.configureRouting
-import kotlin.String
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -26,7 +25,8 @@ class ServerTest {
                             "GEONETWORK_BASE_URL" to "https://test.example.com/geonetwork",
                             "REGISTER_BASE_URL" to "https://test.example.com/register",
                             "SOLR_BASE_URL" to "https://test.example.com/solr",
-                            "NORGESKART_BASE_URL" to "https://test.example.com/norgeskart"),
+                            "NORGESKART_BASE_URL" to "https://test.example.com/norgeskart",
+                        ),
                     ),
                 )
             }
