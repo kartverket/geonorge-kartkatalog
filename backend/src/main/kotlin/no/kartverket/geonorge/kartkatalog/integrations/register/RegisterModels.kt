@@ -14,8 +14,12 @@ data class RegisterCodeListItem(
     val label: String,
     @SerialName("codevalue")
     val codeValue: String? = null,
+    val description: String? = null,
 ) {
-    val effectiveCodeValue: String get() = codeValue?.takeIf { it.isNotBlank() } ?: label
+    val effectiveCodeValue: String get() =
+        codeValue?.takeIf {
+            it.isNotBlank()
+        } ?: label
 }
 
 @Serializable

@@ -4,12 +4,15 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionGroup
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductReferenceSystem
 
 class MetadataMapper(
     private val codeListTranslator: CodeListTranslator,
@@ -42,6 +45,38 @@ class MetadataMapper(
                 record.distributionInfo?.formats.orEmpty().map {
                     it.toProductDistributionFormat()
                 },
+            referenceSystems =
+                record.referenceSystems.map {
+                    it.toProductReferenceSystem()
+                },
+            distributionGroups =
+                record.distributionInfo?.formats.orEmpty()
+                    .groupBy { it.onlineResources.firstOrNull()?.protocol }
+                    .map { (protocol, formatsInGroup) ->
+                        val resources =
+                            formatsInGroup.flatMap {
+                                it.onlineResources
+                            }
+                        val distributionType =
+                            codeListTranslator.findItem(
+                                CodeList.DISTRIBUTION_TYPES,
+                                protocol,
+                            )
+                        ProductDistributionGroup(
+                            protocolName =
+                                distributionType?.label
+                                    ?: protocol.orEmpty(),
+                            protocolDescription =
+                                distributionType?.description,
+                            formats = formatsInGroup.map { it.name },
+                            urls = resources.map { it.url }.distinct(),
+                            unitsOfDistribution =
+                                resources.firstOrNull {
+                                    it.unitsOfDistribution != null
+                                }
+                                    ?.unitsOfDistribution,
+                        )
+                    },
             thumbnailUrl =
                 record.thumbnails.firstOrNull {
                     it.type?.equals("medium", ignoreCase = true) == true
@@ -203,6 +238,12 @@ class MetadataMapper(
         ProductDistributionFormat(
             name = name,
             version = version,
+        )
+
+    private fun ReferenceSystem.toProductReferenceSystem() =
+        ProductReferenceSystem(
+            code = code,
+            codeSpace = codeSpace,
         )
 
     private fun Contact.toProductMetadataContact() =
