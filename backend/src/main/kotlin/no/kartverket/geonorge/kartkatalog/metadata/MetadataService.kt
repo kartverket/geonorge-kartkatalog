@@ -1,20 +1,20 @@
 package no.kartverket.geonorge.kartkatalog.metadata
 
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionGroup
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionGroup
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductReferenceSystem
 import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -108,19 +108,22 @@ class MetadataSummaryService(
                     it.toProductReferenceSystem()
                 },
             distributionGroups =
-                record.distributionInfo?.onlineResources
-                    .orEmpty()
-                    .groupBy { it.protocol }
-                    .map { (protocol, resources) ->
+                record.distributionInfo?.formats.orEmpty()
+                    .groupBy { it.onlineResources.firstOrNull()?.protocol }
+                    .map { (protocol, formatsInGroup) ->
+                        val resources = formatsInGroup.flatMap { it.onlineResources }
                         ProductDistributionGroup(
-                            protocolName = protocol,
+                            protocolName =
+                                translateCodeListValue(CodeList.DISTRIBUTION_TYPES, protocol),
                             protocolDescription =
                                 resources.firstOrNull()?.description,
-                            formats =
-                                record.distributionInfo?.formats.orEmpty().map { it.name },
+                            formats = formatsInGroup.map { it.name },
                             urls = resources.map { it.url },
                             unitsOfDistribution =
-                                resources.firstOrNull()?.unitsOfDistribution,
+                                resources.firstOrNull {
+                                    it.unitsOfDistribution != null
+                                }
+                                    ?.unitsOfDistribution,
                         )
                     },
         )
