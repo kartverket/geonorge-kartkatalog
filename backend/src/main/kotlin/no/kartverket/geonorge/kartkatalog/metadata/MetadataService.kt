@@ -12,14 +12,13 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFor
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
-import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 
 class MetadataSummaryService(
     private val geonetworkClient: GeonetworkClient,
     private val registerClient: RegisterClient,
 ) {
-    suspend fun getMetadata(uuid: UUID): ProductMetadata {
+    suspend fun getMetadata(uuid: String): ProductMetadata {
         val record =
             geonetworkClient.getRecordByUuid(uuid)
                 ?: throw MetadataRecordNotFoundException(uuid)
@@ -265,5 +264,5 @@ class MetadataSummaryService(
 }
 
 class MetadataRecordNotFoundException(
-    uuid: UUID,
+    uuid: String,
 ) : RuntimeException("Metadata record not found for UUID: $uuid")
