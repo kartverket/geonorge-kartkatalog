@@ -31,6 +31,7 @@ data class ProductMetadata(
     val contactMetadata: ProductMetadataContact? = null,
     val contactOwner: ProductMetadataContact? = null,
     val contactPublisher: ProductMetadataContact? = null,
+    val coverageUrl: String? = null,
 )
 
 @Serializable

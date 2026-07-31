@@ -56,6 +56,7 @@ class MetadataRoutesTest {
 
     private val geonetworkBaseUrl = "https://test.example.com/geonetwork"
     private val registerBaseUrl = "https://test.example.com/register"
+    private val staticNorgeskartUrl = "https://test.example.com/register"
 
     private fun createMetadataService(xml: String): MetadataService {
         val client =
@@ -107,7 +108,7 @@ class MetadataRoutesTest {
 
         val registerClient = RegisterClient(client, registerBaseUrl)
         val codeListTranslator = CodeListTranslator(registerClient)
-        val metadataMapper = MetadataMapper(codeListTranslator)
+        val metadataMapper = MetadataMapper(codeListTranslator, staticNorgeskartUrl)
 
         return MetadataService(
             GeonetworkClient(

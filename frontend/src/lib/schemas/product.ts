@@ -61,6 +61,7 @@ export const ProductMetadataSchema = z.object({
   contactMetadata: ProductMetadataContactSchema.nullable(),
   contactOwner: ProductMetadataContactSchema.nullable(),
   contactPublisher: ProductMetadataContactSchema.nullable(),
+  coverageUrl: z.string().nullable(),
 });
 
 export type ProductMetadata = z.infer<typeof ProductMetadataSchema>;
