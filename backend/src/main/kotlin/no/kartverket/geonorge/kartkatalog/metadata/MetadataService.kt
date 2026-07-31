@@ -118,7 +118,7 @@ class MetadataSummaryService(
                             protocolDescription =
                                 resources.firstOrNull()?.description,
                             formats = formatsInGroup.map { it.name },
-                            urls = resources.map { it.url },
+                            urls = resources.map { it.url }.distinct(),
                             unitsOfDistribution =
                                 resources.firstOrNull {
                                     it.unitsOfDistribution != null
