@@ -17,7 +17,7 @@ fun Application.configureRouting(appConfig: AppConfig) {
     val httpClient = HttpClient(CIO)
     val geonetworkClient = GeonetworkClient(httpClient, appConfig.geonetworkBaseUrl)
     val registerClient = RegisterClient(httpClient, appConfig.registerBaseUrl)
-    val metadataSummaryService = MetadataSummaryService(geonetworkClient, registerClient)
+    val metadataSummaryService = MetadataSummaryService(geonetworkClient, registerClient, appConfig.staticNorgeskartUrl)
 
     monitor.subscribe(ApplicationStopping) { httpClient.close() }
 

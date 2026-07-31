@@ -20,6 +20,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class MetadataSummaryService(
     private val geonetworkClient: GeonetworkClient,
     private val registerClient: RegisterClient,
+    private val staticNorgeskartUrl: String,
 ) {
     suspend fun getMetadata(uuid: UUID): ProductMetadata {
         val record =
@@ -105,7 +106,7 @@ class MetadataSummaryService(
             coverageUrl =
                 getCoverageLink(
                     extensionResources = record.extensionResources,
-                    staticNorgeskartUrl = "https://geonorge-nkg.atkv3-dev.kartverket.cloud/geoportal/",
+                    staticNorgeskartUrl = staticNorgeskartUrl,
                 ),
         )
     }
