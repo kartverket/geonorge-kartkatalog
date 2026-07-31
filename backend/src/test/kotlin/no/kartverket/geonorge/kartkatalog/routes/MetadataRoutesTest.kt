@@ -19,6 +19,8 @@ import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
+import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 import kotlin.test.Test
@@ -103,15 +105,16 @@ class MetadataRoutesTest {
                 }
             }
 
+        val registerClient = RegisterClient(client, registerBaseUrl)
+        val codeListTranslator = CodeListTranslator(registerClient)
+        val metadataMapper = MetadataMapper(codeListTranslator)
+
         return MetadataService(
             GeonetworkClient(
                 client,
                 geonetworkBaseUrl,
             ),
-            RegisterClient(
-                client,
-                registerBaseUrl,
-            ),
+            metadataMapper,
         )
     }
 

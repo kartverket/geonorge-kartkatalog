@@ -10,6 +10,8 @@ import io.ktor.server.routing.routing
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
+import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 
@@ -17,14 +19,13 @@ fun Application.configureRouting(appConfig: AppConfig) {
     val httpClient = HttpClient(CIO)
     val geonetworkClient = GeonetworkClient(httpClient, appConfig.geonetworkBaseUrl)
     val registerClient = RegisterClient(httpClient, appConfig.registerBaseUrl)
-    val metadataService = MetadataService(geonetworkClient, registerClient)
+    val codeListTranslator = CodeListTranslator(registerClient)
+    val metadataMapper = MetadataMapper(codeListTranslator)
+    val metadataService = MetadataService(geonetworkClient, metadataMapper)
 
     monitor.subscribe(ApplicationStopping) { httpClient.close() }
 
     routing {
-        get("/") {
-            call.respondText("Hello, World!")
-        }
         metadataRoutes(metadataService)
     }
 }
