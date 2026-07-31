@@ -25,6 +25,7 @@ class ServerTest {
                             "GEONETWORK_BASE_URL" to "https://test.example.com/geonetwork",
                             "REGISTER_BASE_URL" to "https://test.example.com/register",
                             "SOLR_BASE_URL" to "https://test.example.com/solr",
+                            "NORGESKART_BASE_URL" to "https://test.example.com/norgeskart",
                         ),
                     ),
                 )

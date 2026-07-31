@@ -16,6 +16,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.ProductReferenceSystem
 
 class MetadataMapper(
     private val codeListTranslator: CodeListTranslator,
+    private val staticNorgeskartUrl: String,
 ) {
     suspend fun toProductMetadata(record: MetadataRecord): ProductMetadata {
         val accessState = resolveAccessState(record)
@@ -122,6 +123,11 @@ class MetadataMapper(
                 record.contacts
                     .firstOrNull { it.role.equals("publisher", ignoreCase = true) }
                     ?.toProductMetadataContact(),
+            coverageUrl =
+                getCoverageLink(
+                    record.extensionResources,
+                    staticNorgeskartUrl = staticNorgeskartUrl,
+                ),
         )
     }
 

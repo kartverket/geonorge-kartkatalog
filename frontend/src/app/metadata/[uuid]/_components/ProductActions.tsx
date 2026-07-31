@@ -13,7 +13,7 @@ export async function ProductActions({
   uuid,
 }: {
   downloadUrl?: string;
-  coverageUrl?: string;
+  coverageUrl: string | null;
   metadataXmlUrl?: string;
   uuid: string;
 }) {
@@ -32,15 +32,17 @@ export async function ProductActions({
         Legg i nedlastingskurv
       </button>
       {coverageUrl && (
-        <button
-          className="ds-button"
-          type="button"
+        <a
           data-variant="secondary"
+          target="_blank"
+          rel="noopener noreferrer"
+          href={coverageUrl}
+          className="ds-button"
           data-color="neutral"
         >
           <ExternalLinkIcon aria-hidden />
           Vis dekningskart
-        </button>
+        </a>
       )}
       {metadataXmlUrl && (
         <button

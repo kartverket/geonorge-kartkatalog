@@ -33,6 +33,7 @@ data class ProductMetadata(
     val contactPublisher: ProductMetadataContact? = null,
     val referenceSystems: List<ProductReferenceSystem> = emptyList(),
     val distributionGroups: List<ProductDistributionGroup> = emptyList(),
+    val coverageUrl: String? = null,
 )
 
 @Serializable

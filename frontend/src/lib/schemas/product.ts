@@ -79,6 +79,7 @@ export const ProductMetadataSchema = z.object({
   contactPublisher: ProductMetadataContactSchema.nullable(),
   referenceSystems: z.array(ReferenceSystemSchema),
   distributionGroups: z.array(DistributionGroupSchema),
+  coverageUrl: z.string().nullable(),
 });
 
 export type ProductMetadata = z.infer<typeof ProductMetadataSchema>;
