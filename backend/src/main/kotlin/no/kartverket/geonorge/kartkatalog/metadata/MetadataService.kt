@@ -1,5 +1,8 @@
 package no.kartverket.geonorge.kartkatalog.metadata
 
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionGroup
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
