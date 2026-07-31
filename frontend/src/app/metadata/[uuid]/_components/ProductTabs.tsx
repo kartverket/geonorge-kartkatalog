@@ -5,6 +5,7 @@ import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import styles from "./ProductTabs.module.css";
+import { ProductFairStatus } from "@/lib/schemas/product"
 
 const TABS = [
   { value: "info", label: "Informasjon om datasettet" },
@@ -34,13 +35,99 @@ type DistributionGroup = {
   UnitsOfDistribution?: string;
 };
 
-type FairStatus = {
-  totalPercent: number | null;
-  findablePercent: number | null;
-  accessiblePercent: number | null;
-  interoperablePercent: number | null;
-  reusablePercent: number | null;
-};
+export function ProductTabs({
+  abstract,
+  specificUsage,
+  purpose,
+  processHistory,
+  constraints,
+  referenceSystems,
+  distributionGroups,
+  dateUpdated,
+  maintenanceFrequency,
+  fairStatus,
+}: {
+  abstract: string | null;
+  specificUsage: string | null;
+  purpose: string | null;
+  processHistory?: string | null;
+  constraints: Constraints;
+  referenceSystems: ReferenceSystem[];
+  distributionGroups: DistributionGroup[];
+  dateUpdated: string | null;
+  maintenanceFrequency: string | null;
+  fairStatus: ProductFairStatus | null;
+}) {
+  const infoDetails = buildInfoDetails({
+    specificUsage,
+    purpose,
+    processHistory,
+    constraints,
+  });
+  const distributionDetails = buildDistributionDetails({
+    groups: distributionGroups,
+    referenceSystems,
+    dateUpdated,
+    maintenanceFrequency,
+  });
+  const tabs = [
+    ...TABS,
+    ...(fairStatus ? [{ value: "quality", label: "Datakvalitet (FAIR)" }] : []),
+  ];
+  const fairDetails = fairStatus ? buildFairDetails(fairStatus) : null;
+  return (
+    <div data-color="info">
+      <Tabs defaultValue="info" className={styles.tabs}>
+        <Tabs.List>
+          {tabs.map((t) => (
+            <Tabs.Tab key={t.value} value={t.value}>
+              {t.label}
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
+
+        <Tabs.Panel value="info" className={styles.panel}>
+          <div className={styles.headingGroup}>
+            <Heading data-size="xs">Om datasettet</Heading>
+            <p className={styles.abstract}>{abstract ?? "-"}</p>
+          </div>
+          <div className={styles.accordionGroup} data-color="neutral">
+            <DetailAccordion items={infoDetails} />
+          </div>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="distribution" className={styles.panel}>
+          <div className={styles.accordionGroup} data-color="neutral">
+            <DetailAccordion items={distributionDetails} />
+          </div>
+        </Tabs.Panel>
+        <Tabs.Panel value="documentation" className={styles.panel}>
+          Dokumentasjon-innhold kommer
+        </Tabs.Panel>
+        {fairStatus && (
+          <Tabs.Panel value="quality" className={styles.panel}>
+            <div className={styles.headingGroup}>
+              <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
+              <p>
+                En FAIR-status gir en kort vurdering av hvor godt et datasett
+                følger FAIR-prinsippene: Findable (søkbarhet), Accessible
+                (tilgjengelighet), Interoperabel (interoperabilitet), Reusable
+                (gjenbrukbar).
+              </p>
+            </div>
+            <div className={styles.headingGroup}>
+              <Heading data-size="sm">Resultater for dette datasettet</Heading>
+              <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
+            </div>
+            <div className={styles.accordionGroup} data-color="neutral">
+              <DetailAccordion items={fairDetails ?? []} />
+            </div>
+          </Tabs.Panel>
+        )}
+      </Tabs>
+    </div>
+  );
+}
 
 type DetailItem = { title: string; content: React.ReactNode };
 
@@ -249,7 +336,7 @@ function buildDistributionDetails({
   }));
 }
 
-function buildFairDetails(fairStatus: FairStatus): DetailItem[] {
+function buildFairDetails(fairStatus: ProductFairStatus): DetailItem[] {
   return [
     {
       title: "Søkbarhet (Findable)",
@@ -270,98 +357,4 @@ function buildFairDetails(fairStatus: FairStatus): DetailItem[] {
       content: <p>Gjenbrukbar: {fairStatus.reusablePercent ?? "-"}%</p>,
     },
   ];
-}
-
-export function ProductTabs({
-  abstract,
-  specificUsage,
-  purpose,
-  processHistory,
-  constraints,
-  referenceSystems,
-  distributionGroups,
-  dateUpdated,
-  maintenanceFrequency,
-  fairStatus,
-}: {
-  abstract: string | null;
-  specificUsage: string | null;
-  purpose: string | null;
-  processHistory?: string | null;
-  constraints: Constraints;
-  referenceSystems: ReferenceSystem[];
-  distributionGroups: DistributionGroup[];
-  dateUpdated: string | null;
-  maintenanceFrequency: string | null;
-  fairStatus: FairStatus | null;
-}) {
-  const infoDetails = buildInfoDetails({
-    specificUsage,
-    purpose,
-    processHistory,
-    constraints,
-  });
-  const distributionDetails = buildDistributionDetails({
-    groups: distributionGroups,
-    referenceSystems,
-    dateUpdated,
-    maintenanceFrequency,
-  });
-  const tabs = [
-    ...TABS,
-    ...(fairStatus ? [{ value: "quality", label: "Datakvalitet (FAIR)" }] : []),
-  ];
-  const fairDetails = fairStatus ? buildFairDetails(fairStatus) : null;
-  return (
-    <div data-color="info">
-      <Tabs defaultValue="info" className={styles.tabs}>
-        <Tabs.List>
-          {tabs.map((t) => (
-            <Tabs.Tab key={t.value} value={t.value}>
-              {t.label}
-            </Tabs.Tab>
-          ))}
-        </Tabs.List>
-
-        <Tabs.Panel value="info" className={styles.panel}>
-          <div className={styles.headingGroup}>
-            <Heading data-size="xs">Om datasettet</Heading>
-            <p className={styles.abstract}>{abstract ?? "-"}</p>
-          </div>
-          <div className={styles.accordionGroup} data-color="neutral">
-            <DetailAccordion items={infoDetails} />
-          </div>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="distribution" className={styles.panel}>
-          <div className={styles.accordionGroup} data-color="neutral">
-            <DetailAccordion items={distributionDetails} />
-          </div>
-        </Tabs.Panel>
-        <Tabs.Panel value="documentation" className={styles.panel}>
-          Dokumentasjon-innhold kommer
-        </Tabs.Panel>
-        {fairStatus && (
-          <Tabs.Panel value="quality" className={styles.panel}>
-            <div className={styles.headingGroup}>
-              <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
-              <p>
-                En FAIR-status gir en kort vurdering av hvor godt et datasett
-                følger FAIR-prinsippene: Findable (søkbarhet), Accessible
-                (tilgjengelighet), Interoperabel (interoperabilitet), Reusable
-                (gjenbrukbar).
-              </p>
-            </div>
-            <div className={styles.headingGroup}>
-              <Heading data-size="sm">Resultater for dette datasettet</Heading>
-              <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
-            </div>
-            <div className={styles.accordionGroup} data-color="neutral">
-              <DetailAccordion items={fairDetails ?? []} />
-            </div>
-          </Tabs.Panel>
-        )}
-      </Tabs>
-    </div>
-  );
 }
