@@ -302,10 +302,17 @@ fun getCoverageLink(
         extensionResources.firstOrNull {
             it.applicationProfile.trim().equals("dekningsoversikt celle", ignoreCase = true)
         }?.url
-    val surveyAreaMapUrl = extensionResources
-        .firstOrNull { it.applicationProfile.trim().equals("fullstendighetsdekningskart", ignoreCase = true) }?.url
-    val surveyAreaMapUrlWms = extensionResources
-        .firstOrNull { it.applicationProfile.trim().equals("fullstendighetsdekningskart wms", ignoreCase = true) }?.url
+    val surveyAreaMapUrl =
+        extensionResources
+            .firstOrNull { it.applicationProfile.trim().equals("fullstendighetsdekningskart", ignoreCase = true) }?.url
+    val surveyAreaMapUrlWms =
+        extensionResources
+            .firstOrNull {
+                it.applicationProfile.trim().equals(
+                    "fullstendighetsdekningskart wms",
+                    ignoreCase = true,
+                )
+            }?.url
 
     val cov = parseCoverage(coverageUrl)
     val grid = parseCoverage(coverageGridUrl)
