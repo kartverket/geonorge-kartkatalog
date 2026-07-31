@@ -57,7 +57,7 @@ class MetadataRoutesTest {
     private val geonetworkBaseUrl = "https://test.example.com/geonetwork"
     private val registerBaseUrl = "https://test.example.com/register"
 
-    private fun createSummaryService(xml: String): MetadataService {
+    private fun createMetadataService(xml: String): MetadataService {
         val client =
             HttpClient(
                 MockEngine { request ->
@@ -133,7 +133,7 @@ class MetadataRoutesTest {
 
     @Test
     fun `returns 200 with dataset metadata for valid uuid`() =
-        testApp(createSummaryService(responseXml)) {
+        testApp(createMetadataService(responseXml)) {
             val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
 
             assertEquals(HttpStatusCode.OK, response.status)
@@ -142,7 +142,7 @@ class MetadataRoutesTest {
 
     @Test
     fun `returns 404 when record not found for metadata`() =
-        testApp(createSummaryService(emptyGeonetworkXml)) {
+        testApp(createMetadataService(emptyGeonetworkXml)) {
             val response = client.get("/metadata/00000000-0000-0000-0000-000000000000")
 
             assertEquals(HttpStatusCode.NotFound, response.status)
@@ -151,7 +151,7 @@ class MetadataRoutesTest {
 
     @Test
     fun `returns 400 for invalid UUID format in metadata`() =
-        testApp(createSummaryService(responseXml)) {
+        testApp(createMetadataService(responseXml)) {
             val response = client.get("/metadata/not-a-uuid")
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
