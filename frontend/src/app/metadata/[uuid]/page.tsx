@@ -92,8 +92,8 @@ async function ProductTabsSection({
         ...metadata.constraints,
         securityConstraints: metadata.securityClassification,
       }}
-      referenceSystems={d.ReferenceSystems}
-      distributionGroups={d.DistributionFormatsGrouped}
+      referenceSystems={metadata.referenceSystems}
+      distributionGroups={metadata.distributionGroups}
       dateUpdated={metadata.dateUpdated}
       maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}

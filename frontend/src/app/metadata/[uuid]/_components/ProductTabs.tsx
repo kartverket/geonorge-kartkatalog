@@ -4,8 +4,12 @@ import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
+import type {
+  DistributionGroup,
+  ProductFairStatus,
+  ReferenceSystem,
+} from "@/lib/schemas/product";
 import styles from "./ProductTabs.module.css";
-import { ProductFairStatus } from "@/lib/schemas/product"
 
 const TABS = [
   { value: "info", label: "Informasjon om datasettet" },
@@ -20,19 +24,6 @@ type Constraints = {
   useConstraints?: string | null;
   otherConstraintsLink?: string | null;
   otherConstraintsLinkText?: string | null;
-};
-
-type ReferenceSystem = {
-  CoordinateSystem: string;
-  CoordinateSystemUrl: string;
-};
-
-type DistributionGroup = {
-  ProtocolName: string;
-  ProtocolDescription: string;
-  Formats: { FormatName: string }[];
-  URL: string[];
-  UnitsOfDistribution?: string;
 };
 
 export function ProductTabs({
@@ -273,21 +264,21 @@ function buildDistributionDetails({
   maintenanceFrequency: string | null;
 }): DetailItem[] {
   return groups.map((group) => ({
-    title: group.ProtocolName,
+    title: group.protocolName ?? "Ukjent protokoll",
     content: (
       <FieldList
         fields={[
-          { label: "Beskrivelse", content: group.ProtocolDescription },
-          ...(group.URL.length === group.Formats.length
-            ? group.Formats.map((f, i) => ({
-                label: f.FormatName,
-                content: <UrlLink url={group.URL[i]} />,
+          { label: "Beskrivelse", content: group.protocolDescription },
+          ...(group.urls.length === group.formats.length
+            ? group.formats.map((f, i) => ({
+                label: f,
+                content: <UrlLink url={group.urls[i]} />,
               }))
-            : group.URL.length > 0
+            : group.urls.length > 0
               ? [
                   {
                     label: "Tilgangs-URL",
-                    content: <UrlLink url={group.URL[0]} />,
+                    content: <UrlLink url={group.urls[0]} />,
                   },
                 ]
               : []),
@@ -295,8 +286,8 @@ function buildDistributionDetails({
             label: "Formater",
             content: (
               <span className={styles.tags} data-color="info">
-                {group.Formats.map((f) => (
-                  <Tag key={f.FormatName}>{f.FormatName}</Tag>
+                {group.formats.map((f) => (
+                  <Tag key={f}>{f}</Tag>
                 ))}
               </span>
             ),
@@ -306,13 +297,13 @@ function buildDistributionDetails({
             content: maintenanceFrequency ?? "-",
           },
           { label: "Ressurs sist oppdatert", content: formatDate(dateUpdated) },
-          ...(group.UnitsOfDistribution
+          ...(group.unitsOfDistribution
             ? [
                 {
                   label: "Geografisk distribusjonsinndeling",
                   content: (
                     <span className={styles.tags} data-color="neutral">
-                      {group.UnitsOfDistribution.split(",").map((unit) => (
+                      {group.unitsOfDistribution.split(",").map((unit) => (
                         <Tag key={unit}>{unit.trim()}</Tag>
                       ))}
                     </span>
@@ -325,7 +316,7 @@ function buildDistributionDetails({
             content: (
               <span className={styles.tags} data-color="neutral">
                 {referenceSystems.map((rs) => (
-                  <Tag key={rs.CoordinateSystemUrl}>{rs.CoordinateSystem}</Tag>
+                  <Tag key={rs.codeSpace}>{rs.code}</Tag>
                 ))}
               </span>
             ),

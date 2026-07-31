@@ -34,6 +34,22 @@ export const ProductMetadataContactSchema = z.object({
   role: z.string().nullable(),
 });
 
+export const ReferenceSystemSchema = z.object({
+  code: z.string().nullable(),
+  codeSpace: z.string().nullable(),
+});
+
+export const DistributionGroupSchema = z.object({
+  protocolName: z.string().nullable(),
+  protocolDescription: z.string().nullable(),
+  formats: z.array(z.string()),
+  urls: z.array(z.string()),
+  unitsOfDistribution: z.string().nullable(),
+});
+
+export type ReferenceSystem = z.infer<typeof ReferenceSystemSchema>;
+export type DistributionGroup = z.infer<typeof DistributionGroupSchema>;
+
 export const ProductMetadataSchema = z.object({
   title: z.string(),
   organization: z.string().nullable(),
@@ -61,6 +77,8 @@ export const ProductMetadataSchema = z.object({
   contactMetadata: ProductMetadataContactSchema.nullable(),
   contactOwner: ProductMetadataContactSchema.nullable(),
   contactPublisher: ProductMetadataContactSchema.nullable(),
+  referenceSystems: z.array(ReferenceSystemSchema),
+  distributionGroups: z.array(DistributionGroupSchema),
 });
 
 export type ProductMetadata = z.infer<typeof ProductMetadataSchema>;
