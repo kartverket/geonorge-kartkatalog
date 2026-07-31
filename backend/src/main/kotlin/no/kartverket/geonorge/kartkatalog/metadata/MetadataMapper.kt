@@ -218,4 +218,3 @@ class MetadataMapper(
             .firstOrNull { it.nameOfMeasure == "Prosentvis oppfyllelse av FAIR-prinsipper" }
             ?.value
 }
-

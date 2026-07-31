@@ -94,4 +94,3 @@ class MetadataMapperTest {
         return CodeListTranslator(registerClient)
     }
 }
-

@@ -22,9 +22,10 @@ class CodeListTranslatorTest {
     @Test
     fun `translate returns label when value matches codevalue`() =
         runBlocking {
-            val translator = createTranslator(
-                responseContent = """{"containeditems": [{"label": "Continual", "codevalue": "continual"}]}""",
-            )
+            val translator =
+                createTranslator(
+                    responseContent = """{"containeditems": [{"label": "Continual", "codevalue": "continual"}]}""",
+                )
 
             val translated = translator.translate(CodeList.MAINTENANCE_FREQUENCY, "continual")
 
@@ -44,10 +45,11 @@ class CodeListTranslatorTest {
     @Test
     fun `translate falls back to original value when register call fails`() =
         runBlocking {
-            val translator = createTranslator(
-                responseContent = "{}",
-                responseStatus = HttpStatusCode.InternalServerError,
-            )
+            val translator =
+                createTranslator(
+                    responseContent = "{}",
+                    responseStatus = HttpStatusCode.InternalServerError,
+                )
 
             val translated = translator.translate(CodeList.SPATIAL_REPRESENTATIONS, "vector")
 
@@ -71,4 +73,3 @@ class CodeListTranslatorTest {
         return CodeListTranslator(registerClient)
     }
 }
-
