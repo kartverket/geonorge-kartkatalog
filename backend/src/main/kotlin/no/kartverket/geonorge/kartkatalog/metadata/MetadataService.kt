@@ -316,13 +316,17 @@ fun getCoverageLink(
                             "&addLayers=geonorgedekningskart,gp_dek_oversikt_wms&type=dek"
                     else -> {
                         val path = grid!!.path.replace("wms?", "")
-                        "${base}lon=96090.37&lat=6564869.00&wms=${path}skwms1%2Fwms.geonorge_dekningskart%3Fdatasett%3D${grid.layer}" +
+                        "${base}lon=96090.37&lat=6564869.00" +
+                            "&wms=${path}skwms1%2Fwms.geonorge_dekningskart%3Fdatasett%3D${grid.layer}" +
                             "&project=geonorge&layers=1002&addLayers=datasett_dekning"
                     }
                 }
-            "WMS" -> "${base}lat=269663&long=6802350&wms=${primary.path}&addLayer=${primary.layer}"
-            "WFS" -> "${base}lat=255216&long=6653881&wfs=${primary.path.removeQueryString()}&addLayer=${primary.layer}"
-            "GeoJSON" -> "${base}lat=355422&long=6668909&geojson=${primary.path.removeQueryString()}&addLayer=${primary.layer}"
+            "WMS" ->
+                "${base}lat=269663&long=6802350&wms=${primary.path}&addLayer=${primary.layer}"
+            "WFS" ->
+                "${base}lat=255216&long=6653881&wfs=${primary.path.removeQueryString()}&addLayer=${primary.layer}"
+            "GeoJSON" ->
+                "${base}lat=355422&long=6668909&geojson=${primary.path.removeQueryString()}&addLayer=${primary.layer}"
             else -> coverageUrl ?: coverageGridUrl
         }
 
