@@ -32,8 +32,7 @@ export function ProductActions({
         <a
           data-variant="secondary"
           target="_blank"
-          rel="noreferrer"
-          href={coverageUrl}
+          rel="noopener noreferrer"
           className="ds-button"
           data-color="neutral"
         >
