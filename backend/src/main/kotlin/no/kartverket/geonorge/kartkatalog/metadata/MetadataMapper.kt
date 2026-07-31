@@ -65,7 +65,7 @@ class MetadataMapper(
             constraints =
                 record.legalConstraints?.let { constraints ->
                     constraints.copy(
-                        accessConstraints = describeAccessConstraints(record),
+                        accessConstraints = describeAccessConstraints(record, accessState),
                         useConstraints =
                             describeUseConstraints(
                                 constraints.useConstraints,
@@ -90,12 +90,10 @@ class MetadataMapper(
         )
     }
 
-    private fun describeAccessConstraints(record: MetadataRecord): String {
-        // TODO: denne staten er allerede regnet ut, kan ta inn som argument
-        val state = resolveAccessState(record)
+    private fun describeAccessConstraints(record: MetadataRecord, accessState: AccessState): String {
         return when {
-            state.openData -> "Åpne data"
-            state.restricted -> "Norge digitalt-begrenset"
+            accessState.openData -> "Åpne data"
+            accessState.restricted -> "Norge digitalt-begrenset"
             else -> record.legalConstraints?.accessConstraints ?: "-"
         }
     }
