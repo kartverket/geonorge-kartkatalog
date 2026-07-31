@@ -349,8 +349,8 @@ class GetCoverageLinkTest {
     }
 
     @Test
-    fun `getCoverageLink uses provided static norgeskarrt URL`() {
-        val customBaseUrl = "https://custom.norgeskarrt.no/map/"
+    fun `getCoverageLink uses provided static norgeskart URL`() {
+        val customBaseUrl = "https://custom.norgeskart.no/map/"
         val coverageUrl = "TYPE:WMS@PATH:http://example.com/wms@LAYER:my_layer"
         val resources =
             listOf(
