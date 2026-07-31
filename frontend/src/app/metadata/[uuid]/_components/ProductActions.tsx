@@ -33,6 +33,7 @@ export function ProductActions({
           data-variant="secondary"
           target="_blank"
           rel="noopener noreferrer"
+          href={coverageUrl}
           className="ds-button"
           data-color="neutral"
         >
