@@ -7,6 +7,7 @@ import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductD
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
+  ProductConstraints,
   ProductFairStatus,
   ReferenceSystem,
 } from "@/lib/schemas/product";
@@ -17,15 +18,6 @@ const TABS = [
   { value: "distribution", label: "Distribusjoner for datasett" },
   { value: "documentation", label: "Dokumentasjon" },
 ];
-
-type Constraints = {
-  useLimitations?: string[] | null;
-  accessConstraints?: string | null;
-  securityConstraints: string | null;
-  useConstraints?: string | null;
-  otherConstraintsLink?: string | null;
-  otherConstraintsLinkText?: string | null;
-};
 
 export function ProductTabs({
   abstract,
@@ -43,7 +35,7 @@ export function ProductTabs({
   specificUsage: string | null;
   purpose: string | null;
   processHistory?: string | null;
-  constraints: Constraints;
+  constraints: ProductConstraints;
   referenceSystems: ReferenceSystem[];
   distributionGroups: DistributionGroup[];
   dateUpdated: string | null;
@@ -187,7 +179,7 @@ function buildInfoDetails({
   specificUsage: string | null;
   purpose: string | null;
   processHistory?: string | null;
-  constraints: Constraints;
+  constraints: ProductConstraints;
 }): DetailItem[] {
   return [
     {

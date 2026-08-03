@@ -26,6 +26,8 @@ export const LegalConstraintsSchema = z.object({
   otherConstraintsAccess: z.string().nullable(),
 });
 
+export type ProductLegalConstraints = z.infer<typeof LegalConstraintsSchema>;
+
 export const ProductMetadataContactSchema = z.object({
   email: z.string().nullable(),
   name: z.string().nullable(),
@@ -81,6 +83,12 @@ export const ProductMetadataSchema = z.object({
   distributionGroups: z.array(DistributionGroupSchema),
   coverageUrl: z.string().nullable(),
 });
+
+export type ProductConstraints = Partial<
+  Omit<ProductLegalConstraints, "otherConstraintsAccess">
+> & {
+  securityConstraints: string | null;
+};
 
 export type ProductMetadata = z.infer<typeof ProductMetadataSchema>;
 
