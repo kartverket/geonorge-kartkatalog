@@ -75,8 +75,7 @@ data class ProductReferenceSystem(
 data class ProductDistributionGroup(
     val protocolName: String? = null,
     val protocolDescription: String? = null,
-    val formats: List<String> = emptyList(),
-    val urls: List<ProductDistributionFormatEntry> = emptyList(),
+    val formats: List<ProductDistributionFormatEntry> = emptyList(),
     val unitsOfDistribution: String? = null,
 )
 

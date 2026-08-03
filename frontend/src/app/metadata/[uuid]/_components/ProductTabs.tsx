@@ -262,25 +262,21 @@ function buildDistributionDetails({
       <FieldList
         fields={[
           { label: "Beskrivelse", content: group.protocolDescription },
-          ...(group.urls.length === group.formats.length
-            ? group.formats.map((f, i) => ({
-                label: f,
-                content: <UrlLink url={group.urls[i]} />,
-              }))
-            : group.urls.length > 0
-              ? [
-                  {
-                    label: "Tilgangs-URL",
-                    content: <UrlLink url={group.urls[0]} />,
-                  },
-                ]
-              : []),
+          ...group.formats.flatMap((format) =>
+            format.urls.map((url, i) => ({
+              label:
+                format.urls.length > 1
+                  ? `${format.name} (${i + 1})`
+                  : format.name,
+              content: <UrlLink url={url} />,
+            })),
+          ),
           {
             label: "Formater",
             content: (
               <span className={styles.tags} data-color="info">
                 {group.formats.map((f) => (
-                  <Tag key={f}>{f}</Tag>
+                  <Tag key={f.name}>{f.name}</Tag>
                 ))}
               </span>
             ),

@@ -8,6 +8,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Referenc
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormatEntry
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionGroup
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata

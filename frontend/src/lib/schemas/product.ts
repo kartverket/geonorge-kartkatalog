@@ -40,10 +40,15 @@ export const ReferenceSystemSchema = z.object({
   codeSpace: z.string().nullable(),
 });
 
+export const DistributionFormatEntrySchema = z.object({
+  name: z.string(),
+  urls: z.array(z.string()),
+});
+
 export const DistributionGroupSchema = z.object({
   protocolName: z.string().nullable(),
   protocolDescription: z.string().nullable(),
-  formats: z.array(z.string()),
+  formats: z.array(DistributionFormatEntrySchema),
   urls: z.array(z.string()),
   unitsOfDistribution: z.string().nullable(),
 });
