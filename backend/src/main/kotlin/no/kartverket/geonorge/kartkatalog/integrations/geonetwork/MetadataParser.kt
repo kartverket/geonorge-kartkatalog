@@ -374,34 +374,49 @@ object MetadataParser {
 
         private fun parseDistributionInfo(): DistributionInfo? {
             val dist = md.node("gmd:distributionInfo/gmd:MD_Distribution") ?: return null
+            val sharedOnlineResources =
+                dist.nodes("gmd:transferOptions/gmd:MD_DigitalTransferOptions")
+                    .flatMap { parseOnlineResources(it) }
             val formats =
                 dist.nodes("gmd:distributionFormat/gmd:MD_Format").map { f ->
+                    val ownOnlineResources =
+                        f.nodes(
+                            "gmd:formatDistributor/gmd:MD_Distributor/gmd:distributorTransf" +
+                                "erOptions/gmd:MD_DigitalTransferOptions",
+                        ).flatMap { parseOnlineResources(it) }
+
                     DistributionFormat(
                         name = f.text("gmd:name/gco:CharacterString") ?: "",
                         version = f.text("gmd:version/gco:CharacterString"),
+                        onlineResources = ownOnlineResources.ifEmpty { sharedOnlineResources },
                     )
                 }
-            val onlineResources =
-                dist.nodes("gmd:transferOptions/gmd:MD_DigitalTransferOptions").flatMap { dto ->
-                    val units = dto.text("gmd:unitsOfDistribution/gco:CharacterString")
-                    dto.nodes("gmd:onLine/gmd:CI_OnlineResource").map { or ->
-                        OnlineResource(
-                            url = or.text("gmd:linkage/gmd:URL") ?: "",
-                            protocol = or.text("gmd:protocol/gco:CharacterString"),
-                            name = or.text("gmd:name/gco:CharacterString"),
-                            description = or.text("gmd:description/gco:CharacterString"),
-                            unitsOfDistribution = units,
-                            applicationProfile =
-                                or.text("gmd:applicationProfile/gco:CharacterString"),
-                            function =
-                                or.attr(
-                                    "gmd:function/gmd:CI_OnLineFunctionCode",
-                                    "codeListValue",
-                                ),
-                        )
-                    }
-                }
-            return DistributionInfo(formats = formats, onlineResources = onlineResources)
+
+            return DistributionInfo(formats = formats)
+        }
+
+        private fun parseOnlineResources(dto: Node): List<OnlineResource> {
+            val units =
+                dto.text("gmd:unitsOfDistribution/gco:CharacterString")
+            return dto.nodes("gmd:onLine/gmd:CI_OnlineResource").map {
+                    or ->
+                OnlineResource(
+                    url = or.text("gmd:linkage/gmd:URL") ?: "",
+                    protocol =
+                        or.text("gmd:protocol/gco:CharacterString"),
+                    name = or.text("gmd:name/gco:CharacterString"),
+                    description =
+                        or.text("gmd:description/gco:CharacterString"),
+                    unitsOfDistribution = units,
+                    applicationProfile =
+                        or.text("gmd:applicationProfile/gco:CharacterString"),
+                    function =
+                        or.attr(
+                            "gmd:function/gmd:CI_OnLineFunctionCode",
+                            "codeListValue",
+                        ),
+                )
+            }
         }
 
         private fun parseServiceOperations(idInfo: Node?): List<ServiceOperation> =

@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class DistributionFormat(
     val name: String,
     val version: String? = null,
+    val onlineResources: List<OnlineResource> = emptyList(),
 )
 
 @Serializable
@@ -22,5 +23,4 @@ data class OnlineResource(
 @Serializable
 data class DistributionInfo(
     val formats: List<DistributionFormat> = emptyList(),
-    val onlineResources: List<OnlineResource> = emptyList(),
 )

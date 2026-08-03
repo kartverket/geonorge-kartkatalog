@@ -3,8 +3,14 @@
 import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
-import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
+import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
+import type {
+  DistributionGroup,
+  ProductConstraints,
+  ProductFairStatus,
+  ReferenceSystem,
+} from "@/lib/schemas/product";
 import styles from "./ProductTabs.module.css";
 
 const TABS = [
@@ -13,35 +19,99 @@ const TABS = [
   { value: "documentation", label: "Dokumentasjon" },
 ];
 
-type Constraints = {
-  useLimitations?: string[] | null;
-  accessConstraints?: string | null;
-  securityConstraints: string | null;
-  useConstraints?: string | null;
-  otherConstraintsLink?: string | null;
-  otherConstraintsLinkText?: string | null;
-};
+export function ProductTabs({
+  abstract,
+  specificUsage,
+  purpose,
+  processHistory,
+  constraints,
+  referenceSystems,
+  distributionGroups,
+  dateUpdated,
+  maintenanceFrequency,
+  fairStatus,
+}: {
+  abstract: string | null;
+  specificUsage: string | null;
+  purpose: string | null;
+  processHistory?: string | null;
+  constraints: ProductConstraints;
+  referenceSystems: ReferenceSystem[];
+  distributionGroups: DistributionGroup[];
+  dateUpdated: string | null;
+  maintenanceFrequency: string | null;
+  fairStatus: ProductFairStatus | null;
+}) {
+  const infoDetails = buildInfoDetails({
+    specificUsage,
+    purpose,
+    processHistory,
+    constraints,
+  });
+  const distributionDetails = buildDistributionDetails({
+    groups: distributionGroups,
+    referenceSystems,
+    dateUpdated,
+    maintenanceFrequency,
+  });
+  const tabs = [
+    ...TABS,
+    ...(fairStatus ? [{ value: "quality", label: "Datakvalitet (FAIR)" }] : []),
+  ];
+  const fairDetails = fairStatus ? buildFairDetails(fairStatus) : null;
+  return (
+    <div data-color="info">
+      <Tabs defaultValue="info" className={styles.tabs}>
+        <Tabs.List>
+          {tabs.map((t) => (
+            <Tabs.Tab key={t.value} value={t.value}>
+              {t.label}
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
 
-type ReferenceSystem = {
-  CoordinateSystem: string;
-  CoordinateSystemUrl: string;
-};
+        <Tabs.Panel value="info" className={styles.panel}>
+          <div className={styles.headingGroup}>
+            <Heading data-size="xs">Om datasettet</Heading>
+            <p className={styles.abstract}>{abstract ?? "-"}</p>
+          </div>
+          <div className={styles.accordionGroup} data-color="neutral">
+            <DetailAccordion items={infoDetails} />
+          </div>
+        </Tabs.Panel>
 
-type DistributionGroup = {
-  ProtocolName: string;
-  ProtocolDescription: string;
-  Formats: { FormatName: string }[];
-  URL: string[];
-  UnitsOfDistribution?: string;
-};
-
-type FairStatus = {
-  totalPercent: number | null;
-  findablePercent: number | null;
-  accessiblePercent: number | null;
-  interoperablePercent: number | null;
-  reusablePercent: number | null;
-};
+        <Tabs.Panel value="distribution" className={styles.panel}>
+          <div className={styles.accordionGroup} data-color="neutral">
+            <DetailAccordion items={distributionDetails} />
+          </div>
+        </Tabs.Panel>
+        <Tabs.Panel value="documentation" className={styles.panel}>
+          <ProductDocumentation />
+        </Tabs.Panel>
+        {fairStatus && (
+          <Tabs.Panel value="quality" className={styles.panel}>
+            <div className={styles.headingGroup}>
+              <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
+              <p>
+                En FAIR-status gir en kort vurdering av hvor godt et datasett
+                følger FAIR-prinsippene: Findable (søkbarhet), Accessible
+                (tilgjengelighet), Interoperabel (interoperabilitet), Reusable
+                (gjenbrukbar).
+              </p>
+            </div>
+            <div className={styles.headingGroup}>
+              <Heading data-size="sm">Resultater for dette datasettet</Heading>
+              <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
+            </div>
+            <div className={styles.accordionGroup} data-color="neutral">
+              <DetailAccordion items={fairDetails ?? []} />
+            </div>
+          </Tabs.Panel>
+        )}
+      </Tabs>
+    </div>
+  );
+}
 
 type DetailItem = { title: string; content: React.ReactNode };
 
@@ -100,6 +170,30 @@ function UrlLink({ url }: { url: string }) {
   );
 }
 
+function buildFormatUrlRows(formats: DistributionGroup["formats"]) {
+  const byUrls = new Map<string, string[]>();
+  formats.forEach((format) => {
+    const key = format.urls.join("|");
+    byUrls.set(key, [...(byUrls.get(key) ?? []), format.name]);
+  });
+
+  const entries = [...byUrls.entries()];
+  const isSingleSharedUrl =
+    entries.length === 1 && entries[0][0].split("|").length === 1;
+
+  return entries.flatMap(([key, names]) => {
+    const urls = key ? key.split("|") : [];
+    return urls.map((url, i) => ({
+      label: isSingleSharedUrl
+        ? "Tilgangs-URL"
+        : urls.length > 1
+          ? `${names.join(", ")} (${i + 1})`
+          : names.join(", "),
+      content: <UrlLink url={url} />,
+    }));
+  });
+}
+
 function buildInfoDetails({
   specificUsage,
   purpose,
@@ -109,7 +203,7 @@ function buildInfoDetails({
   specificUsage: string | null;
   purpose: string | null;
   processHistory?: string | null;
-  constraints: Constraints;
+  constraints: ProductConstraints;
 }): DetailItem[] {
   return [
     {
@@ -187,30 +281,18 @@ function buildDistributionDetails({
   maintenanceFrequency: string | null;
 }): DetailItem[] {
   return groups.map((group) => ({
-    title: group.ProtocolName,
+    title: group.protocolName ?? "Ukjent protokoll",
     content: (
       <FieldList
         fields={[
-          { label: "Beskrivelse", content: group.ProtocolDescription },
-          ...(group.URL.length === group.Formats.length
-            ? group.Formats.map((f, i) => ({
-                label: f.FormatName,
-                content: <UrlLink url={group.URL[i]} />,
-              }))
-            : group.URL.length > 0
-              ? [
-                  {
-                    label: "Tilgangs-URL",
-                    content: <UrlLink url={group.URL[0]} />,
-                  },
-                ]
-              : []),
+          { label: "Beskrivelse", content: group.protocolDescription },
+          ...buildFormatUrlRows(group.formats),
           {
             label: "Formater",
             content: (
               <span className={styles.tags} data-color="info">
-                {group.Formats.map((f) => (
-                  <Tag key={f.FormatName}>{f.FormatName}</Tag>
+                {group.formats.map((f) => (
+                  <Tag key={f.name}>{f.name}</Tag>
                 ))}
               </span>
             ),
@@ -220,13 +302,13 @@ function buildDistributionDetails({
             content: maintenanceFrequency ?? "-",
           },
           { label: "Ressurs sist oppdatert", content: formatDate(dateUpdated) },
-          ...(group.UnitsOfDistribution
+          ...(group.unitsOfDistribution
             ? [
                 {
                   label: "Geografisk distribusjonsinndeling",
                   content: (
                     <span className={styles.tags} data-color="neutral">
-                      {group.UnitsOfDistribution.split(",").map((unit) => (
+                      {group.unitsOfDistribution.split(",").map((unit) => (
                         <Tag key={unit}>{unit.trim()}</Tag>
                       ))}
                     </span>
@@ -239,7 +321,7 @@ function buildDistributionDetails({
             content: (
               <span className={styles.tags} data-color="neutral">
                 {referenceSystems.map((rs) => (
-                  <Tag key={rs.CoordinateSystemUrl}>{rs.CoordinateSystem}</Tag>
+                  <Tag key={rs.codeSpace}>{rs.code}</Tag>
                 ))}
               </span>
             ),
@@ -250,7 +332,7 @@ function buildDistributionDetails({
   }));
 }
 
-function buildFairDetails(fairStatus: FairStatus): DetailItem[] {
+function buildFairDetails(fairStatus: ProductFairStatus): DetailItem[] {
   return [
     {
       title: "Søkbarhet (Findable)",
@@ -271,98 +353,4 @@ function buildFairDetails(fairStatus: FairStatus): DetailItem[] {
       content: <p>Gjenbrukbar: {fairStatus.reusablePercent ?? "-"}%</p>,
     },
   ];
-}
-
-export function ProductTabs({
-  abstract,
-  specificUsage,
-  purpose,
-  processHistory,
-  constraints,
-  referenceSystems,
-  distributionGroups,
-  dateUpdated,
-  maintenanceFrequency,
-  fairStatus,
-}: {
-  abstract: string | null;
-  specificUsage: string | null;
-  purpose: string | null;
-  processHistory?: string | null;
-  constraints: Constraints;
-  referenceSystems: ReferenceSystem[];
-  distributionGroups: DistributionGroup[];
-  dateUpdated: string | null;
-  maintenanceFrequency: string | null;
-  fairStatus: FairStatus | null;
-}) {
-  const infoDetails = buildInfoDetails({
-    specificUsage,
-    purpose,
-    processHistory,
-    constraints,
-  });
-  const distributionDetails = buildDistributionDetails({
-    groups: distributionGroups,
-    referenceSystems,
-    dateUpdated,
-    maintenanceFrequency,
-  });
-  const tabs = [
-    ...TABS,
-    ...(fairStatus ? [{ value: "quality", label: "Datakvalitet (FAIR)" }] : []),
-  ];
-  const fairDetails = fairStatus ? buildFairDetails(fairStatus) : null;
-  return (
-    <div data-color="info">
-      <Tabs defaultValue="info" className={styles.tabs}>
-        <Tabs.List>
-          {tabs.map((t) => (
-            <Tabs.Tab key={t.value} value={t.value}>
-              {t.label}
-            </Tabs.Tab>
-          ))}
-        </Tabs.List>
-
-        <Tabs.Panel value="info" className={styles.panel}>
-          <div className={styles.headingGroup}>
-            <Heading data-size="xs">Om datasettet</Heading>
-            <p className={styles.abstract}>{abstract ?? "-"}</p>
-          </div>
-          <div className={styles.accordionGroup} data-color="neutral">
-            <DetailAccordion items={infoDetails} />
-          </div>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="distribution" className={styles.panel}>
-          <div className={styles.accordionGroup} data-color="neutral">
-            <DetailAccordion items={distributionDetails} />
-          </div>
-        </Tabs.Panel>
-        <Tabs.Panel value="documentation" className={styles.panel}>
-          <ProductDocumentation />
-        </Tabs.Panel>
-        {fairStatus && (
-          <Tabs.Panel value="quality" className={styles.panel}>
-            <div className={styles.headingGroup}>
-              <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
-              <p>
-                En FAIR-status gir en kort vurdering av hvor godt et datasett
-                følger FAIR-prinsippene: Findable (søkbarhet), Accessible
-                (tilgjengelighet), Interoperabel (interoperabilitet), Reusable
-                (gjenbrukbar).
-              </p>
-            </div>
-            <div className={styles.headingGroup}>
-              <Heading data-size="sm">Resultater for dette datasettet</Heading>
-              <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
-            </div>
-            <div className={styles.accordionGroup} data-color="neutral">
-              <DetailAccordion items={fairDetails ?? []} />
-            </div>
-          </Tabs.Panel>
-        )}
-      </Tabs>
-    </div>
-  );
 }
