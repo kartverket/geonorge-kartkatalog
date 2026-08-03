@@ -55,6 +55,8 @@ export const DistributionGroupSchema = z.object({
 export type ReferenceSystem = z.infer<typeof ReferenceSystemSchema>;
 export type DistributionGroup = z.infer<typeof DistributionGroupSchema>;
 
+export type Contact = z.infer<typeof ProductMetadataContactSchema>;
+
 export const ProductMetadataSchema = z.object({
   title: z.string(),
   organization: z.string().nullable(),
