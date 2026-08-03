@@ -6,8 +6,6 @@
 
 .card {
   max-width: 355px;
-  display: grid;
-  grid-auto-flow: row;
 }
 
 .icon {

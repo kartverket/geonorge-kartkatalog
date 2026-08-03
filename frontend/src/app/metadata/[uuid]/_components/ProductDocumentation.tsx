@@ -55,12 +55,7 @@ function ButtonCard({
 }) {
   return (
     <Card asChild data-color="neutral" className={styles.card}>
-      <a
-        target="_blank"
-        rel="noreferrer"
-        href={content.url}
-        className="ds-button"
-      >
+      <a target="_blank" rel="noreferrer" href={content.url}>
         <div className={styles.tagGroup}>
           {content.icon}
           <Tag data-color="accent" data-size="sm">
