@@ -69,8 +69,16 @@ class MetadataMapper(
                                     ?: protocol.orEmpty(),
                             protocolDescription =
                                 distributionType?.description,
-                            formats = formatsInGroup.map { it.name },
-                            urls = resources.map { it.url }.distinct(),
+                            formats =
+                                formatsInGroup.map {
+                                    ProductDistributionFormatEntry(
+                                        name = it.name,
+                                        urls =
+                                            it.onlineResources.map { r ->
+                                                r.url
+                                            }.distinct(),
+                                    )
+                                },
                             unitsOfDistribution =
                                 resources.firstOrNull {
                                     it.unitsOfDistribution != null
