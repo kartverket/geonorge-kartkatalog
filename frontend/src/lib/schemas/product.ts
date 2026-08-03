@@ -23,7 +23,6 @@ export const LegalConstraintsSchema = z.object({
   useLimitations: z.array(z.string()),
   otherConstraintsLink: z.string().nullable(),
   otherConstraintsLinkText: z.string().nullable(),
-  otherConstraintsAccess: z.string().nullable(),
 });
 
 export type ProductLegalConstraints = z.infer<typeof LegalConstraintsSchema>;
@@ -84,9 +83,7 @@ export const ProductMetadataSchema = z.object({
   coverageUrl: z.string().nullable(),
 });
 
-export type ProductConstraints = Partial<
-  Omit<ProductLegalConstraints, "otherConstraintsAccess">
-> & {
+export type ProductConstraints = Partial<ProductLegalConstraints> & {
   securityConstraints: string | null;
 };
 
