@@ -18,8 +18,6 @@ export default async function ProductPage({
 }: {
   params: Promise<{ uuid: string }>;
 }) {
-  const d = getData;
-
   const { uuid } = await params;
   const metadata = await getMetadata(uuid);
   const alerts = await getProductAlerts(uuid);
@@ -41,7 +39,6 @@ export default async function ProductPage({
       <div className={styles.metaRow}>
         <ProductThumbnail thumbnailUrl={metadata.thumbnailUrl} />
         <ProductMeta
-          // TODO: oversettes når i18n er på plass (SpatialScope kommer som engelsk fra getData)
           spatialScope={metadata.spatialScope}
           representation={metadata.spatialRepresentation}
           maintenanceFrequency={metadata.maintenanceFrequency}
@@ -74,11 +71,9 @@ export default async function ProductPage({
 async function ProductTabsSection({
   uuid,
   metadata,
-  d,
 }: {
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
-  d: typeof getData;
 }) {
   const fairStatus = await getFairStatus(uuid);
 
