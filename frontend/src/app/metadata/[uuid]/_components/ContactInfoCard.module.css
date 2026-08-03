@@ -1,0 +1,42 @@
+.card {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  justify-content: space-between;
+  height: 148px;
+  background: var(--ds-color-surface-tinted);
+  border-radius: var(--ds-border-radius-md);
+  border: none;
+  margin-bottom: var(--ds-size-18);
+}
+
+.contacts {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-6);
+}
+
+.contact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contactTitle {
+  padding: 0;
+  margin: 0;
+  font-size: var(--font-size-xs, 12px);
+}
+
+.contactEmail {
+  font-size: 18px;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  svg {
+    height: 24px;
+    width: 24px;
+  }
+}

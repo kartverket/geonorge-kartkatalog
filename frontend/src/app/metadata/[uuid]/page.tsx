@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { getFairStatus, getMetadata, getProductAlerts } from "@/app/api";
+import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
 import {
   getRelevantAlerts,
@@ -67,6 +68,11 @@ export default async function ProductPage({
       <Suspense>
         <ProductTabsSection uuid={uuid} metadata={metadata} d={d} />
       </Suspense>
+      <ContactInfoCard
+        contactMetadata={metadata.contactMetadata}
+        contactOwner={metadata.contactOwner}
+        contactPublisher={metadata.contactPublisher}
+      />
     </div>
   );
 }

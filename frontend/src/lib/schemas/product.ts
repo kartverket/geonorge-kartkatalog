@@ -34,6 +34,8 @@ export const ProductMetadataContactSchema = z.object({
   role: z.string().nullable(),
 });
 
+export type Contact = z.infer<typeof ProductMetadataContactSchema>;
+
 export const ProductMetadataSchema = z.object({
   title: z.string(),
   organization: z.string().nullable(),
