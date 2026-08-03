@@ -262,15 +262,23 @@ function buildDistributionDetails({
       <FieldList
         fields={[
           { label: "Beskrivelse", content: group.protocolDescription },
-          ...group.formats.flatMap((format) =>
-            format.urls.map((url, i) => ({
-              label:
-                format.urls.length > 1
-                  ? `${format.name} (${i + 1})`
-                  : format.name,
-              content: <UrlLink url={url} />,
-            })),
-          ),
+          ...(() => {
+            const byUrls = new Map<string, string[]>();
+            group.formats.forEach((format) => {
+              const key = format.urls.join("|");
+              byUrls.set(key, [...(byUrls.get(key) ?? []), format.name]);
+            });
+            return [...byUrls.entries()].flatMap(([key, names]) => {
+              const urls = key ? key.split("|") : [];
+              return urls.map((url, i) => ({
+                label:
+                  urls.length > 1
+                    ? `${names.join(", ")} (${i + 1})`
+                    : names.join(", "),
+                content: <UrlLink url={url} />,
+              }));
+            });
+          })(),
           {
             label: "Formater",
             content: (

@@ -49,7 +49,6 @@ export const DistributionGroupSchema = z.object({
   protocolName: z.string().nullable(),
   protocolDescription: z.string().nullable(),
   formats: z.array(DistributionFormatEntrySchema),
-  urls: z.array(z.string()),
   unitsOfDistribution: z.string().nullable(),
 });
 
