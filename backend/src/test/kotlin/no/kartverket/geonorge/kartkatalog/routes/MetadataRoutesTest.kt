@@ -19,7 +19,9 @@ import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
-import no.kartverket.geonorge.kartkatalog.metadata.MetadataSummaryService
+import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
+import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
+import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -54,8 +56,9 @@ class MetadataRoutesTest {
 
     private val geonetworkBaseUrl = "https://test.example.com/geonetwork"
     private val registerBaseUrl = "https://test.example.com/register"
+    private val staticNorgeskartUrl = "https://test.example.com/register"
 
-    private fun createSummaryService(xml: String): MetadataSummaryService {
+    private fun createMetadataService(xml: String): MetadataService {
         val client =
             HttpClient(
                 MockEngine { request ->
@@ -103,34 +106,35 @@ class MetadataRoutesTest {
                 }
             }
 
-        return MetadataSummaryService(
+        val registerClient = RegisterClient(client, registerBaseUrl)
+        val codeListTranslator = CodeListTranslator(registerClient)
+        val metadataMapper = MetadataMapper(codeListTranslator, staticNorgeskartUrl)
+
+        return MetadataService(
             GeonetworkClient(
                 client,
                 geonetworkBaseUrl,
             ),
-            RegisterClient(
-                client,
-                registerBaseUrl,
-            ),
+            metadataMapper,
         )
     }
 
     private fun testApp(
-        metadataSummaryService: MetadataSummaryService,
+        metadataService: MetadataService,
         block: suspend io.ktor.server.testing.ApplicationTestBuilder.() -> Unit,
     ) = testApplication {
         application {
             configureHttp()
             configureSerialization()
             configureStatusPages()
-            routing { metadataRoutes(metadataSummaryService) }
+            routing { metadataRoutes(metadataService) }
         }
         block()
     }
 
     @Test
     fun `returns 200 with dataset metadata for valid uuid`() =
-        testApp(createSummaryService(responseXml)) {
+        testApp(createMetadataService(responseXml)) {
             val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
 
             assertEquals(HttpStatusCode.OK, response.status)
@@ -139,7 +143,7 @@ class MetadataRoutesTest {
 
     @Test
     fun `returns 404 when record not found for metadata`() =
-        testApp(createSummaryService(emptyGeonetworkXml)) {
+        testApp(createMetadataService(emptyGeonetworkXml)) {
             val response = client.get("/metadata/00000000-0000-0000-0000-000000000000")
 
             assertEquals(HttpStatusCode.NotFound, response.status)
@@ -148,7 +152,7 @@ class MetadataRoutesTest {
 
     @Test
     fun `returns 404 for non-uuid id that is not found`() =
-        testApp(createSummaryService(emptyGeonetworkXml)) {
+        testApp(createMetadataService(emptyGeonetworkXml)) {
             val response = client.get("/metadata/not-a-uuid")
 
             assertEquals(HttpStatusCode.NotFound, response.status)
@@ -157,7 +161,7 @@ class MetadataRoutesTest {
 
     @Test
     fun `returns 400 when id is blank`() =
-        testApp(createSummaryService(responseXml)) {
+        testApp(createMetadataService(responseXml)) {
             val response = client.get("/metadata/%20")
 
             assertEquals(HttpStatusCode.BadRequest, response.status)

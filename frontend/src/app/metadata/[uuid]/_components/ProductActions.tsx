@@ -11,11 +11,12 @@ import {
 import styles from "./ProductActions.module.css";
 
 export async function ProductActions({
+  downloadUrl,
   coverageUrl,
   uuid,
 }: {
   downloadUrl?: string;
-  coverageUrl?: string;
+  coverageUrl: string | null;
   uuid: string;
 }) {
   return (
@@ -30,17 +31,18 @@ export async function ProductActions({
         Legg i nedlastingskurv
       </button>
       {coverageUrl && (
-        <button
-          className="ds-button"
-          type="button"
+        <a
           data-variant="secondary"
+          target="_blank"
+          rel="noopener noreferrer"
+          href={coverageUrl}
+          className="ds-button"
           data-color="neutral"
         >
           <ExternalLinkIcon aria-hidden />
           Vis dekningskart
-        </button>
+        </a>
       )}
-      {/*TODO: er det noen gang denne ikke skal vises?*/}
       <a
         data-variant="secondary"
         target="_blank"
@@ -53,7 +55,6 @@ export async function ProductActions({
         Last ned metadata XML
       </a>
       {/*TODO: GN-227 håndtere at noen datasett ikke burde redigeres fra denne editUrl-en*/}
-      {/*TODO: skal denne noen gang skjules eller vil den alltid dukke opp?*/}
       <a
         data-variant="secondary"
         target="_blank"

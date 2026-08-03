@@ -31,6 +31,9 @@ data class ProductMetadata(
     val contactMetadata: ProductMetadataContact? = null,
     val contactOwner: ProductMetadataContact? = null,
     val contactPublisher: ProductMetadataContact? = null,
+    val referenceSystems: List<ProductReferenceSystem> = emptyList(),
+    val distributionGroups: List<ProductDistributionGroup> = emptyList(),
+    val coverageUrl: String? = null,
 )
 
 @Serializable
@@ -60,4 +63,24 @@ data class ProductMetadataContact(
     var organization: String? = null,
     var organizationEnglish: String? = null,
     var role: String? = null,
+)
+
+@Serializable
+data class ProductReferenceSystem(
+    val code: String? = null,
+    val codeSpace: String? = null,
+)
+
+@Serializable
+data class ProductDistributionGroup(
+    val protocolName: String? = null,
+    val protocolDescription: String? = null,
+    val formats: List<ProductDistributionFormatEntry> = emptyList(),
+    val unitsOfDistribution: String? = null,
+)
+
+@Serializable
+data class ProductDistributionFormatEntry(
+    val name: String,
+    val urls: List<String> = emptyList(),
 )

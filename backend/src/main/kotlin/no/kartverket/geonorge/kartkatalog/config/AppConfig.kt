@@ -13,6 +13,7 @@ class AppConfig(
     val geonetworkBaseUrl: String = env("GEONETWORK_BASE_URL")
     val registerBaseUrl: String = env("REGISTER_BASE_URL")
     val solrBaseUrl: String = env("SOLR_BASE_URL")
+    val staticNorgeskartUrl: String = env("NORGESKART_BASE_URL")
 
     private fun env(key: String): String =
         (overrides[key] ?: dotenv[key])?.trimEnd('/')

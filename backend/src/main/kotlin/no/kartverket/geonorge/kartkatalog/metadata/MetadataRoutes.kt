@@ -6,7 +6,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 
-fun Route.metadataRoutes(metadataSummaryService: MetadataSummaryService) {
+fun Route.metadataRoutes(metadataService: MetadataService) {
     route("/metadata/") {
         get("{uuid}") {
             val uuid =
@@ -14,7 +14,7 @@ fun Route.metadataRoutes(metadataSummaryService: MetadataSummaryService) {
                     it.isNotBlank()
                 }
                     ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
-            val result = metadataSummaryService.getMetadata(uuid)
+            val result = metadataService.getMetadata(uuid)
             call.respond(result)
         }
     }
