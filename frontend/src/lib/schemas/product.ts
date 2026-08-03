@@ -23,8 +23,9 @@ export const LegalConstraintsSchema = z.object({
   useLimitations: z.array(z.string()),
   otherConstraintsLink: z.string().nullable(),
   otherConstraintsLinkText: z.string().nullable(),
-  otherConstraintsAccess: z.string().nullable(),
 });
+
+export type ProductLegalConstraints = z.infer<typeof LegalConstraintsSchema>;
 
 export const ProductMetadataContactSchema = z.object({
   email: z.string().nullable(),
@@ -33,6 +34,26 @@ export const ProductMetadataContactSchema = z.object({
   organizationEnglish: z.string().nullable(),
   role: z.string().nullable(),
 });
+
+export const ReferenceSystemSchema = z.object({
+  code: z.string().nullable(),
+  codeSpace: z.string().nullable(),
+});
+
+export const DistributionFormatEntrySchema = z.object({
+  name: z.string(),
+  urls: z.array(z.string()),
+});
+
+export const DistributionGroupSchema = z.object({
+  protocolName: z.string().nullable(),
+  protocolDescription: z.string().nullable(),
+  formats: z.array(DistributionFormatEntrySchema),
+  unitsOfDistribution: z.string().nullable(),
+});
+
+export type ReferenceSystem = z.infer<typeof ReferenceSystemSchema>;
+export type DistributionGroup = z.infer<typeof DistributionGroupSchema>;
 
 export type Contact = z.infer<typeof ProductMetadataContactSchema>;
 
@@ -63,8 +84,14 @@ export const ProductMetadataSchema = z.object({
   contactMetadata: ProductMetadataContactSchema.nullable(),
   contactOwner: ProductMetadataContactSchema.nullable(),
   contactPublisher: ProductMetadataContactSchema.nullable(),
+  referenceSystems: z.array(ReferenceSystemSchema),
+  distributionGroups: z.array(DistributionGroupSchema),
   coverageUrl: z.string().nullable(),
 });
+
+export type ProductConstraints = Partial<ProductLegalConstraints> & {
+  securityConstraints: string | null;
+};
 
 export type ProductMetadata = z.infer<typeof ProductMetadataSchema>;
 

@@ -42,7 +42,6 @@ export default async function ProductPage({
       <div className={styles.metaRow}>
         <ProductThumbnail thumbnailUrl={metadata.thumbnailUrl} />
         <ProductMeta
-          // TODO: oversettes når i18n er på plass (SpatialScope kommer som engelsk fra getData)
           spatialScope={metadata.spatialScope}
           representation={metadata.spatialRepresentation}
           maintenanceFrequency={metadata.maintenanceFrequency}
@@ -66,7 +65,7 @@ export default async function ProductPage({
         uuid={uuid}
       />
       <Suspense>
-        <ProductTabsSection uuid={uuid} metadata={metadata} d={d} />
+        <ProductTabsSection uuid={uuid} metadata={metadata} />
       </Suspense>
       <ContactInfoCard
         contactMetadata={metadata.contactMetadata}
@@ -80,11 +79,9 @@ export default async function ProductPage({
 async function ProductTabsSection({
   uuid,
   metadata,
-  d,
 }: {
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
-  d: typeof getData;
 }) {
   const fairStatus = await getFairStatus(uuid);
 
@@ -98,8 +95,8 @@ async function ProductTabsSection({
         ...metadata.constraints,
         securityConstraints: metadata.securityClassification,
       }}
-      referenceSystems={d.ReferenceSystems}
-      distributionGroups={d.DistributionFormatsGrouped}
+      referenceSystems={metadata.referenceSystems}
+      distributionGroups={metadata.distributionGroups}
       dateUpdated={metadata.dateUpdated}
       maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}
