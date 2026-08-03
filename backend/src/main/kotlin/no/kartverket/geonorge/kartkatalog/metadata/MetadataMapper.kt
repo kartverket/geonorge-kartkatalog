@@ -52,7 +52,7 @@ class MetadataMapper(
                 },
             distributionGroups =
                 record.distributionInfo?.formats.orEmpty()
-                    .groupBy { it.onlineResources.firstOrNull()?.protocol }
+.groupBy { it.onlineResources.firstOrNull { !it.protocol.isNullOrBlank() }?.protocol }
                     .map { (protocol, formatsInGroup) ->
                         val resources =
                             formatsInGroup.flatMap {
