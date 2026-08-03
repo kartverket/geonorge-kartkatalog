@@ -21,7 +21,7 @@ export function ContactInfoCard({
     { title: "Teknisk kontakt", email: contactPublisher?.email ?? null },
   ];
   return (
-    <Card data-color="info" className={styles.card}>
+    <Card className={styles.card}>
       <Heading data-size="xs">Ta kontakt med dataeier</Heading>
       <div className={styles.contacts}>
         {contactRows.map((row) => (

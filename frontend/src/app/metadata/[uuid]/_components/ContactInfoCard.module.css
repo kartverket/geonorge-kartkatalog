@@ -4,7 +4,7 @@
   align-self: stretch;
   justify-content: space-between;
   height: 148px;
-  background: var(--ds-color-surface-tinted);
+  background: #daebf5;
   border-radius: var(--ds-border-radius-md);
   border: none;
   margin-bottom: var(--ds-size-18);
