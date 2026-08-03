@@ -170,6 +170,30 @@ function UrlLink({ url }: { url: string }) {
   );
 }
 
+function buildFormatUrlRows(formats: DistributionGroup["formats"]) {
+  const byUrls = new Map<string, string[]>();
+  formats.forEach((format) => {
+    const key = format.urls.join("|");
+    byUrls.set(key, [...(byUrls.get(key) ?? []), format.name]);
+  });
+
+  const entries = [...byUrls.entries()];
+  const isSingleSharedUrl =
+    entries.length === 1 && entries[0][0].split("|").length === 1;
+
+  return entries.flatMap(([key, names]) => {
+    const urls = key ? key.split("|") : [];
+    return urls.map((url, i) => ({
+      label: isSingleSharedUrl
+        ? "Tilgangs-URL"
+        : urls.length > 1
+          ? `${names.join(", ")} (${i + 1})`
+          : names.join(", "),
+      content: <UrlLink url={url} />,
+    }));
+  });
+}
+
 function buildInfoDetails({
   specificUsage,
   purpose,
@@ -262,23 +286,7 @@ function buildDistributionDetails({
       <FieldList
         fields={[
           { label: "Beskrivelse", content: group.protocolDescription },
-          ...(() => {
-            const byUrls = new Map<string, string[]>();
-            group.formats.forEach((format) => {
-              const key = format.urls.join("|");
-              byUrls.set(key, [...(byUrls.get(key) ?? []), format.name]);
-            });
-            return [...byUrls.entries()].flatMap(([key, names]) => {
-              const urls = key ? key.split("|") : [];
-              return urls.map((url, i) => ({
-                label:
-                  urls.length > 1
-                    ? `${names.join(", ")} (${i + 1})`
-                    : names.join(", "),
-                content: <UrlLink url={url} />,
-              }));
-            });
-          })(),
+          ...buildFormatUrlRows(group.formats),
           {
             label: "Formater",
             content: (
