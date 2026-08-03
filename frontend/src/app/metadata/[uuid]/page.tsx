@@ -18,6 +18,8 @@ export default async function ProductPage({
 }: {
   params: Promise<{ uuid: string }>;
 }) {
+  const d = getData;
+
   const { uuid } = await params;
   const metadata = await getMetadata(uuid);
   const alerts = await getProductAlerts(uuid);
@@ -62,7 +64,7 @@ export default async function ProductPage({
         uuid={uuid}
       />
       <Suspense>
-        <ProductTabsSection uuid={uuid} metadata={metadata} d={d} />
+        <ProductTabsSection uuid={uuid} metadata={metadata} />
       </Suspense>
     </div>
   );
