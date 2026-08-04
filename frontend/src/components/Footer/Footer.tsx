@@ -10,10 +10,22 @@ import Link from "next/link";
 import styles from "./Footer.module.css";
 
 const OM_NETTSTEDET: { label: string; href: Route }[] = [
-  { label: "Om Geonorge", href: "#" },
-  { label: "Personvernerklæring", href: "#" },
-  { label: "Erklæring om informasjonskapsler", href: "#" },
-  { label: "Tilgjengelighetserklæring (uustatus.no)", href: "#" },
+  {
+    label: "Om Geonorge",
+    href: "https://www.geonorge.no/aktuelt/om-geonorge/",
+  },
+  {
+    label: "Personvernerklæring",
+    href: "https://www.geonorge.no/aktuelt/Se-siste-nyheter/nyheter2/annet/personvern-og-bruk-av-cookies/",
+  },
+  {
+    label: "Erklæring om informasjonskapsler",
+    href: "https://www.geonorge.no/aktuelt/Se-siste-nyheter/nyheter2/annet/personvern-og-bruk-av-cookies/",
+  },
+  {
+    label: "Tilgjengelighetserklæring (uustatus.no)",
+    href: "https://uustatus.no/nb/erklaringer/publisert/8f3210cf-aa22-4d32-9fda-4460e3c3e05a\n",
+  },
 ];
 
 const KONTAKT = [
@@ -53,7 +65,14 @@ export function Footer() {
             <ul className={styles.linkList}>
               {OM_NETTSTEDET.map((item) => (
                 <li key={item.label}>
-                  <Link href={item.href}>{item.label}</Link>
+                  <Link
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener
+  noreferrer"
+                  >
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>
