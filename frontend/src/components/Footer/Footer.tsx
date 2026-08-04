@@ -68,8 +68,7 @@ export function Footer() {
                   <Link
                     href={item.href}
                     target="_blank"
-                    rel="noopener
-  noreferrer"
+                    rel="noopener noreferrer"
                   >
                     {item.label}
                   </Link>
