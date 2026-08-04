@@ -31,7 +31,7 @@ const KONTAKT = [
     label: "post@norgedigitalt.no",
     href: "mailto:post@norgedigitalt.no",
   },
-  { label: "Kontaktinfo og adresser", href: "#" },
+  { prefix: "Org. nr.: ", label: "971 040 238" },
 ];
 
 export function Footer() {
