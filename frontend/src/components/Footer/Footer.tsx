@@ -15,16 +15,12 @@ const OM_NETTSTEDET: { label: string; href: Route }[] = [
     href: "https://www.geonorge.no/aktuelt/om-geonorge/",
   },
   {
-    label: "Personvernerklæring",
-    href: "https://www.geonorge.no/aktuelt/Se-siste-nyheter/nyheter2/annet/personvern-og-bruk-av-cookies/",
-  },
-  {
-    label: "Erklæring om informasjonskapsler",
-    href: "https://www.geonorge.no/aktuelt/Se-siste-nyheter/nyheter2/annet/personvern-og-bruk-av-cookies/",
-  },
-  {
-    label: "Tilgjengelighetserklæring (uustatus.no)",
+    label: "Tilgjengelighetserklæring",
     href: "https://uustatus.no/nb/erklaringer/publisert/8f3210cf-aa22-4d32-9fda-4460e3c3e05a\n",
+  },
+  {
+    label: "Personver og bruk av cookies",
+    href: "https://www.geonorge.no/aktuelt/Se-siste-nyheter/nyheter2/annet/personvern-og-bruk-av-cookies/",
   },
 ];
 
