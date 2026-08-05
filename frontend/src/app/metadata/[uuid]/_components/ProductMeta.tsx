@@ -25,7 +25,7 @@ export function ProductMeta({
     <dl className={styles.grid}>
       <MetaField
         label="Dekningsområde"
-        help="Hvor stort geografisk område datasettet dekker"
+        help="Hvilket geografisk område datasettet dekker"
       >
         {spatialScope ?? "-"}
       </MetaField>
@@ -43,13 +43,16 @@ export function ProductMeta({
       </MetaField>
       <MetaField
         label="Representasjonsform"
-        help="Hvordan geodataene er representert"
+        help="Hvordan de geografiske dataene er representert"
       >
         <span className="ds-tag" data-color="neutral">
           {representation ?? "-"}
         </span>
       </MetaField>
-      <MetaField label="Målestokktall" help="Målestokk datasettet er egnet for">
+      <MetaField
+        label="Målestokktall"
+        help="Målestokken dataene er produsert i"
+      >
         {resolutionScale ?? "-"}
       </MetaField>
       <MetaField
