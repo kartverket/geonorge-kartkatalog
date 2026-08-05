@@ -78,7 +78,11 @@ export function Footer() {
               {KONTAKT.map((item) => (
                 <li key={item.label}>
                   {item.prefix}
-                  <a href={item.href}>{item.label}</a>
+                  {item.href ? (
+                    <a href={item.href}>{item.label}</a>
+                  ) : (
+                    <span>{item.label}</span>
+                  )}
                 </li>
               ))}
             </ul>
