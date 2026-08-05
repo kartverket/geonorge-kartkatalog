@@ -8,7 +8,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Parameters
 import io.ktor.http.isSuccess
 import kotlinx.serialization.json.Json
-import java.util.UUID
 
 class SolrClient(
     private val httpClient: HttpClient,
@@ -19,7 +18,7 @@ class SolrClient(
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun getMetadataByUuid(uuid: UUID): SolrResponse {
+    suspend fun getMetadataByUuid(uuid: String): SolrResponse {
         val solrQuery = buildMetadataSolrQuery(uuid)
 
         val response =
@@ -39,7 +38,7 @@ class SolrClient(
         }
     }
 
-    private fun buildMetadataSolrQuery(uuid: UUID): MetadataSolrQuery =
+    private fun buildMetadataSolrQuery(uuid: String): MetadataSolrQuery =
         MetadataSolrQuery(
             q = "uuid:$uuid",
             fl = METADATA_FL,

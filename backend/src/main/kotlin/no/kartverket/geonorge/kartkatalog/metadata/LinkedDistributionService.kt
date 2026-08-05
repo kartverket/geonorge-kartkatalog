@@ -5,7 +5,6 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Metadata
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
-import java.util.UUID
 
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
@@ -13,7 +12,7 @@ class LinkedDistributionsService(
 ) {
     suspend fun getLinkedDistributions(uuid: String): LinkedDistributions {
         val solrDoc =
-            solrClient.getMetadataByUuid(UUID.fromString(uuid))
+            solrClient.getMetadataByUuid(uuid)
                 .response.docs.firstOrNull() ?: return LinkedDistributions()
 
         val relatedServices =
