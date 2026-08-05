@@ -33,14 +33,14 @@ function AccessLock({ accessState }: { accessState: AccessState | null }) {
       return (
         <span className="ds-tag" data-color="danger">
           <PadlockLockedIcon aria-hidden className={styles.tagIcon} />
-          Beskyttet datasett
+          Beskyttet tilgang
         </span>
       );
     case "restricted":
       return (
         <span className="ds-tag" data-color="warning">
           <PadlockLockedIcon aria-hidden className={styles.tagIcon} />
-          Begrenset datasett
+          Begrenset tilgang
         </span>
       );
     case "open":
@@ -49,7 +49,7 @@ function AccessLock({ accessState }: { accessState: AccessState | null }) {
       return (
         <span className="ds-tag" data-color="info">
           <PadlockUnlockedIcon aria-hidden className={styles.tagIcon} />
-          Åpent datasett
+          Åpen tilgang
         </span>
       );
   }
