@@ -14,10 +14,9 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class MetadataMapperTest {
     private val registerBaseUrl = "https://test.example.com/register"
@@ -39,9 +38,7 @@ class MetadataMapperTest {
 
             val mapped = mapper.toProductMetadata(record)
 
-            assertTrue(mapped.accessIsOpenData == true)
-            assertFalse(mapped.accessIsRestricted == true)
-            assertFalse(mapped.accessIsProtected == true)
+            assertEquals(AccessState.OPEN, mapped.accessState)
             assertEquals("Åpne data", mapped.constraints?.accessConstraints)
         }
 

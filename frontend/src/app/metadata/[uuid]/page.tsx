@@ -31,7 +31,7 @@ export default async function ProductPage({
       <ProductHeader
         title={metadata.title}
         organization={metadata.organization}
-        isOpen={metadata.accessIsOpenData}
+        isOpen={metadata.accessState === "open"}
       />
       {relevantAlerts.map((alert, index) => (
         <ProductAlert

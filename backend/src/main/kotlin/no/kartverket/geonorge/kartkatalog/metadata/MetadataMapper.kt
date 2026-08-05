@@ -14,6 +14,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductReferenceSystem
+import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
 
 class MetadataMapper(
     private val codeListTranslator: CodeListTranslator,
@@ -25,9 +26,7 @@ class MetadataMapper(
             title = record.title,
             organization = record.metadataContact.organization.orEmpty(),
             hierarchyLevel = record.hierarchyLevel,
-            accessIsRestricted = accessState.restricted,
-            accessIsOpenData = accessState.openData,
-            accessIsProtected = accessState.protected,
+            accessState = accessState,
             dateUpdated = record.dates.firstOrNull { it.type == "revision" }?.date,
             maintenanceFrequency =
                 codeListTranslator.translate(
@@ -142,11 +141,11 @@ class MetadataMapper(
 
     private fun describeAccessConstraints(
         record: MetadataRecord,
-        accessState: AccessState,
+        accessState: AccessState?,
     ): String {
         return when {
-            accessState.openData -> "Åpne data"
-            accessState.restricted -> "Norge digitalt-begrenset"
+            accessState == AccessState.OPEN -> "Åpne data"
+            accessState == AccessState.RESTRICTED -> "Norge digitalt-begrenset"
             else -> record.legalConstraints?.accessConstraints ?: "-"
         }
     }
@@ -188,12 +187,12 @@ class MetadataMapper(
                 }
             }
 
-    private fun resolveAccessState(record: MetadataRecord): AccessState =
+    private fun resolveAccessState(record: MetadataRecord): AccessState? =
         when {
-            isRestricted(record) -> AccessState(restricted = true, openData = false, protected = false)
-            isProtected(record) -> AccessState(restricted = false, openData = false, protected = true)
-            isOpenData(record) -> AccessState(restricted = false, openData = true, protected = false)
-            else -> AccessState(restricted = false, openData = false, protected = false)
+            isRestricted(record) -> AccessState.RESTRICTED
+            isProtected(record) -> AccessState.PROTECTED
+            isOpenData(record) -> AccessState.OPEN
+            else -> null
         }
 
     private fun isOpenData(record: MetadataRecord): Boolean {
@@ -243,11 +242,6 @@ class MetadataMapper(
         }
     }
 
-    private data class AccessState(
-        val restricted: Boolean,
-        val openData: Boolean,
-        val protected: Boolean,
-    )
 
     private fun DistributionFormat.toProductDistributionFormat() =
         ProductDistributionFormat(
