@@ -37,7 +37,7 @@ export function ProductMeta({
       {maintenanceFrequency && (
         <MetaField
           label="Oppdateringshyppighet"
-          help="Hvor ofte datasettet oppdateres"
+          help="Hvor ofte datasettet oppdateres fra kilden"
         >
           {maintenanceFrequency}
         </MetaField>
@@ -45,7 +45,7 @@ export function ProductMeta({
       {dateUpdated && (
         <MetaField
           label="Sist oppdatert"
-          help="Dato for siste oppdatering av data"
+          help="Dato dataene sist ble hentet ut fra kilden"
         >
           {formatDate(dateUpdated)}
         </MetaField>
