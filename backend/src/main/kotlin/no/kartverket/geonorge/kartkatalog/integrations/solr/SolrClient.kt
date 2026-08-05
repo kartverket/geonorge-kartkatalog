@@ -46,6 +46,19 @@ class SolrClient(
             rows = 1,
             wt = "json",
         )
+
+    fun parseDatasetServices(datasetService: List<String>?): List<RelatedServiceReference> =
+        datasetService.orEmpty().mapNotNull { entry ->
+            val parts = entry.split("|")
+            val uuid =
+                parts.getOrNull(0)?.takeIf { it.isNotBlank() }
+                    ?: return@mapNotNull null
+            RelatedServiceReference(
+                uuid = uuid,
+                protocol =
+                    parts.getOrNull(6),
+            )
+        }
 }
 
 data class MetadataSolrQuery(

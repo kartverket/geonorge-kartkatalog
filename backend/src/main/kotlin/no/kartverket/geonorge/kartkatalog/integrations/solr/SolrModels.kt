@@ -91,3 +91,8 @@ data class SolrDocument(
     val seriedatasets: List<String>? = null,
     val distributions: List<String>? = null,
 )
+
+data class RelatedServiceReference(
+    val uuid: String,
+    val protocol: String?,
+)
