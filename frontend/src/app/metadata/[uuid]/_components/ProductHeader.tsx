@@ -6,10 +6,12 @@ export function ProductHeader({
   title,
   organization,
   isOpen,
+  hierarchyLevel,
 }: {
   title: string | null;
   organization: string | null;
   isOpen: boolean | null;
+  hierarchyLevel: string | null;
 }) {
   return (
     <div className={styles.header}>
@@ -27,8 +29,24 @@ export function ProductHeader({
       </span>
       <h1 className={styles.title}>{title ?? "-"}</h1>
       <p className={styles.organization}>
-        Datasett fra <Link href="#">{organization ?? "-"}</Link>
+        {getProductTypeString(hierarchyLevel)} fra{" "}
+        <Link href="#">{organization ?? "-"}</Link>
       </p>
     </div>
   );
 }
+
+const getProductTypeString = (hierarchyLevel: string | null) => {
+  switch (hierarchyLevel) {
+    case "dataset":
+      return "Datasett";
+    case "series":
+      return "Datasettserie";
+    case "service":
+      return "Tjeneste";
+    case "software":
+      return "Applikasjon";
+    default:
+      return "Produkt";
+  }
+};
