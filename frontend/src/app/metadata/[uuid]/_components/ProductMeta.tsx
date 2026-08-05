@@ -55,20 +55,14 @@ export function ProductMeta({
       >
         {resolutionScale ?? "-"}
       </MetaField>
-      <MetaField
-        label="Datakvalitet (FAIR-status)"
-        help="Datasettets FAIR-score"
-      >
+      <MetaField label="Datakvalitet (FAIR-status)">
         {fairStatusPercent != null ? `${fairStatusPercent}%` : "-"}
       </MetaField>
       {/* Relevante kategorier: ikke tilgjengelig */}
-      <MetaField
-        label="Relevante kategorier"
-        help="Kategorier datasettet tilhører"
-      >
+      <MetaField label="Relevante kategorier">
         <span className={styles.pending}>Ikke tilgjengelig</span>
       </MetaField>
-      <MetaField label="Tema" help="Emneord knyttet til datasettet">
+      <MetaField label="Tema">
         <div className={styles.tags} data-color="success">
           {themes.map((t) => (
             <span className="ds-tag" key={t}>

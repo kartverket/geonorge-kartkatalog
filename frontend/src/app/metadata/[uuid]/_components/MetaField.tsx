@@ -9,22 +9,24 @@ export function MetaField({
   children,
 }: {
   label: string;
-  help: string;
+  help?: string;
   children: React.ReactNode;
 }) {
   return (
     <div>
       <dt className={styles.dt}>
         {label}
-        <Tooltip content={help} placement="top">
-          <Button
-            aria-label={`Mer informasjon om ${label}`}
-            variant="tertiary"
-            icon
-          >
-            <QuestionmarkCircleIcon aria-hidden />
-          </Button>
-        </Tooltip>
+        {help && (
+          <Tooltip content={help} placement="top">
+            <Button
+              aria-label={`Mer informasjon om ${label}`}
+              variant="tertiary"
+              icon
+            >
+              <QuestionmarkCircleIcon aria-hidden />
+            </Button>
+          </Tooltip>
+        )}
       </dt>
       <dd>{children}</dd>
     </div>
