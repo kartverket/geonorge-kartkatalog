@@ -10,18 +10,10 @@ import Link from "next/link";
 import styles from "./Footer.module.css";
 
 const OM_NETTSTEDET: { label: string; href: Route }[] = [
-  {
-    label: "Om Geonorge",
-    href: "https://www.geonorge.no/aktuelt/om-geonorge/",
-  },
-  {
-    label: "Tilgjengelighetserklæring",
-    href: "https://uustatus.no/nb/erklaringer/publisert/8f3210cf-aa22-4d32-9fda-4460e3c3e05a\n",
-  },
-  {
-    label: "Personver og bruk av cookies",
-    href: "https://www.geonorge.no/aktuelt/Se-siste-nyheter/nyheter2/annet/personvern-og-bruk-av-cookies/",
-  },
+  { label: "Om Geonorge", href: "#" },
+  { label: "Personvernerklæring", href: "#" },
+  { label: "Erklæring om informasjonskapsler", href: "#" },
+  { label: "Tilgjengelighetserklæring (uustatus.no)", href: "#" },
 ];
 
 const KONTAKT = [
@@ -31,7 +23,7 @@ const KONTAKT = [
     label: "post@norgedigitalt.no",
     href: "mailto:post@norgedigitalt.no",
   },
-  { prefix: "Org. nr.: ", label: "971 040 238" },
+  { label: "Kontaktinfo og adresser", href: "#" },
 ];
 
 export function Footer() {
@@ -61,13 +53,7 @@ export function Footer() {
             <ul className={styles.linkList}>
               {OM_NETTSTEDET.map((item) => (
                 <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {item.label}
-                  </Link>
+                  <Link href={item.href}>{item.label}</Link>
                 </li>
               ))}
             </ul>
@@ -78,11 +64,7 @@ export function Footer() {
               {KONTAKT.map((item) => (
                 <li key={item.label}>
                   {item.prefix}
-                  {item.href ? (
-                    <a href={item.href}>{item.label}</a>
-                  ) : (
-                    <span>{item.label}</span>
-                  )}
+                  <a href={item.href}>{item.label}</a>
                 </li>
               ))}
             </ul>
