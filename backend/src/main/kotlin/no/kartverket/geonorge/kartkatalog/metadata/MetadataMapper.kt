@@ -6,6 +6,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordG
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
+import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormatEntry
@@ -14,7 +15,6 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductReferenceSystem
-import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
 
 class MetadataMapper(
     private val codeListTranslator: CodeListTranslator,
@@ -241,7 +241,6 @@ class MetadataMapper(
             else -> value
         }
     }
-
 
     private fun DistributionFormat.toProductDistributionFormat() =
         ProductDistributionFormat(
