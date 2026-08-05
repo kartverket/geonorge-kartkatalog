@@ -16,6 +16,8 @@ class SolrClient(
     // norsk versjon
     private val norskPath = "solr/metadata/select"
 
+    private val applicationPath = "solr/applications/select"
+
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun getMetadataByUuid(uuid: String): SolrResponse {
@@ -33,6 +35,33 @@ class SolrClient(
         try {
             val body = response.bodyAsText()
             return json.decodeFromString(body)
+        } catch (e: Exception) {
+            throw SolrException("Failed to parse Solr response", e)
+        }
+    }
+
+    suspend fun searchApplicationsForDataset(uuid: String): List<SolrDocument> {
+        val query =
+            MetadataSolrQuery(
+                q = "applicationdataset:$uuid*",
+                fl = "uuid",
+                rows = 100,
+                wt = "json",
+            )
+
+        val response =
+            httpClient.post("$baseUrl/$applicationPath") {
+                setBody(FormDataContent(query.toParameters()))
+            }
+
+        if (!response.status.isSuccess()) {
+            throw SolrException("Solr request failed with status${response.status}")
+        }
+
+        return try {
+            json.decodeFromString<SolrResponse>(
+                response.bodyAsText(),
+            ).response.docs
         } catch (e: Exception) {
             throw SolrException("Failed to parse Solr response", e)
         }

@@ -27,7 +27,14 @@ class LinkedDistributionsService(
                 DistributionProtocols.isDownloadService(it.protocol)
             }
 
+        val applicationDocs =
+            solrClient.searchApplicationsForDataset(uuid)
+
         return LinkedDistributions(
+            applications =
+                applicationDocs.mapNotNull {
+                    fetchLinkedDistribution(it.uuid)
+                },
             viewServices =
                 viewRefs.mapNotNull {
                     fetchLinkedDistribution(it.uuid)
