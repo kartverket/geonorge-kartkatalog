@@ -1,7 +1,7 @@
 /* =========================
    BASE (all modes)
    ========================= */
-:global(.ds-card) {
+.productCard {
   background-color: var(--ds-color-accent-background-default);
   color: var(--ds-color-text-default);
   display: flex;
@@ -16,7 +16,7 @@
     transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-:global(.ds-card):hover:not(:has(:global(.ds-button):hover)) {
+.productCard:hover:not(:has(:global(.ds-button):hover)) {
   background: var(--ds-color-neutral-surface-tinted);
   box-shadow:
     0 0 0 1px var(--ds-color-neutral-border-strong, #a5a5a5),
@@ -26,7 +26,7 @@
   cursor: pointer;
 }
 
-:global(.ds-card):has(.listItemTitle a:focus-visible) {
+.productCard:has(.listItemTitle a:focus-visible) {
   box-shadow: 0 0 0 3px var(--ds-color-accent-border-strong, #0062ba);
 }
 
@@ -136,7 +136,7 @@
   display: flex;
 }
 
-.gridMode :global(.ds-card) {
+.gridMode .productCard {
   flex-direction: column;
   min-height: 200px;
 }
@@ -177,7 +177,7 @@
 /* =========================
    LIST MODE
    ========================= */
-.listMode :global(.ds-card) {
+.listMode .productCard {
   flex-direction: row;
   align-items: center;
   gap: 1.5rem;
@@ -208,7 +208,7 @@
 }
 
 @media (max-width: 767px) {
-  .listMode :global(.ds-card) {
+  .listMode .productCard {
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
