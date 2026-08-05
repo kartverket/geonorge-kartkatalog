@@ -58,6 +58,7 @@ export type DistributionGroup = z.infer<typeof DistributionGroupSchema>;
 export type Contact = z.infer<typeof ProductMetadataContactSchema>;
 
 const accessState = ["restricted", "open", "protected"] as const;
+export type AccessState = (typeof accessState)[number];
 
 export const ProductMetadataSchema = z.object({
   title: z.string(),
