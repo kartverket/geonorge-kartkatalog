@@ -1,5 +1,6 @@
 package no.kartverket.geonorge.kartkatalog.metadata.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 
@@ -8,9 +9,7 @@ data class ProductMetadata(
     val title: String,
     val organization: String? = null,
     val hierarchyLevel: String,
-    val accessIsRestricted: Boolean? = null,
-    val accessIsOpenData: Boolean? = null,
-    val accessIsProtected: Boolean? = null,
+    val accessState: AccessState? = null,
     val dateUpdated: String? = null,
     val maintenanceFrequency: String? = null,
     val spatialRepresentation: String? = null,
@@ -35,6 +34,18 @@ data class ProductMetadata(
     val distributionGroups: List<ProductDistributionGroup> = emptyList(),
     val coverageUrl: String? = null,
 )
+
+@Serializable
+enum class AccessState {
+    @SerialName("restricted")
+    RESTRICTED,
+
+    @SerialName("open")
+    OPEN,
+
+    @SerialName("protected")
+    PROTECTED,
+}
 
 @Serializable
 data class ProductDistributionFormat(
