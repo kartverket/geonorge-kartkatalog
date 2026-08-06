@@ -4,29 +4,35 @@ import {
   PencilBoardIcon,
   TasklistStartIcon,
 } from "@navikt/aksel-icons";
+import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
+import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import styles from "./ProductDocumentation.module.css";
 
 type DocumentationCard = {
   title: string;
+  status?: string | null;
   paragraph: string;
   icon: React.ReactNode;
   url?: string;
+  dateSubmitted?: string | null;
 };
 
 export function ProductDocumentation({
-  cartographySheetUrl,
+  cartography,
 }: {
-  cartographySheetUrl: string | null;
+  cartography: TegnereglerItem | null;
 }) {
   const cardContent: DocumentationCard[] = [
-    ...(cartographySheetUrl
+    ...(cartography?.documentreference
       ? [
           {
             title: "Tegneregler",
+            status: cartography.status,
             paragraph:
               "Tegneregler forklarer hvordan dataene skal visualiseres i kart, inkludert symboler, farger og utforming.",
             icon: <PencilBoardIcon aria-hidden className={styles.icon} />,
-            url: cartographySheetUrl,
+            url: cartography?.documentreference,
+            dateSubmitted: cartography?.dateSubmitted,
           },
         ]
       : []),
@@ -60,9 +66,11 @@ function ButtonCard({
 }: {
   content: {
     title: string;
+    status?: string | null;
     paragraph: string;
     icon: React.ReactNode;
     url?: string;
+    dateSubmitted?: string | null;
   };
 }) {
   return (
@@ -70,13 +78,18 @@ function ButtonCard({
       <a target="_blank" rel="noreferrer" href={content.url}>
         <div className={styles.tagGroup}>
           {content.icon}
-          <Tag data-color="accent" data-size="sm">
-            Gyldig
-          </Tag>
+          {content.status ? (
+            // TODO: vise andre farger om status ikke er gyldig. Hvilke verdier kan den ha?
+            <Tag data-color="accent" data-size="sm">
+              {content.status}
+            </Tag>
+          ) : null}
         </div>
         <Heading data-size="md">{content.title}</Heading>
         <Paragraph data-size="md">{content.paragraph}</Paragraph>
-        <Paragraph data-size="sm">Dato publisert</Paragraph>
+        <Paragraph data-size="sm">
+          Dato publisert: {formatDate(content.dateSubmitted)}
+        </Paragraph>
       </a>
     </Card>
   );

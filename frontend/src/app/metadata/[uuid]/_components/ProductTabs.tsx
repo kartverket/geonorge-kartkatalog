@@ -12,6 +12,7 @@ import type {
   ReferenceSystem,
 } from "@/lib/schemas/product";
 import styles from "./ProductTabs.module.css";
+import { TegnereglerItem } from "@/lib/schemas/tegneregler";
 
 const TABS = [
   { value: "info", label: "Informasjon om datasettet" },
@@ -30,7 +31,7 @@ export function ProductTabs({
   dateUpdated,
   maintenanceFrequency,
   fairStatus,
-  cartographySheetUrl,
+  cartography,
 }: {
   abstract: string | null;
   specificUsage: string | null;
@@ -42,7 +43,7 @@ export function ProductTabs({
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
   fairStatus: ProductFairStatus | null;
-  cartographySheetUrl: string | null;
+  cartography: TegnereglerItem | null;
 }) {
   const infoDetails = buildInfoDetails({
     specificUsage,
@@ -88,7 +89,7 @@ export function ProductTabs({
           </div>
         </Tabs.Panel>
         <Tabs.Panel value="documentation" className={styles.panel}>
-          <ProductDocumentation cartographySheetUrl={cartographySheetUrl} />
+          <ProductDocumentation cartography={cartography} />
         </Tabs.Panel>
         {fairStatus && (
           <Tabs.Panel value="quality" className={styles.panel}>

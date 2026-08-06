@@ -142,7 +142,6 @@ export async function getTegneregler(
       notFoundOn404: false,
     },
   );
-  console.log(body);
   if (body === null) return null;
 
   return parseTegnereglerItem(body);
