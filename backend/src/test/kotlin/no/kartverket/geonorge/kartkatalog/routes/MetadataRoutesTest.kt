@@ -60,7 +60,7 @@ class MetadataRoutesTest {
     private val registerBaseUrl = "https://test.example.com/register"
     private val staticNorgeskartUrl = "https://test.example.com/register"
 
-    private fun createMetadataService(xml: String): MetadataService {
+    private fun createMetadataService(xml: String): Pair<MetadataService, LinkedDistributionsService> {
         val client =
             HttpClient(
                 MockEngine { request ->
