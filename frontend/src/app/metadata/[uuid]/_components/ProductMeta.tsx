@@ -2,9 +2,6 @@ import { MetaField } from "@/app/metadata/[uuid]/_components/MetaField";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import styles from "./ProductMeta.module.css";
 
-// midlertidig, til vi vet om den skal være med
-const relevantCategories = null;
-
 export function ProductMeta({
   spatialScope,
   representation,
@@ -14,6 +11,7 @@ export function ProductMeta({
   themes,
   formats,
   fairStatusPercent,
+  relevantCategories = null,
 }: {
   spatialScope: string | null;
   representation: string | null;
@@ -23,6 +21,7 @@ export function ProductMeta({
   themes: string[];
   formats: string[];
   fairStatusPercent: number | null;
+  relevantCategories: number | null;
 }) {
   return (
     <dl className={styles.grid}>
