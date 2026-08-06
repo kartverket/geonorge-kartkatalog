@@ -41,6 +41,8 @@ class RegisterClient(
     suspend fun getOrganizations(): RegisterOrganizationsResponse =
         fetch("/api/register/organisasjoner", RegisterOrganizationsResponse.serializer())
 
+    suspend fun getTegneregler(seoname: String): RegisterTegnerеglerItem = fetch("/api/tegneregler/$seoname", RegisterTegnerеglerItem.serializer())
+
     private suspend fun <T> fetch(
         path: String,
         deserializer: DeserializationStrategy<T>,

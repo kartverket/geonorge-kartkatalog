@@ -1,11 +1,15 @@
 package no.kartverket.geonorge.kartkatalog.metadata
 
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
+import no.kartverket.geonorge.kartkatalog.metadata.models.TegnerеglerItem
+import no.kartverket.geonorge.kartkatalog.metadata.models.toTegnereglerItem
 
 class MetadataService(
     private val geonetworkClient: GeonetworkClient,
     private val metadataMapper: MetadataMapper,
+    private val registerClient: RegisterClient,
 ) {
     suspend fun getMetadata(uuid: String): ProductMetadata {
         val record =
@@ -13,6 +17,20 @@ class MetadataService(
                 ?: throw MetadataRecordNotFoundException(uuid)
         return metadataMapper.toProductMetadata(record)
     }
+
+    suspend fun getTegneregler(uuid: String): TegnerеglerItem? {
+        val record =
+            geonetworkClient.getRecordByUuid(uuid)
+                ?: throw MetadataRecordNotFoundException(uuid)
+        val tegnereglerPath = record.extensionResources.firstOrNull {
+            it.applicationProfile.trim().equals("tegnforklaring", ignoreCase = true)
+        }?.url
+        return tegnereglerPath?.let {
+            val seoname = it.substringAfterLast("/tegneregler/")
+            registerClient.getTegneregler(seoname).toTegnereglerItem()
+        }
+    }
+
 }
 
 class MetadataRecordNotFoundException(
