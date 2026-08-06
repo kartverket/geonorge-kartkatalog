@@ -32,9 +32,9 @@ export function LinkedDistributionsSection({
   linkedDistributions: LinkedDistributions;
 }) {
   const all = [
-    ...linkedDistributions.applications,
-    ...linkedDistributions.viewServices,
-    ...linkedDistributions.downloadServices,
+    ...(linkedDistributions?.applications ?? []),
+    ...(linkedDistributions?.viewServices ?? []),
+    ...(linkedDistributions?.downloadServices ?? []),
   ];
 
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
