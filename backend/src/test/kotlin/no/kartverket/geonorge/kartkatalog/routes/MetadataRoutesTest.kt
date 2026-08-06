@@ -190,4 +190,33 @@ class MetadataRoutesTest {
             assertContains(response.bodyAsText(), "error")
         }
     }
+
+    @Test
+    fun `returns 200 with linked distributions for valid uuid`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(response.bodyAsText(), "applications")
+            assertContains(response.bodyAsText(), "viewServices")
+            assertContains(response.bodyAsText(), "downloadServices")
+        }
+    }
+
+    @Test
+    fun `returns 400 for linked-distributions when id is blank`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response =
+                client.get("/metadata/%20/linked-distributions")
+
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertContains(response.bodyAsText(), "error")
+        }
+    }
 }
