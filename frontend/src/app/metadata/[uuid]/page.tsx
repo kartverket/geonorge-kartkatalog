@@ -1,5 +1,10 @@
 import { Suspense } from "react";
-import { getFairStatus, getMetadata, getProductAlerts } from "@/app/api";
+import {
+  getFairStatus,
+  getMetadata,
+  getProductAlerts,
+  getTegneregler,
+} from "@/app/api";
 import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
 import {
@@ -83,6 +88,7 @@ async function ProductTabsSection({
   metadata: Awaited<ReturnType<typeof getMetadata>>;
 }) {
   const fairStatus = await getFairStatus(uuid);
+  const tegneregler = await getTegneregler(uuid);
 
   return (
     <ProductTabs
@@ -99,6 +105,7 @@ async function ProductTabsSection({
       dateUpdated={metadata.dateUpdated}
       maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}
+      cartographySheetUrl={tegneregler?.documentreference ?? null}
     />
   );
 }

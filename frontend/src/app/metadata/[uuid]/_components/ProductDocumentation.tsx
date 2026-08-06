@@ -6,37 +6,49 @@ import {
 } from "@navikt/aksel-icons";
 import styles from "./ProductDocumentation.module.css";
 
-// TODO: skal alle disse alltid vises? Er det noe vi må undersøke for å vite om disse skal vises eller ikke?
-const CARDCONTENT: {
+type DocumentationCard = {
   title: string;
   paragraph: string;
   icon: React.ReactNode;
   url?: string;
-}[] = [
-  {
-    title: "Tegneregler",
-    paragraph:
-      "Tegneregler forklarer hvordan dataene skal visualiseres i kart, inkludert symboler, farger og utforming.",
-    icon: <PencilBoardIcon aria-hidden className={styles.icon} />,
-  },
-  {
-    title: "Produktark",
-    paragraph:
-      "Produktark gir en kortfattet oversikt over datasettets innhold, bruksområde og viktige egenskaper.",
-    icon: <FileTextIcon aria-hidden className={styles.icon} />,
-  },
-  {
-    title: "Produktspesifikasjon",
-    paragraph:
-      "Produktspesifikasjon beskriver i detalje struktur, krav og innhold i datasettet, inkludert standarder og kvalitetskrav.",
-    icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
-  },
-];
+};
 
-export function ProductDocumentation() {
+export function ProductDocumentation({
+  cartographySheetUrl,
+}: {
+  cartographySheetUrl: string | null;
+}) {
+  const cardContent: DocumentationCard[] = [
+    ...(cartographySheetUrl
+      ? [
+          {
+            title: "Tegneregler",
+            paragraph:
+              "Tegneregler forklarer hvordan dataene skal visualiseres i kart, inkludert symboler, farger og utforming.",
+            icon: <PencilBoardIcon aria-hidden className={styles.icon} />,
+            url: cartographySheetUrl,
+          },
+        ]
+      : []),
+
+    {
+      title: "Produktark",
+      paragraph:
+        "Produktark gir en kortfattet oversikt over datasettets innhold, bruksområde og viktige egenskaper.",
+      icon: <FileTextIcon aria-hidden className={styles.icon} />,
+    },
+
+    {
+      title: "Produktspesifikasjon",
+      paragraph:
+        "Produktspesifikasjon beskriver i detalje struktur, krav og innhold i datasettet, inkludert standarder og kvalitetskrav.",
+      icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
+    },
+  ];
+
   return (
     <div className={styles.cardWrapper}>
-      {CARDCONTENT.map((card) => (
+      {cardContent.map((card) => (
         <ButtonCard key={card.title} content={card} />
       ))}
     </div>
