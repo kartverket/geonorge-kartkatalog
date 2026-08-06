@@ -44,6 +44,5 @@ fun RegisterTegnereglerItem.toTegnereglerItem() =
         draftDate = this.draftDate,
         thumbnail = this.thumbnail,
         documentreference = this.documentreference,
-        fairStatusPerCent = this.fairStatusPerCent
+        fairStatusPerCent = this.fairStatusPerCent,
     )
-

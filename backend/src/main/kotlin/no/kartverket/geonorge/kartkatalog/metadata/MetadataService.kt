@@ -22,15 +22,15 @@ class MetadataService(
         val record =
             geonetworkClient.getRecordByUuid(uuid)
                 ?: throw MetadataRecordNotFoundException(uuid)
-        val tegnereglerPath = record.extensionResources.firstOrNull {
-            it.applicationProfile.trim().equals("tegnforklaring", ignoreCase = true)
-        }?.url
+        val tegnereglerPath =
+            record.extensionResources.firstOrNull {
+                it.applicationProfile.trim().equals("tegnforklaring", ignoreCase = true)
+            }?.url
         return tegnereglerPath?.let {
             val seoname = it.substringAfterLast("/tegneregler/")
             registerClient.getTegneregler(seoname).toTegnereglerItem()
         }
     }
-
 }
 
 class MetadataRecordNotFoundException(
