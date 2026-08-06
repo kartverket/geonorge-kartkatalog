@@ -36,7 +36,7 @@ class LinkedDistributionsService(
         return LinkedDistributions(
             applications =
                 applicationDocs.mapNotNull {
-                    fetchLinkedDistribution(it.uuid, protocoll = null)
+                    fetchLinkedDistribution(it.uuid, protocol = null)
                 },
             viewServices =
                 viewRefs.mapNotNull {
