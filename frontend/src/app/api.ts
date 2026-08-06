@@ -93,8 +93,7 @@ export async function getMetadata(uuid: string): Promise<ProductMetadata> {
 export async function getLinkedDistributions(
   uuid: string,
 ): Promise<LinkedDistributions> {
-  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/l
-  inked-distributions`;
+  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/linked-distributions`;
   const body = await fetchJson(url, { method: "GET" });
   return parseLinkedDistributions(body);
 }

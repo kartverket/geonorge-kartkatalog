@@ -87,10 +87,10 @@ export function ProductTabs({
         <Tabs.Panel value="distribution" className={styles.panel}>
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={distributionDetails} />
-            <LinkedDistributionsSection
-              linkedDistributions={linkedDistributions}
-            />
           </div>
+          <LinkedDistributionsSection
+            linkedDistributions={linkedDistributions}
+          />
         </Tabs.Panel>
         <Tabs.Panel value="documentation" className={styles.panel}>
           <ProductDocumentation />
