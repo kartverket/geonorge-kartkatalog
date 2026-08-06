@@ -4,9 +4,11 @@ import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
+import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
+  LinkedDistributions,
   ProductConstraints,
   ProductFairStatus,
   ReferenceSystem,
@@ -27,6 +29,7 @@ export function ProductTabs({
   constraints,
   referenceSystems,
   distributionGroups,
+  linkedDistributions,
   dateUpdated,
   maintenanceFrequency,
   fairStatus,
@@ -38,6 +41,7 @@ export function ProductTabs({
   constraints: ProductConstraints;
   referenceSystems: ReferenceSystem[];
   distributionGroups: DistributionGroup[];
+  linkedDistributions: LinkedDistributions;
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
   fairStatus: ProductFairStatus | null;
@@ -83,6 +87,9 @@ export function ProductTabs({
         <Tabs.Panel value="distribution" className={styles.panel}>
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={distributionDetails} />
+            <LinkedDistributionsSection
+              linkedDistributions={linkedDistributions}
+            />
           </div>
         </Tabs.Panel>
         <Tabs.Panel value="documentation" className={styles.panel}>
