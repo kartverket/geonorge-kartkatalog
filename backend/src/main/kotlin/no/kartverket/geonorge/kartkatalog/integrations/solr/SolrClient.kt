@@ -55,7 +55,7 @@ class SolrClient(
             }
 
         if (!response.status.isSuccess()) {
-            throw SolrException("Solr request failed with status${response.status}")
+            throw SolrException("Solr request failed with status ${response.status}")
         }
 
         return try {
