@@ -127,7 +127,7 @@ export async function getProductAlerts(uuid: string): Promise<Alerts | null> {
 }
 
 /**
- * Fetch alerts for a product by UUID.
+ * Fetch tegneregler (cartography rules) for a product by UUID.
  * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
  */
 export async function getTegneregler(
