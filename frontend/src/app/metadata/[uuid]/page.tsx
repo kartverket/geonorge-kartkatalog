@@ -87,8 +87,10 @@ async function ProductTabsSection({
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
 }) {
-  const fairStatus = await getFairStatus(uuid);
-  const tegneregler = await getTegneregler(uuid);
+  const [fairStatus, tegneregler] = await Promise.all([
+    getFairStatus(uuid),
+    getTegneregler(uuid),
+  ]);
 
   return (
     <ProductTabs
