@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
+  type LinkedDistributions,
   type ProductFairStatus,
   type ProductMetadata,
+  parseLinkedDistributions,
   parseProductFairStatus,
   parseProductMetadata,
 } from "@/lib/schemas/product";
@@ -81,6 +83,20 @@ export async function getMetadata(uuid: string): Promise<ProductMetadata> {
   // Fetch as unknown and validate the shape with Zod before returning typed data
   const body = await fetchJson(url, { method: "GET" });
   return parseProductMetadata(body);
+}
+
+/**
+ * Fetch linked distributions (applications, view services,
+ download services) for a dataset by UUID.
+ * Intended for server-side usage (Next.js server components).
+ */
+export async function getLinkedDistributions(
+  uuid: string,
+): Promise<LinkedDistributions> {
+  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/l
+  inked-distributions`;
+  const body = await fetchJson(url, { method: "GET" });
+  return parseLinkedDistributions(body);
 }
 
 /**
