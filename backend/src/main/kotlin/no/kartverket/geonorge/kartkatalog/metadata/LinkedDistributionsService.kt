@@ -6,7 +6,6 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
 
-
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
     private val geonetworkClient: GeonetworkClient,
