@@ -48,7 +48,7 @@ data class RegisterSubRegisterItem(
 )
 
 @Serializable
-data class RegisterTegnerеglerItem(
+data class RegisterTegnereglerItem(
     val id: String? = null,
     val label: String? = null,
     val lang: String? = null,

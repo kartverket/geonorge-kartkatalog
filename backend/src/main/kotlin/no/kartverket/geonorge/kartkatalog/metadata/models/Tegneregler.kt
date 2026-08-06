@@ -1,7 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.metadata.models
 
 import kotlinx.serialization.Serializable
-import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterTegnerеglerItem
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterTegnereglerItem
 
 @Serializable
 data class TegnerеglerItem(
@@ -25,7 +25,7 @@ data class TegnerеglerItem(
     val fairStatusPerCent: Double? = null,
 )
 
-fun RegisterTegnerеglerItem.toTegnereglerItem() =
+fun RegisterTegnereglerItem.toTegnereglerItem() =
     TegnerеglerItem(
         id = this.id,
         label = this.label,
