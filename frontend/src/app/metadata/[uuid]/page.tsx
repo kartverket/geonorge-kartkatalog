@@ -99,6 +99,8 @@ async function ProductTabsSection({
       dateUpdated={metadata.dateUpdated}
       maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}
+      productSheetUrl={metadata.productSheetUrl}
+      cartographySheetUrl={metadata.cartographySheetUrl}
     />
   );
 }

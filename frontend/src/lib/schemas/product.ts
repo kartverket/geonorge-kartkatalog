@@ -87,6 +87,8 @@ export const ProductMetadataSchema = z.object({
   referenceSystems: z.array(ReferenceSystemSchema),
   distributionGroups: z.array(DistributionGroupSchema),
   coverageUrl: z.string().nullable(),
+  productSheetUrl: z.string().nullable(),
+  cartographySheetUrl: z.string().nullable(),
 });
 
 export type ProductConstraints = Partial<ProductLegalConstraints> & {
