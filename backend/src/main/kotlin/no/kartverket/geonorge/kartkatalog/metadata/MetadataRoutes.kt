@@ -27,7 +27,10 @@ fun Route.metadataRoutes(metadataService: MetadataService) {
                     ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
             val result =
                 metadataService.getTegneregler(uuid)
-                    ?: return@get call.respond(HttpStatusCode.NotFound, mapOf("error" to "No tegneregler found for UUID: $uuid"))
+                    ?: return@get call.respond(
+                        HttpStatusCode.NotFound,
+                        mapOf("error" to "No tegneregler found for UUID: $uuid"),
+                    )
             call.respond(result)
         }
     }

@@ -48,6 +48,7 @@ class RegisterClient(
             "/api/tegneregler/${encode(seoname, UTF_8)}",
             RegisterTegnereglerItem.serializer(),
         )
+
     private suspend fun <T> fetch(
         path: String,
         deserializer: DeserializationStrategy<T>,
