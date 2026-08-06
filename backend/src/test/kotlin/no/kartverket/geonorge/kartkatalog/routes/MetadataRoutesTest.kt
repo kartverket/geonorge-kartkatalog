@@ -97,6 +97,21 @@ class MetadataRoutesTest {
                             )
                         }
 
+                        request.url.encodedPath == "/solr/applications/select" -> {
+                            respond(
+                                content =
+                                    """{"responseHeader": {"status": 0, "QTime": 1},
+                                    |"response": {"numFound": 0, "start": 0, "docs": []}}
+                                    """.trimMargin(),
+                                status = HttpStatusCode.OK,
+                                headers =
+                                    headersOf(
+                                        HttpHeaders.ContentType,
+                                        ContentType.Application.Json.toString(),
+                                    ),
+                            )
+                        }
+
                         else -> {
                             respond("{}", status = HttpStatusCode.NotFound)
                         }
