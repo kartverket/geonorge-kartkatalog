@@ -79,7 +79,7 @@ data class SolrDocument(
     val productSpecificationUrl: String? = null,
     val area: List<String>? = null,
     val datasetservice: List<String>? = null,
-    val popularMetadata: Boolean? = null,
+    val popularMetadata: Int? = null,
     val bundle: List<String>? = null,
     val servicelayers: List<String>? = null,
     val accessconstraint: String? = null,

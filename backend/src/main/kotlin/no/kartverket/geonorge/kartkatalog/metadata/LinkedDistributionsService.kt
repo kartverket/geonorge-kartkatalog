@@ -17,6 +17,7 @@ class LinkedDistributionsService(
 
         val relatedServices =
             solrClient.parseDatasetServices(solrDoc.datasetservice)
+                .filter { it.uuid != uuid }
 
         val viewRefs =
             relatedServices.filter {
@@ -29,6 +30,7 @@ class LinkedDistributionsService(
 
         val applicationDocs =
             solrClient.searchApplicationsForDataset(uuid)
+                .filter { it.uuid != uuid }
 
         return LinkedDistributions(
             applications =
@@ -63,7 +65,7 @@ class LinkedDistributionsService(
             formats =
                 distributionInfo?.formats.orEmpty().map {
                     it.name
-                },
+                }.distinct(),
         )
     }
 }
