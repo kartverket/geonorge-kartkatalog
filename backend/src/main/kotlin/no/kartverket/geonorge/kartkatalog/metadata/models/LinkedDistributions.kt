@@ -6,7 +6,14 @@ import kotlinx.serialization.Serializable
 data class LinkedDistribution(
     val uuid: String,
     val title: String?,
-    val url: String?,
+    val organization: String?,
+    val typeTranslated: String?,
+    val thumbnailUrl: String?,
+    val distributionUrl: String?,
+    val distributionProtocol: String?,
+    val getCapabilitiesUrl: String?,
+    val showMapLink: Boolean,
+    val mapCapabilitiesUrl: String?,
     val formats: List<String> = emptyList(),
 )
 

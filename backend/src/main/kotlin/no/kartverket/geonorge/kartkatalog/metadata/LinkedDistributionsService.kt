@@ -6,6 +6,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
 
+
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
     private val geonetworkClient: GeonetworkClient,
@@ -35,33 +36,53 @@ class LinkedDistributionsService(
         return LinkedDistributions(
             applications =
                 applicationDocs.mapNotNull {
-                    fetchLinkedDistribution(it.uuid)
+                    fetchLinkedDistribution(it.uuid, protocoll = null)
                 },
             viewServices =
                 viewRefs.mapNotNull {
-                    fetchLinkedDistribution(it.uuid)
+                    fetchLinkedDistribution(it.uuid, it.protocol)
                 },
             downloadServices =
                 downloadRefs.mapNotNull {
-                    fetchLinkedDistribution(it.uuid)
+                    fetchLinkedDistribution(it.uuid, it.protocol)
                 },
         )
     }
 
-    private suspend fun fetchLinkedDistribution(relatedUuid: String): LinkedDistribution? {
+    private suspend fun fetchLinkedDistribution(
+        relatedUuid: String,
+        protocol: String?,
+    ): LinkedDistribution? {
         val record = geonetworkClient.getRecordByUuid(relatedUuid) ?: return null
-        return record.toLinkedDistribution(relatedUuid)
+        return record.toLinkedDistribution(relatedUuid, protocol)
     }
 
-    private fun MetadataRecord.toLinkedDistribution(uuid: String): LinkedDistribution {
+    private fun MetadataRecord.toLinkedDistribution(
+        uuid: String,
+        protocol: String?,
+    ): LinkedDistribution {
         val allResources =
             distributionInfo?.formats.orEmpty().flatMap {
                 it.onlineResources
             }
+        val url = allResources.firstOrNull()?.url
+        val isViewService = DistributionProtocols.isViewService(protocol)
+
         return LinkedDistribution(
             uuid = uuid,
             title = title,
-            url = allResources.firstOrNull()?.url,
+            organization = metadataContact.organization,
+            typeTranslated = null,
+            thumbnailUrl =
+                thumbnails.firstOrNull {
+                    it.type?.equals("medium", ignoreCase = true) == true
+                }?.url
+                    ?: thumbnails.firstOrNull()?.url,
+            distributionUrl = url,
+            distributionProtocol = protocol,
+            getCapabilitiesUrl = url,
+            showMapLink = isViewService,
+            mapCapabilitiesUrl = if (isViewService) url else null,
             formats =
                 distributionInfo?.formats.orEmpty().map {
                     it.name
