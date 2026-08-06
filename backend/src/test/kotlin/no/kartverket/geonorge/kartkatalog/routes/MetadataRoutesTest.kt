@@ -19,7 +19,9 @@ import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
+import no.kartverket.geonorge.kartkatalog.metadata.LinkedDistributionsService
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
@@ -127,7 +129,12 @@ class MetadataRoutesTest {
             configureHttp()
             configureSerialization()
             configureStatusPages()
-            routing { metadataRoutes(metadataService) }
+            val linkedDistributionsService =
+                LinkedDistributionsService(
+                    SolrClient(client, "https://solr.example.test"),
+                    GeonetworkClient(client, geonetworkBaseUrl),
+                )
+            routing { metadataRoutes(metadataService, linkedDistributionsService) }
         }
         block()
     }
