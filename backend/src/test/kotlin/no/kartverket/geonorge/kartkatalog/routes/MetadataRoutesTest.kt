@@ -116,6 +116,7 @@ class MetadataRoutesTest {
                 geonetworkBaseUrl,
             ),
             metadataMapper,
+            registerClient,
         )
     }
 
