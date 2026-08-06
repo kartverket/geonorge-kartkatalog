@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@kv-designsystem/react";
+import { Button, Heading } from "@kv-designsystem/react";
 import { useState } from "react";
 import { DatasetCard } from "@/app/_components/DatasetCard/DatasetCard";
 import type {
@@ -47,7 +47,9 @@ export function LinkedDistributionsSection({
 
   return (
     <div className={styles.wrapper}>
-      <h3 className={styles.heading}>Koblede distribusjoner</h3>
+      <Heading data-size="xs" className={styles.heading}>
+        Koblede distribusjoner
+      </Heading>
       <div className={styles.cardGrid}>
         {visible.map((d) => (
           <DatasetCard key={d.uuid} {...toDatasetCardProps(d)} />
