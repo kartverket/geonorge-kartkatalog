@@ -93,6 +93,7 @@ export async function getMetadata(uuid: string): Promise<ProductMetadata> {
 export async function getLinkedDistributions(
   uuid: string,
 ): Promise<LinkedDistributions> {
+  if (!uuid) throw new Error("uuid is required");
   const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/linked-distributions`;
   const body = await fetchJson(url, { method: "GET" });
   return parseLinkedDistributions(body);
