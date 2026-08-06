@@ -44,13 +44,13 @@ function AccessLock({ accessState }: { accessState: AccessState | null }) {
         </span>
       );
     case "open":
-    case null:
-    default:
       return (
         <span className="ds-tag" data-color="info">
           <PadlockUnlockedIcon aria-hidden className={styles.tagIcon} />
           Åpen tilgang
         </span>
       );
+    default:
+      return null;
   }
 }
