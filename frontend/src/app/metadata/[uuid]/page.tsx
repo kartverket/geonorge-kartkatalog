@@ -32,7 +32,7 @@ export default async function ProductPage({
         hierarchyLevel={metadata.hierarchyLevel}
         title={metadata.title}
         organization={metadata.organization}
-        isOpen={metadata.accessIsOpenData}
+        access={metadata.accessState}
       />
       {relevantAlerts.map((alert, index) => (
         <ProductAlert

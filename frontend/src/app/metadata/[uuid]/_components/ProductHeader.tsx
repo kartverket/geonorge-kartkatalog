@@ -1,16 +1,17 @@
 import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
+import type { AccessState } from "@/lib/schemas/product";
 import styles from "./ProductHeader.module.css";
 
 export function ProductHeader({
   title,
   organization,
-  isOpen,
+  access,
   hierarchyLevel,
 }: {
   title: string | null;
   organization: string | null;
-  isOpen: boolean | null;
+  access: AccessState | null;
   hierarchyLevel: string | null;
 }) {
   return (
@@ -19,14 +20,7 @@ export function ProductHeader({
         <Link href="/">Geonorge</Link> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
         {"›"} <span className={styles.current}>{title ?? "-"}</span>
       </nav>
-      <span className="ds-tag" data-color="info">
-        {isOpen ? (
-          <PadlockUnlockedIcon aria-hidden className={styles.tagIcon} />
-        ) : (
-          <PadlockLockedIcon aria-hidden className={styles.tagIcon} />
-        )}
-        {isOpen ? "Åpent datasett" : "Lukket datasett"}
-      </span>
+      <AccessLock accessState={access} />
       <h1 className={styles.title}>{title ?? "-"}</h1>
       <p className={styles.organization}>
         {getProductTypeString(hierarchyLevel)} fra{" "}
@@ -34,6 +28,34 @@ export function ProductHeader({
       </p>
     </div>
   );
+}
+
+function AccessLock({ accessState }: { accessState: AccessState | null }) {
+  switch (accessState) {
+    case "protected":
+      return (
+        <span className="ds-tag" data-color="danger">
+          <PadlockLockedIcon aria-hidden className={styles.tagIcon} />
+          Beskyttet tilgang
+        </span>
+      );
+    case "restricted":
+      return (
+        <span className="ds-tag" data-color="warning">
+          <PadlockLockedIcon aria-hidden className={styles.tagIcon} />
+          Begrenset tilgang
+        </span>
+      );
+    case "open":
+      return (
+        <span className="ds-tag" data-color="info">
+          <PadlockUnlockedIcon aria-hidden className={styles.tagIcon} />
+          Åpen tilgang
+        </span>
+      );
+    default:
+      return null;
+  }
 }
 
 const getProductTypeString = (hierarchyLevel: string | null) => {
