@@ -137,12 +137,14 @@ class MetadataMapper(
                     record.extensionResources,
                     staticNorgeskartUrl = staticNorgeskartUrl,
                 ),
-            productSheetUrl = record.extensionResources.firstOrNull {
-            it.applicationProfile.trim().equals("produktark", ignoreCase = true)
-        }?.url,
-            cartographySheetUrl = record.extensionResources.firstOrNull {
-                it.applicationProfile.trim().equals("tegnforklaring", ignoreCase = true)
-            }?.url,
+            productSheetUrl =
+                record.extensionResources.firstOrNull {
+                    it.applicationProfile.trim().equals("produktark", ignoreCase = true)
+                }?.url,
+            cartographySheetUrl =
+                record.extensionResources.firstOrNull {
+                    it.applicationProfile.trim().equals("tegnforklaring", ignoreCase = true)
+                }?.url,
         )
     }
 
