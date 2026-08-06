@@ -8,6 +8,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
+import java.net.URLEncoder.encode
+import kotlin.text.Charsets.UTF_8
 
 enum class CodeList(
     val systemId: String,
@@ -43,10 +45,9 @@ class RegisterClient(
 
     suspend fun getTegneregler(seoname: String): RegisterTegnereglerItem =
         fetch(
-            "/api/tegneregler/$seoname",
+            "/api/tegneregler/${encode(seoname, UTF_8)}",
             RegisterTegnereglerItem.serializer(),
         )
-
     private suspend fun <T> fetch(
         path: String,
         deserializer: DeserializationStrategy<T>,
