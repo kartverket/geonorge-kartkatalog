@@ -112,66 +112,82 @@ class MetadataRoutesTest {
         val codeListTranslator = CodeListTranslator(registerClient)
         val metadataMapper = MetadataMapper(codeListTranslator, staticNorgeskartUrl)
 
-        return MetadataService(
-            GeonetworkClient(
-                client,
-                geonetworkBaseUrl,
-            ),
-            metadataMapper,
-        )
+        val metadataService =
+            MetadataService(
+                GeonetworkClient(client, geonetworkBaseUrl),
+                metadataMapper,
+            )
+        val linkedDistributionsService =
+            LinkedDistributionsService(
+                SolrClient(client, "https://solr.example.test"),
+                GeonetworkClient(client, geonetworkBaseUrl),
+            )
+
+        return metadataService to linkedDistributionsService
     }
 
     private fun testApp(
         metadataService: MetadataService,
+        linkedDistributionsService: LinkedDistributionsService,
         block: suspend io.ktor.server.testing.ApplicationTestBuilder.() -> Unit,
     ) = testApplication {
         application {
             configureHttp()
             configureSerialization()
             configureStatusPages()
-            val linkedDistributionsService =
-                LinkedDistributionsService(
-                    SolrClient(client, "https://solr.example.test"),
-                    GeonetworkClient(client, geonetworkBaseUrl),
-                )
             routing { metadataRoutes(metadataService, linkedDistributionsService) }
         }
         block()
     }
 
     @Test
-    fun `returns 200 with dataset metadata for valid uuid`() =
-        testApp(createMetadataService(responseXml)) {
-            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
+    fun `returns 200 with dataset metadata for valid uuid`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml)
+        testApp(metadataService, linkedDistributionsService) {
+            val response =
+                client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertContains(response.bodyAsText(), "Matrikkelen - Bygningspunkt WFS")
         }
+    }
 
     @Test
-    fun `returns 404 when record not found for metadata`() =
-        testApp(createMetadataService(emptyGeonetworkXml)) {
-            val response = client.get("/metadata/00000000-0000-0000-0000-000000000000")
+    fun `returns 404 when record not found for metadata`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(emptyGeonetworkXml)
 
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/00000000-0000-0000-0000-000000000000")
             assertEquals(HttpStatusCode.NotFound, response.status)
             assertContains(response.bodyAsText(), "error")
         }
+    }
 
     @Test
-    fun `returns 404 for non-uuid id that is not found`() =
-        testApp(createMetadataService(emptyGeonetworkXml)) {
+    fun `returns 404 for non-uuid id that is not found`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(emptyGeonetworkXml)
+
+        testApp(metadataService, linkedDistributionsService) {
             val response = client.get("/metadata/not-a-uuid")
 
             assertEquals(HttpStatusCode.NotFound, response.status)
             assertContains(response.bodyAsText(), "error")
         }
+    }
 
     @Test
-    fun `returns 400 when id is blank`() =
-        testApp(createMetadataService(responseXml)) {
+    fun `returns 400 when id is blank`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml)
+
+        testApp(metadataService, linkedDistributionsService) {
             val response = client.get("/metadata/%20")
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertContains(response.bodyAsText(), "error")
         }
+    }
 }

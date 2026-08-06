@@ -67,7 +67,7 @@ class SolrClientTest {
     @Test
     fun `parses solr json even when content type is text plain`() =
         runBlocking {
-            val uuid = UUID.randomUUID()
+            val uuid = UUID.randomUUID().toString()
 
             val engine =
                 MockEngine {
