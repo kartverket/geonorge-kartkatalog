@@ -3,8 +3,8 @@
 import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
-import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
+import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
@@ -13,6 +13,7 @@ import type {
   ProductFairStatus,
   ReferenceSystem,
 } from "@/lib/schemas/product";
+import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import styles from "./ProductTabs.module.css";
 
 const TABS = [
@@ -33,6 +34,7 @@ export function ProductTabs({
   dateUpdated,
   maintenanceFrequency,
   fairStatus,
+  cartography,
 }: {
   abstract: string | null;
   specificUsage: string | null;
@@ -45,6 +47,7 @@ export function ProductTabs({
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
   fairStatus: ProductFairStatus | null;
+  cartography: TegnereglerItem | null;
 }) {
   const infoDetails = buildInfoDetails({
     specificUsage,
@@ -93,7 +96,7 @@ export function ProductTabs({
           />
         </Tabs.Panel>
         <Tabs.Panel value="documentation" className={styles.panel}>
-          <ProductDocumentation />
+          <ProductDocumentation cartography={cartography} />
         </Tabs.Panel>
         {fairStatus && (
           <Tabs.Panel value="quality" className={styles.panel}>

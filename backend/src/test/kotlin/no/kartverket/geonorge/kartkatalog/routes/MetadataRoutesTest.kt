@@ -131,6 +131,7 @@ class MetadataRoutesTest {
             MetadataService(
                 GeonetworkClient(client, geonetworkBaseUrl),
                 metadataMapper,
+                registerClient,
             )
         val linkedDistributionsService =
             LinkedDistributionsService(
