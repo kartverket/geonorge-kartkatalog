@@ -29,7 +29,7 @@ export default async function ProductPage({
   const { uuid } = await params;
   const metadata = await getMetadata(uuid);
   const alerts = await getProductAlerts(uuid);
-  const relevantAlerts = getRelevantAlerts(alerts);
+  // const relevantAlerts = getRelevantAlerts(alerts);
 
   return (
     <div className={styles.content}>
@@ -38,7 +38,7 @@ export default async function ProductPage({
         organization={metadata.organization}
         access={metadata.accessState}
       />
-      {relevantAlerts.map((alert, index) => (
+      {alerts.map((alert, index) => (
         <ProductAlert
           key={`${alert.alertType ?? "alert"}-${index}`}
           alert={alert}

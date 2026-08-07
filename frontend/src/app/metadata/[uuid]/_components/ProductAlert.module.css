@@ -1,3 +1,0 @@
-.wrapper:has(+ .wrapper) {
-  padding-bottom: var(--ds-size-2);
-}

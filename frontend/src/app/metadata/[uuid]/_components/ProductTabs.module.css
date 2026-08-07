@@ -3,7 +3,7 @@
 }
 
 .panel {
-  padding-block: var(--ds-size-15);
+  padding-top: var(--ds-size-15);
   display: grid;
   gap: var(--ds-size-8);
 }
