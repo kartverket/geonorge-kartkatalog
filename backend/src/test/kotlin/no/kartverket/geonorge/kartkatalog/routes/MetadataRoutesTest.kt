@@ -20,9 +20,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClie
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
-import no.kartverket.geonorge.kartkatalog.metadata.LinkedDistributionsService
 import no.kartverket.geonorge.kartkatalog.metadata.LinkedDistributionsService
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
@@ -133,7 +131,7 @@ class MetadataRoutesTest {
             MetadataService(
                 GeonetworkClient(client, geonetworkBaseUrl),
                 metadataMapper,
-                registerClient
+                registerClient,
             )
         val linkedDistributionsService =
             LinkedDistributionsService(
