@@ -213,15 +213,19 @@ function buildInfoDetails({
   constraints: ProductConstraints;
 }): DetailItem[] {
   return [
-    {
-      title: "Bruksområde og formål",
-      content: (
-        <>
-          <p>{specificUsage ?? "-"}</p>
-          <p>{purpose ?? "-"}</p>
-        </>
-      ),
-    },
+    ...(specificUsage || purpose
+      ? [
+          {
+            title: "Bruksområde og formål",
+            content: (
+              <>
+                {specificUsage && <p>{specificUsage}</p>}
+                {purpose && <p>{purpose}</p>}
+              </>
+            ),
+          },
+        ]
+      : []),
     {
       title: "Lisens og restriksjoner",
       content: (
