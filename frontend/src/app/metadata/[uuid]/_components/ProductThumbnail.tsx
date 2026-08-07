@@ -12,7 +12,9 @@ export function ProductThumbnail({
       <Image
         src={thumbnailUrl}
         alt="Kartforhåndsvisning"
-        fill
+        width={1}
+        height={1}
+        unoptimized={false}
         loading="eager"
         sizes="(max-width: 768px) 100vw, 345px"
         className={styles.image}

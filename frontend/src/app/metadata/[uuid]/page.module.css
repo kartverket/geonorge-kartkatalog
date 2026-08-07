@@ -4,8 +4,12 @@
   padding-inline: var(--ds-size-26);
 }
 
+.content > div {
+  margin: var(--ds-size-10) 0;
+}
+
 .metaRow {
   display: flex;
   gap: var(--ds-size-10);
-  padding: var(--ds-size-10) 0 var(--ds-size-18);
+  align-items: flex-start;
 }
