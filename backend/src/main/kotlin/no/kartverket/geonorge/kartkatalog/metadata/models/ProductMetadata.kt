@@ -19,7 +19,6 @@ data class ProductMetadata(
     val nationalKeywords: List<ProductKeyword> = emptyList(),
     val distributionFormats: List<ProductDistributionFormat> = emptyList(),
     val thumbnailUrl: String? = null,
-    val dataQualityMeasures: List<ProductDataQualityMeasure> = emptyList(),
     val fairStatusPercentFromMetadata: Int? = null,
     val abstractText: String? = null,
     val purpose: String? = null,
@@ -57,14 +56,6 @@ data class ProductDistributionFormat(
 data class ProductKeyword(
     val keywordValue: String? = null,
     val type: String? = null,
-)
-
-@Serializable
-data class ProductDataQualityMeasure(
-    val explanation: String? = null,
-    val quantitativeResult: Int? = null,
-    val quantitativeResultValueUnit: String? = null,
-    val title: String? = null,
 )
 
 @Serializable

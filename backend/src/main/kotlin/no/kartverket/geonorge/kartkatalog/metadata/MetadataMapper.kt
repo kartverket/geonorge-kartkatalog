@@ -7,7 +7,6 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Metadata
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormatEntry
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionGroup
@@ -90,17 +89,6 @@ class MetadataMapper(
                 record.thumbnails.firstOrNull {
                     it.type?.equals("medium", ignoreCase = true) == true
                 }?.url ?: record.thumbnails.firstOrNull()?.url,
-            dataQualityMeasures =
-                record.dataQualityMeasures
-                    .mapNotNull { measure ->
-                        if (measure.value == null) return@mapNotNull null
-                        ProductDataQualityMeasure(
-                            explanation = measure.measureDescription,
-                            quantitativeResult = measure.value,
-                            quantitativeResultValueUnit = getSimpleValueUnit(measure.valueUnit),
-                            title = measure.nameOfMeasure,
-                        )
-                    },
             fairStatusPercentFromMetadata = findFairPercent(record),
             abstractText = record.abstract,
             purpose = record.purpose,
