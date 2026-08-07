@@ -11,4 +11,5 @@
 .metaRow {
   display: flex;
   gap: var(--ds-size-10);
+  align-items: flex-start;
 }
