@@ -1,0 +1,18 @@
+.wrapper {
+  margin-top: 1rem;
+}
+
+.heading {
+  margin-bottom: 3rem;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* TODO: style denne */
+.loadMoreButton {
+  margin-top: 1.5rem;
+}

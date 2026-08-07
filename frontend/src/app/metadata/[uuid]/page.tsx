@@ -1,5 +1,10 @@
 import { Suspense } from "react";
-import { getFairStatus, getMetadata, getProductAlerts } from "@/app/api";
+import {
+  getFairStatus,
+  getLinkedDistributions,
+  getMetadata,
+  getProductAlerts,
+} from "@/app/api";
 import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
 import {
@@ -82,7 +87,10 @@ async function ProductTabsSection({
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
 }) {
-  const fairStatus = await getFairStatus(uuid);
+  const [fairStatus, linkedDistributions] = await Promise.all([
+    getFairStatus(uuid),
+    getLinkedDistributions(uuid),
+  ]);
 
   return (
     <ProductTabs
@@ -96,6 +104,7 @@ async function ProductTabsSection({
       }}
       referenceSystems={metadata.referenceSystems}
       distributionGroups={metadata.distributionGroups}
+      linkedDistributions={linkedDistributions}
       dateUpdated={metadata.dateUpdated}
       maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}

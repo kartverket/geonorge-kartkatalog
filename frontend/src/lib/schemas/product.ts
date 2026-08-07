@@ -134,3 +134,36 @@ export function parseProductFairStatus(body: unknown): ProductFairStatus {
   }
   return res.data;
 }
+
+export const LinkedDistributionSchema = z.object({
+  uuid: z.string(),
+  title: z.string().nullable(),
+  organization: z.string().nullable(),
+  typeTranslated: z.string().nullable(),
+  thumbnailUrl: z.string().nullable(),
+  distributionUrl: z.string().nullable(),
+  distributionProtocol: z.string().nullable(),
+  getCapabilitiesUrl: z.string().nullable(),
+  showMapLink: z.boolean(),
+  mapCapabilitiesUrl: z.string().nullable(),
+  formats: z.array(z.string()),
+});
+
+export const LinkedDistributionsSchema = z.object({
+  applications: z.array(LinkedDistributionSchema),
+  viewServices: z.array(LinkedDistributionSchema),
+  downloadServices: z.array(LinkedDistributionSchema),
+});
+
+export type LinkedDistribution = z.infer<typeof LinkedDistributionSchema>;
+export type LinkedDistributions = z.infer<typeof LinkedDistributionsSchema>;
+
+export function parseLinkedDistributions(body: unknown): LinkedDistributions {
+  const res = LinkedDistributionsSchema.safeParse(body);
+  if (!res.success) {
+    throw new Error("Invalid linked distributions from server", {
+      cause: res.error,
+    });
+  }
+  return res.data;
+}
