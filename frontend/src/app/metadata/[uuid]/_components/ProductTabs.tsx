@@ -220,7 +220,7 @@ function buildInfoDetails({
             content: (
               <>
                 {specificUsage && <p>{specificUsage}</p>}
-                {purpose && <p>{purpose}</p>}
+                {purpose && purpose !== specificUsage && <p>{purpose}</p>}
               </>
             ),
           },
