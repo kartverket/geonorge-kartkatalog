@@ -11,6 +11,7 @@ export function ProductMeta({
   themes,
   formats,
   fairStatusPercent,
+  relevantCategories = null,
 }: {
   spatialScope: string | null;
   representation: string | null;
@@ -20,69 +21,84 @@ export function ProductMeta({
   themes: string[];
   formats: string[];
   fairStatusPercent: number | null;
+  relevantCategories: number | null;
 }) {
   return (
     <dl className={styles.grid}>
-      <MetaField
-        label="Dekningsområde"
-        help="Hvor stort geografisk område datasettet dekker"
-      >
-        {spatialScope ?? "-"}
-      </MetaField>
-      <MetaField
-        label="Oppdateringshyppighet"
-        help="Hvor ofte datasettet oppdateres"
-      >
-        {maintenanceFrequency ?? "-"}
-      </MetaField>
-      <MetaField
-        label="Sist oppdatert"
-        help="Dato for siste oppdatering av data"
-      >
-        {formatDate(dateUpdated ?? undefined)}
-      </MetaField>
-      <MetaField
-        label="Representasjonsform"
-        help="Hvordan geodataene er representert"
-      >
-        <span className="ds-tag" data-color="neutral">
-          {representation ?? "-"}
-        </span>
-      </MetaField>
-      <MetaField label="Målestokktall" help="Målestokk datasettet er egnet for">
-        {resolutionScale ?? "-"}
-      </MetaField>
-      <MetaField
-        label="Datakvalitet (FAIR-status)"
-        help="Datasettets FAIR-score"
-      >
-        {fairStatusPercent != null ? `${fairStatusPercent}%` : "-"}
-      </MetaField>
-      {/* Relevante kategorier: ikke tilgjengelig */}
-      <MetaField
-        label="Relevante kategorier"
-        help="Kategorier datasettet tilhører"
-      >
-        <span className={styles.pending}>Ikke tilgjengelig</span>
-      </MetaField>
-      <MetaField label="Tema" help="Emneord knyttet til datasettet">
-        <div className={styles.tags} data-color="success">
-          {themes.map((t) => (
-            <span className="ds-tag" key={t}>
-              {t}
-            </span>
-          ))}
-        </div>
-      </MetaField>
-      <MetaField label="Filformater" help="Tilgjengelige nedlastingsformater">
-        <div className={styles.tags} data-color="info">
-          {formats.map((f) => (
-            <span className="ds-tag" key={f}>
-              {f}
-            </span>
-          ))}
-        </div>
-      </MetaField>
+      {spatialScope && (
+        <MetaField
+          label="Dekningsområde"
+          help="Hvilket geografisk område datasettet dekker"
+        >
+          {spatialScope}
+        </MetaField>
+      )}
+      {maintenanceFrequency && (
+        <MetaField
+          label="Oppdateringshyppighet"
+          help="Hvor ofte datasettet oppdateres fra kilden"
+        >
+          {maintenanceFrequency}
+        </MetaField>
+      )}
+      {dateUpdated && (
+        <MetaField
+          label="Sist oppdatert"
+          help="Dato dataene sist ble hentet ut fra kilden"
+        >
+          {formatDate(dateUpdated)}
+        </MetaField>
+      )}
+      {representation && (
+        <MetaField
+          label="Representasjonsform"
+          help="Hvordan de geografiske dataene er representert"
+        >
+          <span className="ds-tag" data-color="neutral">
+            {representation}
+          </span>
+        </MetaField>
+      )}
+      {resolutionScale && (
+        <MetaField
+          label="Målestokktall"
+          help="Målestokken dataene er produsert i"
+        >
+          {resolutionScale}
+        </MetaField>
+      )}
+      {fairStatusPercent && (
+        <MetaField label="Datakvalitet (FAIR-status)">
+          {fairStatusPercent != null ? `${fairStatusPercent}%` : "-"}
+        </MetaField>
+      )}
+      {relevantCategories && (
+        <MetaField label="Relevante kategorier">
+          <span className={styles.pending}>{relevantCategories}</span>
+        </MetaField>
+      )}
+      {themes.length > 0 && (
+        <MetaField label="Tema">
+          <div className={styles.tags} data-color="success">
+            {themes.map((t) => (
+              <span className="ds-tag" key={t}>
+                {t}
+              </span>
+            ))}
+          </div>
+        </MetaField>
+      )}
+      {formats.length > 0 && (
+        <MetaField label="Filformater" help="Tilgjengelige nedlastingsformater">
+          <div className={styles.tags} data-color="info">
+            {formats.map((f) => (
+              <span className="ds-tag" key={f}>
+                {f}
+              </span>
+            ))}
+          </div>
+        </MetaField>
+      )}
     </dl>
   );
 }
