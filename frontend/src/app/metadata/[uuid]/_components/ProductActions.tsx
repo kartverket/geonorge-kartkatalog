@@ -11,11 +11,9 @@ import {
 import styles from "./ProductActions.module.css";
 
 export async function ProductActions({
-  downloadUrl,
   coverageUrl,
   uuid,
 }: {
-  downloadUrl?: string;
   coverageUrl: string | null;
   uuid: string;
 }) {
