@@ -36,8 +36,8 @@ export function Header() {
   // const user = null; // test utlogget tilstand
 
   // Midlertidig til nedlasting/kart-state kobles på (produktsiden)
-  const mapCount = 1;
-  const downloadCount = 5;
+  const mapCount = 0;
+  const downloadCount = 0;
 
   const rootRef = useRef<HTMLDivElement>(null);
   const searchButtonRef = useRef<HTMLButtonElement>(null);
