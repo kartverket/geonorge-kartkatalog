@@ -61,6 +61,7 @@ export default async function ProductPage({
             "name",
           )}
           fairStatusPercent={metadata.fairStatusPercentFromMetadata}
+          relevantCategories={null} // TODO: GN-241 - Legg til relevantCategories når det er tilgjengelig i metadata
         />
       </div>
       <ProductActions
