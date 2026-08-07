@@ -3,16 +3,18 @@
 import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
+import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
+  LinkedDistributions,
   ProductConstraints,
   ProductFairStatus,
   ReferenceSystem,
 } from "@/lib/schemas/product";
+import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import styles from "./ProductTabs.module.css";
-import { TegnereglerItem } from "@/lib/schemas/tegneregler";
 
 const TABS = [
   { value: "info", label: "Informasjon om datasettet" },
@@ -28,6 +30,7 @@ export function ProductTabs({
   constraints,
   referenceSystems,
   distributionGroups,
+  linkedDistributions,
   dateUpdated,
   maintenanceFrequency,
   fairStatus,
@@ -40,6 +43,7 @@ export function ProductTabs({
   constraints: ProductConstraints;
   referenceSystems: ReferenceSystem[];
   distributionGroups: DistributionGroup[];
+  linkedDistributions: LinkedDistributions;
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
   fairStatus: ProductFairStatus | null;
@@ -87,6 +91,9 @@ export function ProductTabs({
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={distributionDetails} />
           </div>
+          <LinkedDistributionsSection
+            linkedDistributions={linkedDistributions}
+          />
         </Tabs.Panel>
         <Tabs.Panel value="documentation" className={styles.panel}>
           <ProductDocumentation cartography={cartography} />

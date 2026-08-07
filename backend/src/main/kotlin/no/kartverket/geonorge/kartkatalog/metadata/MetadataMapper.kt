@@ -166,11 +166,22 @@ class MetadataMapper(
             it.thesaurus.equals("Nasjonal tematisk inndeling (DOK-kategori)", ignoreCase = true)
         }
 
+    private val spatialScopeTranslations =
+        mapOf(
+            "European" to "Europeisk",
+            "Global" to "Global",
+            "Local" to "Lokal",
+            "National" to "Nasjonal",
+            "Regional" to "Regional",
+        )
+
     private fun mapSpatialScope(record: MetadataRecord): String? =
         mapKeywords(record) {
             it.thesaurus?.equals("Spatial scope", ignoreCase = true) == true ||
                 it.thesaurusHref?.contains("SpatialScope", ignoreCase = true) == true
-        }.firstOrNull()?.keywordValue
+        }.firstOrNull()?.keywordValue?.let { raw ->
+            spatialScopeTranslations[raw] ?: raw
+        }
 
     private fun mapKeywords(
         record: MetadataRecord,

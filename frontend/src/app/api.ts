@@ -1,14 +1,16 @@
 import { notFound } from "next/navigation";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
+  type LinkedDistributions,
   type ProductFairStatus,
   type ProductMetadata,
+  parseLinkedDistributions,
   parseProductFairStatus,
   parseProductMetadata,
 } from "@/lib/schemas/product";
 import {
   parseTegnereglerItem,
-  TegnereglerItem,
+  type TegnereglerItem,
 } from "@/lib/schemas/tegneregler";
 
 const API_BASE = process.env.API_BASE;
@@ -85,6 +87,20 @@ export async function getMetadata(uuid: string): Promise<ProductMetadata> {
   // Fetch as unknown and validate the shape with Zod before returning typed data
   const body = await fetchJson(url, { method: "GET" });
   return parseProductMetadata(body);
+}
+
+/**
+ * Fetch linked distributions (applications, view services,
+ download services) for a dataset by UUID.
+ * Intended for server-side usage (Next.js server components).
+ */
+export async function getLinkedDistributions(
+  uuid: string,
+): Promise<LinkedDistributions> {
+  if (!uuid) throw new Error("uuid is required");
+  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/linked-distributions`;
+  const body = await fetchJson(url, { method: "GET" });
+  return parseLinkedDistributions(body);
 }
 
 /**

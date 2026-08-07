@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import {
   getFairStatus,
+  getLinkedDistributions,
   getMetadata,
   getProductAlerts,
   getTegneregler,
@@ -87,9 +88,10 @@ async function ProductTabsSection({
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
 }) {
-  const [fairStatus, tegneregler] = await Promise.all([
+  const [fairStatus, tegneregler, linkedDistributions] = await Promise.all([
     getFairStatus(uuid),
     getTegneregler(uuid),
+    getLinkedDistributions(uuid),
   ]);
 
   return (
@@ -104,6 +106,7 @@ async function ProductTabsSection({
       }}
       referenceSystems={metadata.referenceSystems}
       distributionGroups={metadata.distributionGroups}
+      linkedDistributions={linkedDistributions}
       dateUpdated={metadata.dateUpdated}
       maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}

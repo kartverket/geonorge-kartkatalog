@@ -19,7 +19,11 @@ import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
+import no.kartverket.geonorge.kartkatalog.metadata.LinkedDistributionsService
+import no.kartverket.geonorge.kartkatalog.metadata.LinkedDistributionsService
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
@@ -58,7 +62,7 @@ class MetadataRoutesTest {
     private val registerBaseUrl = "https://test.example.com/register"
     private val staticNorgeskartUrl = "https://test.example.com/register"
 
-    private fun createMetadataService(xml: String): MetadataService {
+    private fun createMetadataService(xml: String): Pair<MetadataService, LinkedDistributionsService> {
         val client =
             HttpClient(
                 MockEngine { request ->
@@ -95,6 +99,21 @@ class MetadataRoutesTest {
                             )
                         }
 
+                        request.url.encodedPath == "/solr/applications/select" -> {
+                            respond(
+                                content =
+                                    """{"responseHeader": {"status": 0, "QTime": 1},
+                                    |"response": {"numFound": 0, "start": 0, "docs": []}}
+                                    """.trimMargin(),
+                                status = HttpStatusCode.OK,
+                                headers =
+                                    headersOf(
+                                        HttpHeaders.ContentType,
+                                        ContentType.Application.Json.toString(),
+                                    ),
+                            )
+                        }
+
                         else -> {
                             respond("{}", status = HttpStatusCode.NotFound)
                         }
@@ -110,62 +129,112 @@ class MetadataRoutesTest {
         val codeListTranslator = CodeListTranslator(registerClient)
         val metadataMapper = MetadataMapper(codeListTranslator, staticNorgeskartUrl)
 
-        return MetadataService(
-            GeonetworkClient(
-                client,
-                geonetworkBaseUrl,
-            ),
-            metadataMapper,
-            registerClient,
-        )
+        val metadataService =
+            MetadataService(
+                GeonetworkClient(client, geonetworkBaseUrl),
+                metadataMapper,
+                registerClient
+            )
+        val linkedDistributionsService =
+            LinkedDistributionsService(
+                SolrClient(client, "https://solr.example.test"),
+                GeonetworkClient(client, geonetworkBaseUrl),
+            )
+
+        return metadataService to linkedDistributionsService
     }
 
     private fun testApp(
         metadataService: MetadataService,
+        linkedDistributionsService: LinkedDistributionsService,
         block: suspend io.ktor.server.testing.ApplicationTestBuilder.() -> Unit,
     ) = testApplication {
         application {
             configureHttp()
             configureSerialization()
             configureStatusPages()
-            routing { metadataRoutes(metadataService) }
+            routing { metadataRoutes(metadataService, linkedDistributionsService) }
         }
         block()
     }
 
     @Test
-    fun `returns 200 with dataset metadata for valid uuid`() =
-        testApp(createMetadataService(responseXml)) {
-            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
+    fun `returns 200 with dataset metadata for valid uuid`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml)
+        testApp(metadataService, linkedDistributionsService) {
+            val response =
+                client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertContains(response.bodyAsText(), "Matrikkelen - Bygningspunkt WFS")
         }
+    }
 
     @Test
-    fun `returns 404 when record not found for metadata`() =
-        testApp(createMetadataService(emptyGeonetworkXml)) {
-            val response = client.get("/metadata/00000000-0000-0000-0000-000000000000")
+    fun `returns 404 when record not found for metadata`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(emptyGeonetworkXml)
 
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/00000000-0000-0000-0000-000000000000")
             assertEquals(HttpStatusCode.NotFound, response.status)
             assertContains(response.bodyAsText(), "error")
         }
+    }
 
     @Test
-    fun `returns 404 for non-uuid id that is not found`() =
-        testApp(createMetadataService(emptyGeonetworkXml)) {
+    fun `returns 404 for non-uuid id that is not found`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(emptyGeonetworkXml)
+
+        testApp(metadataService, linkedDistributionsService) {
             val response = client.get("/metadata/not-a-uuid")
 
             assertEquals(HttpStatusCode.NotFound, response.status)
             assertContains(response.bodyAsText(), "error")
         }
+    }
 
     @Test
-    fun `returns 400 when id is blank`() =
-        testApp(createMetadataService(responseXml)) {
+    fun `returns 400 when id is blank`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml)
+
+        testApp(metadataService, linkedDistributionsService) {
             val response = client.get("/metadata/%20")
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertContains(response.bodyAsText(), "error")
         }
+    }
+
+    @Test
+    fun `returns 200 with linked distributions for valid uuid`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(response.bodyAsText(), "applications")
+            assertContains(response.bodyAsText(), "viewServices")
+            assertContains(response.bodyAsText(), "downloadServices")
+        }
+    }
+
+    @Test
+    fun `returns 400 for linked-distributions when id is blank`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response =
+                client.get("/metadata/%20/linked-distributions")
+
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertContains(response.bodyAsText(), "error")
+        }
+    }
 }

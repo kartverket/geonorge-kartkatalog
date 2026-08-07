@@ -28,7 +28,7 @@ class SolrClientTest {
     @Test
     fun `posts form-url-encoded metadata query`() =
         runBlocking {
-            val uuid = UUID.randomUUID()
+            val uuid = UUID.randomUUID().toString()
             var capturedPath: String? = null
             var capturedProtocol: String? = null
 
@@ -67,7 +67,7 @@ class SolrClientTest {
     @Test
     fun `parses solr json even when content type is text plain`() =
         runBlocking {
-            val uuid = UUID.randomUUID()
+            val uuid = UUID.randomUUID().toString()
 
             val engine =
                 MockEngine {
