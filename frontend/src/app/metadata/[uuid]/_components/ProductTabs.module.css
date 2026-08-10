@@ -23,24 +23,21 @@
 
 .accordionGroup {
   border: 1px solid var(--ds-color-neutral-border-subtle);
-  border-radius: var(--ds-border-radius-md);
+  border-radius: var(--ds-border-radius-lg);
   overflow: hidden;
 }
 
-.accordionGroup :global(summary) {
+.accordionGroup :global(.ds-details) {
+  border: none;
   border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
+.accordionGroup :global(.ds-details:last-child) {
+  border-bottom: none;
 }
 
 .accordionGroup p {
   margin: var(--ds-size-8);
-}
-
-.accordionGroup :global(.ds-details:first-child) {
-  border-top: 0;
-}
-
-.accordionGroup :global(.ds-details:last-child) {
-  border-bottom: 0;
 }
 
 .pending {
