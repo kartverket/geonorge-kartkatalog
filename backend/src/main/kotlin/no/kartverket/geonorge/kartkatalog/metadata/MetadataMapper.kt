@@ -3,11 +3,12 @@ package no.kartverket.geonorge.kartkatalog.metadata
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductConstraints
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormatEntry
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionGroup
@@ -90,33 +91,12 @@ class MetadataMapper(
                 record.thumbnails.firstOrNull {
                     it.type?.equals("medium", ignoreCase = true) == true
                 }?.url ?: record.thumbnails.firstOrNull()?.url,
-            dataQualityMeasures =
-                record.dataQualityMeasures
-                    .mapNotNull { measure ->
-                        if (measure.value == null) return@mapNotNull null
-                        ProductDataQualityMeasure(
-                            explanation = measure.measureDescription,
-                            quantitativeResult = measure.value,
-                            quantitativeResultValueUnit = getSimpleValueUnit(measure.valueUnit),
-                            title = measure.nameOfMeasure,
-                        )
-                    },
             fairStatusPercentFromMetadata = findFairPercent(record),
             abstractText = record.abstract,
             purpose = record.purpose,
             specificUsage = record.specificUsage,
             processHistory = record.processHistory,
-            constraints =
-                record.legalConstraints?.let { constraints ->
-                    constraints.copy(
-                        accessConstraints = describeAccessConstraints(record, accessState),
-                        useConstraints =
-                            describeUseConstraints(
-                                constraints.useConstraints,
-                                constraints.otherConstraintsLink,
-                            ),
-                    )
-                },
+            constraints = record.legalConstraints?.toProductConstraints(accessState = accessState),
             securityClassification =
                 codeListTranslator.translate(
                     CodeList.CLASSIFICATION,
@@ -140,13 +120,13 @@ class MetadataMapper(
     }
 
     private fun describeAccessConstraints(
-        record: MetadataRecord,
+        recordAccessConstraints: String?,
         accessState: AccessState?,
     ): String {
         return when {
             accessState == AccessState.OPEN -> "Åpne data"
             accessState == AccessState.RESTRICTED -> "Norge digitalt-begrenset"
-            else -> record.legalConstraints?.accessConstraints ?: "-"
+            else -> recordAccessConstraints ?: "-"
         }
     }
 
@@ -272,6 +252,20 @@ class MetadataMapper(
             organization = organization,
             organizationEnglish = organizationEnglish,
             role = role,
+        )
+
+    private suspend fun LegalConstraints.toProductConstraints(accessState: AccessState?) =
+        ProductConstraints(
+            accessConstraints = describeAccessConstraints(this.accessConstraints, accessState),
+            useConstraints =
+                describeUseConstraints(
+                    this.useConstraints,
+                    this.otherConstraintsLink,
+                ),
+            useLimitations = useLimitations,
+            otherConstraintsLink = otherConstraintsLink,
+            otherConstraintsLinkText = otherConstraintsLinkText,
+            otherConstraintsAccess = otherConstraintsAccess,
         )
 
     private fun findFairPercent(record: MetadataRecord): Int? =
