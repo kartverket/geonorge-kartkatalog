@@ -257,10 +257,11 @@ class MetadataMapper(
     private suspend fun LegalConstraints.toProductConstraints(accessState: AccessState?) =
         ProductConstraints(
             accessConstraints = describeAccessConstraints(this.accessConstraints, accessState),
-            useConstraints = describeUseConstraints(
-                this.useConstraints,
-                this.otherConstraintsLink,
-            ),
+            useConstraints =
+                describeUseConstraints(
+                    this.useConstraints,
+                    this.otherConstraintsLink,
+                ),
             useLimitations = useLimitations,
             otherConstraintsLink = otherConstraintsLink,
             otherConstraintsLinkText = otherConstraintsLinkText,
