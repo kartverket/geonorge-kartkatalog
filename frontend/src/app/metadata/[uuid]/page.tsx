@@ -12,7 +12,6 @@ import {
   getRelevantAlerts,
   getUniqueItemsFromListByKey,
 } from "@/app/metadata/[uuid]/_utils/utils";
-import getData from "../../../mocks/getData.json";
 import { ProductActions } from "./_components/ProductActions";
 import { ProductHeader } from "./_components/ProductHeader";
 import { ProductMeta } from "./_components/ProductMeta";
@@ -25,16 +24,17 @@ export default async function ProductPage({
 }: {
   params: Promise<{ uuid: string }>;
 }) {
-  const d = getData;
-
   const { uuid } = await params;
-  const metadata = await getMetadata(uuid);
-  const alerts = await getProductAlerts(uuid);
+  const [metadata, alerts] = await Promise.all([
+    getMetadata(uuid),
+    getProductAlerts(uuid),
+  ]);
   const relevantAlerts = getRelevantAlerts(alerts);
 
   return (
     <div className={styles.content}>
       <ProductHeader
+        hierarchyLevel={metadata.hierarchyLevel}
         title={metadata.title}
         organization={metadata.organization}
         access={metadata.accessState}
@@ -62,13 +62,10 @@ export default async function ProductPage({
             "name",
           )}
           fairStatusPercent={metadata.fairStatusPercentFromMetadata}
+          relevantCategories={null} // TODO: GN-241 - Legg til relevantCategories når det er tilgjengelig i metadata
         />
       </div>
-      <ProductActions
-        downloadUrl={d.DownloadUrl}
-        coverageUrl={metadata.coverageUrl}
-        uuid={uuid}
-      />
+      <ProductActions coverageUrl={metadata.coverageUrl} uuid={uuid} />
       <Suspense>
         <ProductTabsSection uuid={uuid} metadata={metadata} />
       </Suspense>

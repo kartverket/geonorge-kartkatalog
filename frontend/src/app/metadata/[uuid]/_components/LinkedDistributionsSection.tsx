@@ -40,6 +40,8 @@ export function LinkedDistributionsSection({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   if (all.length === 0) return null;
 
+  if (all.length === 0) return null;
+
   const visible = all.slice(0, visibleCount);
   const hasMore = visibleCount < all.length;
   const canCollapse = !hasMore && all.length > PAGE_SIZE;

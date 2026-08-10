@@ -1,7 +1,6 @@
 .actions {
   display: flex;
   gap: var(--ds-size-9);
-  padding-block: var(--ds-size-8) var(--ds-size-10);
   flex-wrap: wrap;
 }
 

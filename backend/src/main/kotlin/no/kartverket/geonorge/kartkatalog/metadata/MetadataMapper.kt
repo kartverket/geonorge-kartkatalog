@@ -3,11 +3,12 @@ package no.kartverket.geonorge.kartkatalog.metadata
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDataQualityMeasure
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductConstraints
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormatEntry
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionGroup
@@ -86,37 +87,13 @@ class MetadataMapper(
                                     ?.unitsOfDistribution,
                         )
                     },
-            thumbnailUrl =
-                record.thumbnails.firstOrNull {
-                    it.type?.equals("medium", ignoreCase = true) == true
-                }?.url ?: record.thumbnails.firstOrNull()?.url,
-            dataQualityMeasures =
-                record.dataQualityMeasures
-                    .mapNotNull { measure ->
-                        if (measure.value == null) return@mapNotNull null
-                        ProductDataQualityMeasure(
-                            explanation = measure.measureDescription,
-                            quantitativeResult = measure.value,
-                            quantitativeResultValueUnit = getSimpleValueUnit(measure.valueUnit),
-                            title = measure.nameOfMeasure,
-                        )
-                    },
+            thumbnailUrl = pickThumbnailUrl(record),
             fairStatusPercentFromMetadata = findFairPercent(record),
             abstractText = record.abstract,
             purpose = record.purpose,
             specificUsage = record.specificUsage,
             processHistory = record.processHistory,
-            constraints =
-                record.legalConstraints?.let { constraints ->
-                    constraints.copy(
-                        accessConstraints = describeAccessConstraints(record, accessState),
-                        useConstraints =
-                            describeUseConstraints(
-                                constraints.useConstraints,
-                                constraints.otherConstraintsLink,
-                            ),
-                    )
-                },
+            constraints = record.legalConstraints?.toProductConstraints(accessState = accessState),
             securityClassification =
                 codeListTranslator.translate(
                     CodeList.CLASSIFICATION,
@@ -140,13 +117,13 @@ class MetadataMapper(
     }
 
     private fun describeAccessConstraints(
-        record: MetadataRecord,
+        recordAccessConstraints: String?,
         accessState: AccessState?,
     ): String {
         return when {
             accessState == AccessState.OPEN -> "Åpne data"
             accessState == AccessState.RESTRICTED -> "Norge digitalt-begrenset"
-            else -> record.legalConstraints?.accessConstraints ?: "-"
+            else -> recordAccessConstraints ?: "-"
         }
     }
 
@@ -240,19 +217,6 @@ class MetadataMapper(
         return searchTerms.any { term -> normalized.contains(term.lowercase()) }
     }
 
-    private fun getSimpleValueUnit(value: String?): String? {
-        if (value == null) return null
-        return when {
-            value == "http://www.opengis.net/def/uom/SI/second" ||
-                value.contains("second", ignoreCase = true) -> "second"
-            value == "urn:ogc:def:uom:OGC::percent" ||
-                value.contains("percent", ignoreCase = true) -> "percent"
-            value == "http://www.opengis.net/def/uom/OGC/1.0/unity" ||
-                value.contains("integer", ignoreCase = true) -> "integer"
-            else -> value
-        }
-    }
-
     private fun DistributionFormat.toProductDistributionFormat() =
         ProductDistributionFormat(
             name = name,
@@ -274,8 +238,34 @@ class MetadataMapper(
             role = role,
         )
 
+    private suspend fun LegalConstraints.toProductConstraints(accessState: AccessState?) =
+        ProductConstraints(
+            accessConstraints = describeAccessConstraints(this.accessConstraints, accessState),
+            useConstraints =
+                describeUseConstraints(
+                    this.useConstraints,
+                    this.otherConstraintsLink,
+                ),
+            useLimitations = useLimitations,
+            otherConstraintsLink = otherConstraintsLink,
+            otherConstraintsLinkText = otherConstraintsLinkText,
+            otherConstraintsAccess = otherConstraintsAccess,
+        )
+
     private fun findFairPercent(record: MetadataRecord): Int? =
         record.dataQualityMeasures
             .firstOrNull { it.nameOfMeasure == "Prosentvis oppfyllelse av FAIR-prinsipper" }
             ?.value
+
+    private fun pickThumbnailUrl(record: MetadataRecord): String? {
+        val editorThumbnails =
+            record.thumbnails.filter {
+                it.url.startsWith("https://editor.geonorge.no/thumbnails/", ignoreCase = true)
+            }
+
+        return editorThumbnails
+            .firstOrNull { it.type.equals("medium", ignoreCase = true) }
+            ?.url
+            ?: editorThumbnails.firstOrNull()?.url
+    }
 }
