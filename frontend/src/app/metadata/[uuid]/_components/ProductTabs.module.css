@@ -36,6 +36,10 @@
   border-bottom: none;
 }
 
+.accordionGroup :global(.ds-details[open] summary) {
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
 .accordionGroup p {
   margin: var(--ds-size-8);
 }
