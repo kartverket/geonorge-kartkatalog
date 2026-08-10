@@ -87,10 +87,7 @@ class MetadataMapper(
                                     ?.unitsOfDistribution,
                         )
                     },
-            thumbnailUrl =
-                record.thumbnails.firstOrNull {
-                    it.type?.equals("medium", ignoreCase = true) == true
-                }?.url ?: record.thumbnails.firstOrNull()?.url,
+            thumbnailUrl = pickThumbnailUrl(record),
             fairStatusPercentFromMetadata = findFairPercent(record),
             abstractText = record.abstract,
             purpose = record.purpose,
@@ -272,4 +269,16 @@ class MetadataMapper(
         record.dataQualityMeasures
             .firstOrNull { it.nameOfMeasure == "Prosentvis oppfyllelse av FAIR-prinsipper" }
             ?.value
+
+    private fun pickThumbnailUrl(record: MetadataRecord): String? {
+        val editorThumbnails =
+            record.thumbnails.filter {
+                it.url.startsWith("https://editor.geonorge.no/thumbnails/", ignoreCase = true)
+            }
+
+        return editorThumbnails
+            .firstOrNull { it.type.equals("medium", ignoreCase = true) }
+            ?.url
+            ?: editorThumbnails.firstOrNull()?.url
+    }
 }
