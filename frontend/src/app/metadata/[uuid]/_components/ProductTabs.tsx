@@ -218,10 +218,16 @@ function buildInfoDetails({
           {
             title: "Bruksområde og formål",
             content: (
-              <>
-                {specificUsage && <p>{specificUsage}</p>}
-                {purpose && purpose !== specificUsage && <p>{purpose}</p>}
-              </>
+              <FieldList
+                fields={[
+                  ...(specificUsage
+                    ? [{ label: "Bruksområde", content: specificUsage }]
+                    : []),
+                  ...(purpose && purpose !== specificUsage
+                    ? [{ label: "Formål", content: purpose }]
+                    : []),
+                ]}
+              />
             ),
           },
         ]
