@@ -72,6 +72,10 @@
   align-self: center;
 }
 
+.fieldValue a {
+  text-decoration: underline;
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;
