@@ -212,18 +212,28 @@ function buildInfoDetails({
   processHistory?: string | null;
   constraints: ProductConstraints;
 }): DetailItem[] {
+  const hasSpecificUsage = !!specificUsage;
+  const hasPurpose = !!purpose && purpose !== specificUsage;
+
+  const usageTitle =
+    hasSpecificUsage && hasPurpose
+      ? "Bruksområde og formål"
+      : hasSpecificUsage
+        ? "Bruksområde"
+        : "Formål";
+
   return [
     ...(specificUsage || purpose
       ? [
           {
-            title: "Bruksområde og formål",
+            title: usageTitle,
             content: (
               <FieldList
                 fields={[
-                  ...(specificUsage
+                  ...(hasSpecificUsage
                     ? [{ label: "Bruksområde", content: specificUsage }]
                     : []),
-                  ...(purpose && purpose !== specificUsage
+                  ...(hasPurpose
                     ? [{ label: "Formål", content: purpose }]
                     : []),
                 ]}
