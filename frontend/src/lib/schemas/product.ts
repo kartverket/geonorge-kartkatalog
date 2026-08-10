@@ -10,13 +10,6 @@ export const ProductKeywordSchema = z.object({
   type: z.string().nullable(),
 });
 
-export const ProductDataQualityMeasureSchema = z.object({
-  explanation: z.string().nullable(),
-  quantitativeResult: z.number().nullable(),
-  quantitativeResultValueUnit: z.string().nullable(),
-  title: z.string().nullable(),
-});
-
 export const LegalConstraintsSchema = z.object({
   accessConstraints: z.string().nullable(),
   useConstraints: z.string().nullable(),
@@ -74,7 +67,6 @@ export const ProductMetadataSchema = z.object({
   nationalKeywords: z.array(ProductKeywordSchema),
   distributionFormats: z.array(ProductDistributionFormatSchema),
   thumbnailUrl: z.string().nullable(),
-  dataQualityMeasures: z.array(ProductDataQualityMeasureSchema),
   fairStatusPercentFromMetadata: z.number().nullable(),
   abstractText: z.string().nullable(),
   purpose: z.string().nullable(),

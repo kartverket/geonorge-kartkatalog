@@ -2,7 +2,6 @@ package no.kartverket.geonorge.kartkatalog.metadata.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 
 @Serializable
 data class ProductMetadata(
@@ -19,13 +18,12 @@ data class ProductMetadata(
     val nationalKeywords: List<ProductKeyword> = emptyList(),
     val distributionFormats: List<ProductDistributionFormat> = emptyList(),
     val thumbnailUrl: String? = null,
-    val dataQualityMeasures: List<ProductDataQualityMeasure> = emptyList(),
     val fairStatusPercentFromMetadata: Int? = null,
     val abstractText: String? = null,
     val purpose: String? = null,
     val specificUsage: String? = null,
     val processHistory: String? = null,
-    val constraints: LegalConstraints? = null,
+    val constraints: ProductConstraints? = null,
     val securityClassification: String? = null,
     val contactMetadata: ProductMetadataContact? = null,
     val contactOwner: ProductMetadataContact? = null,
@@ -60,14 +58,6 @@ data class ProductKeyword(
 )
 
 @Serializable
-data class ProductDataQualityMeasure(
-    val explanation: String? = null,
-    val quantitativeResult: Int? = null,
-    val quantitativeResultValueUnit: String? = null,
-    val title: String? = null,
-)
-
-@Serializable
 data class ProductMetadataContact(
     var email: String? = null,
     var name: String? = null,
@@ -94,4 +84,14 @@ data class ProductDistributionGroup(
 data class ProductDistributionFormatEntry(
     val name: String,
     val urls: List<String> = emptyList(),
+)
+
+@Serializable
+data class ProductConstraints(
+    val accessConstraints: String? = null,
+    val useConstraints: String? = null,
+    val useLimitations: List<String> = emptyList(),
+    val otherConstraintsLink: String? = null,
+    val otherConstraintsLinkText: String? = null,
+    val otherConstraintsAccess: String? = null,
 )
