@@ -27,7 +27,7 @@ object DistributionProtocols {
                 protocol.startsWith("OGC:API")
         )
 
-    //usikker på plassering av denne
+    // usikker på plassering av denne
     fun appendUuidForGeonorgeDownload(
         url: String,
         protocol: String?,
