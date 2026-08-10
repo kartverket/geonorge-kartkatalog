@@ -220,19 +220,6 @@ class MetadataMapper(
         return searchTerms.any { term -> normalized.contains(term.lowercase()) }
     }
 
-    private fun getSimpleValueUnit(value: String?): String? {
-        if (value == null) return null
-        return when {
-            value == "http://www.opengis.net/def/uom/SI/second" ||
-                value.contains("second", ignoreCase = true) -> "second"
-            value == "urn:ogc:def:uom:OGC::percent" ||
-                value.contains("percent", ignoreCase = true) -> "percent"
-            value == "http://www.opengis.net/def/uom/OGC/1.0/unity" ||
-                value.contains("integer", ignoreCase = true) -> "integer"
-            else -> value
-        }
-    }
-
     private fun DistributionFormat.toProductDistributionFormat() =
         ProductDistributionFormat(
             name = name,
