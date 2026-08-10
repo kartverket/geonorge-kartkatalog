@@ -75,7 +75,11 @@ class MetadataMapper(
                                         name = it.name,
                                         urls =
                                             it.onlineResources.map { r ->
-                                                r.url
+                                                DistributionProtocols.appendUuidForGeonorgeDownload(
+                                                    r.url,
+                                                    protocol,
+                                                    record.uuid,
+                                                )
                                             }.distinct(),
                                     )
                                 },
