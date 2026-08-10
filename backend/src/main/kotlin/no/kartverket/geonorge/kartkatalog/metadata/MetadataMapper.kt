@@ -277,7 +277,7 @@ class MetadataMapper(
             ?.value
 
     private fun pickThumbnailUrl(record: MetadataRecord): String? {
-        val editorThumbnails = record.thumbnails.filter { it.url.contains("editor", ignoreCase = true) }
+        val editorThumbnails = record.thumbnails.filter { it.url.startsWith("https://editor.geonorge.no/thumbnails/", ignoreCase = true) }
 
         return editorThumbnails
             .firstOrNull { it.type.equals("medium", ignoreCase = true) }
