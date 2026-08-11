@@ -79,8 +79,14 @@ function ButtonCard({
         <div className={styles.tagGroup}>
           {content.icon}
           {content.status ? (
-            // TODO: vise andre farger om status ikke er gyldig. Hvilke verdier kan den ha?
-            <Tag data-color="accent" data-size="sm">
+            <Tag
+              data-color={
+                content.status.toLocaleLowerCase() === "gyldig"
+                  ? "accent"
+                  : "warning"
+              }
+              data-size="sm"
+            >
               {content.status}
             </Tag>
           ) : null}
