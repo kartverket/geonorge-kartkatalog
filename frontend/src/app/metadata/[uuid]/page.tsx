@@ -107,7 +107,7 @@ async function ProductTabsSection({
       dateUpdated={metadata.dateUpdated}
       maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}
-      cartography={tegneregler}
+      tegneregler={tegneregler}
     />
   );
 }

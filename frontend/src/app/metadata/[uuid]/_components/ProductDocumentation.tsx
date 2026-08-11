@@ -18,21 +18,21 @@ type DocumentationCard = {
 };
 
 export function ProductDocumentation({
-  cartography,
+  tegneregler,
 }: {
-  cartography: TegnereglerItem | null;
+  tegneregler: TegnereglerItem | null;
 }) {
   const cardContent: DocumentationCard[] = [
-    ...(cartography?.documentreference
+    ...(tegneregler?.documentreference
       ? [
           {
             title: "Tegneregler",
-            status: cartography.status,
+            status: tegneregler.status,
             paragraph:
               "Tegneregler forklarer hvordan dataene skal visualiseres i kart, inkludert symboler, farger og utforming.",
             icon: <PencilBoardIcon aria-hidden className={styles.icon} />,
-            url: cartography?.documentreference,
-            dateSubmitted: cartography?.dateSubmitted,
+            url: tegneregler?.documentreference,
+            dateSubmitted: tegneregler?.dateSubmitted,
           },
         ]
       : []),

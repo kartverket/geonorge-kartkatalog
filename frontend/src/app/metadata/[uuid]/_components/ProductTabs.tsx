@@ -34,7 +34,7 @@ export function ProductTabs({
   dateUpdated,
   maintenanceFrequency,
   fairStatus,
-  cartography,
+  tegneregler,
 }: {
   abstract: string | null;
   specificUsage: string | null;
@@ -47,7 +47,7 @@ export function ProductTabs({
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
   fairStatus: ProductFairStatus | null;
-  cartography: TegnereglerItem | null;
+  tegneregler: TegnereglerItem | null;
 }) {
   const infoDetails = buildInfoDetails({
     specificUsage,
@@ -96,7 +96,7 @@ export function ProductTabs({
           />
         </Tabs.Panel>
         <Tabs.Panel value="documentation" className={styles.panel}>
-          <ProductDocumentation cartography={cartography} />
+          <ProductDocumentation tegneregler={tegneregler} />
         </Tabs.Panel>
         {fairStatus && (
           <Tabs.Panel value="quality" className={styles.panel}>
