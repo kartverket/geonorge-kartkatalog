@@ -45,7 +45,7 @@ export function Footer() {
             width={262}
             height={41}
           />
-          <p className={styles.tagline}>
+          <p className={`${styles.tagline} ${styles.taglineKV}`}>
             En tjeneste fra
             <Image
               src="/KV-logo.svg"
@@ -54,7 +54,17 @@ export function Footer() {
               height={34}
             />
           </p>
+          <p className={`${styles.tagline} ${styles.taglineND}`}>
+            I samarbeid med
+            <Image
+              src="/norge-digitalt-logo.svg"
+              alt="Norge Digitalt"
+              width={100}
+              height={100}
+            />
+          </p>
         </div>
+
         <nav aria-label="Footermeny" className={styles.columns}>
           <section>
             <h2 className={styles.heading}>Om nettstedet</h2>
