@@ -3,7 +3,7 @@ package no.kartverket.geonorge.kartkatalog.metadata
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
-import no.kartverket.geonorge.kartkatalog.metadata.models.TegnerеglerItem
+import no.kartverket.geonorge.kartkatalog.metadata.models.TegnereglerItem
 import no.kartverket.geonorge.kartkatalog.metadata.models.toTegnereglerItem
 
 class MetadataService(
@@ -18,7 +18,7 @@ class MetadataService(
         return metadataMapper.toProductMetadata(record)
     }
 
-    suspend fun getTegneregler(uuid: String): TegnerеglerItem? {
+    suspend fun getTegneregler(uuid: String): TegnereglerItem? {
         val record =
             geonetworkClient.getRecordByUuid(uuid)
                 ?: throw MetadataRecordNotFoundException(uuid)

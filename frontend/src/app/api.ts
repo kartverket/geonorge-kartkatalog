@@ -150,7 +150,7 @@ export async function getTegneregler(
   uuid: string,
 ): Promise<TegnereglerItem | null> {
   if (!uuid) throw new Error("uuid is required");
-  const url = `${API_BASE}/documentation/tegneregler/${encodeURIComponent(uuid)}`;
+  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/tegneregler`;
   const body = await fetchJson(
     url,
     { method: "GET" },

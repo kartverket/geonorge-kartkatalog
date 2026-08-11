@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterTegnereglerItem
 
 @Serializable
-data class TegnerеglerItem(
+data class TegnereglerItem(
     val id: String? = null,
     val label: String? = null,
     val status: String? = null,
@@ -14,7 +14,7 @@ data class TegnerеglerItem(
 )
 
 fun RegisterTegnereglerItem.toTegnereglerItem() =
-    TegnerеglerItem(
+    TegnereglerItem(
         id = this.id,
         label = this.label,
         status = this.status,
