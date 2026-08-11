@@ -1,5 +1,7 @@
 .tabs :global([role="tablist"]) {
-  width: fit-content;
+  max-width: calc(100vw - 2 * var(--ds-size-5));
+  overflow-x: auto;
+  min-width: 0;
 }
 
 .panel {
