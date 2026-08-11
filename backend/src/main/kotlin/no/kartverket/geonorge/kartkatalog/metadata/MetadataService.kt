@@ -28,11 +28,7 @@ class MetadataService(
             }?.url
         return tegnereglerPath?.let {
             val seoname = it.substringAfterLast("/tegneregler/")
-            try {
-                registerClient.getTegneregler(seoname).toTegnereglerItem()
-            } catch (e: no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException) {
-                null
-            }
+            registerClient.getTegneregler(seoname).toTegnereglerItem()
         }
     }
 }

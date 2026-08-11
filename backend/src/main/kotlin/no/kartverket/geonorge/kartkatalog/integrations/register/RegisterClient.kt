@@ -5,6 +5,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
@@ -43,11 +44,24 @@ class RegisterClient(
     suspend fun getOrganizations(): RegisterOrganizationsResponse =
         fetch("/api/register/organisasjoner", RegisterOrganizationsResponse.serializer())
 
-    suspend fun getTegneregler(seoname: String): RegisterTegnereglerItem =
-        fetch(
-            "/api/tegneregler/${encode(seoname, UTF_8)}",
-            RegisterTegnereglerItem.serializer(),
-        )
+    suspend fun getTegneregler(seoname: String): RegisterTegnereglerItem? {
+        val response =
+            httpClient.get("$baseUrl/api/tegneregler/${encode(seoname, UTF_8)}") {
+                headers { append(HttpHeaders.AcceptLanguage, "no") }
+            }
+
+        return when {
+            response.status == HttpStatusCode.NotFound -> null
+            !response.status.isSuccess() ->
+                throw RegisterException("Register request failed with status ${response.status}")
+            else ->
+                try {
+                    json.decodeFromString(RegisterTegnereglerItem.serializer(), response.bodyAsText())
+                } catch (e: Exception) {
+                    throw RegisterException("Failed to parse Register response", e)
+                }
+        }
+    }
 
     private suspend fun <T> fetch(
         path: String,
