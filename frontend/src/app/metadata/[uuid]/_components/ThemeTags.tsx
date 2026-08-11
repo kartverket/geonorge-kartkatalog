@@ -1,41 +1,45 @@
-import { chunk } from "@/app/metadata/[uuid]/_utils/utils";
+"use client";
+
+import { Button } from "@kv-designsystem/react";
+import { useState } from "react";
 import styles from "./ProductMeta.module.css";
 
 const PAGE_SIZE = 4;
 
 export function ThemeTags({ themes }: { themes: string[] }) {
-  const [firstChunk, ...rest] = chunk(themes, PAGE_SIZE);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  const visible = themes.slice(0, visibleCount);
+  const hasMore = visibleCount < themes.length;
+  const canCollapse = !hasMore && themes.length > PAGE_SIZE;
 
   return (
-    <>
+    <div data-color="info">
       <div className={styles.tags} data-color="success">
-        {firstChunk.map((t) => (
+        {visible.map((t) => (
           <span className="ds-tag" key={t}>
             {t}
           </span>
         ))}
       </div>
-      {rest.length > 0 && <ThemeTagsRest chunks={rest} />}
-    </>
-  );
-}
-
-function ThemeTagsRest({ chunks }: { chunks: string[][] }) {
-  const [firstChunk, ...rest] = chunks;
-
-  return (
-    <details className={styles.themesDetails}>
-      <summary className="ds-button" data-variant="tertiary" data-color="info">
-        Vis mer
-      </summary>
-      <div className={styles.tags} data-color="success">
-        {firstChunk.map((t) => (
-          <span className="ds-tag" key={t}>
-            {t}
-          </span>
-        ))}
-      </div>
-      {rest.length > 0 && <ThemeTagsRest chunks={rest} />}
-    </details>
+      {hasMore && (
+        <Button
+          variant="tertiary"
+          className={styles.themesButton}
+          onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+        >
+          Vis mer
+        </Button>
+      )}
+      {canCollapse && (
+        <Button
+          variant="tertiary"
+          className={styles.themesButton}
+          onClick={() => setVisibleCount(PAGE_SIZE)}
+        >
+          Skjul
+        </Button>
+      )}
+    </div>
   );
 }
