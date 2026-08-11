@@ -60,7 +60,9 @@ export function ProductTabs({
   });
   const tabs = [
     ...TABS,
-    ...(fairStatus ? [{ value: "quality", label: "Datakvalitet (FAIR)" }] : []),
+    ...(fairStatus
+      ? [{ value: "quality", label: "Metadatakvalitet (FAIR)" }]
+      : []),
   ];
   const fairDetails = fairStatus ? buildFairDetails(fairStatus) : null;
   return (
@@ -98,7 +100,7 @@ export function ProductTabs({
         {fairStatus && (
           <Tabs.Panel value="quality" className={styles.panel}>
             <div className={styles.headingGroup}>
-              <Heading data-size="sm">Datakvalitet (FAIR-status)</Heading>
+              <Heading data-size="sm">Metadatakvalitet (FAIR-status)</Heading>
               <p>
                 En FAIR-status gir en kort vurdering av hvor godt et datasett
                 følger FAIR-prinsippene: Findable (søkbarhet), Accessible

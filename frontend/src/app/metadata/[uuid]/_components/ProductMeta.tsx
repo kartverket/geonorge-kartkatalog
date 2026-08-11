@@ -70,7 +70,7 @@ export function ProductMeta({
       )}
       {fairStatusPercent && (
         <MetaField
-          label="Datakvalitet (FAIR-status)"
+          label="Metadatakvalitet (FAIR-status)"
           help="FAIR står for Findable, Accessible, Interoperable, Reusable"
         >
           {fairStatusPercent != null ? `${fairStatusPercent}%` : "-"}
