@@ -66,7 +66,6 @@ data class RegisterTegnereglerItem(
     @SerialName("CartographyFile")
     val cartographyFile: String? = null,
     val draftDate: String? = null,
-    val thumbnail: String? = null,
     val documentreference: String? = null,
     @SerialName("FAIRStatusPerCent")
     val fairStatusPerCent: Double? = null,
