@@ -258,14 +258,16 @@ class MetadataMapper(
             ?.value
 
     private fun pickThumbnailUrl(record: MetadataRecord): String? {
-        val editorThumbnails =
-            record.thumbnails.filter {
-                it.url.startsWith("https://editor.geonorge.no/thumbnails/", ignoreCase = true)
-            }
+        fun pickFrom(prefix: String): String? {
+            val matches =
+                record.thumbnails.filter {
+                    it.url.startsWith(prefix, ignoreCase = true)
+                }
+            return matches.firstOrNull { it.type.equals("medium", ignoreCase = true) }?.url
+                ?: matches.firstOrNull()?.url
+        }
 
-        return editorThumbnails
-            .firstOrNull { it.type.equals("medium", ignoreCase = true) }
-            ?.url
-            ?: editorThumbnails.firstOrNull()?.url
+        return pickFrom("https://editor.geonorge.no/thumbnails/")
+            ?: pickFrom("https://editor.test.geonorge.no/thumbnails/")
     }
 }

@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: "editor.geonorge.no",
         pathname: "/thumbnails/**",
       },
+      {
+        protocol: "https",
+        hostname: "editor.test.geonorge.no",
+        pathname: "/thumbnails/**",
+      },
     ],
   },
   output: "standalone",
