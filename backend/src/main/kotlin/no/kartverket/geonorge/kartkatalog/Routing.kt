@@ -23,7 +23,7 @@ fun Application.configureRouting(appConfig: AppConfig) {
     val registerClient = RegisterClient(httpClient, appConfig.registerBaseUrl)
     val codeListTranslator = CodeListTranslator(registerClient)
     val metadataMapper = MetadataMapper(codeListTranslator, appConfig.staticNorgeskartUrl)
-    val metadataService = MetadataService(geonetworkClient, metadataMapper)
+    val metadataService = MetadataService(geonetworkClient, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)
 

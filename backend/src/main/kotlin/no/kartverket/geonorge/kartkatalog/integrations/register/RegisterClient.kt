@@ -5,9 +5,12 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
+import java.net.URLEncoder.encode
+import kotlin.text.Charsets.UTF_8
 
 enum class CodeList(
     val systemId: String,
@@ -40,6 +43,25 @@ class RegisterClient(
 
     suspend fun getOrganizations(): RegisterOrganizationsResponse =
         fetch("/api/register/organisasjoner", RegisterOrganizationsResponse.serializer())
+
+    suspend fun getProduktark(seoname: String): RegisterProduktarkItem? {
+        val response =
+            httpClient.get("$baseUrl/api/produktark/${encode(seoname, UTF_8)}") {
+                headers { append(HttpHeaders.AcceptLanguage, "no") }
+            }
+
+        return when {
+            response.status == HttpStatusCode.NotFound -> null
+            !response.status.isSuccess() ->
+                throw RegisterException("Register request failed with status ${response.status}")
+            else ->
+                try {
+                    json.decodeFromString(RegisterProduktarkItem.serializer(), response.bodyAsText())
+                } catch (e: Exception) {
+                    throw RegisterException("Failed to parse Register response", e)
+                }
+        }
+    }
 
     private suspend fun <T> fetch(
         path: String,
