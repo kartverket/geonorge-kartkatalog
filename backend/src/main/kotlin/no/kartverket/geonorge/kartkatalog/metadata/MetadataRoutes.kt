@@ -44,6 +44,5 @@ fun Route.metadataRoutes(
             }
             call.respond(result)
         }
-
     }
 }
