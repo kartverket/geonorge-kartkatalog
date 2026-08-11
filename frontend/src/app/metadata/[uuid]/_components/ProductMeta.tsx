@@ -1,5 +1,6 @@
 import { MetaField } from "@/app/metadata/[uuid]/_components/MetaField";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
+import { ThemeTags } from "@/app/metadata/[uuid]/_components/ThemeTags";
 import styles from "./ProductMeta.module.css";
 
 export function ProductMeta({
@@ -68,7 +69,10 @@ export function ProductMeta({
         </MetaField>
       )}
       {fairStatusPercent && (
-        <MetaField label="Datakvalitet (FAIR-status)">
+        <MetaField
+          label="Metadatakvalitet (FAIR-status)"
+          help="FAIR står for Findable, Accessible, Interoperable, Reusable"
+        >
           {fairStatusPercent != null ? `${fairStatusPercent}%` : "-"}
         </MetaField>
       )}
@@ -79,13 +83,7 @@ export function ProductMeta({
       )}
       {themes.length > 0 && (
         <MetaField label="Tema">
-          <div className={styles.tags} data-color="success">
-            {themes.map((t) => (
-              <span className="ds-tag" key={t}>
-                {t}
-              </span>
-            ))}
-          </div>
+          <ThemeTags themes={themes} />
         </MetaField>
       )}
       {formats.length > 0 && (
