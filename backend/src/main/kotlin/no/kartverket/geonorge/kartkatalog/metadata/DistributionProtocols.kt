@@ -1,7 +1,6 @@
 package no.kartverket.geonorge.kartkatalog.metadata
 
 object DistributionProtocols {
-    // usikker på disse, hentet fra gamle repoet
     private val VIEW_SERVICES =
         setOf(
             "OGC:WMS",
@@ -27,7 +26,6 @@ object DistributionProtocols {
                 protocol.startsWith("OGC:API")
         )
 
-    // usikker på plassering av denne
     fun appendUuidForGeonorgeDownload(
         url: String,
         protocol: String?,
