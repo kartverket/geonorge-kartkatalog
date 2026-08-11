@@ -28,7 +28,7 @@ class MetadataService(
             }?.url
         return tegnereglerPath?.let {
             val seoname = it.substringAfterLast("/tegneregler/")
-            registerClient.getTegneregler(seoname).toTegnereglerItem()
+            registerClient.getTegneregler(seoname)?.toTegnereglerItem()
         }
     }
 }
