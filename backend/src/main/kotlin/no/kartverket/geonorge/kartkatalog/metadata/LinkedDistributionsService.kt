@@ -89,6 +89,7 @@ class LinkedDistributionsService(
                     it.name
                 }.distinct(),
             protocolName = codeListTranslator.translate(CodeList.DISTRIBUTION_TYPES, protocol),
+            hierarchyLevel = hierarchyLevel,
         )
     }
 }
