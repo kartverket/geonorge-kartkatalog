@@ -17,8 +17,8 @@ import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import styles from "./ProductTabs.module.css";
 
 const TABS = [
-  { value: "info", label: "Informasjon om datasettet" },
   { value: "distribution", label: "Distribusjoner for datasett" },
+  { value: "info", label: "Informasjon om datasettet" },
   { value: "documentation", label: "Dokumentasjon" },
 ];
 
@@ -70,7 +70,7 @@ export function ProductTabs({
   const fairDetails = fairStatus ? buildFairDetails(fairStatus) : null;
   return (
     <div data-color="info">
-      <Tabs defaultValue="info" className={styles.tabs}>
+      <Tabs defaultValue="distribution" className={styles.tabs}>
         <Tabs.List>
           {tabs.map((t) => (
             <Tabs.Tab key={t.value} value={t.value}>
@@ -79,6 +79,14 @@ export function ProductTabs({
           ))}
         </Tabs.List>
 
+        <Tabs.Panel value="distribution" className={styles.panel}>
+          <div className={styles.accordionGroup} data-color="neutral">
+            <DetailAccordion items={distributionDetails} />
+          </div>
+          <LinkedDistributionsSection
+            linkedDistributions={linkedDistributions}
+          />
+        </Tabs.Panel>
         <Tabs.Panel value="info" className={styles.panel}>
           <div className={styles.headingGroup}>
             <Heading data-size="xs">Om datasettet</Heading>
@@ -87,15 +95,6 @@ export function ProductTabs({
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={infoDetails} />
           </div>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="distribution" className={styles.panel}>
-          <div className={styles.accordionGroup} data-color="neutral">
-            <DetailAccordion items={distributionDetails} />
-          </div>
-          <LinkedDistributionsSection
-            linkedDistributions={linkedDistributions}
-          />
         </Tabs.Panel>
         <Tabs.Panel value="documentation" className={styles.panel}>
           <ProductDocumentation tegneregler={tegneregler} />
