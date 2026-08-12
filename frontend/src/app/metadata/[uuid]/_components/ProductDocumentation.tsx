@@ -4,39 +4,57 @@ import {
   PencilBoardIcon,
   TasklistStartIcon,
 } from "@navikt/aksel-icons";
+import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
+import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import styles from "./ProductDocumentation.module.css";
 
-// TODO: skal alle disse alltid vises? Er det noe vi må undersøke for å vite om disse skal vises eller ikke?
-const CARDCONTENT: {
+type DocumentationCard = {
   title: string;
+  status?: string | null;
   paragraph: string;
   icon: React.ReactNode;
   url?: string;
-}[] = [
-  {
-    title: "Tegneregler",
-    paragraph:
-      "Tegneregler forklarer hvordan dataene skal visualiseres i kart, inkludert symboler, farger og utforming.",
-    icon: <PencilBoardIcon aria-hidden className={styles.icon} />,
-  },
-  {
-    title: "Produktark",
-    paragraph:
-      "Produktark gir en kortfattet oversikt over datasettets innhold, bruksområde og viktige egenskaper.",
-    icon: <FileTextIcon aria-hidden className={styles.icon} />,
-  },
-  {
-    title: "Produktspesifikasjon",
-    paragraph:
-      "Produktspesifikasjon beskriver i detalje struktur, krav og innhold i datasettet, inkludert standarder og kvalitetskrav.",
-    icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
-  },
-];
+  dateSubmitted?: string | null;
+};
 
-export function ProductDocumentation() {
+export function ProductDocumentation({
+  tegneregler,
+}: {
+  tegneregler: TegnereglerItem | null;
+}) {
+  const cardContent: DocumentationCard[] = [
+    ...(tegneregler?.documentreference
+      ? [
+          {
+            title: "Tegneregler",
+            status: tegneregler.status,
+            paragraph:
+              "Tegneregler forklarer hvordan dataene skal visualiseres i kart, inkludert symboler, farger og utforming.",
+            icon: <PencilBoardIcon aria-hidden className={styles.icon} />,
+            url: tegneregler?.documentreference,
+            dateSubmitted: tegneregler?.dateSubmitted,
+          },
+        ]
+      : []),
+
+    {
+      title: "Produktark",
+      paragraph:
+        "Produktark gir en kortfattet oversikt over datasettets innhold, bruksområde og viktige egenskaper.",
+      icon: <FileTextIcon aria-hidden className={styles.icon} />,
+    },
+
+    {
+      title: "Produktspesifikasjon",
+      paragraph:
+        "Produktspesifikasjon beskriver i detalje struktur, krav og innhold i datasettet, inkludert standarder og kvalitetskrav.",
+      icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
+    },
+  ];
+
   return (
     <div className={styles.cardWrapper}>
-      {CARDCONTENT.map((card) => (
+      {cardContent.map((card) => (
         <ButtonCard key={card.title} content={card} />
       ))}
     </div>
@@ -48,9 +66,11 @@ function ButtonCard({
 }: {
   content: {
     title: string;
+    status?: string | null;
     paragraph: string;
     icon: React.ReactNode;
     url?: string;
+    dateSubmitted?: string | null;
   };
 }) {
   return (
@@ -58,13 +78,24 @@ function ButtonCard({
       <a target="_blank" rel="noreferrer" href={content.url}>
         <div className={styles.tagGroup}>
           {content.icon}
-          <Tag data-color="accent" data-size="sm">
-            Gyldig
-          </Tag>
+          {content.status ? (
+            <Tag
+              data-color={
+                content.status.toLocaleLowerCase() === "gyldig"
+                  ? "accent"
+                  : "warning"
+              }
+              data-size="sm"
+            >
+              {content.status}
+            </Tag>
+          ) : null}
         </div>
         <Heading data-size="md">{content.title}</Heading>
         <Paragraph data-size="md">{content.paragraph}</Paragraph>
-        <Paragraph data-size="sm">Dato publisert</Paragraph>
+        <Paragraph data-size="sm">
+          Dato publisert: {formatDate(content.dateSubmitted)}
+        </Paragraph>
       </a>
     </Card>
   );

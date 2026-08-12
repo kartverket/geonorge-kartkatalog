@@ -8,6 +8,10 @@ import {
   parseProductFairStatus,
   parseProductMetadata,
 } from "@/lib/schemas/product";
+import {
+  parseTegnereglerItem,
+  type TegnereglerItem,
+} from "@/lib/schemas/tegneregler";
 
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
@@ -136,4 +140,25 @@ export async function getProductAlerts(uuid: string): Promise<Alerts | null> {
   if (body === null) return null;
 
   return parseAlert(body);
+}
+
+/**
+ * Fetch tegneregler (cartography rules) for a product by UUID.
+ * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
+ */
+export async function getTegneregler(
+  uuid: string,
+): Promise<TegnereglerItem | null> {
+  if (!uuid) throw new Error("uuid is required");
+  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/tegneregler`;
+  const body = await fetchJson(
+    url,
+    { method: "GET" },
+    {
+      notFoundOn404: false,
+    },
+  );
+  if (body === null) return null;
+
+  return parseTegnereglerItem(body);
 }

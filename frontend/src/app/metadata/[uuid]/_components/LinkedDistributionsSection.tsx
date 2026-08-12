@@ -38,7 +38,6 @@ export function LinkedDistributionsSection({
   ];
 
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-
   if (all.length === 0) return null;
 
   const visible = all.slice(0, visibleCount);
