@@ -5,10 +5,12 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Metadata
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
+import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
     private val geonetworkClient: GeonetworkClient,
+    private val codeListTranslator: CodeListTranslator,
 ) {
     suspend fun getLinkedDistributions(uuid: String): LinkedDistributions {
         val solrDoc =
@@ -56,7 +58,7 @@ class LinkedDistributionsService(
         return record.toLinkedDistribution(relatedUuid, protocol)
     }
 
-    private fun MetadataRecord.toLinkedDistribution(
+    private suspend fun MetadataRecord.toLinkedDistribution(
         uuid: String,
         protocol: String?,
     ): LinkedDistribution {
@@ -79,13 +81,14 @@ class LinkedDistributionsService(
                     ?: thumbnails.firstOrNull()?.url,
             distributionUrl = url,
             distributionProtocol = protocol,
-            getCapabilitiesUrl = url,
+            getCapabilitiesUrl = if (protocol != null) url else null,
             showMapLink = isViewService,
             mapCapabilitiesUrl = if (isViewService) url else null,
             formats =
                 distributionInfo?.formats.orEmpty().map {
                     it.name
                 }.distinct(),
+            protocolName = codeListTranslator.translate(CodeList.DISTRIBUTION_TYPES, protocol),
         )
     }
 }

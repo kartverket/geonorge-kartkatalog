@@ -15,6 +15,7 @@ data class LinkedDistribution(
     val showMapLink: Boolean,
     val mapCapabilitiesUrl: String?,
     val formats: List<String> = emptyList(),
+    val protocolName: String? = null,
 )
 
 @Serializable
