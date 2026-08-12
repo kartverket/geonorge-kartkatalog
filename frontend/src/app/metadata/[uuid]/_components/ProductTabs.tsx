@@ -80,6 +80,7 @@ export function ProductTabs({
         </Tabs.List>
 
         <Tabs.Panel value="distribution" className={styles.panel}>
+          <Heading data-size="xs">Tilganger til datasett</Heading>
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={distributionDetails} />
           </div>

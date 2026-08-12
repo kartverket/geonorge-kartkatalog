@@ -47,7 +47,7 @@ export function LinkedDistributionsSection({
   return (
     <div className={styles.wrapper}>
       <Heading data-size="xs" className={styles.heading}>
-        Koblede distribusjoner
+        Tilknyttede datasett, tjenester og applikasjoner
       </Heading>
       <div className={styles.cardGrid}>
         {visible.map((d) => (
