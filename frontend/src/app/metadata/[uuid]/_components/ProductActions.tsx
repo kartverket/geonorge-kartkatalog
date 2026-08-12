@@ -50,7 +50,7 @@ export async function ProductActions({
         data-color="neutral"
       >
         <FileTextIcon aria-hidden />
-        Last ned metadata XML
+        Vis metadata XML
       </a>
       {/*TODO: GN-227 håndtere at noen datasett ikke burde redigeres fra denne editUrl-en*/}
       <a
