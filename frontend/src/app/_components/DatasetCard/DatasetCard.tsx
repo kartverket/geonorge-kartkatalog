@@ -100,46 +100,51 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         </div>
         <div className={styles.buttonGroupContainer}>
           {canOpenApplication && (
-            <Button
-              variant="secondary"
-              data-size="md"
+            <CardActionButton
               onClick={() =>
                 window.open(p.distributionUrl, "_blank", "noopener")
               }
-            >
-              Nettside
-            </Button>
+              label="Nettside"
+            />
           )}
           {canShowMap && (
-            <Button
-              variant="secondary"
-              data-size="md"
+            <CardActionButton
               onClick={() =>
                 window.open(p.mapCapabilitiesUrl, "_blank", "noopener")
               }
-              className={""}
-            >
-              Vis kart
-            </Button>
+              label="Vis kart"
+            />
           )}
           {canDownload && p.distributionUrl && (
-            <Button
-              variant="secondary"
-              data-size="md"
+            <CardActionButton
               onClick={() =>
                 window.open(p.distributionUrl, "_blank", "noopener")
               }
-            >
-              Last ned
-            </Button>
+              label="Last ned"
+            />
           )}
           {canCopy && (
-            <Button variant="primary" onClick={copyUrl}>
-              {copied ? "Lenke kopiert" : "Kopier lenke"}
-            </Button>
+            <CardActionButton
+              onClick={copyUrl}
+              label={copied ? "Lenke kopiert" : "Kopier lenke"}
+            />
           )}
         </div>
       </Card>
     </div>
+  );
+}
+
+function CardActionButton({
+  onClick,
+  label,
+}: {
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <Button variant="tertiary" data-size="md" onClick={onClick}>
+      {label}
+    </Button>
   );
 }
