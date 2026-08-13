@@ -26,6 +26,7 @@ function toDatasetCardProps(d: LinkedDistribution) {
     mapCapabilitiesUrl: d.mapCapabilitiesUrl ?? undefined,
     protocolName: d.protocolName ?? undefined,
     formats: d.formats,
+    showThumbnail: false,
   };
 }
 

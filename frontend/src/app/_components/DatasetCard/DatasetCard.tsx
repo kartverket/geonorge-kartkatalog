@@ -19,6 +19,7 @@ export type DatasetCardProps = {
   protocolName?: string;
   formats?: string[];
   category?: "application" | "view-service" | "download-service";
+  showThumbnail?: boolean;
   viewMode?: "grid" | "list";
 };
 
@@ -63,21 +64,21 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         variant="tinted"
         className={styles.productCard}
       >
-        {renderThumbnail()}
+        {p.showThumbnail !== false && renderThumbnail()}
         <div className={styles.contentWrapper}>
+          {p.typeTranslated && (
+            <div className={styles.typeContainer}>
+              <span>
+                {p.organization
+                  ? `${p.typeTranslated} fra ${p.organization}`
+                  : p.typeTranslated}
+              </span>
+            </div>
+          )}
           <span className={styles.listItemTitle}>
             <Link href={`/metadata/${p.uuid}`}>{p.title}</Link>
           </span>
           <div className={styles.flex}>
-            {p.typeTranslated && (
-              <div className={styles.typeContainer}>
-                <span>
-                  {p.organization
-                    ? `${p.typeTranslated} fra ${p.organization}`
-                    : p.typeTranslated}
-                </span>
-              </div>
-            )}
             {p.protocolName && (
               <div className={styles.typeContainer}>
                 <span>Type: {p.protocolName}</span>
