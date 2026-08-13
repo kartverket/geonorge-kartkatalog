@@ -1,6 +1,7 @@
 import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import type { AccessState } from "@/lib/schemas/product";
+import { getProductTypeString } from "@/lib/productType";
 import styles from "./ProductHeader.module.css";
 
 export function ProductHeader({
@@ -57,18 +58,3 @@ function AccessLock({ accessState }: { accessState: AccessState | null }) {
       return null;
   }
 }
-
-const getProductTypeString = (hierarchyLevel: string | null) => {
-  switch (hierarchyLevel) {
-    case "dataset":
-      return "Datasett";
-    case "series":
-      return "Datasettserie";
-    case "service":
-      return "Tjeneste";
-    case "software":
-      return "Applikasjon";
-    default:
-      return "Produkt";
-  }
-};
