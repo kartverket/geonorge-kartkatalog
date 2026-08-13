@@ -88,7 +88,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           <span className={styles.listItemTitle}>
             <Link href={`/metadata/${p.uuid}`}>{p.title}</Link>
           </span>
-          <div className={styles.flex}>
+          <div className={styles.metaGroup}>
             {p.protocolName && (
               <div className={styles.typeRow} data-color="neutral">
                 <span>Type: </span>
