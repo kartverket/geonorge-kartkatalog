@@ -73,7 +73,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               <div className={styles.typeContainer}>
                 <span>
                   {p.organization
-                    ? `${p.organization} · ${p.typeTranslated}`
+                    ? `${p.typeTranslated} fra ${p.organization}`
                     : p.typeTranslated}
                 </span>
               </div>

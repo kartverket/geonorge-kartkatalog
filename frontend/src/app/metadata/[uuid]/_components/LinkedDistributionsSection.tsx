@@ -17,7 +17,7 @@ function toDatasetCardProps(d: LinkedDistribution) {
     uuid: d.uuid,
     title: d.title ?? "-",
     organization: d.organization ?? undefined,
-    typeTranslated: getProductTypeString(d.typeTranslated) ?? undefined,
+    typeTranslated: getProductTypeString(d.hierarchyLevel) ?? undefined,
     thumbnailUrl: d.thumbnailUrl ?? undefined,
     distributionUrl: d.distributionUrl ?? undefined,
     distributionProtocol: d.distributionProtocol ?? undefined,
