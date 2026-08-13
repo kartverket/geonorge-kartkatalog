@@ -1,7 +1,15 @@
 "use client";
 
 import { Button, Card, Tag } from "@kv-designsystem/react";
+import {
+  CheckmarkIcon,
+  DownloadIcon,
+  ExternalLinkIcon,
+  FilesIcon,
+  LayersPlusIcon,
+} from "@navikt/aksel-icons";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import styles from "./DatasetCard.module.css";
 
@@ -105,6 +113,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 window.open(p.distributionUrl, "_blank", "noopener")
               }
               label="Nettside"
+              icon={<ExternalLinkIcon aria-hidden />}
             />
           )}
           {canShowMap && (
@@ -113,6 +122,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 window.open(p.mapCapabilitiesUrl, "_blank", "noopener")
               }
               label="Vis kart"
+              icon={<LayersPlusIcon aria-hidden />}
             />
           )}
           {canDownload && p.distributionUrl && (
@@ -121,12 +131,20 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 window.open(p.distributionUrl, "_blank", "noopener")
               }
               label="Last ned"
+              icon={<DownloadIcon aria-hidden />}
             />
           )}
           {canCopy && (
             <CardActionButton
               onClick={copyUrl}
               label={copied ? "Lenke kopiert" : "Kopier lenke"}
+              icon={
+                copied ? (
+                  <CheckmarkIcon aria-hidden />
+                ) : (
+                  <FilesIcon aria-hidden />
+                )
+              }
             />
           )}
         </div>
@@ -138,12 +156,15 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
 function CardActionButton({
   onClick,
   label,
+  icon,
 }: {
   onClick: () => void;
   label: string;
+  icon: ReactNode;
 }) {
   return (
-    <Button variant="tertiary" data-size="md" onClick={onClick}>
+    <Button variant="tertiary" data-size="sm" onClick={onClick}>
+      {icon}
       {label}
     </Button>
   );

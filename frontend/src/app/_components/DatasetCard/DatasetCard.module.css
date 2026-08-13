@@ -93,6 +93,8 @@
   gap: 1rem;
   align-items: center;
   margin-top: auto;
+  border-top: 1px solid var(--ds-color-neutral-border-subtle);
+  padding-top: 1rem;
 }
 
 /* Only the actual buttons sit above the stretched link — the empty space
