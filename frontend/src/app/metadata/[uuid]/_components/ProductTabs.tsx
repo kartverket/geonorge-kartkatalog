@@ -130,8 +130,8 @@ type DetailItem = { title: string; content: React.ReactNode };
 function DetailAccordion({ items }: { items: DetailItem[] }) {
   return (
     <>
-      {items.map((item) => (
-        <Details key={item.title}>
+      {items.map((item, i) => (
+        <Details key={`${i}-${item.title}`}>
           <Details.Summary>{item.title}</Details.Summary>
           <Details.Content>{item.content}</Details.Content>
         </Details>
@@ -145,8 +145,8 @@ type Field = { label: string; content: React.ReactNode };
 function FieldList({ fields }: { fields: Field[] }) {
   return (
     <dl className={styles.fieldList}>
-      {fields.map((f) => (
-        <div className={styles.fieldRow} key={f.label}>
+      {fields.map((f, i) => (
+        <div className={styles.fieldRow} key={`${i}-${f.label}`}>
           <dt className={styles.fieldLabel}>{f.label}</dt>
           <dd className={styles.fieldValue}>{f.content}</dd>
         </div>
@@ -312,6 +312,7 @@ function buildDistributionDetails({
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
 }): DetailItem[] {
+  console.log(groups);
   return groups.map((group) => ({
     title: group.protocolName ?? "Ukjent protokoll",
     content: (
@@ -323,8 +324,9 @@ function buildDistributionDetails({
             label: "Formater",
             content: (
               <span className={styles.tags} data-color="info">
-                {group.formats.map((f) => (
-                  <Tag key={f.name}>{f.name}</Tag>
+                {/* Filtering unique format names, to avoid duplicate Tags with same text */}
+                {[...new Set(group.formats.map((f) => f.name))].map((name) => (
+                  <Tag key={name}>{name}</Tag>
                 ))}
               </span>
             ),
