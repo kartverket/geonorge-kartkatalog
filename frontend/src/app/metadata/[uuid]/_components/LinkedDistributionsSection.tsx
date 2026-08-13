@@ -12,10 +12,9 @@ import styles from "./LinkedDistributionsSection.module.css";
 
 const PAGE_SIZE = 4;
 
-function toDatasetCardProps(
-  d: LinkedDistribution,
-  category: "application" | "view-service" | "download-service",
-) {
+type Category = "application" | "view-service" | "download-service";
+
+function toDatasetCardProps(d: LinkedDistribution, category: Category) {
   return {
     uuid: d.uuid,
     title: d.title ?? "-",
@@ -34,40 +33,30 @@ function toDatasetCardProps(
   };
 }
 
-export function LinkedDistributionsSection({
-  linkedDistributions,
+function DistributionGroup({
+  heading,
+  items,
+  category,
 }: {
-  linkedDistributions: LinkedDistributions;
+  heading: string;
+  items: LinkedDistribution[];
+  category: Category;
 }) {
-  const all = [
-    ...(linkedDistributions?.applications ?? []).map((d) => ({
-      d,
-      category: "application" as const,
-    })),
-    ...(linkedDistributions?.viewServices ?? []).map((d) => ({
-      d,
-      category: "view-service" as const,
-    })),
-    ...(linkedDistributions?.downloadServices ?? []).map((d) => ({
-      d,
-      category: "download-service" as const,
-    })),
-  ];
-
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  if (all.length === 0) return null;
 
-  const visible = all.slice(0, visibleCount);
-  const hasMore = visibleCount < all.length;
-  const canCollapse = !hasMore && all.length > PAGE_SIZE;
+  if (items.length === 0) return null;
+
+  const visible = items.slice(0, visibleCount);
+  const hasMore = visibleCount < items.length;
+  const canCollapse = !hasMore && items.length > PAGE_SIZE;
 
   return (
-    <div className={styles.wrapper}>
-      <Heading data-size="xs" className={styles.heading}>
-        Koblede distribusjoner
+    <div className={styles.group}>
+      <Heading data-size="2xs" className={styles.subHeading}>
+        {heading}
       </Heading>
       <div className={styles.cardGrid}>
-        {visible.map(({d, category} ) => (
+        {visible.map((d) => (
           <DatasetCard key={d.uuid} {...toDatasetCardProps(d, category)} />
         ))}
       </div>
@@ -89,6 +78,47 @@ export function LinkedDistributionsSection({
           Skjul
         </Button>
       )}
+    </div>
+  );
+}
+
+export function LinkedDistributionsSection({
+  linkedDistributions,
+}: {
+  linkedDistributions: LinkedDistributions;
+}) {
+  const applications = linkedDistributions?.applications ?? [];
+  const viewServices = linkedDistributions?.viewServices ?? [];
+  const downloadServices = linkedDistributions?.downloadServices ?? [];
+
+  if (
+    applications.length === 0 &&
+    viewServices.length === 0 &&
+    downloadServices.length === 0
+  ) {
+    return null;
+  }
+
+  return (
+    <div className={styles.wrapper}>
+      <Heading data-size="xs" className={styles.heading}>
+        Koblede distribusjoner
+      </Heading>
+      <DistributionGroup
+        heading="Applikasjoner"
+        items={applications}
+        category="application"
+      />
+      <DistributionGroup
+        heading="Visningstjenester"
+        items={viewServices}
+        category="view-service"
+      />
+      <DistributionGroup
+        heading="Nedlastingstjenester"
+        items={downloadServices}
+        category="download-service"
+      />
     </div>
   );
 }
