@@ -1,6 +1,6 @@
 import { MetaField } from "@/app/metadata/[uuid]/_components/MetaField";
-import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import { ThemeTags } from "@/app/metadata/[uuid]/_components/ThemeTags";
+import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import styles from "./ProductMeta.module.css";
 
 export function ProductMeta({

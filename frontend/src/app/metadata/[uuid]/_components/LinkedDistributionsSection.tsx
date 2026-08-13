@@ -3,6 +3,7 @@
 import { Button, Heading } from "@kv-designsystem/react";
 import { useState } from "react";
 import { DatasetCard } from "@/app/_components/DatasetCard/DatasetCard";
+import { getProductTypeString } from "@/lib/productType";
 import type {
   LinkedDistribution,
   LinkedDistributions,
@@ -16,7 +17,7 @@ function toDatasetCardProps(d: LinkedDistribution) {
     uuid: d.uuid,
     title: d.title ?? "-",
     organization: d.organization ?? undefined,
-    typeTranslated: d.typeTranslated ?? undefined,
+    typeTranslated: getProductTypeString(d.typeTranslated) ?? undefined,
     thumbnailUrl: d.thumbnailUrl ?? undefined,
     distributionUrl: d.distributionUrl ?? undefined,
     distributionProtocol: d.distributionProtocol ?? undefined,

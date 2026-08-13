@@ -1,7 +1,7 @@
 import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
-import type { AccessState } from "@/lib/schemas/product";
 import { getProductTypeString } from "@/lib/productType";
+import type { AccessState } from "@/lib/schemas/product";
 import styles from "./ProductHeader.module.css";
 
 export function ProductHeader({
