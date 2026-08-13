@@ -147,6 +147,8 @@ export const LinkedDistributionsSchema = z.object({
   applications: z.array(LinkedDistributionSchema),
   viewServices: z.array(LinkedDistributionSchema),
   downloadServices: z.array(LinkedDistributionSchema),
+  seriesMembers: z.array(LinkedDistributionSchema),
+  parentSeries: z.array(LinkedDistributionSchema),
 });
 
 export type LinkedDistribution = z.infer<typeof LinkedDistributionSchema>;

@@ -101,22 +101,22 @@
 }
 
 .listMode .productCard {
-    align-items: center;
-    gap: 1.5rem;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .listMode .thumbnailContainer {
-    width: 8.75rem;
-    height: 8.75rem;
-    flex-shrink: 0;
+  width: 8.75rem;
+  height: 8.75rem;
+  flex-shrink: 0;
 }
 
 .listMode .contentWrapper {
-    flex: 1;
+  flex: 1;
 }
 
 .listMode .buttonGroupContainer {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 @media (max-width: 767px) {
@@ -144,7 +144,7 @@
 }
 
 .gridMode .metaGroup {
-    flex-direction: column;
+  flex-direction: column;
 }
 
 .gridMode .thumbnailContainer {
@@ -157,8 +157,8 @@
 }
 
 .gridMode .buttonGroupContainer {
-    padding-left: 2rem;
-    padding-right: 2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 @media (max-width: 767px) {

@@ -90,11 +90,15 @@ export function LinkedDistributionsSection({
   const applications = linkedDistributions?.applications ?? [];
   const viewServices = linkedDistributions?.viewServices ?? [];
   const downloadServices = linkedDistributions?.downloadServices ?? [];
+  const seriesMembers = linkedDistributions?.seriesMembers ?? [];
+  const parentSeries = linkedDistributions?.parentSeries ?? [];
 
   if (
     applications.length === 0 &&
     viewServices.length === 0 &&
-    downloadServices.length === 0
+    downloadServices.length === 0 &&
+    seriesMembers.length === 0 &&
+    parentSeries.length === 0
   ) {
     return null;
   }
@@ -104,6 +108,16 @@ export function LinkedDistributionsSection({
       <Heading data-size="xs" className={styles.heading}>
         Koblede distribusjoner
       </Heading>
+      <DistributionGroup
+        heading="Datasett i serien"
+        items={seriesMembers}
+        category="download-service"
+      />
+      <DistributionGroup
+        heading="Datasettserier"
+        items={parentSeries}
+        category="download-service"
+      />
       <DistributionGroup
         heading="Applikasjoner"
         items={applications}
