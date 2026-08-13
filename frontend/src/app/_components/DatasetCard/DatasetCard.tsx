@@ -77,7 +77,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         {p.showThumbnail !== false && renderThumbnail()}
         <div className={styles.contentWrapper}>
           {p.typeTranslated && (
-            <div className={styles.typeContainer}>
+            <div className={styles.headerLine}>
               <span>
                 {p.organization
                   ? `${p.typeTranslated} fra ${p.organization}`
@@ -90,12 +90,13 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           </span>
           <div className={styles.flex}>
             {p.protocolName && (
-              <div className={styles.typeContainer}>
-                <span>Type: {p.protocolName}</span>
+              <div className={styles.typeRow} data-color="neutral">
+                <span>Type: </span>
+                <Tag data-size="sm">{p.protocolName}</Tag>
               </div>
             )}
             {!!p.formats?.length && (
-              <div className={styles.formatList}>
+              <div className={styles.formatList} data-color="info">
                 <span>Formater:</span>
                 {p.formats.map((f) => (
                   <Tag key={f} data-size="sm">

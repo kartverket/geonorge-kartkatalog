@@ -79,12 +79,31 @@
   padding: 8px;
 }
 
-.typeContainer {
+.headerLine {
   margin-right: 20px;
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: 0.8125rem;
 }
 
-.typeContainer span {
+.headerLine span {
   display: inline-block;
+}
+
+.typeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+}
+
+.formatList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+  font-size: 0.8125rem;
 }
 
 .buttonGroupContainer {
@@ -102,6 +121,7 @@
 .buttonGroupContainer :global(.ds-button) {
   position: relative;
   z-index: 1;
+  color: var(--ds-color-neutral-text-default);
 }
 
 .buttonGroupContainer:has(> *:nth-child(2)) {
