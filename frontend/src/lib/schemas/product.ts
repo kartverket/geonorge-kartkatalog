@@ -140,6 +140,7 @@ export const LinkedDistributionSchema = z.object({
   mapCapabilitiesUrl: z.string().nullable(),
   formats: z.array(z.string()),
   protocolName: z.string().nullable(),
+  hierarchyLevel: z.string().nullable(),
 });
 
 export const LinkedDistributionsSchema = z.object({
