@@ -16,6 +16,9 @@ export type DatasetCardProps = {
   getCapabilitiesUrl?: string;
   showMapLink?: boolean;
   mapCapabilitiesUrl?: string;
+  protocolName?: string;
+  formats?: string[];
+  category?: "application" | "view-service" | "download-service";
   viewMode?: "grid" | "list";
 };
 
