@@ -79,9 +79,15 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           {p.typeTranslated && (
             <div className={styles.headerLine}>
               <span>
-                {p.organization
-                  ? `${p.typeTranslated} fra ${p.organization}`
-                  : p.typeTranslated}
+                {p.typeTranslated}
+                {p.organization && (
+                  <>
+                    {" fra "}
+                    <a href="#" className={styles.organizationLink}>
+                      {p.organization}
+                    </a>
+                  </>
+                )}
               </span>
             </div>
           )}
