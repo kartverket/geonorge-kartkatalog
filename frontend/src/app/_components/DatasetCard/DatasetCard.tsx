@@ -30,6 +30,8 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const canDownload = p.distributionProtocol === "GEONORGE:DOWNLOAD";
   const canShowMap = !!p.showMapLink && !!p.mapCapabilitiesUrl;
   const canCopy = isService && !!p.getCapabilitiesUrl;
+  const canOpenApplication =
+    p.category === "application" && !!p.distributionUrl;
 
   async function copyUrl() {
     if (!p.getCapabilitiesUrl) return;
@@ -97,6 +99,17 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           </div>
         </div>
         <div className={styles.buttonGroupContainer}>
+          {canOpenApplication && (
+            <Button
+              variant="secondary"
+              data-size="md"
+              onClick={() =>
+                window.open(p.distributionUrl, "_blank", "noopener")
+              }
+            >
+              Nettside
+            </Button>
+          )}
           {canShowMap && (
             <Button
               variant="secondary"
@@ -122,7 +135,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           )}
           {canCopy && (
             <Button variant="primary" onClick={copyUrl}>
-              {copied ? "Kopiert" : "Kopier lenke"}
+              {copied ? "Lenke kopiert" : "Kopier lenke"}
             </Button>
           )}
         </div>
