@@ -2,10 +2,10 @@ package no.kartverket.geonorge.kartkatalog.metadata
 
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
-import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
@@ -34,6 +34,14 @@ class LinkedDistributionsService(
             solrClient.searchApplicationsForDataset(uuid)
                 .filter { it.uuid != uuid }
 
+        val seriesMemberRefs =
+            solrClient.parseDatasetServices(solrDoc.seriedatasets)
+                .filter { it.uuid != uuid }
+
+        val parentSeriesRefs =
+            solrClient.parseDatasetServices(listOfNotNull(solrDoc.serie))
+                .filter { it.uuid != uuid }
+
         return LinkedDistributions(
             applications =
                 applicationDocs.mapNotNull {
@@ -45,6 +53,14 @@ class LinkedDistributionsService(
                 },
             downloadServices =
                 downloadRefs.mapNotNull {
+                    fetchLinkedDistribution(it.uuid, it.protocol)
+                },
+            seriesMembers =
+                seriesMemberRefs.mapNotNull {
+                    fetchLinkedDistribution(it.uuid, it.protocol)
+                },
+            parentSeries =
+                parentSeriesRefs.mapNotNull {
                     fetchLinkedDistribution(it.uuid, it.protocol)
                 },
         )
