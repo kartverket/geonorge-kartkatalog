@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card } from "@kv-designsystem/react";
+import { Button, Card, Tag } from "@kv-designsystem/react";
 import Link from "next/link";
 import { useState } from "react";
 import styles from "./DatasetCard.module.css";
@@ -78,6 +78,21 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 </span>
               </div>
             )}
+            {p.protocolName && (
+              <div className={styles.typeContainer}>
+                <span>Type: {p.protocolName}</span>
+              </div>
+            )}
+            {!!p.formats?.length && (
+              <div className={styles.formatList}>
+                <span>Formater:</span>
+                {p.formats.map((f) => (
+                  <Tag key={f} data-size="sm">
+                    {f}
+                  </Tag>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <div className={styles.buttonGroupContainer}>
@@ -106,7 +121,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           )}
           {canCopy && (
             <Button variant="primary" onClick={copyUrl}>
-              {copied ? "Kopiert" : "Kopier URL"}
+              {copied ? "Kopiert" : "Kopier lenke"}
             </Button>
           )}
         </div>
