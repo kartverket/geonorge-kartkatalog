@@ -30,6 +30,28 @@ function toDatasetCardProps(d: LinkedDistribution) {
   };
 }
 
+function joinDistributions(items: string[]) {
+  if (items.length <= 1) return items.join("");
+  return `${items.slice(0, -1).join(", ")} og ${items[items.length - 1]}`;
+}
+
+function getLinkedDistributionsHeading({
+  hasDatasets,
+  hasServices,
+  hasApplications,
+}: {
+  hasDatasets: boolean;
+  hasServices: boolean;
+  hasApplications: boolean;
+}) {
+  const categories: string[] = [];
+  if (hasDatasets) categories.push("datasett");
+  if (hasServices) categories.push("tjenester");
+  if (hasApplications) categories.push("applikasjoner");
+
+  return `Tilknyttede ${joinDistributions(categories)}`;
+}
+
 function DistributionGroup({
   heading,
   items,
@@ -88,6 +110,16 @@ export function LinkedDistributionsSection({
   const seriesMembers = linkedDistributions?.seriesMembers ?? [];
   const parentSeries = linkedDistributions?.parentSeries ?? [];
 
+  const hasDatasets = seriesMembers.length > 0 || parentSeries.length > 0;
+  const hasServices = viewServices.length > 0 || downloadServices.length > 0;
+  const hasApplications = applications.length > 0;
+
+  const heading = getLinkedDistributionsHeading({
+    hasDatasets,
+    hasServices,
+    hasApplications,
+  });
+
   if (
     applications.length === 0 &&
     viewServices.length === 0 &&
@@ -101,7 +133,7 @@ export function LinkedDistributionsSection({
   return (
     <div className={styles.wrapper}>
       <Heading data-size="xs" className={styles.heading}>
-        Koblede distribusjoner
+        {heading}
       </Heading>
       <DistributionGroup heading="Datasett i serien" items={seriesMembers} />
       <DistributionGroup heading="Datasettserier" items={parentSeries} />
