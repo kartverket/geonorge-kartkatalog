@@ -24,7 +24,7 @@ export type DatasetCardProps = {
   getCapabilitiesUrl?: string;
   showMapLink?: boolean;
   mapCapabilitiesUrl?: string;
-  protocolName?: string;
+  protocolNames?: string[];
   formats?: string[];
   category?: "application" | "view-service" | "download-service";
   showThumbnail?: boolean;
@@ -95,10 +95,14 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
             <Link href={`/metadata/${p.uuid}`}>{p.title}</Link>
           </span>
           <div className={styles.metaGroup}>
-            {p.protocolName && (
+            {!!p.protocolNames?.length && (
               <div className={styles.typeRow} data-color="neutral">
                 <span>Type: </span>
-                <Tag data-size="sm">{p.protocolName}</Tag>
+                {p.protocolNames.map((name) => (
+                  <Tag key={name} data-size="sm">
+                    {name}
+                  </Tag>
+                ))}
               </div>
             )}
             {!!p.formats?.length && (

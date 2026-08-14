@@ -26,7 +26,7 @@ function toDatasetCardProps(d: LinkedDistribution, category: Category) {
     getCapabilitiesUrl: d.getCapabilitiesUrl ?? undefined,
     showMapLink: d.showMapLink,
     mapCapabilitiesUrl: d.mapCapabilitiesUrl ?? undefined,
-    protocolName: d.protocolName ?? undefined,
+    protocolNames: d.protocolNames,
     formats: d.formats,
     showThumbnail: false,
     category,

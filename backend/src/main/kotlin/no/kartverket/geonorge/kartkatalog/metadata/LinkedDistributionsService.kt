@@ -104,7 +104,12 @@ class LinkedDistributionsService(
                 distributionInfo?.formats.orEmpty().map {
                     it.name
                 }.distinct(),
-            protocolName = codeListTranslator.translate(CodeList.DISTRIBUTION_TYPES, protocol),
+            protocolNames =
+                distributionInfo?.formats.orEmpty()
+                    .flatMap { it.onlineResources }
+                    .mapNotNull { it.protocol }
+                    .distinct()
+                    .map { codeListTranslator.translate(CodeList.DISTRIBUTION_TYPES, it) ?: it },
             hierarchyLevel = hierarchyLevel,
         )
     }

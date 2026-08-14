@@ -27,6 +27,7 @@
 .typeRow {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.375rem;
   font-size: var(--ds-body-xs-font-size);
 }

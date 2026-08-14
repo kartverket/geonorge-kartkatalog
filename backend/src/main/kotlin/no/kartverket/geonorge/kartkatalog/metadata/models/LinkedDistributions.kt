@@ -15,7 +15,7 @@ data class LinkedDistribution(
     val showMapLink: Boolean,
     val mapCapabilitiesUrl: String?,
     val formats: List<String> = emptyList(),
-    val protocolName: String? = null,
+    val protocolNames: List<String> = emptyList(),
     val hierarchyLevel: String? = null,
 )
 

@@ -139,7 +139,7 @@ export const LinkedDistributionSchema = z.object({
   showMapLink: z.boolean(),
   mapCapabilitiesUrl: z.string().nullable(),
   formats: z.array(z.string()),
-  protocolName: z.string().nullable(),
+  protocolNames: z.array(z.string()),
   hierarchyLevel: z.string().nullable(),
 });
 
