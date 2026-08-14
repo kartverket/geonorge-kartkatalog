@@ -40,3 +40,16 @@
     width: 24px;
   }
 }
+
+@media (max-width: 800px) {
+  .card {
+    height: auto;
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .contacts {
+    flex-direction: column;
+    align-items: start;
+  }
+}

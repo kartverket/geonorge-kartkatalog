@@ -13,3 +13,12 @@
   gap: var(--ds-size-10);
   align-items: flex-start;
 }
+
+@media (max-width: 800px) {
+  .content {
+    padding-inline: var(--ds-size-5);
+  }
+  .metaRow {
+    flex-direction: column;
+  }
+}
