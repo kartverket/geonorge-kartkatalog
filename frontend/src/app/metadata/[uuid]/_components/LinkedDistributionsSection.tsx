@@ -33,7 +33,6 @@ function toDatasetCardProps(d: LinkedDistribution) {
 function DistributionGroup({
   heading,
   items,
-  category,
 }: {
   heading: string;
   items: LinkedDistribution[];
@@ -53,7 +52,7 @@ function DistributionGroup({
       </Heading>
       <div className={styles.cardGrid}>
         {visible.map((d) => (
-          <DatasetCard key={d.uuid} {...toDatasetCardProps(d, category)} />
+          <DatasetCard key={d.uuid} {...toDatasetCardProps(d)} />
         ))}
       </div>
       {hasMore && (
