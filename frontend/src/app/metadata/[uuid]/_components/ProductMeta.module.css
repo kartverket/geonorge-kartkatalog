@@ -42,3 +42,9 @@
   flex-wrap: wrap;
   gap: var(--ds-size-2);
 }
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
