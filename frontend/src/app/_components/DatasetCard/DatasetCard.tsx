@@ -26,7 +26,6 @@ export type DatasetCardProps = {
   mapCapabilitiesUrl?: string;
   protocolNames?: string[];
   formats?: string[];
-  category?: "application" | "view-service" | "download-service";
   showThumbnail?: boolean;
   viewMode?: "grid" | "list";
 };
@@ -39,7 +38,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const canShowMap = !!p.showMapLink && !!p.mapCapabilitiesUrl;
   const canCopy = isService && !!p.getCapabilitiesUrl;
   const canOpenApplication =
-    p.category === "application" && !!p.distributionUrl;
+    p.typeTranslated === "Applikasjon" && !!p.distributionUrl;
 
   async function copyUrl() {
     if (!p.getCapabilitiesUrl) return;

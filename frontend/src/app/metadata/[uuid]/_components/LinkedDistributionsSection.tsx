@@ -12,9 +12,7 @@ import styles from "./LinkedDistributionsSection.module.css";
 
 const PAGE_SIZE = 4;
 
-type Category = "application" | "view-service" | "download-service";
-
-function toDatasetCardProps(d: LinkedDistribution, category: Category) {
+function toDatasetCardProps(d: LinkedDistribution) {
   return {
     uuid: d.uuid,
     title: d.title ?? "-",
@@ -29,7 +27,6 @@ function toDatasetCardProps(d: LinkedDistribution, category: Category) {
     protocolNames: d.protocolNames,
     formats: d.formats,
     showThumbnail: false,
-    category,
   };
 }
 
@@ -40,7 +37,6 @@ function DistributionGroup({
 }: {
   heading: string;
   items: LinkedDistribution[];
-  category: Category;
 }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
@@ -108,30 +104,13 @@ export function LinkedDistributionsSection({
       <Heading data-size="xs" className={styles.heading}>
         Koblede distribusjoner
       </Heading>
-      <DistributionGroup
-        heading="Datasett i serien"
-        items={seriesMembers}
-        category="download-service"
-      />
-      <DistributionGroup
-        heading="Datasettserier"
-        items={parentSeries}
-        category="download-service"
-      />
-      <DistributionGroup
-        heading="Applikasjoner"
-        items={applications}
-        category="application"
-      />
-      <DistributionGroup
-        heading="Visningstjenester"
-        items={viewServices}
-        category="view-service"
-      />
+      <DistributionGroup heading="Datasett i serien" items={seriesMembers} />
+      <DistributionGroup heading="Datasettserier" items={parentSeries} />
+      <DistributionGroup heading="Applikasjoner" items={applications} />
+      <DistributionGroup heading="Visningstjenester" items={viewServices} />
       <DistributionGroup
         heading="Nedlastingstjenester"
         items={downloadServices}
-        category="download-service"
       />
     </div>
   );
