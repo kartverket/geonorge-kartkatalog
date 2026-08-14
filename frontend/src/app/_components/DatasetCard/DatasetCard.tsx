@@ -1,7 +1,15 @@
 "use client";
 
-import { Button, Card } from "@kv-designsystem/react";
+import { Button, Card, Tag } from "@kv-designsystem/react";
+import {
+  CheckmarkIcon,
+  DownloadIcon,
+  ExternalLinkIcon,
+  FilesIcon,
+  LayersPlusIcon,
+} from "@navikt/aksel-icons";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import styles from "./DatasetCard.module.css";
 
@@ -16,6 +24,9 @@ export type DatasetCardProps = {
   getCapabilitiesUrl?: string;
   showMapLink?: boolean;
   mapCapabilitiesUrl?: string;
+  protocolNames?: string[];
+  formats?: string[];
+  showThumbnail?: boolean;
   viewMode?: "grid" | "list";
 };
 
@@ -26,6 +37,8 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const canDownload = p.distributionProtocol === "GEONORGE:DOWNLOAD";
   const canShowMap = !!p.showMapLink && !!p.mapCapabilitiesUrl;
   const canCopy = isService && !!p.getCapabilitiesUrl;
+  const canOpenApplication =
+    p.typeTranslated === "Applikasjon" && !!p.distributionUrl;
 
   async function copyUrl() {
     if (!p.getCapabilitiesUrl) return;
@@ -60,54 +73,109 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         variant="tinted"
         className={styles.productCard}
       >
-        {renderThumbnail()}
+        {p.showThumbnail !== false && renderThumbnail()}
         <div className={styles.contentWrapper}>
+          {p.typeTranslated && (
+            <div className={styles.headerLine}>
+              <span>
+                {p.typeTranslated}
+                {p.organization && (
+                  <>
+                    {" fra "}
+                    <a href="#" className={styles.organizationLink}>
+                      {p.organization}
+                    </a>
+                  </>
+                )}
+              </span>
+            </div>
+          )}
           <span className={styles.listItemTitle}>
             <Link href={`/metadata/${p.uuid}`}>{p.title}</Link>
           </span>
-          <div className={styles.flex}>
-            {p.typeTranslated && (
-              <div className={styles.typeContainer}>
-                <span>
-                  {p.organization
-                    ? `${p.organization} · ${p.typeTranslated}`
-                    : p.typeTranslated}
-                </span>
+          <div className={styles.metaGroup}>
+            {!!p.protocolNames?.length && (
+              <div className={styles.typeRow} data-color="neutral">
+                <span>Type: </span>
+                {p.protocolNames.map((name) => (
+                  <Tag key={name} data-size="sm">
+                    {name}
+                  </Tag>
+                ))}
+              </div>
+            )}
+            {!!p.formats?.length && (
+              <div className={styles.formatList} data-color="info">
+                <span>Formater:</span>
+                {p.formats.map((f) => (
+                  <Tag key={f} data-size="sm">
+                    {f}
+                  </Tag>
+                ))}
               </div>
             )}
           </div>
         </div>
         <div className={styles.buttonGroupContainer}>
-          {canShowMap && (
-            <Button
-              variant="secondary"
-              data-size="md"
-              onClick={() =>
-                window.open(p.mapCapabilitiesUrl, "_blank", "noopener")
-              }
-              className={""}
-            >
-              Vis kart
-            </Button>
-          )}
-          {canDownload && p.distributionUrl && (
-            <Button
-              variant="secondary"
-              data-size="md"
+          {canOpenApplication && (
+            <CardActionButton
               onClick={() =>
                 window.open(p.distributionUrl, "_blank", "noopener")
               }
-            >
-              Last ned
-            </Button>
+              label="Nettside"
+              icon={<ExternalLinkIcon aria-hidden />}
+            />
+          )}
+          {canShowMap && (
+            <CardActionButton
+              onClick={() =>
+                window.open(p.mapCapabilitiesUrl, "_blank", "noopener")
+              }
+              label="Vis kart"
+              icon={<LayersPlusIcon aria-hidden />}
+            />
+          )}
+          {canDownload && p.distributionUrl && (
+            <CardActionButton
+              onClick={() =>
+                window.open(p.distributionUrl, "_blank", "noopener")
+              }
+              label="Last ned"
+              icon={<DownloadIcon aria-hidden />}
+            />
           )}
           {canCopy && (
-            <Button variant="primary" onClick={copyUrl}>
-              {copied ? "Kopiert" : "Kopier URL"}
-            </Button>
+            <CardActionButton
+              onClick={copyUrl}
+              label={copied ? "Lenke kopiert" : "Kopier lenke"}
+              icon={
+                copied ? (
+                  <CheckmarkIcon aria-hidden />
+                ) : (
+                  <FilesIcon aria-hidden />
+                )
+              }
+            />
           )}
         </div>
       </Card>
     </div>
+  );
+}
+
+function CardActionButton({
+  onClick,
+  label,
+  icon,
+}: {
+  onClick: () => void;
+  label: string;
+  icon: ReactNode;
+}) {
+  return (
+    <Button variant="tertiary" data-size="sm" onClick={onClick}>
+      {icon}
+      {label}
+    </Button>
   );
 }

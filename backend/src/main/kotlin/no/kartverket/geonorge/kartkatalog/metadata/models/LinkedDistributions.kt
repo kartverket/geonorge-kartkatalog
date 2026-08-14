@@ -15,6 +15,8 @@ data class LinkedDistribution(
     val showMapLink: Boolean,
     val mapCapabilitiesUrl: String?,
     val formats: List<String> = emptyList(),
+    val protocolNames: List<String> = emptyList(),
+    val hierarchyLevel: String? = null,
 )
 
 @Serializable
@@ -22,4 +24,6 @@ data class LinkedDistributions(
     val applications: List<LinkedDistribution> = emptyList(),
     val viewServices: List<LinkedDistribution> = emptyList(),
     val downloadServices: List<LinkedDistribution> = emptyList(),
+    val seriesMembers: List<LinkedDistribution> = emptyList(),
+    val parentSeries: List<LinkedDistribution> = emptyList(),
 )
