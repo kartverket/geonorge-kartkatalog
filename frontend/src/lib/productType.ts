@@ -8,6 +8,8 @@ export function getProductTypeString(
       return "Datasettserie";
     case "service":
       return "Tjeneste";
+    case "servicelayer":
+      return "Tjenestelag";
     case "software":
       return "Applikasjon";
     default:
