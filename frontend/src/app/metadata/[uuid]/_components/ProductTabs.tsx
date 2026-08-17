@@ -1,7 +1,7 @@
 "use client";
 
-import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
-import { LinkIcon } from "@navikt/aksel-icons";
+import { Button, Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
+import { FilesIcon, LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
@@ -125,14 +125,22 @@ export function ProductTabs({
   );
 }
 
-type DetailItem = { title: string; content: React.ReactNode };
+type DetailItem = {
+  actionButton?: React.ReactNode | null;
+  title: string;
+  content: React.ReactNode;
+};
 
 function DetailAccordion({ items }: { items: DetailItem[] }) {
   return (
     <>
       {items.map((item) => (
         <Details key={item.title}>
-          <Details.Summary>{item.title}</Details.Summary>
+          <Details.Summary>
+            <div className={styles.accordionSummary}>
+              {item.title} {item.actionButton}
+            </div>
+          </Details.Summary>
           <Details.Content>{item.content}</Details.Content>
         </Details>
       ))}
@@ -312,56 +320,66 @@ function buildDistributionDetails({
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
 }): DetailItem[] {
-  return groups.map((group) => ({
-    title: group.protocolName ?? "Ukjent protokoll",
-    content: (
-      <FieldList
-        fields={[
-          { label: "Beskrivelse", content: group.protocolDescription },
-          ...buildFormatUrlRows(group.formats),
-          {
-            label: "Formater",
-            content: (
-              <span className={styles.tags} data-color="info">
-                {group.formats.map((f) => (
-                  <Tag key={f.name}>{f.name}</Tag>
-                ))}
-              </span>
-            ),
-          },
-          {
-            label: "Oppdateringsfrekvens",
-            content: maintenanceFrequency ?? "-",
-          },
-          { label: "Ressurs sist oppdatert", content: formatDate(dateUpdated) },
-          ...(group.unitsOfDistribution
-            ? [
-                {
-                  label: "Geografisk distribusjonsinndeling",
-                  content: (
-                    <span className={styles.tags} data-color="neutral">
-                      {group.unitsOfDistribution.split(",").map((unit) => (
-                        <Tag key={unit}>{unit.trim()}</Tag>
-                      ))}
-                    </span>
-                  ),
-                },
-              ]
-            : []),
-          {
-            label: "Referansesystem",
-            content: (
-              <span className={styles.tags} data-color="neutral">
-                {referenceSystems.map((rs) => (
-                  <Tag key={rs.codeSpace}>{rs.code}</Tag>
-                ))}
-              </span>
-            ),
-          },
-        ]}
-      />
-    ),
-  }));
+  return groups.map((group) => {
+    const formatUrls = buildFormatUrlRows(group.formats);
+    return {
+      actionButton:
+        formatUrls.length === 1 ? (
+          <CopyButton url={formatUrls[0].content.props.url} />
+        ) : null,
+      title: group.protocolName ?? "Ukjent protokoll",
+      content: (
+        <FieldList
+          fields={[
+            { label: "Beskrivelse", content: group.protocolDescription },
+            ...formatUrls,
+            {
+              label: "Formater",
+              content: (
+                <span className={styles.tags} data-color="info">
+                  {group.formats.map((f) => (
+                    <Tag key={f.name}>{f.name}</Tag>
+                  ))}
+                </span>
+              ),
+            },
+            {
+              label: "Oppdateringsfrekvens",
+              content: maintenanceFrequency ?? "-",
+            },
+            {
+              label: "Ressurs sist oppdatert",
+              content: formatDate(dateUpdated),
+            },
+            ...(group.unitsOfDistribution
+              ? [
+                  {
+                    label: "Geografisk distribusjonsinndeling",
+                    content: (
+                      <span className={styles.tags} data-color="neutral">
+                        {group.unitsOfDistribution.split(",").map((unit) => (
+                          <Tag key={unit}>{unit.trim()}</Tag>
+                        ))}
+                      </span>
+                    ),
+                  },
+                ]
+              : []),
+            {
+              label: "Referansesystem",
+              content: (
+                <span className={styles.tags} data-color="neutral">
+                  {referenceSystems.map((rs) => (
+                    <Tag key={rs.codeSpace}>{rs.code}</Tag>
+                  ))}
+                </span>
+              ),
+            },
+          ]}
+        />
+      ),
+    };
+  });
 }
 
 function buildFairDetails(fairStatus: ProductFairStatus): DetailItem[] {
@@ -385,4 +403,24 @@ function buildFairDetails(fairStatus: ProductFairStatus): DetailItem[] {
       content: <p>Gjenbrukbar: {fairStatus.reusablePercent ?? "-"}%</p>,
     },
   ];
+}
+
+function CopyButton({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <Button variant="secondary" onClick={copy}>
+      {copied ? (
+        "Kopiert"
+      ) : (
+        <>
+          <FilesIcon aria-hidden /> Kopier lenke
+        </>
+      )}
+    </Button>
+  );
 }
