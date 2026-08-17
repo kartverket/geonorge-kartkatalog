@@ -26,4 +26,7 @@ data class LinkedDistributions(
     val downloadServices: List<LinkedDistribution> = emptyList(),
     val seriesMembers: List<LinkedDistribution> = emptyList(),
     val parentSeries: List<LinkedDistribution> = emptyList(),
+    val relatedDatasets: List<LinkedDistribution> = emptyList(),
+    val serviceLayers: List<LinkedDistribution> = emptyList(),
+    val parentService: List<LinkedDistribution> = emptyList(),
 )

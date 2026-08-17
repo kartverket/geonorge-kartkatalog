@@ -13,31 +13,24 @@ class SolrClient(
     private val httpClient: HttpClient,
     private val baseUrl: String,
 ) {
-    // norsk versjon
     private val norskPath = "solr/metadata/select"
-
+    private val servicesPath = "solr/services/select"
     private val applicationPath = "solr/applications/select"
 
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun getMetadataByUuid(uuid: String): SolrResponse {
-        val solrQuery = buildMetadataSolrQuery(uuid)
+        val query = buildMetadataSolrQuery(uuid)
 
-        val response =
-            httpClient.post("$baseUrl/$norskPath") {
-                setBody(FormDataContent(solrQuery.toParameters()))
-            }
+        val metadataResult = querySolr(norskPath, query)
 
-        if (!response.status.isSuccess()) {
-            throw SolrException("Solr request failed with status ${response.status}")
-        }
+        if (metadataResult.response.docs.isNotEmpty()) return metadataResult
 
-        try {
-            val body = response.bodyAsText()
-            return json.decodeFromString(body)
-        } catch (e: Exception) {
-            throw SolrException("Failed to parse Solr response", e)
-        }
+        val servicesResult = querySolr(servicesPath, query)
+
+        if (servicesResult.response.docs.isNotEmpty()) return servicesResult
+
+        return querySolr(applicationPath, query)
     }
 
     suspend fun searchApplicationsForDataset(uuid: String): List<SolrDocument> {
@@ -49,8 +42,15 @@ class SolrClient(
                 wt = "json",
             )
 
+        return querySolr(applicationPath, query).response.docs
+    }
+
+    private suspend fun querySolr(
+        path: String,
+        query: MetadataSolrQuery,
+    ): SolrResponse {
         val response =
-            httpClient.post("$baseUrl/$applicationPath") {
+            httpClient.post("$baseUrl/$path") {
                 setBody(FormDataContent(query.toParameters()))
             }
 
@@ -59,9 +59,7 @@ class SolrClient(
         }
 
         return try {
-            json.decodeFromString<SolrResponse>(
-                response.bodyAsText(),
-            ).response.docs
+            json.decodeFromString(response.bodyAsText())
         } catch (e: Exception) {
             throw SolrException("Failed to parse Solr response", e)
         }
@@ -111,7 +109,7 @@ private val METADATA_FL =
         "score,ServiceDistributionProtocolForDataset,ServiceDistributionUrlForDataset," +
         "ServiceDistributionNameForDataset,DistributionProtocols,legend_description_url,product_sheet_url," +
         "product_specification_url,area,datasetservice,popularMetadata,bundle,servicelayers,accessconstraint," +
-        "servicedataset,otherconstraintsaccess,dataaccess,ServiceDistributionUuidForDataset," +
+        "servicedataset,applicationdataset,otherconstraintsaccess,dataaccess,ServiceDistributionUuidForDataset," +
         "ServiceDistributionAccessConstraint,parentidentifier,serie,seriedatasets,distributions"
 
 class SolrException(
