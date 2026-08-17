@@ -12,7 +12,14 @@
   gap: 1rem;
 }
 
-/* TODO: style denne */
 .loadMoreButton {
   margin-top: 1.5rem;
+}
+
+.group {
+  margin-bottom: 2rem;
+}
+
+.subHeading {
+  margin-bottom: 1rem;
 }

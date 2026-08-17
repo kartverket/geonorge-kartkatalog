@@ -139,12 +139,16 @@ export const LinkedDistributionSchema = z.object({
   showMapLink: z.boolean(),
   mapCapabilitiesUrl: z.string().nullable(),
   formats: z.array(z.string()),
+  protocolNames: z.array(z.string()),
+  hierarchyLevel: z.string().nullable(),
 });
 
 export const LinkedDistributionsSchema = z.object({
   applications: z.array(LinkedDistributionSchema),
   viewServices: z.array(LinkedDistributionSchema),
   downloadServices: z.array(LinkedDistributionSchema),
+  seriesMembers: z.array(LinkedDistributionSchema),
+  parentSeries: z.array(LinkedDistributionSchema),
 });
 
 export type LinkedDistribution = z.infer<typeof LinkedDistributionSchema>;

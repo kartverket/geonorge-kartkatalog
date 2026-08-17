@@ -17,8 +17,8 @@ import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import styles from "./ProductTabs.module.css";
 
 const TABS = [
-  { value: "info", label: "Informasjon om datasettet" },
   { value: "distribution", label: "Distribusjoner for datasett" },
+  { value: "info", label: "Informasjon om datasettet" },
   { value: "documentation", label: "Dokumentasjon" },
 ];
 
@@ -70,7 +70,7 @@ export function ProductTabs({
   const fairDetails = fairStatus ? buildFairDetails(fairStatus) : null;
   return (
     <div data-color="info">
-      <Tabs defaultValue="info" className={styles.tabs}>
+      <Tabs defaultValue="distribution" className={styles.tabs}>
         <Tabs.List>
           {tabs.map((t) => (
             <Tabs.Tab key={t.value} value={t.value}>
@@ -79,6 +79,15 @@ export function ProductTabs({
           ))}
         </Tabs.List>
 
+        <Tabs.Panel value="distribution" className={styles.panel}>
+          <Heading data-size="xs">Tilganger til datasett</Heading>
+          <div className={styles.accordionGroup} data-color="neutral">
+            <DetailAccordion items={distributionDetails} />
+          </div>
+          <LinkedDistributionsSection
+            linkedDistributions={linkedDistributions}
+          />
+        </Tabs.Panel>
         <Tabs.Panel value="info" className={styles.panel}>
           <div className={styles.headingGroup}>
             <Heading data-size="xs">Om datasettet</Heading>
@@ -87,15 +96,6 @@ export function ProductTabs({
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={infoDetails} />
           </div>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="distribution" className={styles.panel}>
-          <div className={styles.accordionGroup} data-color="neutral">
-            <DetailAccordion items={distributionDetails} />
-          </div>
-          <LinkedDistributionsSection
-            linkedDistributions={linkedDistributions}
-          />
         </Tabs.Panel>
         <Tabs.Panel value="documentation" className={styles.panel}>
           <ProductDocumentation tegneregler={tegneregler} />
@@ -134,8 +134,8 @@ type DetailItem = {
 function DetailAccordion({ items }: { items: DetailItem[] }) {
   return (
     <>
-      {items.map((item) => (
-        <Details key={item.title}>
+      {items.map((item, i) => (
+        <Details key={`${i}-${item.title}`}>
           <Details.Summary>
             <div className={styles.accordionSummary}>
               {item.title} {item.actionButton}
@@ -153,8 +153,8 @@ type Field = { label: string; content: React.ReactNode };
 function FieldList({ fields }: { fields: Field[] }) {
   return (
     <dl className={styles.fieldList}>
-      {fields.map((f) => (
-        <div className={styles.fieldRow} key={f.label}>
+      {fields.map((f, i) => (
+        <div className={styles.fieldRow} key={`${i}-${f.label}`}>
           <dt className={styles.fieldLabel}>{f.label}</dt>
           <dd className={styles.fieldValue}>{f.content}</dd>
         </div>
@@ -337,8 +337,9 @@ function buildDistributionDetails({
               label: "Formater",
               content: (
                 <span className={styles.tags} data-color="info">
-                  {group.formats.map((f) => (
-                    <Tag key={f.name}>{f.name}</Tag>
+                  {/* Filtering unique format names, to avoid duplicate Tags with same text */}
+                {[...new Set(group.formats.map((f) => f.name))].map((name) => (
+                    <Tag key={name}>{name}</Tag>
                   ))}
                 </span>
               ),

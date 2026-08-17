@@ -20,7 +20,7 @@ export async function ProductActions({
   return (
     <div className={styles.actions}>
       <button
-        className="ds-button"
+        className={`ds-button ${styles.actionButton}`}
         type="button"
         data-variant="primary"
         data-color="neutral"
@@ -34,7 +34,7 @@ export async function ProductActions({
           target="_blank"
           rel="noopener noreferrer"
           href={coverageUrl}
-          className="ds-button"
+          className={`ds-button ${styles.actionButton}`}
           data-color="neutral"
         >
           <ExternalLinkIcon aria-hidden />
@@ -46,11 +46,11 @@ export async function ProductActions({
         target="_blank"
         rel="noreferrer"
         href={getMetadataXmlUrl(uuid)}
-        className="ds-button"
+        className={`ds-button ${styles.actionButton}`}
         data-color="neutral"
       >
         <FileTextIcon aria-hidden />
-        Last ned metadata XML
+        Vis metadata XML
       </a>
       {/*TODO: GN-227 håndtere at noen datasett ikke burde redigeres fra denne editUrl-en*/}
       <a
@@ -58,7 +58,7 @@ export async function ProductActions({
         target="_blank"
         rel="noreferrer"
         href={getEditUrl(uuid)}
-        className="ds-button"
+        className={`ds-button ${styles.actionButton}`}
         data-color="neutral"
       >
         <PencilIcon aria-hidden />

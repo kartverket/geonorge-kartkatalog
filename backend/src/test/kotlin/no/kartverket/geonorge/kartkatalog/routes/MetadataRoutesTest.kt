@@ -137,6 +137,7 @@ class MetadataRoutesTest {
             LinkedDistributionsService(
                 SolrClient(client, "https://solr.example.test"),
                 GeonetworkClient(client, geonetworkBaseUrl),
+                codeListTranslator,
             )
 
         return metadataService to linkedDistributionsService

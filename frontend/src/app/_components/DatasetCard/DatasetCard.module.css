@@ -1,52 +1,94 @@
-/* =========================
-   BASE (all modes)
-   ========================= */
 .productCard {
-  background-color: var(--ds-color-accent-background-default);
-  color: var(--ds-color-text-default);
-  display: flex;
-  border-radius: 10px;
-  border: 1px solid #d3d3d3;
-  width: 100%;
-  padding: 24px;
   position: relative;
-  transition:
-    background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: var(--ds-color-neutral-background-default);
+  border: 1px solid var(--ds-color-neutral-border-subtle);
+  width: 100%;
+}
+
+.contentWrapper {
+  padding: 1rem;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.headerLine {
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-body-xs-font-size);
+}
+
+.headerLine span {
+  display: inline-block;
+}
+
+.typeRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  font-size: var(--ds-body-xs-font-size);
+}
+
+.formatList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+  font-size: var(--ds-body-xs-font-size);
+}
+
+.metaGroup {
+  display: flex;
+}
+
+.buttonGroupContainer {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  align-items: center;
+  margin-top: auto;
+  border-top: 1px solid var(--ds-color-neutral-border-subtle);
+  padding: 1rem 2rem 2rem;
+}
+
+.buttonGroupContainer :global(.ds-button) {
+  position: relative;
+  z-index: 1;
+  color: var(--ds-color-neutral-text-default);
+}
+
+.buttonGroupContainer:has(> *:nth-child(2)) {
+  justify-content: center;
+}
+
+.buttonGroupContainer a {
+  text-decoration: none !important;
+}
+
+.buttonGroupContainer span {
+  font-size: var(--ds-body-xs-font-size);
+}
+
+.organizationLink {
+  color: inherit;
+  text-decoration: underline;
 }
 
 .productCard:hover:not(:has(:global(.ds-button):hover)) {
-  background: var(--ds-color-neutral-surface-tinted);
-  box-shadow:
-    0 0 0 1px var(--ds-color-neutral-border-strong, #a5a5a5),
-    0 12px 28px -8px rgba(0, 0, 0, 0.22),
-    0 4px 10px -4px rgba(0, 0, 0, 0.14);
-  transform: translateY(-4px) scale(1.02);
+  background: var(--ds-color-neutral-surface-hover);
+  transform: translateY(-0.25rem) scale(1.02);
   cursor: pointer;
 }
 
 .productCard:has(.listItemTitle a:focus-visible) {
-  box-shadow: 0 0 0 3px var(--ds-color-accent-border-strong, #0062ba);
+  box-shadow: 0 0 0 0.1875rem var(--ds-color-accent-border-strong);
 }
 
-.listItem {
-  line-height: 1.6;
-  width: 100%;
-}
-
-.listItemTitle a {
-  text-decoration: none;
-  font-size: 20px;
-  color: inherit;
-}
-
-.listItemTitle a:hover {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* Stretched link: the title's <a> covers the whole card as a click target. */
 .listItemTitle a::after {
   content: "";
   position: absolute;
@@ -59,59 +101,23 @@
   outline: none;
 }
 
-.thumbnail {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.thumbnailFallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
+.listMode .productCard {
   align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  color: #666;
-  background: #f3f3f3;
-  text-align: center;
-  padding: 8px;
+  gap: 1.5rem;
 }
 
-.typeContainer {
-  margin-right: 20px;
+.listMode .thumbnailContainer {
+  width: 8.75rem;
+  height: 8.75rem;
+  flex-shrink: 0;
 }
 
-.typeContainer span {
-  display: inline-block;
+.listMode .contentWrapper {
+  flex: 1;
 }
 
-.buttonGroupContainer {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 1rem;
-  align-items: center;
-  margin-top: auto;
-}
-
-/* Only the actual buttons sit above the stretched link — the empty space
-   in this row still lets clicks through to the card link. */
-.buttonGroupContainer :global(.ds-button) {
-  position: relative;
-  z-index: 1;
-}
-
-.buttonGroupContainer:has(> *:nth-child(2)) {
-  justify-content: center;
-}
-
-.buttonGroupContainer a {
-  text-decoration: none !important;
-}
-
-.buttonGroupContainer span {
-  font-size: 0.875rem;
+.listMode .buttonGroupContainer {
+  margin-top: 0;
 }
 
 @media (max-width: 767px) {
@@ -129,85 +135,47 @@
   }
 }
 
-/* =========================
-   GRID MODE
-   ========================= */
 .gridMode {
   display: flex;
 }
 
 .gridMode .productCard {
   flex-direction: column;
-  min-height: 200px;
+  min-height: 12.5rem;
+}
+
+.gridMode .metaGroup {
+  flex-direction: column;
 }
 
 .gridMode .thumbnailContainer {
-  width: calc(100% + 48px);
-  margin: -24px -24px 12px -24px;
-  height: 200px;
-  overflow: hidden;
-  border-radius: 10px 10px 0 0;
-  background: #f3f3f3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 12.5rem;
 }
 
 .gridMode .listItemTitle {
   display: block;
-  font-size: 16px;
-  margin-bottom: 0.156em;
-  margin-top: 0.156em;
-  min-height: 3.2em;
+  min-height: 3.2rem;
 }
 
-@media (min-width: 768px) {
-  .gridMode .listItemTitle {
-    font-size: 19px;
-  }
-}
-
-.gridMode .flex {
-  margin-top: 0;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-}
-
-/* =========================
-   LIST MODE
-   ========================= */
-.listMode .productCard {
-  flex-direction: row;
-  align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 10px;
-}
-
-.listMode .thumbnailContainer {
-  width: 140px;
-  height: 140px;
-  flex-shrink: 0;
-  margin: -24px 0 -24px -24px;
-  overflow: hidden;
-  background: #f3f3f3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.listMode .contentWrapper {
-  flex: 1;
-}
-
-.listMode .buttonGroupContainer {
-  margin-left: auto;
-  justify-content: flex-end;
-  flex-wrap: nowrap;
-  margin-top: 0;
+.gridMode .buttonGroupContainer {
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 @media (max-width: 767px) {
+  .buttonGroupContainer {
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.2rem;
+  }
+
+  .buttonGroupContainer > * {
+    width: 100%;
+    min-width: 0;
+  }
+
   .listMode .productCard {
     flex-direction: column;
     align-items: stretch;
@@ -216,16 +184,14 @@
 
   .listMode .listItemTitle {
     display: block;
-    font-size: 16px;
-    margin-bottom: 5px;
+    font-size: 1rem;
+    margin-bottom: 0.3125rem;
     min-height: 3.2em;
   }
 
   .listMode .thumbnailContainer {
-    width: calc(100% + 48px);
-    margin: -24px -24px 12px -24px;
-    height: 200px;
-    border-radius: 10px 10px 0 0;
+    width: 100%;
+    height: 12.5rem;
   }
 
   .listMode .contentWrapper {
@@ -235,6 +201,5 @@
   .listMode .buttonGroupContainer {
     margin-left: 0;
     justify-content: flex-start;
-    flex-wrap: wrap;
   }
 }
