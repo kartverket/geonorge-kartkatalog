@@ -5,7 +5,7 @@ import { FilesIcon, LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
-import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
+import { formatDate, showCopyLink } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
   LinkedDistributions,
@@ -324,7 +324,7 @@ function buildDistributionDetails({
     const formatUrls = buildFormatUrlRows(group.formats);
     return {
       actionButton:
-        formatUrls.length === 1 ? (
+        formatUrls.length === 1 && showCopyLink(group.protocol) ? (
           <CopyButton url={formatUrls[0].content.props.url} />
         ) : null,
       title: group.protocolName ?? "Ukjent protokoll",
@@ -338,9 +338,11 @@ function buildDistributionDetails({
               content: (
                 <span className={styles.tags} data-color="info">
                   {/* Filtering unique format names, to avoid duplicate Tags with same text */}
-                {[...new Set(group.formats.map((f) => f.name))].map((name) => (
-                    <Tag key={name}>{name}</Tag>
-                  ))}
+                  {[...new Set(group.formats.map((f) => f.name))].map(
+                    (name) => (
+                      <Tag key={name}>{name}</Tag>
+                    ),
+                  )}
                 </span>
               ),
             },

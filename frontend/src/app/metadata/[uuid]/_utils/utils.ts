@@ -44,3 +44,15 @@ export const getRelevantAlerts = (alerts: Alerts | null): Alerts => {
     }) ?? []
   );
 };
+
+export const showCopyLink = (protocol: string | null) =>
+  protocol === "W3C:REST" ||
+  protocol === "OGC:WMS" ||
+  protocol === "OGC:WFS" ||
+  protocol === "OGC:WCS" ||
+  protocol === "OGC:API-Features" ||
+  protocol === "OGC:API-Tiles" ||
+  protocol === "OPENDAP:OPENDAP" ||
+  protocol === "OGC:WMTS" ||
+  protocol === "OGC:CSW" ||
+  protocol === "W3C:WS";
