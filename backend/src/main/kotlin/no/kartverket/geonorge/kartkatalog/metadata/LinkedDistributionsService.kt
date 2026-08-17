@@ -104,7 +104,6 @@ class LinkedDistributionsService(
             )
         }
 
-    // tjeneste: datasett den opererer på + tjenestelagene den består av
     private suspend fun getServiceLinkedDistributions(
         solrDoc: SolrDocument,
         uuid: String,
@@ -122,7 +121,6 @@ class LinkedDistributionsService(
             )
         }
 
-    // tjenestelag: datasett + tjenesten det hører til
     private suspend fun getServiceLayerLinkedDistributions(
         solrDoc: SolrDocument,
         uuid: String,
@@ -149,7 +147,6 @@ class LinkedDistributionsService(
             )
         }
 
-    // applikasjon: datasettene den bruker
     private suspend fun getApplicationLinkedDistributions(
         solrDoc: SolrDocument,
         uuid: String,
