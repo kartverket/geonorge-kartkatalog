@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@kv-designsystem/react";
-import { DownloadIcon } from "@navikt/aksel-icons";
+import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
 
 export type DownloadProjection = {
   code: string;
@@ -51,48 +51,59 @@ export default function AddToCartButton({
   item: DownloadItem;
   className?: string;
 }) {
-  const handleAddToCart = useCallback(() => {
+  const [isInCart, setIsInCart] = useState(false);
+
+  useEffect(() => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem("orderItems") || "[]");
+      const items = Array.isArray(parsed) ? parsed : [];
+      setIsInCart(items.includes(item.uuid));
+    } catch {
+      setIsInCart(false);
+    }
+  }, [item.uuid]);
+
+  const handleToggleCart = useCallback(() => {
     if (!item?.uuid) return;
 
     try {
-      // 1) Read existing UUID order list
-      const selectedItems = (() => {
-        try {
-          const parsed = JSON.parse(localStorage.getItem("orderItems") || "[]");
-          return Array.isArray(parsed) ? parsed : [];
-        } catch {
-          return [];
+      const parsed = JSON.parse(localStorage.getItem("orderItems") || "[]");
+      const selectedItems: string[] = Array.isArray(parsed) ? parsed : [];
+
+      if (isInCart) {
+        const updated = selectedItems.filter((id) => id !== item.uuid);
+        localStorage.setItem("orderItems", JSON.stringify(updated));
+        setIsInCart(false);
+      } else {
+        if (!selectedItems.includes(item.uuid)) {
+          selectedItems.push(item.uuid);
         }
-      })();
-
-      // 2) Avoid duplicates (optional, but usually desired)
-      if (!selectedItems.includes(item.uuid)) {
-        selectedItems.push(item.uuid);
+        localStorage.setItem("orderItems", JSON.stringify(selectedItems));
+        setIsInCart(true);
       }
-
-      // 3) Persist order list
-      localStorage.setItem("orderItems", JSON.stringify(selectedItems));
-
-      // 4) Persist full metadata object under "<uuid>.metadata"
-      // localStorage.setItem(`${item.uuid}.metadata`, JSON.stringify(item));
-
-      // Optional: notify other UI parts
-      // document.dispatchEvent(new Event("downloadItemsChanged"));
     } catch (e) {
-      // Fallback if localStorage quota is exceeded
       const slimItem = { ...item, areas: {} };
       localStorage.setItem(`${item.uuid}.metadata`, JSON.stringify(slimItem));
     }
-  }, [item]);
+  }, [item, isInCart]);
 
   return (
     <Button
-      data-color="neutral"
+      data-color={"neutral"}
       className={className}
-      onClick={handleAddToCart}
+      onClick={handleToggleCart}
     >
-      <DownloadIcon aria-hidden />
-      Legg til i handlekurv
+      {isInCart ? (
+        <>
+          <TrashIcon aria-hidden />
+          Fjern fra handlekurv
+        </>
+      ) : (
+        <>
+          <DownloadIcon aria-hidden />
+          Legg til i handlekurv
+        </>
+      )}
     </Button>
   );
 }
