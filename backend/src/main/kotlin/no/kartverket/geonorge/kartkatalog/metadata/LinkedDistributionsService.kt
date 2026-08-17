@@ -7,6 +7,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClie
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
 
@@ -21,6 +22,19 @@ class LinkedDistributionsService(
                 solrClient.getMetadataByUuid(uuid)
                     .response.docs.firstOrNull() ?: return@coroutineScope LinkedDistributions()
 
+            when (solrDoc.type) {
+                "service" -> getServiceLinkedDistributions(solrDoc, uuid)
+                "servicelayer" -> getServiceLayerLinkedDistributions(solrDoc, uuid)
+                "software" -> getApplicationLinkedDistributions(solrDoc, uuid)
+                else -> getDatasetLinkedDistributions(solrDoc, uuid)
+            }
+        }
+
+    private suspend fun getDatasetLinkedDistributions(
+        solrDoc: SolrDocument,
+        uuid: String,
+    ): LinkedDistributions =
+        coroutineScope {
             val relatedServices =
                 solrClient.parseDatasetServices(solrDoc.datasetservice)
                     .filter { it.uuid != uuid }
@@ -88,6 +102,63 @@ class LinkedDistributionsService(
                 seriesMembers = seriesMembersDeferred.awaitAll().filterNotNull(),
                 parentSeries = parentSeriesDeferred.awaitAll().filterNotNull(),
             )
+        }
+
+    // tjeneste: datasett den opererer på + tjenestelagene den består av
+    private suspend fun getServiceLinkedDistributions(
+        solrDoc: SolrDocument,
+        uuid: String,
+    ): LinkedDistributions =
+        coroutineScope {
+            val datasetRefs = solrClient.parseDatasetServices(solrDoc.servicedataset).filter { it.uuid != uuid }
+            val layerRefs = solrClient.parseDatasetServices(solrDoc.servicelayers).filter { it.uuid != uuid }
+
+            val relatedDatasetsDeferred = datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
+            val serviceLayersDeferred = layerRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
+
+            LinkedDistributions(
+                relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull(),
+                serviceLayers = serviceLayersDeferred.awaitAll().filterNotNull(),
+            )
+        }
+
+    // tjenestelag: datasett + tjenesten det hører til
+    private suspend fun getServiceLayerLinkedDistributions(
+        solrDoc: SolrDocument,
+        uuid: String,
+    ): LinkedDistributions =
+        coroutineScope {
+            val datasetRefs = solrClient.parseDatasetServices(solrDoc.servicedataset).filter { it.uuid != uuid }
+            val parentServiceRefs =
+                solrClient.parseDatasetServices(listOfNotNull(solrDoc.parentidentifier)).filter { it.uuid != uuid }
+
+            val relatedDatasetsDeferred = datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
+            val parentServiceDeferred =
+                parentServiceRefs.map {
+                    async {
+                        fetchLinkedDistribution(
+                            it.uuid,
+                            it.protocol,
+                        )
+                    }
+                }
+
+            LinkedDistributions(
+                relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull(),
+                parentService = parentServiceDeferred.awaitAll().filterNotNull(),
+            )
+        }
+
+    // applikasjon: datasettene den bruker
+    private suspend fun getApplicationLinkedDistributions(
+        solrDoc: SolrDocument,
+        uuid: String,
+    ): LinkedDistributions =
+        coroutineScope {
+            val datasetRefs = solrClient.parseDatasetServices(solrDoc.applicationdataset).filter { it.uuid != uuid }
+            val relatedDatasetsDeferred = datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
+
+            LinkedDistributions(relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull())
         }
 
     private suspend fun fetchLinkedDistribution(
