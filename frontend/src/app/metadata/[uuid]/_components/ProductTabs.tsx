@@ -14,7 +14,10 @@ import type {
   ReferenceSystem,
 } from "@/lib/schemas/product";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
-import { getProductTypeString } from "@/lib/productType";
+import {
+  getProductTypeString,
+  getProductTypeDefiniteString,
+} from "@/lib/productType";
 import styles from "./ProductTabs.module.css";
 
 export function ProductTabs({
@@ -59,6 +62,7 @@ export function ProductTabs({
     maintenanceFrequency,
   });
   const productType = getProductTypeString(hierarchyLevel).toLowerCase();
+  const productTypeDefinite = getProductTypeDefiniteString(hierarchyLevel);
 
   const tabs = [
     { value: "distribution", label: `Distribusjoner for ${productType}` },
@@ -91,7 +95,7 @@ export function ProductTabs({
         </Tabs.Panel>
         <Tabs.Panel value="info" className={styles.panel}>
           <div className={styles.headingGroup}>
-            <Heading data-size="xs">Om datasettet</Heading>
+            <Heading data-size="xs">Om {productTypeDefinite}</Heading>
             <p className={styles.abstract}>{abstract ?? "-"}</p>
           </div>
           <div className={styles.accordionGroup} data-color="neutral">
