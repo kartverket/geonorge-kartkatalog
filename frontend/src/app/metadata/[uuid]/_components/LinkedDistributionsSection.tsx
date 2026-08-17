@@ -38,15 +38,18 @@ function joinDistributions(items: string[]) {
 function getLinkedDistributionsHeading({
   hasDatasets,
   hasServices,
+  hasServiceLayers,
   hasApplications,
 }: {
   hasDatasets: boolean;
   hasServices: boolean;
+  hasServiceLayers: boolean;
   hasApplications: boolean;
 }) {
   const categories: string[] = [];
   if (hasDatasets) categories.push("datasett");
   if (hasServices) categories.push("tjenester");
+  if (hasServiceLayers) categories.push("tjenestelag");
   if (hasApplications) categories.push("applikasjoner");
 
   return `Tilknyttede ${joinDistributions(categories)}`;
@@ -118,17 +121,16 @@ export function LinkedDistributionsSection({
     parentSeries.length > 0 ||
     relatedDatasets.length > 0;
 
-  const hasServices =
-    viewServices.length > 0 ||
-    downloadServices.length > 0 ||
-    serviceLayers.length > 0 ||
-    parentService.length > 0;
+  const hasServices = viewServices.length > 0 || downloadServices.length > 0;
+
+  const hasServiceLayers = serviceLayers.length > 0 || parentService.length > 0;
 
   const hasApplications = applications.length > 0;
 
   const heading = getLinkedDistributionsHeading({
     hasDatasets,
     hasServices,
+    hasServiceLayers,
     hasApplications,
   });
 
