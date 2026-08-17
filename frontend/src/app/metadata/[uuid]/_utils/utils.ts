@@ -55,4 +55,5 @@ export const showCopyLink = (protocol: string | null) =>
   protocol === "OPENDAP:OPENDAP" ||
   protocol === "OGC:WMTS" ||
   protocol === "OGC:CSW" ||
+  protocol === "OGC:API-Coverages" ||
   protocol === "W3C:WS";

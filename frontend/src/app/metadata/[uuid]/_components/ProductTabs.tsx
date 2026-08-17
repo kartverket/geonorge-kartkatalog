@@ -322,6 +322,7 @@ function buildDistributionDetails({
 }): DetailItem[] {
   return groups.map((group) => {
     const formatUrls = buildFormatUrlRows(group.formats);
+    console.log(group);
     return {
       actionButton:
         formatUrls.length === 1 && showCopyLink(group.protocol) ? (
