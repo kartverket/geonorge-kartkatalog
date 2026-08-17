@@ -109,9 +109,21 @@ export function LinkedDistributionsSection({
   const downloadServices = linkedDistributions?.downloadServices ?? [];
   const seriesMembers = linkedDistributions?.seriesMembers ?? [];
   const parentSeries = linkedDistributions?.parentSeries ?? [];
+  const relatedDatasets = linkedDistributions?.relatedDatasets ?? [];
+  const serviceLayers = linkedDistributions?.serviceLayers ?? [];
+  const parentService = linkedDistributions?.parentService ?? [];
 
-  const hasDatasets = seriesMembers.length > 0 || parentSeries.length > 0;
-  const hasServices = viewServices.length > 0 || downloadServices.length > 0;
+  const hasDatasets =
+    seriesMembers.length > 0 ||
+    parentSeries.length > 0 ||
+    relatedDatasets.length > 0;
+
+  const hasServices =
+    viewServices.length > 0 ||
+    downloadServices.length > 0 ||
+    serviceLayers.length > 0 ||
+    parentService.length > 0;
+
   const hasApplications = applications.length > 0;
 
   const heading = getLinkedDistributionsHeading({
@@ -125,7 +137,10 @@ export function LinkedDistributionsSection({
     viewServices.length === 0 &&
     downloadServices.length === 0 &&
     seriesMembers.length === 0 &&
-    parentSeries.length === 0
+    parentSeries.length === 0 &&
+    relatedDatasets.length === 0 &&
+    serviceLayers.length === 0 &&
+    parentService.length === 0
   ) {
     return null;
   }
@@ -137,12 +152,15 @@ export function LinkedDistributionsSection({
       </Heading>
       <DistributionGroup heading="Datasett i serien" items={seriesMembers} />
       <DistributionGroup heading="Datasettserier" items={parentSeries} />
+      <DistributionGroup heading="Datasett" items={relatedDatasets} />
       <DistributionGroup heading="Applikasjoner" items={applications} />
       <DistributionGroup heading="Visningstjenester" items={viewServices} />
       <DistributionGroup
         heading="Nedlastingstjenester"
         items={downloadServices}
       />
+      <DistributionGroup heading="Tjenestelag" items={serviceLayers} />
+      <DistributionGroup heading="Tjeneste" items={parentService} />
     </div>
   );
 }
