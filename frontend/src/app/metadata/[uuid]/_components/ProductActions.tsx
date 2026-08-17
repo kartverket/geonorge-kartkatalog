@@ -1,5 +1,4 @@
 import {
-  DownloadIcon,
   ExternalLinkIcon,
   FileTextIcon,
   PencilIcon,
@@ -9,6 +8,7 @@ import {
   getMetadataXmlUrl,
 } from "@/app/metadata/[uuid]/_utils/urls";
 import styles from "./ProductActions.module.css";
+import AddToCartButton from "@/app/_components/AddToCartButton";
 
 export async function ProductActions({
   coverageUrl,
@@ -19,15 +19,11 @@ export async function ProductActions({
 }) {
   return (
     <div className={styles.actions}>
-      <button
+      {/*TODO: skal denne alltid vises?*/}
+      <AddToCartButton
         className={`ds-button ${styles.actionButton}`}
-        type="button"
-        data-variant="primary"
-        data-color="neutral"
-      >
-        <DownloadIcon aria-hidden />
-        Legg i nedlastingskurv
-      </button>
+        item={{ uuid } as any}
+      />
       {coverageUrl && (
         <a
           data-variant="secondary"
