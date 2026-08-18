@@ -93,6 +93,7 @@ async function ProductTabsSection({
 
   return (
     <ProductTabs
+      hierarchyLevel={metadata.hierarchyLevel}
       abstract={metadata.abstractText}
       specificUsage={metadata.specificUsage}
       purpose={metadata.purpose}

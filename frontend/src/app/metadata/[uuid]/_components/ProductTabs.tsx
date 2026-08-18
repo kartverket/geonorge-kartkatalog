@@ -14,15 +14,14 @@ import type {
   ReferenceSystem,
 } from "@/lib/schemas/product";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
+import {
+  getProductTypeString,
+  getProductTypeDefiniteString,
+} from "@/lib/productType";
 import styles from "./ProductTabs.module.css";
 
-const TABS = [
-  { value: "distribution", label: "Distribusjoner for datasett" },
-  { value: "info", label: "Informasjon om datasettet" },
-  { value: "documentation", label: "Dokumentasjon" },
-];
-
 export function ProductTabs({
+  hierarchyLevel,
   abstract,
   specificUsage,
   purpose,
@@ -36,6 +35,7 @@ export function ProductTabs({
   fairStatus,
   tegneregler,
 }: {
+  hierarchyLevel: string | null;
   abstract: string | null;
   specificUsage: string | null;
   purpose: string | null;
@@ -61,8 +61,13 @@ export function ProductTabs({
     dateUpdated,
     maintenanceFrequency,
   });
+  const productType = getProductTypeString(hierarchyLevel).toLowerCase();
+  const productTypeDefinite = getProductTypeDefiniteString(hierarchyLevel);
+
   const tabs = [
-    ...TABS,
+    { value: "distribution", label: `Distribusjoner for ${productType}` },
+    { value: "info", label: `Informasjon om ${productType}` },
+    { value: "documentation", label: "Dokumentasjon" },
     ...(fairStatus
       ? [{ value: "quality", label: "Metadatakvalitet (FAIR)" }]
       : []),
@@ -80,7 +85,7 @@ export function ProductTabs({
         </Tabs.List>
 
         <Tabs.Panel value="distribution" className={styles.panel}>
-          <Heading data-size="xs">Tilganger til datasett</Heading>
+          <Heading data-size="xs">Tilganger til {productType}</Heading>
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={distributionDetails} />
           </div>
@@ -90,7 +95,7 @@ export function ProductTabs({
         </Tabs.Panel>
         <Tabs.Panel value="info" className={styles.panel}>
           <div className={styles.headingGroup}>
-            <Heading data-size="xs">Om datasettet</Heading>
+            <Heading data-size="xs">Om {productTypeDefinite}</Heading>
             <p className={styles.abstract}>{abstract ?? "-"}</p>
           </div>
           <div className={styles.accordionGroup} data-color="neutral">
