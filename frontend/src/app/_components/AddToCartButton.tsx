@@ -12,8 +12,9 @@ export type DownloadItem = {
 };
 
 function getGeonorgeDownloadUrl(
-  distributionGroups: DistributionGroup[],
+  distributionGroups: DistributionGroup[] | undefined,
 ): string | null {
+  if (!distributionGroups) return null;
   const group = distributionGroups.find(
     (g) => g.protocol === "GEONORGE:DOWNLOAD",
   );
@@ -32,6 +33,7 @@ export default function AddToCartButton({
   className?: string;
 }) {
   const [isInCart, setIsInCart] = useState(false);
+  const distributionUrl = getGeonorgeDownloadUrl(item?.distributionGroups);
 
   useEffect(() => {
     if (!item?.uuid) return;
@@ -45,44 +47,37 @@ export default function AddToCartButton({
   }, [item?.uuid]);
 
   const handleToggleCart = useCallback(() => {
-    if (!item?.uuid) return;
-
-    const distributionUrl = getGeonorgeDownloadUrl(item.distributionGroups);
-    if (!distributionUrl) return;
-
+    if (!item?.uuid || !distributionUrl) return;
     const storedItem = { uuid: item.uuid, name: item.name, distributionUrl };
 
-    try {
-      const parsed = JSON.parse(localStorage.getItem("orderItems") || "[]");
-      const selectedItems: string[] = Array.isArray(parsed) ? parsed : [];
-
-      if (isInCart) {
-        const updated = selectedItems.filter((id) => id !== item.uuid);
-        localStorage.setItem("orderItems", JSON.stringify(updated));
-        localStorage.removeItem(`${item.uuid}.metadata`);
-        setIsInCart(false);
-        document.dispatchEvent(new Event("downloadItemsChanged"));
-      } else {
-        if (!selectedItems.includes(item.uuid)) {
-          selectedItems.push(item.uuid);
+    setIsInCart((prev) => {
+      try {
+        const parsed = JSON.parse(localStorage.getItem("orderItems") || "[]");
+        const selectedItems: string[] = Array.isArray(parsed) ? parsed : [];
+        if (prev) {
+          localStorage.setItem(
+            "orderItems",
+            JSON.stringify(selectedItems.filter((id) => id !== item.uuid)),
+          );
+          localStorage.removeItem(`${item.uuid}.metadata`);
+        } else {
+          if (!selectedItems.includes(item.uuid)) selectedItems.push(item.uuid);
+          localStorage.setItem("orderItems", JSON.stringify(selectedItems));
+          localStorage.setItem(
+            `${item.uuid}.metadata`,
+            JSON.stringify(storedItem),
+          );
         }
-        localStorage.setItem("orderItems", JSON.stringify(selectedItems));
-        localStorage.setItem(
-          `${item.uuid}.metadata`,
-          JSON.stringify(storedItem),
-        );
-
-        setIsInCart(true);
         document.dispatchEvent(new Event("downloadItemsChanged"));
+        return !prev;
+      } catch {
+        return prev;
       }
-    } catch {
-      localStorage.setItem(`${item.uuid}.metadata`, JSON.stringify(storedItem));
-    }
-  }, [item, isInCart]);
+    });
+  }, [item?.uuid, item?.name, distributionUrl]);
 
   if (!item) return null;
 
-  const distributionUrl = getGeonorgeDownloadUrl(item.distributionGroups);
   if (!distributionUrl) return null;
 
   return (
