@@ -76,6 +76,7 @@ data class RegisterProduktarkItem(
     val id: String? = null,
     val label: String? = null,
     val lang: String? = null,
+    @SerialName("itemclass")
     val itemClass: String? = null,
     val uuid: String? = null,
     val status: String? = null,
@@ -89,5 +90,6 @@ data class RegisterProduktarkItem(
     val draftDate: String? = null,
     val thumbnail: String? = null,
     val documentreference: String? = null,
+    @SerialName("FAIRStatusPerCent")
     val fairStatusPerCent: Double? = null,
 )
