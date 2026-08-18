@@ -13,7 +13,7 @@ class SolrClient(
     private val httpClient: HttpClient,
     private val baseUrl: String,
 ) {
-    private val norskPath = "solr/metadata/select"
+    private val metadataPath = "solr/metadata/select"
     private val servicesPath = "solr/services/select"
     private val applicationPath = "solr/applications/select"
 
@@ -22,7 +22,7 @@ class SolrClient(
     suspend fun getMetadataByUuid(uuid: String): SolrResponse {
         val query = buildMetadataSolrQuery(uuid)
 
-        val metadataResult = querySolr(norskPath, query)
+        val metadataResult = querySolr(metadataPath, query)
 
         if (metadataResult.response.docs.isNotEmpty()) return metadataResult
 
