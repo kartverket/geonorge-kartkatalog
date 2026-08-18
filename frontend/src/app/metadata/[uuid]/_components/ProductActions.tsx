@@ -6,7 +6,6 @@ import {
 import AddToCartButton from "@/app/_components/AddToCartButton";
 import {
   getEditUrl,
-  getGeonorgeDownloadUrl,
   getMetadataXmlUrl,
 } from "@/app/metadata/[uuid]/_utils/urls";
 import type { ProductMetadata } from "@/lib/schemas/product";
@@ -21,25 +20,17 @@ export function ProductActions({
   coverageUrl: string | null;
   uuid: string;
 }) {
-  const geonorgeDownloadUrl = getGeonorgeDownloadUrl(metadata);
-
-  const showCartButton =
-    metadata.hierarchyLevel === "dataset" &&
-    metadata.accessState === "open" &&
-    geonorgeDownloadUrl !== null;
+  const cartItem =
+    metadata.hierarchyLevel === "dataset" && metadata.accessState === "open"
+      ? { uuid, name: metadata.title, distributionGroups: metadata.distributionGroups }
+      : null;
 
   return (
     <div className={styles.actions}>
-      {showCartButton && (
-        <AddToCartButton
-          className={`ds-button ${styles.actionButton}`}
-          item={{
-            uuid: uuid,
-            name: metadata.title,
-            distributionUrl: geonorgeDownloadUrl,
-          }}
-        />
-      )}
+      <AddToCartButton
+        className={`ds-button ${styles.actionButton}`}
+        item={cartItem}
+      />
       {coverageUrl && (
         <ActionLinkButton
           href={coverageUrl}

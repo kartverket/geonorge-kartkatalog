@@ -3,23 +3,34 @@
 import { Button } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
 import { useCallback, useEffect, useState } from "react";
+import type { DistributionGroup } from "@/lib/schemas/product";
 
 export type DownloadItem = {
-  distributionUrl: string;
+  distributionGroups: DistributionGroup[];
   name: string;
   uuid: string;
 };
+
+function getGeonorgeDownloadUrl(distributionGroups: DistributionGroup[]): string | null {
+  const group = distributionGroups.find((g) => g.protocol === "GEONORGE:DOWNLOAD");
+  const rawUrl = group?.formats[0]?.urls[0];
+  if (!rawUrl) return null;
+  const stripped = rawUrl.replace(/\/+$/, "");
+  const lastSlash = stripped.lastIndexOf("/");
+  return lastSlash !== -1 ? stripped.substring(0, lastSlash + 1) : rawUrl;
+}
 
 export default function AddToCartButton({
   item,
   className,
 }: {
-  item: DownloadItem;
+  item: DownloadItem | null;
   className?: string;
 }) {
   const [isInCart, setIsInCart] = useState(false);
 
   useEffect(() => {
+    if (!item?.uuid) return;
     try {
       const parsed = JSON.parse(localStorage.getItem("orderItems") || "[]");
       const items = Array.isArray(parsed) ? parsed : [];
@@ -27,10 +38,15 @@ export default function AddToCartButton({
     } catch {
       setIsInCart(false);
     }
-  }, [item.uuid]);
+  }, [item?.uuid]);
 
   const handleToggleCart = useCallback(() => {
     if (!item?.uuid) return;
+
+    const distributionUrl = getGeonorgeDownloadUrl(item.distributionGroups);
+    if (!distributionUrl) return;
+
+    const storedItem = { uuid: item.uuid, name: item.name, distributionUrl };
 
     try {
       const parsed = JSON.parse(localStorage.getItem("orderItems") || "[]");
@@ -45,16 +61,20 @@ export default function AddToCartButton({
           selectedItems.push(item.uuid);
         }
         localStorage.setItem("orderItems", JSON.stringify(selectedItems));
-        localStorage.setItem(`${item.uuid}.metadata`, JSON.stringify(item));
+        localStorage.setItem(`${item.uuid}.metadata`, JSON.stringify(storedItem));
 
         setIsInCart(true);
         document.dispatchEvent(new Event("downloadItemsChanged"));
       }
-    } catch (e) {
-      const slimItem = { ...item, areas: {} };
-      localStorage.setItem(`${item.uuid}.metadata`, JSON.stringify(slimItem));
+    } catch {
+      localStorage.setItem(`${item.uuid}.metadata`, JSON.stringify(storedItem));
     }
   }, [item, isInCart]);
+
+  if (!item) return null;
+
+  const distributionUrl = getGeonorgeDownloadUrl(item.distributionGroups);
+  if (!distributionUrl) return null;
 
   return (
     <Button
