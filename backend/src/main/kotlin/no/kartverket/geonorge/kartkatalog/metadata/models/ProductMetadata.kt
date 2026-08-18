@@ -74,6 +74,7 @@ data class ProductReferenceSystem(
 
 @Serializable
 data class ProductDistributionGroup(
+    val protocol: String? = null,
     val protocolName: String? = null,
     val protocolDescription: String? = null,
     val formats: List<ProductDistributionFormatEntry> = emptyList(),

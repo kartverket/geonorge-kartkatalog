@@ -65,6 +65,7 @@ class MetadataMapper(
                                 protocol,
                             )
                         ProductDistributionGroup(
+                            protocol = protocol,
                             protocolName =
                                 distributionType?.label
                                     ?: protocol.orEmpty(),
