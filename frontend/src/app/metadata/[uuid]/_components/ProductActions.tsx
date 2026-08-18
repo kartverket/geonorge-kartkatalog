@@ -41,41 +41,47 @@ export function ProductActions({
         />
       )}
       {coverageUrl && (
-        <a
-          data-variant="secondary"
-          target="_blank"
-          rel="noopener noreferrer"
+        <ActionLinkButton
           href={coverageUrl}
-          className={`ds-button ${styles.actionButton}`}
-          data-color="neutral"
-        >
-          <ExternalLinkIcon aria-hidden />
-          Vis dekningskart
-        </a>
+          icon={<ExternalLinkIcon aria-hidden />}
+          title="Vis dekningskart"
+        />
       )}
-      <a
-        data-variant="secondary"
-        target="_blank"
-        rel="noreferrer"
+      <ActionLinkButton
         href={getMetadataXmlUrl(uuid)}
-        className={`ds-button ${styles.actionButton}`}
-        data-color="neutral"
-      >
-        <FileTextIcon aria-hidden />
-        Vis metadata XML
-      </a>
+        icon={<FileTextIcon aria-hidden />}
+        title="Vis metadata XML"
+      />
       {/*TODO: GN-227 håndtere at noen datasett ikke burde redigeres fra denne editUrl-en*/}
-      <a
-        data-variant="secondary"
-        target="_blank"
-        rel="noreferrer"
+      <ActionLinkButton
+        title="Rediger metadata"
         href={getEditUrl(uuid)}
-        className={`ds-button ${styles.actionButton}`}
-        data-color="neutral"
-      >
-        <PencilIcon aria-hidden />
-        Rediger metadata
-      </a>
+        icon={<PencilIcon aria-hidden />}
+      />
     </div>
+  );
+}
+
+function ActionLinkButton({
+  href,
+  icon,
+  title,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+}) {
+  return (
+    <a
+      data-variant="secondary"
+      data-color="neutral"
+      target="_blank"
+      rel="noreferrer"
+      href={href}
+      className={`ds-button ${styles.actionButton}`}
+    >
+      {icon}
+      {title}
+    </a>
   );
 }
