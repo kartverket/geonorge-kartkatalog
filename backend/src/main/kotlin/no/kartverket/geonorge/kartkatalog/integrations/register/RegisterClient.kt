@@ -63,6 +63,25 @@ class RegisterClient(
         }
     }
 
+    suspend fun getProduktark(seoname: String): RegisterProduktarkItem? {
+        val response =
+            httpClient.get("$baseUrl/api/produktark/${encode(seoname, UTF_8)}") {
+                headers { append(HttpHeaders.AcceptLanguage, "no") }
+            }
+
+        return when {
+            response.status == HttpStatusCode.NotFound -> null
+            !response.status.isSuccess() ->
+                throw RegisterException("Register request failed with status ${response.status}")
+            else ->
+                try {
+                    json.decodeFromString(RegisterProduktarkItem.serializer(), response.bodyAsText())
+                } catch (e: Exception) {
+                    throw RegisterException("Failed to parse Register response", e)
+                }
+        }
+    }
+
     private suspend fun <T> fetch(
         path: String,
         deserializer: DeserializationStrategy<T>,
