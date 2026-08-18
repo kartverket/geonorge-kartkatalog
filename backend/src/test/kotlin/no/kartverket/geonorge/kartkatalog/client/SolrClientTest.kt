@@ -186,7 +186,7 @@ class SolrClientTest {
         }
 
     @Test
-    fun `wraps network failures as SolrException`() =
+    fun `wraps network failures as SolrException`(): Unit =
         runBlocking {
             val engine = MockEngine { throw ConnectTimeoutException("boom") }
             val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
@@ -200,7 +200,7 @@ class SolrClientTest {
         }
 
     @Test
-    fun `wraps non-2xx status as SolrException`() =
+    fun `wraps non-2xx status as SolrException`(): Unit =
         runBlocking {
             val engine = MockEngine { respond(content = "", status = HttpStatusCode.InternalServerError) }
             val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
