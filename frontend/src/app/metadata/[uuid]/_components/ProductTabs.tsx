@@ -1,11 +1,11 @@
 "use client";
 
-import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
-import { LinkIcon } from "@navikt/aksel-icons";
+import { Button, Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
+import { FilesIcon, LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
-import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
+import { formatDate, showCopyLink } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
   LinkedDistributions,
@@ -14,15 +14,14 @@ import type {
   ReferenceSystem,
 } from "@/lib/schemas/product";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
+import {
+  getProductTypeString,
+  getProductTypeDefiniteString,
+} from "@/lib/productType";
 import styles from "./ProductTabs.module.css";
 
-const TABS = [
-  { value: "distribution", label: "Distribusjoner for datasett" },
-  { value: "info", label: "Informasjon om datasettet" },
-  { value: "documentation", label: "Dokumentasjon" },
-];
-
 export function ProductTabs({
+  hierarchyLevel,
   abstract,
   specificUsage,
   purpose,
@@ -36,6 +35,7 @@ export function ProductTabs({
   fairStatus,
   tegneregler,
 }: {
+  hierarchyLevel: string | null;
   abstract: string | null;
   specificUsage: string | null;
   purpose: string | null;
@@ -61,8 +61,13 @@ export function ProductTabs({
     dateUpdated,
     maintenanceFrequency,
   });
+  const productType = getProductTypeString(hierarchyLevel).toLowerCase();
+  const productTypeDefinite = getProductTypeDefiniteString(hierarchyLevel);
+
   const tabs = [
-    ...TABS,
+    { value: "distribution", label: `Distribusjoner for ${productType}` },
+    { value: "info", label: `Informasjon om ${productType}` },
+    { value: "documentation", label: "Dokumentasjon" },
     ...(fairStatus
       ? [{ value: "quality", label: "Metadatakvalitet (FAIR)" }]
       : []),
@@ -80,7 +85,7 @@ export function ProductTabs({
         </Tabs.List>
 
         <Tabs.Panel value="distribution" className={styles.panel}>
-          <Heading data-size="xs">Tilganger til datasett</Heading>
+          <Heading data-size="xs">Tilganger til {productType}</Heading>
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={distributionDetails} />
           </div>
@@ -90,7 +95,7 @@ export function ProductTabs({
         </Tabs.Panel>
         <Tabs.Panel value="info" className={styles.panel}>
           <div className={styles.headingGroup}>
-            <Heading data-size="xs">Om datasettet</Heading>
+            <Heading data-size="xs">Om {productTypeDefinite}</Heading>
             <p className={styles.abstract}>{abstract ?? "-"}</p>
           </div>
           <div className={styles.accordionGroup} data-color="neutral">
@@ -125,14 +130,22 @@ export function ProductTabs({
   );
 }
 
-type DetailItem = { title: string; content: React.ReactNode };
+type DetailItem = {
+  actionButton?: React.ReactNode | null;
+  title: string;
+  content: React.ReactNode;
+};
 
 function DetailAccordion({ items }: { items: DetailItem[] }) {
   return (
     <>
       {items.map((item, i) => (
         <Details key={`${i}-${item.title}`}>
-          <Details.Summary>{item.title}</Details.Summary>
+          <Details.Summary>
+            <div className={styles.accordionSummary}>
+              {item.title} {item.actionButton}
+            </div>
+          </Details.Summary>
           <Details.Content>{item.content}</Details.Content>
         </Details>
       ))}
@@ -312,58 +325,69 @@ function buildDistributionDetails({
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
 }): DetailItem[] {
-  console.log(groups);
-  return groups.map((group) => ({
-    title: group.protocolName ?? "Ukjent protokoll",
-    content: (
-      <FieldList
-        fields={[
-          { label: "Beskrivelse", content: group.protocolDescription },
-          ...buildFormatUrlRows(group.formats),
-          {
-            label: "Formater",
-            content: (
-              <span className={styles.tags} data-color="info">
-                {/* Filtering unique format names, to avoid duplicate Tags with same text */}
-                {[...new Set(group.formats.map((f) => f.name))].map((name) => (
-                  <Tag key={name}>{name}</Tag>
-                ))}
-              </span>
-            ),
-          },
-          {
-            label: "Oppdateringsfrekvens",
-            content: maintenanceFrequency ?? "-",
-          },
-          { label: "Ressurs sist oppdatert", content: formatDate(dateUpdated) },
-          ...(group.unitsOfDistribution
-            ? [
-                {
-                  label: "Geografisk distribusjonsinndeling",
-                  content: (
-                    <span className={styles.tags} data-color="neutral">
-                      {group.unitsOfDistribution.split(",").map((unit) => (
-                        <Tag key={unit}>{unit.trim()}</Tag>
-                      ))}
-                    </span>
-                  ),
-                },
-              ]
-            : []),
-          {
-            label: "Referansesystem",
-            content: (
-              <span className={styles.tags} data-color="neutral">
-                {referenceSystems.map((rs) => (
-                  <Tag key={rs.codeSpace}>{rs.code}</Tag>
-                ))}
-              </span>
-            ),
-          },
-        ]}
-      />
-    ),
-  }));
+  return groups.map((group) => {
+    const formatUrls = buildFormatUrlRows(group.formats);
+    return {
+      actionButton:
+        formatUrls.length === 1 && showCopyLink(group.protocol) ? (
+          <CopyButton url={formatUrls[0].content.props.url} />
+        ) : null,
+      title: group.protocolName ?? "Ukjent protokoll",
+      content: (
+        <FieldList
+          fields={[
+            { label: "Beskrivelse", content: group.protocolDescription },
+            ...formatUrls,
+            {
+              label: "Formater",
+              content: (
+                <span className={styles.tags} data-color="info">
+                  {/* Filtering unique format names, to avoid duplicate Tags with same text */}
+                  {[...new Set(group.formats.map((f) => f.name))].map(
+                    (name) => (
+                      <Tag key={name}>{name}</Tag>
+                    ),
+                  )}
+                </span>
+              ),
+            },
+            {
+              label: "Oppdateringsfrekvens",
+              content: maintenanceFrequency ?? "-",
+            },
+            {
+              label: "Ressurs sist oppdatert",
+              content: formatDate(dateUpdated),
+            },
+            ...(group.unitsOfDistribution
+              ? [
+                  {
+                    label: "Geografisk distribusjonsinndeling",
+                    content: (
+                      <span className={styles.tags} data-color="neutral">
+                        {group.unitsOfDistribution.split(",").map((unit) => (
+                          <Tag key={unit}>{unit.trim()}</Tag>
+                        ))}
+                      </span>
+                    ),
+                  },
+                ]
+              : []),
+            {
+              label: "Referansesystem",
+              content: (
+                <span className={styles.tags} data-color="neutral">
+                  {referenceSystems.map((rs) => (
+                    <Tag key={rs.codeSpace}>{rs.code}</Tag>
+                  ))}
+                </span>
+              ),
+            },
+          ]}
+        />
+      ),
+    };
+  });
 }
 
 function buildFairDetails(fairStatus: ProductFairStatus): DetailItem[] {
@@ -387,4 +411,24 @@ function buildFairDetails(fairStatus: ProductFairStatus): DetailItem[] {
       content: <p>Gjenbrukbar: {fairStatus.reusablePercent ?? "-"}%</p>,
     },
   ];
+}
+
+function CopyButton({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <Button variant="secondary" onClick={copy}>
+      {copied ? (
+        "Kopiert"
+      ) : (
+        <>
+          <FilesIcon aria-hidden /> Kopier lenke
+        </>
+      )}
+    </Button>
+  );
 }
