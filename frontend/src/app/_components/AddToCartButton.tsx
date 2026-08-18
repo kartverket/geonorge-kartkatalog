@@ -11,8 +11,12 @@ export type DownloadItem = {
   uuid: string;
 };
 
-function getGeonorgeDownloadUrl(distributionGroups: DistributionGroup[]): string | null {
-  const group = distributionGroups.find((g) => g.protocol === "GEONORGE:DOWNLOAD");
+function getGeonorgeDownloadUrl(
+  distributionGroups: DistributionGroup[],
+): string | null {
+  const group = distributionGroups.find(
+    (g) => g.protocol === "GEONORGE:DOWNLOAD",
+  );
   const rawUrl = group?.formats[0]?.urls[0];
   if (!rawUrl) return null;
   const stripped = rawUrl.replace(/\/+$/, "");
@@ -55,13 +59,18 @@ export default function AddToCartButton({
       if (isInCart) {
         const updated = selectedItems.filter((id) => id !== item.uuid);
         localStorage.setItem("orderItems", JSON.stringify(updated));
+        localStorage.removeItem(`${item.uuid}.metadata`);
         setIsInCart(false);
+        document.dispatchEvent(new Event("downloadItemsChanged"));
       } else {
         if (!selectedItems.includes(item.uuid)) {
           selectedItems.push(item.uuid);
         }
         localStorage.setItem("orderItems", JSON.stringify(selectedItems));
-        localStorage.setItem(`${item.uuid}.metadata`, JSON.stringify(storedItem));
+        localStorage.setItem(
+          `${item.uuid}.metadata`,
+          JSON.stringify(storedItem),
+        );
 
         setIsInCart(true);
         document.dispatchEvent(new Event("downloadItemsChanged"));
