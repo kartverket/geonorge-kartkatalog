@@ -30,6 +30,31 @@ function toDatasetCardProps(d: LinkedDistribution) {
   };
 }
 
+function joinDistributions(items: string[]) {
+  if (items.length <= 1) return items.join("");
+  return `${items.slice(0, -1).join(", ")} og ${items[items.length - 1]}`;
+}
+
+function getLinkedDistributionsHeading({
+  hasDatasets,
+  hasServices,
+  hasServiceLayers,
+  hasApplications,
+}: {
+  hasDatasets: boolean;
+  hasServices: boolean;
+  hasServiceLayers: boolean;
+  hasApplications: boolean;
+}) {
+  const categories: string[] = [];
+  if (hasDatasets) categories.push("datasett");
+  if (hasServices) categories.push("tjenester");
+  if (hasServiceLayers) categories.push("tjenestelag");
+  if (hasApplications) categories.push("applikasjoner");
+
+  return `Tilknyttede ${joinDistributions(categories)}`;
+}
+
 function DistributionGroup({
   heading,
   items,
@@ -87,13 +112,37 @@ export function LinkedDistributionsSection({
   const downloadServices = linkedDistributions?.downloadServices ?? [];
   const seriesMembers = linkedDistributions?.seriesMembers ?? [];
   const parentSeries = linkedDistributions?.parentSeries ?? [];
+  const relatedDatasets = linkedDistributions?.relatedDatasets ?? [];
+  const serviceLayers = linkedDistributions?.serviceLayers ?? [];
+  const parentService = linkedDistributions?.parentService ?? [];
+
+  const hasDatasets =
+    seriesMembers.length > 0 ||
+    parentSeries.length > 0 ||
+    relatedDatasets.length > 0;
+
+  const hasServices = viewServices.length > 0 || downloadServices.length > 0;
+
+  const hasServiceLayers = serviceLayers.length > 0 || parentService.length > 0;
+
+  const hasApplications = applications.length > 0;
+
+  const heading = getLinkedDistributionsHeading({
+    hasDatasets,
+    hasServices,
+    hasServiceLayers,
+    hasApplications,
+  });
 
   if (
     applications.length === 0 &&
     viewServices.length === 0 &&
     downloadServices.length === 0 &&
     seriesMembers.length === 0 &&
-    parentSeries.length === 0
+    parentSeries.length === 0 &&
+    relatedDatasets.length === 0 &&
+    serviceLayers.length === 0 &&
+    parentService.length === 0
   ) {
     return null;
   }
@@ -101,16 +150,19 @@ export function LinkedDistributionsSection({
   return (
     <div className={styles.wrapper}>
       <Heading data-size="xs" className={styles.heading}>
-        Koblede distribusjoner
+        {heading}
       </Heading>
       <DistributionGroup heading="Datasett i serien" items={seriesMembers} />
       <DistributionGroup heading="Datasettserier" items={parentSeries} />
+      <DistributionGroup heading="Datasett" items={relatedDatasets} />
       <DistributionGroup heading="Applikasjoner" items={applications} />
       <DistributionGroup heading="Visningstjenester" items={viewServices} />
       <DistributionGroup
         heading="Nedlastingstjenester"
         items={downloadServices}
       />
+      <DistributionGroup heading="Tjenestelag" items={serviceLayers} />
+      <DistributionGroup heading="Tjeneste" items={parentService} />
     </div>
   );
 }

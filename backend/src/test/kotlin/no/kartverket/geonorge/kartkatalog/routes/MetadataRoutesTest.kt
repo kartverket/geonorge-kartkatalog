@@ -56,11 +56,65 @@ class MetadataRoutesTest {
         }
         """.trimIndent()
 
+    private val serviceSolrJson =
+        """
+        {
+          "responseHeader": {"status": 0, "QTime": 1},
+          "response": {
+            "numFound": 1, "start": 0,
+            "docs": [{
+              "uuid": "c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689",
+              "title": "Test-tjeneste",
+              "type": "service",
+              "servicedataset": ["11111111-1111-1111-1111-111111111111|Datasett||dataset|Org||GEONORGE:DOWNLOAD|https://example.com|Tema"],
+              "servicelayers": ["22222222-2222-2222-2222-222222222222|Lag|c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689|service|Org|Lag|OGC:WMS|https://example.com|Tema"]
+            }]
+          }
+        }
+        """.trimIndent()
+
+    private val servicelayerSolrJson =
+        """
+        {
+          "responseHeader": {"status": 0, "QTime": 1},
+          "response": {
+            "numFound": 1, "start": 0,
+            "docs": [{
+              "uuid": "c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689",
+              "title": "Test-tjenestelag",
+              "type": "servicelayer",
+              "servicedataset": ["11111111-1111-1111-1111-111111111111|Datasett||dataset|Org||GEONORGE:DOWNLOAD|https://example.com|Tema"],
+              "parentidentifier": "33333333-3333-3333-3333-333333333333"
+            }]
+          }
+        }
+        """.trimIndent()
+
+    private val softwareSolrJson =
+        """
+        {
+          "responseHeader": {"status": 0, "QTime": 1},
+          "response": {
+            "numFound": 1, "start": 0,
+            "docs": [{
+              "uuid": "c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689",
+              "title": "Test-applikasjon",
+              "type": "software",
+              "applicationdataset": ["11111111-1111-1111-1111-111111111111|Datasett||dataset|Org||GEONORGE:DOWNLOAD|https://example.com|Tema"]
+            }]
+          }
+        }
+        """.trimIndent()
+
     private val geonetworkBaseUrl = "https://test.example.com/geonetwork"
     private val registerBaseUrl = "https://test.example.com/register"
     private val staticNorgeskartUrl = "https://test.example.com/register"
 
-    private fun createMetadataService(xml: String): Pair<MetadataService, LinkedDistributionsService> {
+    private fun createMetadataService(
+        xml: String,
+        solrDocJson: String = solrJson,
+        solrFails: Boolean = false,
+    ): Pair<MetadataService, LinkedDistributionsService> {
         val client =
             HttpClient(
                 MockEngine { request ->
@@ -90,11 +144,19 @@ class MetadataRoutesTest {
                         }
 
                         request.url.encodedPath == "/solr/metadata/select" -> {
-                            respond(
-                                content = solrJson,
-                                status = HttpStatusCode.OK,
-                                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-                            )
+                            if (solrFails) {
+                                respond(content = "", status = HttpStatusCode.ServiceUnavailable)
+                            } else {
+                                respond(
+                                    content = solrDocJson,
+                                    status = HttpStatusCode.OK,
+                                    headers =
+                                        headersOf(
+                                            HttpHeaders.ContentType,
+                                            ContentType.Application.Json.toString(),
+                                        ),
+                                )
+                            }
                         }
 
                         request.url.encodedPath == "/solr/applications/select" -> {
@@ -234,6 +296,60 @@ class MetadataRoutesTest {
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertContains(response.bodyAsText(), "error")
+        }
+    }
+
+    @Test
+    fun `returns relatedDatasets and serviceLayers for a service`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml, solrDocJson = serviceSolrJson)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(response.bodyAsText(), "relatedDatasets")
+            assertContains(response.bodyAsText(), "serviceLayers")
+        }
+    }
+
+    @Test
+    fun `returns relatedDatasets and parentService for a servicelayer`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml, solrDocJson = servicelayerSolrJson)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(response.bodyAsText(), "relatedDatasets")
+            assertContains(response.bodyAsText(), "parentService")
+        }
+    }
+
+    @Test
+    fun `returns relatedDatasets for software`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml, solrDocJson = softwareSolrJson)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(response.bodyAsText(), "relatedDatasets")
+        }
+    }
+
+    @Test
+    fun `returns 502 when Solr is unavailable`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml, solrFails = true)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+
+            assertEquals(HttpStatusCode.BadGateway, response.status)
+            assertContains(response.bodyAsText(), "Upstream Solr error")
         }
     }
 }

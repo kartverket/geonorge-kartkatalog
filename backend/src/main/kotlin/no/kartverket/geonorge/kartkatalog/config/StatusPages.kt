@@ -7,6 +7,7 @@ import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeoNetworkException
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataRecordNotFoundException
 import org.slf4j.LoggerFactory
 
@@ -25,6 +26,10 @@ fun Application.configureStatusPages() {
         exception<GeoNetworkException> { call, cause ->
             log.warn("GeoNetwork request failed", cause)
             call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream GeoNetwork error"))
+        }
+        exception<SolrException> { call, cause ->
+            log.warn("Solr request failed", cause)
+            call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream Solr error"))
         }
         exception<Throwable> { call, cause ->
             log.error("Unhandled exception", cause)
