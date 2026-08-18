@@ -1,46 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { Button } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
-
-export type DownloadProjection = {
-  code: string;
-  name: string;
-};
-
-export type DownloadFormat = {
-  name: string;
-  projections: DownloadProjection[];
-};
-
-export type DownloadArea = {
-  type: string;
-  name: string;
-  code: string;
-};
-
-export type DownloadCapabilities = {
-  supportsProjectionSelection: boolean;
-  supportsFormatSelection: boolean;
-  supportsPolygonSelection: boolean;
-};
+import { useCallback, useEffect, useState } from "react";
 
 export type DownloadItem = {
-  accessIsOpendata: boolean;
-  accessIsRestricted: boolean;
-  areas: DownloadArea[];
-  canDownloadUrl: string;
-  capabilities: DownloadCapabilities;
   distributionUrl: string;
-  formats: DownloadFormat[];
-  getCapabilitiesUrl: string;
   name: string;
-  orderDistributionUrl: string;
-  organizationName: string;
-  projections: DownloadProjection[];
-  theme: string;
-  url: string;
   uuid: string;
 };
 
@@ -79,7 +45,10 @@ export default function AddToCartButton({
           selectedItems.push(item.uuid);
         }
         localStorage.setItem("orderItems", JSON.stringify(selectedItems));
+        localStorage.setItem(`${item.uuid}.metadata`, JSON.stringify(item));
+
         setIsInCart(true);
+        document.dispatchEvent(new Event("downloadItemsChanged"));
       }
     } catch (e) {
       const slimItem = { ...item, areas: {} };

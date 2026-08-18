@@ -3,17 +3,20 @@ import {
   FileTextIcon,
   PencilIcon,
 } from "@navikt/aksel-icons";
+import AddToCartButton from "@/app/_components/AddToCartButton";
 import {
   getEditUrl,
   getMetadataXmlUrl,
 } from "@/app/metadata/[uuid]/_utils/urls";
+import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./ProductActions.module.css";
-import AddToCartButton from "@/app/_components/AddToCartButton";
 
 export async function ProductActions({
+  metadata,
   coverageUrl,
   uuid,
 }: {
+  metadata: ProductMetadata;
   coverageUrl: string | null;
   uuid: string;
 }) {
@@ -22,7 +25,12 @@ export async function ProductActions({
       {/*TODO: skal denne alltid vises?*/}
       <AddToCartButton
         className={`ds-button ${styles.actionButton}`}
-        item={{ uuid } as any}
+        item={{
+          uuid: uuid,
+          name: metadata.title,
+          // TODO: er denne alltid det samme?
+          distributionUrl: "https://nedlasting.geonorge.no/api/capabilities/",
+        }}
       />
       {coverageUrl && (
         <a
