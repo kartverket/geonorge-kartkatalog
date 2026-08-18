@@ -96,6 +96,7 @@ export function parseProductMetadata(body: unknown): ProductMetadata {
       cause: res.error,
     });
   }
+  console.log(res.data);
 
   return res.data;
 }

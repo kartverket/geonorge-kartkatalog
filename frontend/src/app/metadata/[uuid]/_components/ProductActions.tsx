@@ -20,18 +20,32 @@ export async function ProductActions({
   coverageUrl: string | null;
   uuid: string;
 }) {
+  const geonorgeDownloadUrl = (() => {
+    const group = metadata.distributionGroups.find(
+      (g) => g.protocol === "GEONORGE:DOWNLOAD",
+    );
+    const rawUrl = group?.formats[0]?.urls[0];
+    if (!rawUrl) return null;
+    const stripped = rawUrl.replace(/\/+$/, "");
+    const lastSlash = stripped.lastIndexOf("/");
+    return lastSlash !== -1 ? stripped.substring(0, lastSlash + 1) : rawUrl;
+  })();
+
+  const showCartButton =
+    metadata.hierarchyLevel === "dataset" && geonorgeDownloadUrl !== null;
+
   return (
     <div className={styles.actions}>
-      {/*TODO: skal denne alltid vises?*/}
-      <AddToCartButton
-        className={`ds-button ${styles.actionButton}`}
-        item={{
-          uuid: uuid,
-          name: metadata.title,
-          // TODO: er denne alltid det samme?
-          distributionUrl: "https://nedlasting.geonorge.no/api/capabilities/",
-        }}
-      />
+      {showCartButton && (
+        <AddToCartButton
+          className={`ds-button ${styles.actionButton}`}
+          item={{
+            uuid: uuid,
+            name: metadata.title,
+            distributionUrl: geonorgeDownloadUrl,
+          }}
+        />
+      )}
       {coverageUrl && (
         <a
           data-variant="secondary"
