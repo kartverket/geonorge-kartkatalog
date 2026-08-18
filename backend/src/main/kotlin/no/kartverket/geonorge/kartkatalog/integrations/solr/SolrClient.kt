@@ -50,18 +50,22 @@ class SolrClient(
         query: MetadataSolrQuery,
     ): SolrResponse {
         val response =
-            httpClient.post("$baseUrl/$path") {
-                setBody(FormDataContent(query.toParameters()))
+            try {
+                httpClient.post("$baseUrl/$path") {
+                    setBody(FormDataContent(query.toParameters()))
+                }
+            } catch (e: Exception) {
+                throw SolrException("Solr request to $path failed (q=${query.q})", e)
             }
 
         if (!response.status.isSuccess()) {
-            throw SolrException("Solr request failed with status ${response.status}")
+            throw SolrException("Solr request to $path failed with status ${response.status} (q=${query.q})")
         }
 
         return try {
             json.decodeFromString(response.bodyAsText())
         } catch (e: Exception) {
-            throw SolrException("Failed to parse Solr response", e)
+            throw SolrException("Failed to parse Solr response from $path (q=${query.q})", e)
         }
     }
 
