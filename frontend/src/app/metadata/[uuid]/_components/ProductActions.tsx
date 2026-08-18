@@ -32,7 +32,9 @@ export async function ProductActions({
   })();
 
   const showCartButton =
-    metadata.hierarchyLevel === "dataset" && geonorgeDownloadUrl !== null;
+    metadata.hierarchyLevel === "dataset" &&
+    metadata.accessState === "open" &&
+    geonorgeDownloadUrl !== null;
 
   return (
     <div className={styles.actions}>
