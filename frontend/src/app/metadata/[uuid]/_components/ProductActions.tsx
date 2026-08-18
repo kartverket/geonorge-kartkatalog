@@ -13,16 +13,18 @@ import styles from "./ProductActions.module.css";
 
 export function ProductActions({
   metadata,
-  coverageUrl,
   uuid,
 }: {
   metadata: ProductMetadata;
-  coverageUrl: string | null;
   uuid: string;
 }) {
   const cartItem =
     metadata.hierarchyLevel === "dataset" && metadata.accessState === "open"
-      ? { uuid, name: metadata.title, distributionGroups: metadata.distributionGroups }
+      ? {
+          uuid,
+          name: metadata.title,
+          distributionGroups: metadata.distributionGroups,
+        }
       : null;
 
   return (
@@ -31,9 +33,9 @@ export function ProductActions({
         className={`ds-button ${styles.actionButton}`}
         item={cartItem}
       />
-      {coverageUrl && (
+      {metadata.coverageUrl && (
         <ActionLinkButton
-          href={coverageUrl}
+          href={metadata.coverageUrl}
           icon={<ExternalLinkIcon aria-hidden />}
           title="Vis dekningskart"
         />
