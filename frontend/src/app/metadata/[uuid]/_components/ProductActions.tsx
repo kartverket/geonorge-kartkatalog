@@ -6,12 +6,13 @@ import {
 import AddToCartButton from "@/app/_components/AddToCartButton";
 import {
   getEditUrl,
+  getGeonorgeDownloadUrl,
   getMetadataXmlUrl,
 } from "@/app/metadata/[uuid]/_utils/urls";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./ProductActions.module.css";
 
-export async function ProductActions({
+export function ProductActions({
   metadata,
   coverageUrl,
   uuid,
@@ -20,16 +21,7 @@ export async function ProductActions({
   coverageUrl: string | null;
   uuid: string;
 }) {
-  const geonorgeDownloadUrl = (() => {
-    const group = metadata.distributionGroups.find(
-      (g) => g.protocol === "GEONORGE:DOWNLOAD",
-    );
-    const rawUrl = group?.formats[0]?.urls[0];
-    if (!rawUrl) return null;
-    const stripped = rawUrl.replace(/\/+$/, "");
-    const lastSlash = stripped.lastIndexOf("/");
-    return lastSlash !== -1 ? stripped.substring(0, lastSlash + 1) : rawUrl;
-  })();
+  const geonorgeDownloadUrl = getGeonorgeDownloadUrl(metadata);
 
   const showCartButton =
     metadata.hierarchyLevel === "dataset" &&
