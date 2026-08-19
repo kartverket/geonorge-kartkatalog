@@ -99,20 +99,68 @@ export function parseProductMetadata(body: unknown): ProductMetadata {
   return res.data;
 }
 
+const FairCriterionSchema = z.object({
+  Code: z.string(),
+  Description: z.string(),
+  Fulfilled: z.boolean().nullable(),
+});
+
+const FairCriteriaGroupSchema = z.object({
+  Code: z.string(),
+  Label: z.string(),
+  Criteria: z.array(FairCriterionSchema),
+});
+
+const FairPrincipleSchema = z.object({
+  Code: z.string(),
+  Label: z.string(),
+  Description: z.string(),
+  Status: z.string(),
+  StatusPerCent: z.number().nullable(),
+  CriteriaGroups: z.array(FairCriteriaGroupSchema),
+});
+
+const FairRatingLevelSchema = z.object({
+  Status: z.string(),
+  Description: z.string(),
+});
+
+const FairRatingSchema = z.object({
+  Label: z.string(),
+  Description: z.string(),
+  Levels: z.array(FairRatingLevelSchema),
+});
+
 export const ProductFairStatusSchema = z
   .object({
+    FairStatus: z.string().nullable(),
     FAIRStatusPerCent: z.number().nullable(),
+    FindableStatus: z.string().nullable(),
     FindableStatusPerCent: z.number().nullable(),
+    AccesibleStatus: z.string().nullable(),
     AccesibleStatusPerCent: z.number().nullable(),
+    InteroperableStatus: z.string().nullable(),
     InteroperableStatusPerCent: z.number().nullable(),
+    ReUseableStatus: z.string().nullable(),
     ReUseableStatusPerCent: z.number().nullable(),
+    DetailsPage: z.string().nullable(),
+    Rating: FairRatingSchema,
+    Principles: z.array(FairPrincipleSchema),
   })
   .transform((status) => ({
     totalPercent: status.FAIRStatusPerCent,
+    totalStatus: status.FairStatus,
     findablePercent: status.FindableStatusPerCent,
+    findableStatus: status.FindableStatus,
     accessiblePercent: status.AccesibleStatusPerCent,
+    accessibleStatus: status.AccesibleStatus,
     interoperablePercent: status.InteroperableStatusPerCent,
+    interoperableStatus: status.InteroperableStatus,
     reusablePercent: status.ReUseableStatusPerCent,
+    reusableStatus: status.ReUseableStatus,
+    detailsPageUrl: status.DetailsPage,
+    rating: status.Rating,
+    principles: status.Principles,
   }));
 
 export type ProductFairStatus = z.infer<typeof ProductFairStatusSchema>;

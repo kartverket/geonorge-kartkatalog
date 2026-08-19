@@ -4,6 +4,7 @@ import { Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
+import { FairSection } from "@/app/metadata/[uuid]/_components/FairSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
@@ -67,7 +68,6 @@ export function ProductTabs({
       ? [{ value: "quality", label: "Metadatakvalitet (FAIR)" }]
       : []),
   ];
-  const fairDetails = fairStatus ? buildFairDetails(fairStatus) : null;
   return (
     <div data-color="info">
       <Tabs defaultValue="distribution" className={styles.tabs}>
@@ -102,22 +102,7 @@ export function ProductTabs({
         </Tabs.Panel>
         {fairStatus && (
           <Tabs.Panel value="quality" className={styles.panel}>
-            <div className={styles.headingGroup}>
-              <Heading data-size="sm">Metadatakvalitet (FAIR-status)</Heading>
-              <p>
-                En FAIR-status gir en kort vurdering av hvor godt et datasett
-                følger FAIR-prinsippene: Findable (søkbarhet), Accessible
-                (tilgjengelighet), Interoperabel (interoperabilitet), Reusable
-                (gjenbrukbar).
-              </p>
-            </div>
-            <div className={styles.headingGroup}>
-              <Heading data-size="sm">Resultater for dette datasettet</Heading>
-              <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
-            </div>
-            <div className={styles.accordionGroup} data-color="neutral">
-              <DetailAccordion items={fairDetails ?? []} />
-            </div>
+            <FairSection fairStatus={fairStatus} />
           </Tabs.Panel>
         )}
       </Tabs>
@@ -364,27 +349,4 @@ function buildDistributionDetails({
       />
     ),
   }));
-}
-
-function buildFairDetails(fairStatus: ProductFairStatus): DetailItem[] {
-  return [
-    {
-      title: "Søkbarhet (Findable)",
-      content: <p>Søkbarhet: {fairStatus.findablePercent ?? "-"}%</p>,
-    },
-    {
-      title: "Tilgjengelighet (Accessible)",
-      content: <p>Tilgjengelighet: {fairStatus.accessiblePercent ?? "-"}%</p>,
-    },
-    {
-      title: "Interoperabilitet (Interoperable)",
-      content: (
-        <p>Interoperabilitet: {fairStatus.interoperablePercent ?? "-"}%</p>
-      ),
-    },
-    {
-      title: "Gjenbrukbar (Reusable)",
-      content: <p>Gjenbrukbar: {fairStatus.reusablePercent ?? "-"}%</p>,
-    },
-  ];
 }
