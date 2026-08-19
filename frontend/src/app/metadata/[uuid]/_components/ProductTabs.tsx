@@ -6,6 +6,10 @@ import { useState } from "react";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
 import { formatDate, showCopyLink } from "@/app/metadata/[uuid]/_utils/utils";
+import {
+  getProductTypeDefiniteString,
+  getProductTypeString,
+} from "@/lib/productType";
 import type {
   DistributionGroup,
   LinkedDistributions,
@@ -13,12 +17,8 @@ import type {
   ProductFairStatus,
   ReferenceSystem,
 } from "@/lib/schemas/product";
-import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import type { ProduktarkItem } from "@/lib/schemas/produktark";
-import {
-  getProductTypeString,
-  getProductTypeDefiniteString,
-} from "@/lib/productType";
+import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import styles from "./ProductTabs.module.css";
 
 export function ProductTabs({
@@ -106,7 +106,10 @@ export function ProductTabs({
           </div>
         </Tabs.Panel>
         <Tabs.Panel value="documentation" className={styles.panel}>
-          <ProductDocumentation tegneregler={tegneregler} produktark={produktark} />
+          <ProductDocumentation
+            tegneregler={tegneregler}
+            produktark={produktark}
+          />
         </Tabs.Panel>
         {fairStatus && (
           <Tabs.Panel value="quality" className={styles.panel}>

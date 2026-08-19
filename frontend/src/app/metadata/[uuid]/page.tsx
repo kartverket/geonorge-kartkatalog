@@ -4,8 +4,8 @@ import {
   getLinkedDistributions,
   getMetadata,
   getProductAlerts,
-  getTegneregler,
   getProduktark,
+  getTegneregler,
 } from "@/app/api";
 import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
@@ -86,12 +86,13 @@ async function ProductTabsSection({
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
 }) {
-  const [fairStatus, tegneregler, produktark, linkedDistributions] = await Promise.all([
-    getFairStatus(uuid),
-    getTegneregler(uuid).catch(() => null),
-    getProduktark(uuid).catch(() => null),
-    getLinkedDistributions(uuid),
-  ]);
+  const [fairStatus, tegneregler, produktark, linkedDistributions] =
+    await Promise.all([
+      getFairStatus(uuid),
+      getTegneregler(uuid).catch(() => null),
+      getProduktark(uuid).catch(() => null),
+      getLinkedDistributions(uuid),
+    ]);
 
   return (
     <ProductTabs

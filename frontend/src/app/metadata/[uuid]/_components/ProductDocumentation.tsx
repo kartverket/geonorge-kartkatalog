@@ -5,8 +5,8 @@ import {
   TasklistStartIcon,
 } from "@navikt/aksel-icons";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
-import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import type { ProduktarkItem } from "@/lib/schemas/produktark";
+import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import styles from "./ProductDocumentation.module.css";
 
 type DocumentationCard = {

@@ -21,4 +21,3 @@ export function parseProduktarkItem(body: unknown): ProduktarkItem {
 
   return res.data;
 }
-

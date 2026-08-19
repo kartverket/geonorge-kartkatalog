@@ -33,7 +33,7 @@ class MetadataService(
         return produktarkPath?.let {
             val seoname = it.substringAfterLast("/produktark/")
             registerClient.getProduktark(seoname)?.toProduktarkItem()
-        } 
+        }
     }
 
     private suspend fun getExtensionUrl(

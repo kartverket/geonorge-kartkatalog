@@ -9,13 +9,13 @@ import {
   parseProductMetadata,
 } from "@/lib/schemas/product";
 import {
+  type ProduktarkItem,
+  parseProduktarkItem,
+} from "@/lib/schemas/produktark";
+import {
   parseTegnereglerItem,
   type TegnereglerItem,
 } from "@/lib/schemas/tegneregler";
-import {
-  parseProduktarkItem,
-  type ProduktarkItem,
-} from "@/lib/schemas/produktark";
 
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
