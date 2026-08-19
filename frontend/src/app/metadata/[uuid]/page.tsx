@@ -98,11 +98,43 @@ async function ProductTabsSection({
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
 }) {
-  const [fairStatus, tegneregler, linkedDistributions] = await Promise.all([
-    getFairStatus(uuid),
-    getTegneregler(uuid),
-    getLinkedDistributions(uuid),
-  ]);
+  const [fairStatusResult, tegnereglerResult, linkedDistributionsResult] =
+    await Promise.allSettled([
+      getFairStatus(uuid),
+      getTegneregler(uuid),
+      getLinkedDistributions(uuid),
+    ]);
+
+  if (fairStatusResult.status === "rejected") {
+    console.error("Kunne ikke laste FAIR-status", fairStatusResult.reason);
+  }
+  if (tegnereglerResult.status === "rejected") {
+    console.error("Kunne ikke laste tegneregler", tegnereglerResult.reason);
+  }
+  if (linkedDistributionsResult.status === "rejected") {
+    console.error(
+      "Kunne ikke laste koblede distribusjoner",
+      linkedDistributionsResult.reason,
+    );
+  }
+
+  const fairStatus =
+    fairStatusResult.status === "fulfilled" ? fairStatusResult.value : null;
+  const tegneregler =
+    tegnereglerResult.status === "fulfilled" ? tegnereglerResult.value : null;
+  const linkedDistributions =
+    linkedDistributionsResult.status === "fulfilled"
+      ? linkedDistributionsResult.value
+      : {
+          applications: [],
+          viewServices: [],
+          downloadServices: [],
+          seriesMembers: [],
+          parentSeries: [],
+          relatedDatasets: [],
+          serviceLayers: [],
+          parentService: [],
+        };
 
   return (
     <ProductTabs

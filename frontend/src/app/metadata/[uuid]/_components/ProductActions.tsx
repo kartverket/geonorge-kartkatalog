@@ -11,7 +11,6 @@ import {
 import type { DistributionGroup, ProductMetadata } from "@/lib/schemas/product";
 import styles from "./ProductActions.module.css";
 
-
 function getGeonorgeDownloadUrl(
   distributionGroups: DistributionGroup[],
 ): string | null {
