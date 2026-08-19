@@ -12,6 +12,10 @@ import {
   parseTegnereglerItem,
   type TegnereglerItem,
 } from "@/lib/schemas/tegneregler";
+import {
+  parseProduktarkItem,
+  type ProduktarkItem,
+} from "@/lib/schemas/produktark";
 
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
@@ -140,6 +144,27 @@ export async function getProductAlerts(uuid: string): Promise<Alerts | null> {
   if (body === null) return null;
 
   return parseAlert(body);
+}
+
+/**
+ * Fetch produktark (product sheet) for a product by UUID.
+ * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
+ */
+export async function getProduktark(
+  uuid: string,
+): Promise<ProduktarkItem | null> {
+  if (!uuid) throw new Error("uuid is required");
+  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/produktark`;
+  const body = await fetchJson(
+    url,
+    { method: "GET" },
+    {
+      notFoundOn404: false,
+    },
+  );
+  if (body === null) return null;
+
+  return parseProduktarkItem(body);
 }
 
 /**
