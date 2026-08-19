@@ -109,6 +109,7 @@ async function ProductTabsSection({
       maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}
       tegneregler={tegneregler}
+      productSpecificationUrl={metadata.productSpecificationUrl}
     />
   );
 }

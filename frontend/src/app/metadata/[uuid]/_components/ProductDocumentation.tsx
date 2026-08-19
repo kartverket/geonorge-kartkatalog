@@ -19,8 +19,10 @@ type DocumentationCard = {
 
 export function ProductDocumentation({
   tegneregler,
+  productSpecificationUrl,
 }: {
   tegneregler: TegnereglerItem | null;
+  productSpecificationUrl?: string | null;
 }) {
   const cardContent: DocumentationCard[] = [
     ...(tegneregler?.documentreference
@@ -44,12 +46,17 @@ export function ProductDocumentation({
       icon: <FileTextIcon aria-hidden className={styles.icon} />,
     },
 
-    {
-      title: "Produktspesifikasjon",
-      paragraph:
-        "Produktspesifikasjon beskriver i detalje struktur, krav og innhold i datasettet, inkludert standarder og kvalitetskrav.",
-      icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
-    },
+    ...(productSpecificationUrl
+      ? [
+          {
+            title: "Produktspesifikasjon",
+            paragraph:
+              "Produktspesifikasjon beskriver i detalje struktur, krav og innhold i datasettet, inkludert standarder og kvalitetskrav.",
+            icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
+            url: productSpecificationUrl,
+          },
+        ]
+      : []),
   ];
 
   return (
