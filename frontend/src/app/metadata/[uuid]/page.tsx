@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import {
   getFairStatus,
@@ -18,6 +19,18 @@ import { ProductMeta } from "./_components/ProductMeta";
 import { ProductTabs } from "./_components/ProductTabs";
 import { ProductThumbnail } from "./_components/ProductThumbnail";
 import styles from "./page.module.css";
+
+// Setter metadatatittel så det bla vises i faner
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ uuid: string }>;
+}): Promise<Metadata> {
+  const { uuid } = await params;
+  const metadata = await getMetadata(uuid);
+  const pageTitle = metadata?.title || "Kartkatalogen";
+  return { title: pageTitle };
+}
 
 export default async function ProductPage({
   params,
