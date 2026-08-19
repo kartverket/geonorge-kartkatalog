@@ -39,6 +39,7 @@ export const DistributionFormatEntrySchema = z.object({
 });
 
 export const DistributionGroupSchema = z.object({
+  protocol: z.string().nullable(),
   protocolName: z.string().nullable(),
   protocolDescription: z.string().nullable(),
   formats: z.array(DistributionFormatEntrySchema),
