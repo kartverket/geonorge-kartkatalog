@@ -8,8 +8,22 @@ import {
   getEditUrl,
   getMetadataXmlUrl,
 } from "@/app/metadata/[uuid]/_utils/urls";
-import type { ProductMetadata } from "@/lib/schemas/product";
+import type { DistributionGroup, ProductMetadata } from "@/lib/schemas/product";
 import styles from "./ProductActions.module.css";
+
+
+function getGeonorgeDownloadUrl(
+  distributionGroups: DistributionGroup[],
+): string | null {
+  const group = distributionGroups.find(
+    (g) => g.protocol === "GEONORGE:DOWNLOAD",
+  );
+  const rawUrl = group?.formats[0]?.urls[0];
+  if (!rawUrl) return null;
+  const stripped = rawUrl.replace(/\/+$/, "");
+  const lastSlash = stripped.lastIndexOf("/");
+  return lastSlash !== -1 ? stripped.substring(0, lastSlash + 1) : stripped;
+}
 
 export function ProductActions({
   metadata,
@@ -23,7 +37,7 @@ export function ProductActions({
       ? {
           uuid,
           name: metadata.title,
-          distributionGroups: metadata.distributionGroups,
+          distributionUrl: getGeonorgeDownloadUrl(metadata.distributionGroups),
         }
       : null;
 

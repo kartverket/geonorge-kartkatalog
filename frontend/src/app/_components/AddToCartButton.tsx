@@ -1,39 +1,29 @@
 "use client";
 
+import type { ButtonProps } from "@kv-designsystem/react";
 import { Button } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
 import { useCallback, useEffect, useState } from "react";
-import type { DistributionGroup } from "@/lib/schemas/product";
 
 export type DownloadItem = {
-  distributionGroups: DistributionGroup[];
+  distributionUrl: string | null;
   name: string;
   uuid: string;
 };
 
-function getGeonorgeDownloadUrl(
-  distributionGroups: DistributionGroup[] | undefined,
-): string | null {
-  if (!distributionGroups) return null;
-  const group = distributionGroups.find(
-    (g) => g.protocol === "GEONORGE:DOWNLOAD",
-  );
-  const rawUrl = group?.formats[0]?.urls[0];
-  if (!rawUrl) return null;
-  const stripped = rawUrl.replace(/\/+$/, "");
-  const lastSlash = stripped.lastIndexOf("/");
-  return lastSlash !== -1 ? stripped.substring(0, lastSlash + 1) : rawUrl;
-}
-
 export default function AddToCartButton({
   item,
   className,
+  variant,
+  size,
 }: {
   item: DownloadItem | null;
   className?: string;
+  variant?: ButtonProps["variant"];
+  size?: "sm" | "md" | "lg";
 }) {
   const [isInCart, setIsInCart] = useState(false);
-  const distributionUrl = getGeonorgeDownloadUrl(item?.distributionGroups);
+  const distributionUrl = item?.distributionUrl ?? null;
 
   useEffect(() => {
     if (!item?.uuid) return;
@@ -83,6 +73,8 @@ export default function AddToCartButton({
   return (
     <Button
       data-color={"neutral"}
+      variant={variant}
+      data-size={size}
       className={className}
       onClick={handleToggleCart}
     >
