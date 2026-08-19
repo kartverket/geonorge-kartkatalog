@@ -3,7 +3,6 @@
 import { Button, Card, Tag } from "@kv-designsystem/react";
 import {
   CheckmarkIcon,
-  DownloadIcon,
   ExternalLinkIcon,
   FilesIcon,
   LayersPlusIcon,
@@ -11,6 +10,7 @@ import {
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import AddToCartButton from "@/app/_components/AddToCartButton";
 import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = {
@@ -136,12 +136,14 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
             />
           )}
           {canDownload && p.distributionUrl && (
-            <CardActionButton
-              onClick={() =>
-                window.open(p.distributionUrl, "_blank", "noopener")
-              }
-              label="Last ned"
-              icon={<DownloadIcon aria-hidden />}
+            <AddToCartButton
+              item={{
+                uuid: p.uuid,
+                name: p.title,
+                distributionUrl: p.distributionUrl,
+              }}
+              variant="tertiary"
+              size="sm"
             />
           )}
           {canCopy && (

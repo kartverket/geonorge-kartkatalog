@@ -6,6 +6,10 @@ import { useState } from "react";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
 import { formatDate, showCopyLink } from "@/app/metadata/[uuid]/_utils/utils";
+import {
+  getProductTypeDefiniteString,
+  getProductTypeString,
+} from "@/lib/productType";
 import type {
   DistributionGroup,
   LinkedDistributions,
@@ -14,10 +18,6 @@ import type {
   ReferenceSystem,
 } from "@/lib/schemas/product";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
-import {
-  getProductTypeString,
-  getProductTypeDefiniteString,
-} from "@/lib/productType";
 import styles from "./ProductTabs.module.css";
 
 export function ProductTabs({

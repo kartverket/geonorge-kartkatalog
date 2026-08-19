@@ -65,7 +65,7 @@ export default async function ProductPage({
           relevantCategories={null} // TODO: GN-241 - Legg til relevantCategories når det er tilgjengelig i metadata
         />
       </div>
-      <ProductActions coverageUrl={metadata.coverageUrl} uuid={uuid} />
+      <ProductActions uuid={uuid} metadata={metadata} />
       <Suspense>
         <ProductTabsSection uuid={uuid} metadata={metadata} />
       </Suspense>
