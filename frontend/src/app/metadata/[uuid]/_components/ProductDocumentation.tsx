@@ -5,6 +5,7 @@ import {
   TasklistStartIcon,
 } from "@navikt/aksel-icons";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
+import type { ProduktarkItem } from "@/lib/schemas/produktark";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import styles from "./ProductDocumentation.module.css";
 
@@ -19,8 +20,10 @@ type DocumentationCard = {
 
 export function ProductDocumentation({
   tegneregler,
+  produktark,
 }: {
   tegneregler: TegnereglerItem | null;
+  produktark: ProduktarkItem | null;
 }) {
   const cardContent: DocumentationCard[] = [
     ...(tegneregler?.documentreference
@@ -37,12 +40,19 @@ export function ProductDocumentation({
         ]
       : []),
 
-    {
-      title: "Produktark",
-      paragraph:
-        "Produktark gir en kortfattet oversikt over datasettets innhold, bruksområde og viktige egenskaper.",
-      icon: <FileTextIcon aria-hidden className={styles.icon} />,
-    },
+    ...(produktark?.documentreference
+      ? [
+          {
+            title: "Produktark",
+            status: produktark.status,
+            paragraph:
+              "Produktark gir en kortfattet oversikt over datasettets innhold, bruksområde og viktige egenskaper.",
+            icon: <FileTextIcon aria-hidden className={styles.icon} />,
+            url: produktark.documentreference,
+            dateSubmitted: produktark.dateSubmitted,
+          },
+        ]
+      : []),
 
     {
       title: "Produktspesifikasjon",

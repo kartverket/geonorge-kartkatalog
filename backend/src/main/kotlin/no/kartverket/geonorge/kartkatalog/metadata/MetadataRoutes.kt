@@ -44,5 +44,20 @@ fun Route.metadataRoutes(
             }
             call.respond(result)
         }
+        get("{uuid}/produktark") {
+            val uuid =
+                call.parameters["uuid"]?.takeIf {
+                    it.isNotBlank()
+                }
+                    ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
+            val result = metadataService.getProduktark(uuid)
+            if (result == null) {
+                return@get call.respond(
+                    HttpStatusCode.NotFound,
+                    mapOf("error" to "No produktark found for UUID: $uuid"),
+                )
+            }
+            call.respond(result)
+        }
     }
 }

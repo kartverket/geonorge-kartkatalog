@@ -18,6 +18,7 @@ import type {
   ProductFairStatus,
   ReferenceSystem,
 } from "@/lib/schemas/product";
+import type { ProduktarkItem } from "@/lib/schemas/produktark";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import styles from "./ProductTabs.module.css";
 
@@ -35,6 +36,7 @@ export function ProductTabs({
   maintenanceFrequency,
   fairStatus,
   tegneregler,
+  produktark,
 }: {
   hierarchyLevel: string | null;
   abstract: string | null;
@@ -49,6 +51,7 @@ export function ProductTabs({
   maintenanceFrequency: string | null;
   fairStatus: ProductFairStatus | null;
   tegneregler: TegnereglerItem | null;
+  produktark: ProduktarkItem | null;
 }) {
   const infoDetails = buildInfoDetails({
     specificUsage,
@@ -103,7 +106,10 @@ export function ProductTabs({
           </div>
         </Tabs.Panel>
         <Tabs.Panel value="documentation" className={styles.panel}>
-          <ProductDocumentation tegneregler={tegneregler} />
+          <ProductDocumentation
+            tegneregler={tegneregler}
+            produktark={produktark}
+          />
         </Tabs.Panel>
         {fairStatus && (
           <Tabs.Panel value="quality" className={styles.panel}>

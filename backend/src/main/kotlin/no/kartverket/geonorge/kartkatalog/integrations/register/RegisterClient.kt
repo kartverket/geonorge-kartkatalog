@@ -10,6 +10,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
+import org.slf4j.LoggerFactory
 import java.net.URLEncoder.encode
 import kotlin.text.Charsets.UTF_8
 
@@ -32,6 +33,7 @@ class RegisterClient(
     private val baseUrl: String,
 ) {
     private val json = Json { ignoreUnknownKeys = true }
+    private val log = LoggerFactory.getLogger(RegisterClient::class.java)
 
     suspend fun getCodeList(codeList: CodeList): RegisterCodeListResponse =
         fetch("/api/kodelister/${codeList.systemId}", RegisterCodeListResponse.serializer())
@@ -50,13 +52,42 @@ class RegisterClient(
         val response = getResponse(path)
 
         return when {
-            response.status == HttpStatusCode.NotFound -> null
-            !response.status.isSuccess() ->
+            response.status == HttpStatusCode.NotFound -> {
+                log.debug("Tegneregler not found for seoname: {}", seoname)
+                null
+            }
+            !response.status.isSuccess() -> {
+                log.warn("Tegneregler request failed for seoname: {} with status: {}", seoname, response.status)
                 throw RegisterException("Register request to $path failed with status ${response.status}")
+            }
             else ->
                 try {
                     json.decodeFromString(RegisterTegnereglerItem.serializer(), response.bodyAsText())
                 } catch (e: Exception) {
+                    log.error("Failed to parse Tegneregler response for seoname: {}", seoname, e)
+                    throw RegisterException("Failed to parse Register response from $path", e)
+                }
+        }
+    }
+
+    suspend fun getProduktark(seoname: String): RegisterProduktarkItem? {
+        val path = "/api/produktark/${encode(seoname, UTF_8)}"
+        val response = getResponse(path)
+
+        return when {
+            response.status == HttpStatusCode.NotFound -> {
+                log.debug("Produktark not found for seoname: {}", seoname)
+                null
+            }
+            !response.status.isSuccess() -> {
+                log.warn("Produktark request failed for seoname: {} with status: {}", seoname, response.status)
+                throw RegisterException("Register request failed with status ${response.status}")
+            }
+            else ->
+                try {
+                    json.decodeFromString(RegisterProduktarkItem.serializer(), response.bodyAsText())
+                } catch (e: Exception) {
+                    log.error("Failed to parse Produktark response for seoname: {}", seoname, e)
                     throw RegisterException("Failed to parse Register response from $path", e)
                 }
         }
@@ -69,12 +100,14 @@ class RegisterClient(
         val response = getResponse(path)
 
         if (!response.status.isSuccess()) {
+            log.warn("Register request to {} failed with status: {}", path, response.status)
             throw RegisterException("Register request to $path failed with status ${response.status}")
         }
 
         return try {
             json.decodeFromString(deserializer, response.bodyAsText())
         } catch (e: Exception) {
+            log.error("Failed to parse Register response from {}", path, e)
             throw RegisterException("Failed to parse Register response from $path", e)
         }
     }

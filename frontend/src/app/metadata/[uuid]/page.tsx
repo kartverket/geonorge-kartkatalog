@@ -5,6 +5,7 @@ import {
   getLinkedDistributions,
   getMetadata,
   getProductAlerts,
+  getProduktark,
   getTegneregler,
 } from "@/app/api";
 import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
@@ -101,18 +102,26 @@ async function ProductTabsSection({
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
 }) {
-  const [fairStatusResult, tegnereglerResult, linkedDistributionsResult] =
-    await Promise.allSettled([
-      getFairStatus(uuid),
-      getTegneregler(uuid),
-      getLinkedDistributions(uuid),
-    ]);
+  const [
+    fairStatusResult,
+    tegnereglerResult,
+    produktarkResult,
+    linkedDistributionsResult,
+  ] = await Promise.allSettled([
+    getFairStatus(uuid),
+    getTegneregler(uuid),
+    getProduktark(uuid),
+    getLinkedDistributions(uuid),
+  ]);
 
   if (fairStatusResult.status === "rejected") {
     console.error("Kunne ikke laste FAIR-status", fairStatusResult.reason);
   }
   if (tegnereglerResult.status === "rejected") {
     console.error("Kunne ikke laste tegneregler", tegnereglerResult.reason);
+  }
+  if (produktarkResult.status === "rejected") {
+    console.error("Kunne ikke laste produktark", produktarkResult.reason);
   }
   if (linkedDistributionsResult.status === "rejected") {
     console.error(
@@ -125,6 +134,8 @@ async function ProductTabsSection({
     fairStatusResult.status === "fulfilled" ? fairStatusResult.value : null;
   const tegneregler =
     tegnereglerResult.status === "fulfilled" ? tegnereglerResult.value : null;
+  const produktark =
+    produktarkResult.status === "fulfilled" ? produktarkResult.value : null;
   const linkedDistributions =
     linkedDistributionsResult.status === "fulfilled"
       ? linkedDistributionsResult.value
@@ -157,6 +168,7 @@ async function ProductTabsSection({
       maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}
       tegneregler={tegneregler}
+      produktark={produktark}
     />
   );
 }
