@@ -71,10 +71,8 @@ class RegisterClient(
     }
 
     suspend fun getProduktark(seoname: String): RegisterProduktarkItem? {
-        val response =
-            httpClient.get("$baseUrl/api/produktark/${encode(seoname, UTF_8)}") {
-                headers { append(HttpHeaders.AcceptLanguage, "no") }
-            }
+        val path = "/api/produktark/${encode(seoname, UTF_8)}"
+        val response = getResponse(path)
 
         return when {
             response.status == HttpStatusCode.NotFound -> {
