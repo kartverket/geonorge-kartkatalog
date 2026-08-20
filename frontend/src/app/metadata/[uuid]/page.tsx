@@ -102,13 +102,17 @@ async function ProductTabsSection({
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
 }) {
-  const [fairStatusResult, tegnereglerResult, produktarkResult, linkedDistributionsResult] =
-    await Promise.allSettled([
-      getFairStatus(uuid),
-      getTegneregler(uuid),
-      getProduktark(uuid),
-      getLinkedDistributions(uuid),
-    ]);
+  const [
+    fairStatusResult,
+    tegnereglerResult,
+    produktarkResult,
+    linkedDistributionsResult,
+  ] = await Promise.allSettled([
+    getFairStatus(uuid),
+    getTegneregler(uuid),
+    getProduktark(uuid),
+    getLinkedDistributions(uuid),
+  ]);
 
   if (fairStatusResult.status === "rejected") {
     console.error("Kunne ikke laste FAIR-status", fairStatusResult.reason);
@@ -130,6 +134,8 @@ async function ProductTabsSection({
     fairStatusResult.status === "fulfilled" ? fairStatusResult.value : null;
   const tegneregler =
     tegnereglerResult.status === "fulfilled" ? tegnereglerResult.value : null;
+  const produktark =
+    produktarkResult.status === "fulfilled" ? produktarkResult.value : null;
   const linkedDistributions =
     linkedDistributionsResult.status === "fulfilled"
       ? linkedDistributionsResult.value
