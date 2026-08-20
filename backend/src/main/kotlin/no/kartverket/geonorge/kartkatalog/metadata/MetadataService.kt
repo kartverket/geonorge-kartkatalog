@@ -21,7 +21,7 @@ class MetadataService(
     }
 
     suspend fun getTegneregler(uuid: String): TegnereglerItem? {
-        val tegnereglerPath = getExtensionUrl(uuid, "tegneregler")
+        val tegnereglerPath = getExtensionUrl(uuid, "tegnforklaring")
         return tegnereglerPath?.let {
             val seoname = it.substringAfterLast("/tegneregler/")
             registerClient.getTegneregler(seoname)?.toTegnereglerItem()
