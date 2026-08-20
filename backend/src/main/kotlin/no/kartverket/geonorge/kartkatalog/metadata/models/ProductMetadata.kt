@@ -31,6 +31,7 @@ data class ProductMetadata(
     val referenceSystems: List<ProductReferenceSystem> = emptyList(),
     val distributionGroups: List<ProductDistributionGroup> = emptyList(),
     val coverageUrl: String? = null,
+    val productSpecificationUrl: String? = null,
 )
 
 @Serializable

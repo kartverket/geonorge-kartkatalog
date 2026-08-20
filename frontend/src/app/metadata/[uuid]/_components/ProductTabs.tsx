@@ -35,6 +35,7 @@ export function ProductTabs({
   maintenanceFrequency,
   fairStatus,
   tegneregler,
+  productSpecificationUrl,
 }: {
   hierarchyLevel: string | null;
   abstract: string | null;
@@ -49,6 +50,7 @@ export function ProductTabs({
   maintenanceFrequency: string | null;
   fairStatus: ProductFairStatus | null;
   tegneregler: TegnereglerItem | null;
+  productSpecificationUrl: string | null;
 }) {
   const infoDetails = buildInfoDetails({
     specificUsage,
@@ -103,7 +105,10 @@ export function ProductTabs({
           </div>
         </Tabs.Panel>
         <Tabs.Panel value="documentation" className={styles.panel}>
-          <ProductDocumentation tegneregler={tegneregler} />
+          <ProductDocumentation
+            tegneregler={tegneregler}
+            productSpecificationUrl={productSpecificationUrl}
+          />
         </Tabs.Panel>
         {fairStatus && (
           <Tabs.Panel value="quality" className={styles.panel}>
