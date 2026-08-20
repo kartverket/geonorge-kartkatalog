@@ -40,7 +40,10 @@ export default async function ProductPage({
   const { uuid } = await params;
   const [metadata, alerts] = await Promise.all([
     getMetadata(uuid),
-    getProductAlerts(uuid),
+    getProductAlerts(uuid).catch((error) => {
+      console.error("Kunne ikke laste varsler", error);
+      return null;
+    }),
   ]);
   const relevantAlerts = getRelevantAlerts(alerts);
 
