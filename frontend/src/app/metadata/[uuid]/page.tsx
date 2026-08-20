@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import {
   getFairStatus,
@@ -20,6 +21,18 @@ import { ProductTabs } from "./_components/ProductTabs";
 import { ProductThumbnail } from "./_components/ProductThumbnail";
 import styles from "./page.module.css";
 
+// Setter metadatatittel så det bla vises i faner
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ uuid: string }>;
+}): Promise<Metadata> {
+  const { uuid } = await params;
+  const metadata = await getMetadata(uuid);
+  const pageTitle = metadata?.title || "Kartkatalogen";
+  return { title: pageTitle };
+}
+
 export default async function ProductPage({
   params,
 }: {
@@ -28,7 +41,10 @@ export default async function ProductPage({
   const { uuid } = await params;
   const [metadata, alerts] = await Promise.all([
     getMetadata(uuid),
-    getProductAlerts(uuid),
+    getProductAlerts(uuid).catch((error) => {
+      console.error("Kunne ikke laste varsler", error);
+      return null;
+    }),
   ]);
   const relevantAlerts = getRelevantAlerts(alerts);
 
@@ -86,13 +102,47 @@ async function ProductTabsSection({
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
 }) {
-  const [fairStatus, tegneregler, produktark, linkedDistributions] =
-    await Promise.all([
+  const [fairStatusResult, tegnereglerResult, produktarkResult, linkedDistributionsResult] =
+    await Promise.allSettled([
       getFairStatus(uuid),
-      getTegneregler(uuid).catch(() => null),
-      getProduktark(uuid).catch(() => null),
+      getTegneregler(uuid),
+      getProduktark(uuid),
       getLinkedDistributions(uuid),
     ]);
+
+  if (fairStatusResult.status === "rejected") {
+    console.error("Kunne ikke laste FAIR-status", fairStatusResult.reason);
+  }
+  if (tegnereglerResult.status === "rejected") {
+    console.error("Kunne ikke laste tegneregler", tegnereglerResult.reason);
+  }
+  if (produktarkResult.status === "rejected") {
+    console.error("Kunne ikke laste produktark", produktarkResult.reason);
+  }
+  if (linkedDistributionsResult.status === "rejected") {
+    console.error(
+      "Kunne ikke laste koblede distribusjoner",
+      linkedDistributionsResult.reason,
+    );
+  }
+
+  const fairStatus =
+    fairStatusResult.status === "fulfilled" ? fairStatusResult.value : null;
+  const tegneregler =
+    tegnereglerResult.status === "fulfilled" ? tegnereglerResult.value : null;
+  const linkedDistributions =
+    linkedDistributionsResult.status === "fulfilled"
+      ? linkedDistributionsResult.value
+      : {
+          applications: [],
+          viewServices: [],
+          downloadServices: [],
+          seriesMembers: [],
+          parentSeries: [],
+          relatedDatasets: [],
+          serviceLayers: [],
+          parentService: [],
+        };
 
   return (
     <ProductTabs

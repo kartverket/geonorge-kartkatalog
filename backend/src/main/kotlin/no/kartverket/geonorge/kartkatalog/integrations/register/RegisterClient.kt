@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.integrations.register
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -47,10 +48,8 @@ class RegisterClient(
         fetch("/api/register/organisasjoner", RegisterOrganizationsResponse.serializer())
 
     suspend fun getTegneregler(seoname: String): RegisterTegnereglerItem? {
-        val response =
-            httpClient.get("$baseUrl/api/tegneregler/${encode(seoname, UTF_8)}") {
-                headers { append(HttpHeaders.AcceptLanguage, "no") }
-            }
+        val path = "/api/tegneregler/${encode(seoname, UTF_8)}"
+        val response = getResponse(path)
 
         return when {
             response.status == HttpStatusCode.NotFound -> {
@@ -59,14 +58,14 @@ class RegisterClient(
             }
             !response.status.isSuccess() -> {
                 log.warn("Tegneregler request failed for seoname: {} with status: {}", seoname, response.status)
-                throw RegisterException("Register request failed with status ${response.status}")
+                throw RegisterException("Register request to $path failed with status ${response.status}")
             }
             else ->
                 try {
                     json.decodeFromString(RegisterTegnereglerItem.serializer(), response.bodyAsText())
                 } catch (e: Exception) {
                     log.error("Failed to parse Tegneregler response for seoname: {}", seoname, e)
-                    throw RegisterException("Failed to parse Register response", e)
+                    throw RegisterException("Failed to parse Register response from $path", e)
                 }
         }
     }
@@ -91,7 +90,7 @@ class RegisterClient(
                     json.decodeFromString(RegisterProduktarkItem.serializer(), response.bodyAsText())
                 } catch (e: Exception) {
                     log.error("Failed to parse Produktark response for seoname: {}", seoname, e)
-                    throw RegisterException("Failed to parse Register response", e)
+                    throw RegisterException("Failed to parse Register response from $path", e)
                 }
         }
     }
@@ -100,10 +99,7 @@ class RegisterClient(
         path: String,
         deserializer: DeserializationStrategy<T>,
     ): T {
-        val response =
-            httpClient.get("$baseUrl$path") {
-                headers { append(HttpHeaders.AcceptLanguage, "no") }
-            }
+        val response = getResponse(path)
 
         if (!response.status.isSuccess()) {
             log.warn("Register request to {} failed with status: {}", path, response.status)
@@ -117,6 +113,15 @@ class RegisterClient(
             throw RegisterException("Failed to parse Register response from $path", e)
         }
     }
+
+    private suspend fun getResponse(path: String): HttpResponse =
+        try {
+            httpClient.get("$baseUrl$path") {
+                headers { append(HttpHeaders.AcceptLanguage, "no") }
+            }
+        } catch (e: Exception) {
+            throw RegisterException("Register request to $path failed", e)
+        }
 }
 
 class RegisterException(

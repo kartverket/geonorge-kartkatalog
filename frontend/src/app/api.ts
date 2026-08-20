@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
   type LinkedDistributions,
@@ -85,13 +86,15 @@ async function fetchJson(
  * Fetch metadata for a dataset by UUID.
  * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
  */
-export async function getMetadata(uuid: string): Promise<ProductMetadata> {
-  if (!uuid) throw new Error("uuid is required");
-  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}`;
-  // Fetch as unknown and validate the shape with Zod before returning typed data
-  const body = await fetchJson(url, { method: "GET" });
-  return parseProductMetadata(body);
-}
+export const getMetadata = cache(
+  async (uuid: string): Promise<ProductMetadata> => {
+    if (!uuid) throw new Error("uuid is required");
+    const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}`;
+    // Fetch as unknown and validate the shape with Zod before returning typed data
+    const body = await fetchJson(url, { method: "GET" });
+    return parseProductMetadata(body);
+  },
+);
 
 /**
  * Fetch linked distributions (applications, view services,
