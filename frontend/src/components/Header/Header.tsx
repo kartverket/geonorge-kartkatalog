@@ -11,22 +11,23 @@ import {
 } from "@navikt/aksel-icons";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { LOCATIONS, trackEvent } from "@/posthog/posthog";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
-import { HeaderSearch } from "./HeaderSearch";
 import { ProfileDropdown } from "./ProfileDropdown";
 
 export function Header() {
-  const [openPanel, setOpenPanel] = useState<
-    "search" | "menu" | "profile" | null
-  >(null);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
+  const [openPanel, setOpenPanel] = useState<"menu" | "profile" | null>(null);
 
   const trackClick = (clickItem: string) =>
     trackEvent(`${clickItem}-clicked`, { location: LOCATIONS.Header });
-  const togglePanel = (panel: "search" | "menu" | "profile") => {
+  const togglePanel = (panel: "menu" | "profile") => {
     setOpenPanel((prev) => (prev === panel ? null : panel));
     trackClick(panel);
   };
@@ -40,7 +41,6 @@ export function Header() {
   const downloadCount = 0;
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const searchButtonRef = useRef<HTMLButtonElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -56,7 +56,6 @@ export function Header() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setOpenPanel(null);
-        if (openPanel === "search") searchButtonRef.current?.focus();
         if (openPanel === "menu") menuButtonRef.current?.focus();
       }
     };
@@ -85,20 +84,15 @@ export function Header() {
           </Link>
           <div className={styles.actions}>
             <Button
-              ref={searchButtonRef}
+              asChild
               variant="tertiary"
               data-color="neutral"
-              className={styles.showFromSm}
-              aria-expanded={openPanel === "search"}
-              aria-controls="header-search-panel"
-              onClick={() => togglePanel("search")}
+              className={`${styles.showFromSm} ${isHome ? styles.navActive : ""}`}
             >
-              {openPanel === "search" ? (
-                <XMarkIcon aria-hidden />
-              ) : (
+              <Link href="/" aria-current={isHome ? "page" : undefined}>
                 <MagnifyingGlassIcon aria-hidden />
-              )}
-              Søk
+                Finn data
+              </Link>
             </Button>
             <Button
               variant="tertiary"
@@ -186,7 +180,6 @@ export function Header() {
           </div>
         </div>
       </header>
-      {openPanel === "search" && <HeaderSearch />}
       {openPanel === "menu" && (
         <HeaderMenu
           closePanel={() => setOpenPanel(null)}
