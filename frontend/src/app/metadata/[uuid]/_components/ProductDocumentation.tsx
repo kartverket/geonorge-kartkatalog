@@ -101,7 +101,9 @@ function ButtonCard({
         <Heading data-size="md">{content.title}</Heading>
         <Paragraph data-size="md">{content.paragraph}</Paragraph>
         <Paragraph data-size="sm">
-          Dato publisert: {formatDate(content.dateSubmitted)}
+          {content.dateSubmitted
+            ? `Dato publisert: ${formatDate(content.dateSubmitted)}`
+            : null}
         </Paragraph>
       </a>
     </Card>
