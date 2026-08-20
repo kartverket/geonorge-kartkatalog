@@ -58,6 +58,15 @@ export function areAllItemsInCart(items: DownloadItem[]): boolean {
   return normalizedItems.every((item) => selectedItems.has(item.uuid));
 }
 
+export function areAnyItemsInCart(items: DownloadItem[]): boolean {
+  const normalizedItems = normalizeDownloadItems(items);
+
+  if (normalizedItems.length === 0) return false;
+
+  const selectedItems = new Set(readOrderItems());
+  return normalizedItems.some((item) => selectedItems.has(item.uuid));
+}
+
 export function addItemsToCart(items: DownloadItem[]) {
   const normalizedItems = normalizeDownloadItems(items);
 

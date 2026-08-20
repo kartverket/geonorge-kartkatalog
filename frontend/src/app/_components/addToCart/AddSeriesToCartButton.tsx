@@ -6,7 +6,7 @@ import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   addItemsToCart,
-  areAllItemsInCart,
+  areAnyItemsInCart,
   DOWNLOAD_ITEMS_CHANGED_EVENT,
   type DownloadItem,
   removeItemsFromCart,
@@ -30,7 +30,7 @@ export default function AddSeriesToCartButton({
   );
 
   const syncState = useCallback(() => {
-    setAreItemsInCart(areAllItemsInCart(downloadableItems));
+    setAreItemsInCart(areAnyItemsInCart(downloadableItems));
   }, [downloadableItems]);
 
   useEffect(() => {
