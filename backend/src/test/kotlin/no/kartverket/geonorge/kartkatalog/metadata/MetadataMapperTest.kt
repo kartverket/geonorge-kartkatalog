@@ -67,6 +67,7 @@ class MetadataMapperTest {
             assertEquals("Lisens", mapped.constraints?.useConstraints)
         }
 
+    @Suppress("ktlint:standard:max-line-length")
     @Test
     fun `maps product specification url from extension resources`() =
         runBlocking {

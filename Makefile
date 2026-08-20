@@ -1,4 +1,4 @@
-.PHONY: dev backend backend-clean test test-r frontend install fmt
+.PHONY: dev backend backend-clean test test-r frontend install fmt fmt-backend lint-backend
 
 backend:
 	cd backend && ./gradlew run
@@ -20,3 +20,9 @@ install:
 
 fmt:
 	cd frontend && npm run format
+
+fmt-backend:
+	cd backend && ./gradlew ktlintFormat
+
+lint-backend:
+	cd backend && ./gradlew ktlintCheck
