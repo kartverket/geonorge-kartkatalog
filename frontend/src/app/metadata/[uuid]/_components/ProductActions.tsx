@@ -3,7 +3,7 @@ import {
   FileTextIcon,
   PencilIcon,
 } from "@navikt/aksel-icons";
-import AddToCartButton from "@/app/_components/AddToCartButton";
+import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import {
   getEditUrl,
   getMetadataXmlUrl,

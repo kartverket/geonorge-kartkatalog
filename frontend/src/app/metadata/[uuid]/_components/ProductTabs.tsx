@@ -3,8 +3,8 @@
 import { Button, Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
 import { FilesIcon, LinkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
-import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { FairSection } from "@/app/metadata/[uuid]/_components/FairSection";
+import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
 import { formatDate, showCopyLink } from "@/app/metadata/[uuid]/_utils/utils";
 import {
