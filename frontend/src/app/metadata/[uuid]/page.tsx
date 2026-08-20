@@ -5,6 +5,7 @@ import {
   getLinkedDistributions,
   getMetadata,
   getProductAlerts,
+  getProduktark,
   getTegneregler,
 } from "@/app/api";
 import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
@@ -127,9 +128,14 @@ async function ProductTabsSection({
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
 }) {
-  const [fairStatusResult, tegnereglerResult] = await Promise.allSettled([
+  const [
+    fairStatusResult,
+    tegnereglerResult,
+    produktarkResult,
+  ] = await Promise.allSettled([
     getFairStatus(uuid),
     getTegneregler(uuid),
+    getProduktark(uuid),
   ]);
 
   if (fairStatusResult.status === "rejected") {
@@ -138,10 +144,16 @@ async function ProductTabsSection({
   if (tegnereglerResult.status === "rejected") {
     console.error("Kunne ikke laste tegneregler", tegnereglerResult.reason);
   }
+  if (produktarkResult.status === "rejected") {
+    console.error("Kunne ikke laste produktark", produktarkResult.reason);
+  }
+
   const fairStatus =
     fairStatusResult.status === "fulfilled" ? fairStatusResult.value : null;
   const tegneregler =
     tegnereglerResult.status === "fulfilled" ? tegnereglerResult.value : null;
+  const produktark =
+    produktarkResult.status === "fulfilled" ? produktarkResult.value : null;
 
   return (
     <ProductTabs
@@ -161,6 +173,7 @@ async function ProductTabsSection({
       maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}
       tegneregler={tegneregler}
+      produktark={produktark}
     />
   );
 }
