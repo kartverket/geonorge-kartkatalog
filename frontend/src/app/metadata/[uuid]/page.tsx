@@ -38,14 +38,28 @@ export default async function ProductPage({
   params: Promise<{ uuid: string }>;
 }) {
   const { uuid } = await params;
-  const [metadata, alerts] = await Promise.all([
+  const [metadata, alerts, linkedDistributionsResult] = await Promise.all([
     getMetadata(uuid),
     getProductAlerts(uuid).catch((error) => {
       console.error("Kunne ikke laste varsler", error);
       return null;
     }),
+    getLinkedDistributions(uuid).catch((error) => {
+      console.error("Kunne ikke laste koblede distribusjoner", error);
+      return null;
+    }),
   ]);
   const relevantAlerts = getRelevantAlerts(alerts);
+  const linkedDistributions = linkedDistributionsResult ?? {
+    applications: [],
+    viewServices: [],
+    downloadServices: [],
+    seriesMembers: [],
+    parentSeries: [],
+    relatedDatasets: [],
+    serviceLayers: [],
+    parentService: [],
+  };
 
   return (
     <div className={styles.content}>
@@ -81,9 +95,17 @@ export default async function ProductPage({
           relevantCategories={null} // TODO: GN-241 - Legg til relevantCategories når det er tilgjengelig i metadata
         />
       </div>
-      <ProductActions uuid={uuid} metadata={metadata} />
+      <ProductActions
+        uuid={uuid}
+        metadata={metadata}
+        linkedDistributions={linkedDistributions}
+      />
       <Suspense>
-        <ProductTabsSection uuid={uuid} metadata={metadata} />
+        <ProductTabsSection
+          uuid={uuid}
+          metadata={metadata}
+          initialLinkedDistributions={linkedDistributions}
+        />
       </Suspense>
       <ContactInfoCard
         contactMetadata={metadata.contactMetadata}
@@ -95,18 +117,20 @@ export default async function ProductPage({
 }
 
 async function ProductTabsSection({
+  initialLinkedDistributions,
   uuid,
   metadata,
 }: {
+  initialLinkedDistributions: Awaited<
+    ReturnType<typeof getLinkedDistributions>
+  >;
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
 }) {
-  const [fairStatusResult, tegnereglerResult, linkedDistributionsResult] =
-    await Promise.allSettled([
-      getFairStatus(uuid),
-      getTegneregler(uuid),
-      getLinkedDistributions(uuid),
-    ]);
+  const [fairStatusResult, tegnereglerResult] = await Promise.allSettled([
+    getFairStatus(uuid),
+    getTegneregler(uuid),
+  ]);
 
   if (fairStatusResult.status === "rejected") {
     console.error("Kunne ikke laste FAIR-status", fairStatusResult.reason);
@@ -114,30 +138,10 @@ async function ProductTabsSection({
   if (tegnereglerResult.status === "rejected") {
     console.error("Kunne ikke laste tegneregler", tegnereglerResult.reason);
   }
-  if (linkedDistributionsResult.status === "rejected") {
-    console.error(
-      "Kunne ikke laste koblede distribusjoner",
-      linkedDistributionsResult.reason,
-    );
-  }
-
   const fairStatus =
     fairStatusResult.status === "fulfilled" ? fairStatusResult.value : null;
   const tegneregler =
     tegnereglerResult.status === "fulfilled" ? tegnereglerResult.value : null;
-  const linkedDistributions =
-    linkedDistributionsResult.status === "fulfilled"
-      ? linkedDistributionsResult.value
-      : {
-          applications: [],
-          viewServices: [],
-          downloadServices: [],
-          seriesMembers: [],
-          parentSeries: [],
-          relatedDatasets: [],
-          serviceLayers: [],
-          parentService: [],
-        };
 
   return (
     <ProductTabs
@@ -152,7 +156,7 @@ async function ProductTabsSection({
       }}
       referenceSystems={metadata.referenceSystems}
       distributionGroups={metadata.distributionGroups}
-      linkedDistributions={linkedDistributions}
+      linkedDistributions={initialLinkedDistributions}
       dateUpdated={metadata.dateUpdated}
       maintenanceFrequency={metadata.maintenanceFrequency}
       fairStatus={fairStatus}

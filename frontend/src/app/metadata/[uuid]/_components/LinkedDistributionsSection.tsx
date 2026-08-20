@@ -2,8 +2,6 @@
 
 import { Button, Heading } from "@kv-designsystem/react";
 import { useState } from "react";
-import AddSeriesToCartButton from "@/app/_components/addToCart/AddSeriesToCartButton";
-import type { DownloadItem } from "@/app/_components/addToCart/cartStorage";
 import { DatasetCard } from "@/app/_components/DatasetCard/DatasetCard";
 import { getProductTypeString } from "@/lib/productType";
 import type {
@@ -29,18 +27,6 @@ function toDatasetCardProps(d: LinkedDistribution) {
     protocolNames: d.protocolNames,
     formats: d.formats,
     showThumbnail: false,
-  };
-}
-
-function toDownloadItem(d: LinkedDistribution): DownloadItem | null {
-  if (d.distributionProtocol !== "GEONORGE:DOWNLOAD" || !d.distributionUrl) {
-    return null;
-  }
-
-  return {
-    uuid: d.uuid,
-    name: d.title ?? "-",
-    distributionUrl: d.distributionUrl,
   };
 }
 
@@ -72,11 +58,9 @@ function getLinkedDistributionsHeading({
 function DistributionGroup({
   heading,
   items,
-  bulkItems,
 }: {
   heading: string;
   items: LinkedDistribution[];
-  bulkItems?: DownloadItem[];
 }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
@@ -88,19 +72,9 @@ function DistributionGroup({
 
   return (
     <div className={styles.group}>
-      <div className={styles.groupHeader}>
-        <Heading data-size="2xs" className={styles.subHeading}>
-          {heading}
-        </Heading>
-        {!!bulkItems?.length && (
-          <AddSeriesToCartButton
-            items={bulkItems}
-            variant="secondary"
-            size="sm"
-            className={styles.bulkActionButton}
-          />
-        )}
-      </div>
+      <Heading data-size="2xs" className={styles.subHeading}>
+        {heading}
+      </Heading>
       <div className={styles.cardGrid}>
         {visible.map((d) => (
           <DatasetCard key={d.uuid} {...toDatasetCardProps(d)} />
@@ -141,10 +115,6 @@ export function LinkedDistributionsSection({
   const relatedDatasets = linkedDistributions?.relatedDatasets ?? [];
   const serviceLayers = linkedDistributions?.serviceLayers ?? [];
   const parentService = linkedDistributions?.parentService ?? [];
-  const downloadableSeriesMembers = seriesMembers.flatMap((distribution) => {
-    const downloadItem = toDownloadItem(distribution);
-    return downloadItem ? [downloadItem] : [];
-  });
 
   const hasDatasets =
     seriesMembers.length > 0 ||
@@ -182,11 +152,7 @@ export function LinkedDistributionsSection({
       <Heading data-size="xs" className={styles.heading}>
         {heading}
       </Heading>
-      <DistributionGroup
-        heading="Datasett i serien"
-        items={seriesMembers}
-        bulkItems={downloadableSeriesMembers}
-      />
+      <DistributionGroup heading="Datasett i serien" items={seriesMembers} />
       <DistributionGroup heading="Datasettserier" items={parentSeries} />
       <DistributionGroup heading="Datasett" items={relatedDatasets} />
       <DistributionGroup heading="Applikasjoner" items={applications} />

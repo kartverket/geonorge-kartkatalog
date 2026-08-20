@@ -20,18 +20,6 @@
   margin-bottom: 2rem;
 }
 
-.groupHeader {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
 .subHeading {
-  margin-bottom: 0;
-}
-
-.bulkActionButton {
-  flex-shrink: 0;
+  margin-bottom: 1rem;
 }

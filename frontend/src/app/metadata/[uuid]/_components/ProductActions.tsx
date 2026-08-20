@@ -3,12 +3,19 @@ import {
   FileTextIcon,
   PencilIcon,
 } from "@navikt/aksel-icons";
+import AddSeriesToCartButton from "@/app/_components/addToCart/AddSeriesToCartButton";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
+import type { DownloadItem } from "@/app/_components/addToCart/cartStorage";
 import {
   getEditUrl,
   getMetadataXmlUrl,
 } from "@/app/metadata/[uuid]/_utils/urls";
-import type { DistributionGroup, ProductMetadata } from "@/lib/schemas/product";
+import type {
+  DistributionGroup,
+  LinkedDistribution,
+  LinkedDistributions,
+  ProductMetadata,
+} from "@/lib/schemas/product";
 import styles from "./ProductActions.module.css";
 
 function getGeonorgeDownloadUrl(
@@ -24,10 +31,24 @@ function getGeonorgeDownloadUrl(
   return lastSlash !== -1 ? stripped.substring(0, lastSlash + 1) : stripped;
 }
 
+function toDownloadItem(d: LinkedDistribution): DownloadItem | null {
+  if (d.distributionProtocol !== "GEONORGE:DOWNLOAD" || !d.distributionUrl) {
+    return null;
+  }
+
+  return {
+    uuid: d.uuid,
+    name: d.title ?? "-",
+    distributionUrl: d.distributionUrl,
+  };
+}
+
 export function ProductActions({
+  linkedDistributions,
   metadata,
   uuid,
 }: {
+  linkedDistributions: LinkedDistributions;
   metadata: ProductMetadata;
   uuid: string;
 }) {
@@ -39,9 +60,20 @@ export function ProductActions({
           distributionUrl: getGeonorgeDownloadUrl(metadata.distributionGroups),
         }
       : null;
+  const downloadableSeriesMembers = linkedDistributions.seriesMembers.flatMap(
+    (distribution) => {
+      const downloadItem = toDownloadItem(distribution);
+      return downloadItem ? [downloadItem] : [];
+    },
+  );
 
   return (
     <div className={styles.actions}>
+      <AddSeriesToCartButton
+        className={`ds-button ${styles.actionButton}`}
+        items={downloadableSeriesMembers}
+        variant="secondary"
+      />
       <AddToCartButton
         className={`ds-button ${styles.actionButton}`}
         item={cartItem}
