@@ -43,6 +43,7 @@ class MetadataMapper(
             resolutionScale = record.resolutionScale,
             keywordsTheme = mapThemeKeywords(record),
             nationalKeywords = mapNationalKeywords(record),
+            relevantCategories = mapRelevantCategories(record),
             distributionFormats =
                 record.distributionInfo?.formats.orEmpty().map {
                     it.toProductDistributionFormat()
@@ -146,6 +147,11 @@ class MetadataMapper(
     private fun mapNationalKeywords(record: MetadataRecord): List<ProductKeyword> =
         mapKeywords(record) {
             it.thesaurus.equals("Nasjonal tematisk inndeling (DOK-kategori)", ignoreCase = true)
+        }
+
+    private fun mapRelevantCategories(record: MetadataRecord): List<ProductKeyword> =
+        mapKeywords(record) {
+            it.thesaurusHref?.contains("samarbeid-og-lover", ignoreCase = true) == true
         }
 
     private val spatialScopeTranslations =

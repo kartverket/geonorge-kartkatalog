@@ -16,6 +16,7 @@ data class ProductMetadata(
     val resolutionScale: String? = null,
     val keywordsTheme: List<ProductKeyword> = emptyList(),
     val nationalKeywords: List<ProductKeyword> = emptyList(),
+    val relevantCategories: List<ProductKeyword> = emptyList(),
     val distributionFormats: List<ProductDistributionFormat> = emptyList(),
     val thumbnailUrl: String? = null,
     val fairStatusPercentFromMetadata: Int? = null,
