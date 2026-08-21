@@ -97,6 +97,11 @@ class MetadataMapper(
             abstractText = record.abstract,
             purpose = record.purpose,
             specificUsage = record.specificUsage,
+            supplementalDescription = record.supplementalDescription,
+            helpUrl =
+                record.extensionResources
+                    .firstOrNull { it.applicationProfile.equals("hjelp", ignoreCase = true) }
+                    ?.url,
             processHistory = record.processHistory,
             constraints = record.legalConstraints?.toProductConstraints(accessState = accessState),
             securityClassification =
