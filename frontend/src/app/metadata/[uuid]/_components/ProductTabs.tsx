@@ -314,10 +314,15 @@ function buildInfoDetails({
             title: "Hjelp til bruk",
             content: (
               <>
-                <p>{supplementalDescription}</p>
+                <p className={styles.abstract}>{supplementalDescription}</p>
                 {helpUrl && (
-                  <a href={helpUrl} target="_blank" rel="noopener noreferrer">
-                    Vis hjelp
+                  <a
+                    href={helpUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.helpLink}
+                  >
+                    Les mer
                   </a>
                 )}
               </>
