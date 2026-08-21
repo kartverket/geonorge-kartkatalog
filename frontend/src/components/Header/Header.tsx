@@ -89,7 +89,11 @@ export function Header() {
               data-color="neutral"
               className={`${styles.showFromSm} ${isHome ? styles.navActive : ""}`}
             >
-              <Link href="/" aria-current={isHome ? "page" : undefined}>
+              <Link
+                href="/"
+                aria-current={isHome ? "page" : undefined}
+                onNavigate={() => trackClick("finn-data")}
+              >
                 <MagnifyingGlassIcon aria-hidden />
                 Finn data
               </Link>
