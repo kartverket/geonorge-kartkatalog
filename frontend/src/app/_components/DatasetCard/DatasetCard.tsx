@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import AddToCartButton from "@/app/_components/AddToCartButton";
+import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = {
