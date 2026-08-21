@@ -28,6 +28,8 @@ export function ProductTabs({
   specificUsage,
   purpose,
   processHistory,
+  supplementalDescription,
+  helpUrl,
   constraints,
   referenceSystems,
   distributionGroups,
@@ -43,6 +45,8 @@ export function ProductTabs({
   specificUsage: string | null;
   purpose: string | null;
   processHistory?: string | null;
+  supplementalDescription?: string | null;
+  helpUrl?: string | null;
   constraints: ProductConstraints;
   referenceSystems: ReferenceSystem[];
   distributionGroups: DistributionGroup[];
@@ -57,6 +61,8 @@ export function ProductTabs({
     specificUsage,
     purpose,
     processHistory,
+    supplementalDescription,
+    helpUrl,
     constraints,
   });
   const distributionDetails = buildDistributionDetails({
@@ -214,11 +220,15 @@ function buildInfoDetails({
   specificUsage,
   purpose,
   processHistory,
+  supplementalDescription,
+  helpUrl,
   constraints,
 }: {
   specificUsage: string | null;
   purpose: string | null;
   processHistory?: string | null;
+  supplementalDescription?: string | null;
+  helpUrl?: string | null;
   constraints: ProductConstraints;
 }): DetailItem[] {
   const hasSpecificUsage = !!specificUsage;
@@ -295,6 +305,28 @@ function buildInfoDetails({
           {
             title: "Prosesshistorie",
             content: <p>{processHistory}</p>,
+          },
+        ]
+      : []),
+    ...(supplementalDescription
+      ? [
+          {
+            title: "Hjelp til bruk",
+            content: (
+              <>
+                <p className={styles.abstract}>{supplementalDescription}</p>
+                {helpUrl && (
+                  <a
+                    href={helpUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.helpLink}
+                  >
+                    Les mer
+                  </a>
+                )}
+              </>
+            ),
           },
         ]
       : []),

@@ -157,6 +157,8 @@ async function ProductTabsSection({
       specificUsage={metadata.specificUsage}
       purpose={metadata.purpose}
       processHistory={metadata.processHistory}
+      supplementalDescription={metadata.supplementalDescription}
+      helpUrl={metadata.helpUrl}
       constraints={{
         ...metadata.constraints,
         securityConstraints: metadata.securityClassification,

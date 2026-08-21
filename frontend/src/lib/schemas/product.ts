@@ -73,6 +73,8 @@ export const ProductMetadataSchema = z.object({
   purpose: z.string().nullable(),
   specificUsage: z.string().nullable(),
   processHistory: z.string().nullable(),
+  supplementalDescription: z.string().nullable(),
+  helpUrl: z.string().nullable(),
   constraints: LegalConstraintsSchema.nullable(),
   securityClassification: z.string().nullable(),
   contactMetadata: ProductMetadataContactSchema.nullable(),

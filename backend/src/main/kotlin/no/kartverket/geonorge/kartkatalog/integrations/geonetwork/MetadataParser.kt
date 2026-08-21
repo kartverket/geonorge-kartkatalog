@@ -84,6 +84,7 @@ object MetadataParser {
                         "gmd:resourceSpecificUsage/gmd:MD_Usage" +
                             "/gmd:specificUsage/gco:CharacterString",
                     ),
+                supplementalDescription = idInfo?.text("gmd:supplementalInformation/gco:CharacterString"),
                 processHistory =
                     md.text(
                         "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage" +
