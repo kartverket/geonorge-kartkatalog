@@ -49,15 +49,6 @@ export function isItemInCart(uuid: string): boolean {
   return readOrderItems().includes(uuid);
 }
 
-export function areAllItemsInCart(items: DownloadItem[]): boolean {
-  const normalizedItems = normalizeDownloadItems(items);
-
-  if (normalizedItems.length === 0) return false;
-
-  const selectedItems = new Set(readOrderItems());
-  return normalizedItems.every((item) => selectedItems.has(item.uuid));
-}
-
 export function areAnyItemsInCart(items: DownloadItem[]): boolean {
   const normalizedItems = normalizeDownloadItems(items);
 
