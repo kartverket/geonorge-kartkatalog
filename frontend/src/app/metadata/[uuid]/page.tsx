@@ -79,10 +79,13 @@ export default async function ProductPage({
             "name",
           )}
           fairStatusPercent={metadata.fairStatusPercentFromMetadata}
-          relevantCategories={getUniqueItemsFromListByKey(
-            metadata.relevantCategories,
-            "keywordValue",
-          )}
+          relevantCategories={[
+            ...(metadata.dokStatus ? [metadata.dokStatus] : []),
+            ...getUniqueItemsFromListByKey(
+              metadata.relevantCategories,
+              "keywordValue",
+            ),
+          ]}
         />
       </div>
       <ProductActions uuid={uuid} metadata={metadata} />
