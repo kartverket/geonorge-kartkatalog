@@ -231,6 +231,7 @@ function buildInfoDetails({
   helpUrl?: string | null;
   constraints: ProductConstraints;
 }): DetailItem[] {
+  console.log("build kjørt igjen");
   const hasSpecificUsage = !!specificUsage;
   const hasPurpose = !!purpose && purpose !== specificUsage;
 
