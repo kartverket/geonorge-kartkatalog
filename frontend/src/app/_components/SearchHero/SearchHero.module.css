@@ -2,15 +2,14 @@
   width: 100%;
   background-color: var(--ds-color-info-text-default);
   color: var(--ds-color-background-default);
-  padding-block: var(--ds-size-16);
+  padding-block: 70px;
 }
 
 .inner {
-  max-width: 1440px;
+  max-width: 561px;
   margin-inline: auto;
-  padding-inline: var(--ds-size-18);
   display: grid;
-  gap: var(--ds-size-8);
+  gap: var(--ds-size-10);
 }
 
 .title {
@@ -21,7 +20,6 @@
 .form {
   display: grid;
   gap: var(--ds-size-2);
-  max-width: 480px;
 }
 
 .label {
