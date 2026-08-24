@@ -157,13 +157,25 @@ class MetadataMapper(
             it.thesaurusHref?.contains("samarbeid-og-lover", ignoreCase = true) == true
         }
 
-    private val relevantCollaborationNames =
-        setOf("Mareano", "Marine grunnkart", "Økologisk grunnkart")
+    private val relevantCollaborationTags =
+        mapOf(
+            "mareano" to "Mareano",
+            "marinegrunnkart" to "Marine grunnkart",
+            "økologiskgrunnkart" to "Økologisk grunnkart",
+        )
 
-    private fun mapRelevantCategories(collaborationKeywords: List<ProductKeyword>): List<ProductKeyword> =
-        collaborationKeywords.filter { keyword ->
-            relevantCollaborationNames.any { it.equals(keyword.keywordValue, ignoreCase = true) }
-        }
+    private fun String.normalizedForMatch(): String = replace(" ", "").lowercase()
+
+    private fun mapRelevantCategories(collaborationKeywords: List<ProductKeyword>): List<String> {
+        val matchedKeys =
+            collaborationKeywords
+                .mapNotNull { it.keywordValue?.normalizedForMatch() }
+                .toSet()
+        return relevantCollaborationTags
+            .filterKeys { it in matchedKeys }
+            .values
+            .toList()
+    }
 
     private fun mapDokStatus(
         collaborationKeywords: List<ProductKeyword>,
