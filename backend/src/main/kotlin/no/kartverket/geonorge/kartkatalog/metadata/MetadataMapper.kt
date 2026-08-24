@@ -161,10 +161,7 @@ class MetadataMapper(
 
     private fun mapHvdKeywords(record: MetadataRecord): List<ProductKeyword> =
         mapKeywords(record) {
-            it.thesaurusHref?.let { href ->
-                href.contains("data.europa.eu/bna/", ignoreCase = true) ||
-                    href.contains("hvd-kategorier", ignoreCase = true)
-            } == true
+            it.thesaurusHref?.contains("data.europa.eu/bna/", ignoreCase = true) == true
         }
 
     private val relevantCollaborationTags =
