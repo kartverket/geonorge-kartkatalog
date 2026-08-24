@@ -1,22 +1,16 @@
 "use client";
 
-import { Button, Details, Heading, Tabs, Tag } from "@kv-designsystem/react";
-import { FilesIcon, LinkIcon } from "@navikt/aksel-icons";
-import { useState } from "react";
-import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
+import { Details, Heading, Tabs } from "@kv-designsystem/react";
 import { FairSection } from "@/app/metadata/[uuid]/_components/FairSection";
+import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
-import { formatDate, showCopyLink } from "@/app/metadata/[uuid]/_utils/utils";
 import {
   getProductTypeDefiniteString,
   getProductTypeString,
 } from "@/lib/productType";
 import type {
-  DistributionGroup,
   LinkedDistributions,
-  ProductConstraints,
   ProductFairStatus,
-  ReferenceSystem,
 } from "@/lib/schemas/product";
 import type { ProduktarkItem } from "@/lib/schemas/produktark";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
@@ -25,52 +19,22 @@ import styles from "./ProductTabs.module.css";
 export function ProductTabs({
   hierarchyLevel,
   abstract,
-  specificUsage,
-  purpose,
-  processHistory,
-  supplementalDescription,
-  helpUrl,
-  constraints,
-  referenceSystems,
-  distributionGroups,
   linkedDistributions,
-  dateUpdated,
-  maintenanceFrequency,
   fairStatus,
   tegneregler,
   produktark,
+  distributionDetails,
+  infoDetails,
 }: {
   hierarchyLevel: string | null;
   abstract: string | null;
-  specificUsage: string | null;
-  purpose: string | null;
-  processHistory?: string | null;
-  supplementalDescription?: string | null;
-  helpUrl?: string | null;
-  constraints: ProductConstraints;
-  referenceSystems: ReferenceSystem[];
-  distributionGroups: DistributionGroup[];
   linkedDistributions: LinkedDistributions;
-  dateUpdated: string | null;
-  maintenanceFrequency: string | null;
   fairStatus: ProductFairStatus | null;
   tegneregler: TegnereglerItem | null;
   produktark: ProduktarkItem | null;
+  distributionDetails: DetailItem[];
+  infoDetails: DetailItem[];
 }) {
-  const infoDetails = buildInfoDetails({
-    specificUsage,
-    purpose,
-    processHistory,
-    supplementalDescription,
-    helpUrl,
-    constraints,
-  });
-  const distributionDetails = buildDistributionDetails({
-    groups: distributionGroups,
-    referenceSystems,
-    dateUpdated,
-    maintenanceFrequency,
-  });
   const productType = getProductTypeString(hierarchyLevel).toLowerCase();
   const productTypeDefinite = getProductTypeDefiniteString(hierarchyLevel);
 
@@ -127,7 +91,7 @@ export function ProductTabs({
   );
 }
 
-type DetailItem = {
+export type DetailItem = {
   actionButton?: React.ReactNode | null;
   title: string;
   content: React.ReactNode;
@@ -147,289 +111,5 @@ function DetailAccordion({ items }: { items: DetailItem[] }) {
         </Details>
       ))}
     </>
-  );
-}
-
-type Field = { label: string; content: React.ReactNode };
-
-function FieldList({ fields }: { fields: Field[] }) {
-  return (
-    <dl className={styles.fieldList}>
-      {fields.map((f, i) => (
-        <div className={styles.fieldRow} key={`${i}-${f.label}`}>
-          <dt className={styles.fieldLabel}>{f.label}</dt>
-          <dd className={styles.fieldValue}>{f.content}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
-function UrlLink({ url }: { url: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <div className={styles.urlBox}>
-      <span className={styles.urlValue}>
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.urlText}
-        >
-          {url}
-        </a>
-      </span>
-      <button type="button" className={styles.copyButton} onClick={copy}>
-        <LinkIcon aria-hidden />
-        {copied ? "Kopiert" : "Kopiér lenke"}
-      </button>
-    </div>
-  );
-}
-
-function buildFormatUrlRows(formats: DistributionGroup["formats"]) {
-  const byUrls = new Map<string, string[]>();
-  formats.forEach((format) => {
-    const key = format.urls.join("|");
-    byUrls.set(key, [...(byUrls.get(key) ?? []), format.name]);
-  });
-
-  const entries = [...byUrls.entries()];
-  const isSingleSharedUrl =
-    entries.length === 1 && entries[0][0].split("|").length === 1;
-
-  return entries.flatMap(([key, names]) => {
-    const urls = key ? key.split("|") : [];
-    return urls.map((url, i) => ({
-      label: isSingleSharedUrl
-        ? "Tilgangs-URL"
-        : urls.length > 1
-          ? `${names.join(", ")} (${i + 1})`
-          : names.join(", "),
-      content: <UrlLink url={url} />,
-    }));
-  });
-}
-
-function buildInfoDetails({
-  specificUsage,
-  purpose,
-  processHistory,
-  supplementalDescription,
-  helpUrl,
-  constraints,
-}: {
-  specificUsage: string | null;
-  purpose: string | null;
-  processHistory?: string | null;
-  supplementalDescription?: string | null;
-  helpUrl?: string | null;
-  constraints: ProductConstraints;
-}): DetailItem[] {
-  console.log("build kjørt igjen");
-  const hasSpecificUsage = !!specificUsage;
-  const hasPurpose = !!purpose && purpose !== specificUsage;
-
-  const usageTitle =
-    hasSpecificUsage && hasPurpose
-      ? "Bruksområde og formål"
-      : hasSpecificUsage
-        ? "Bruksområde"
-        : "Formål";
-
-  return [
-    ...(specificUsage || purpose
-      ? [
-          {
-            title: usageTitle,
-            content: (
-              <FieldList
-                fields={[
-                  ...(hasSpecificUsage
-                    ? [{ label: "Bruksområde", content: specificUsage }]
-                    : []),
-                  ...(hasPurpose
-                    ? [{ label: "Formål", content: purpose }]
-                    : []),
-                ]}
-              />
-            ),
-          },
-        ]
-      : []),
-    {
-      title: "Lisens og restriksjoner",
-      content: (
-        <FieldList
-          fields={[
-            {
-              label: "Bruksbegrensninger",
-              content: constraints.useLimitations?.join(", ") ?? "-",
-            },
-            {
-              label: "Tilgangsrestriksjoner",
-              content: constraints.accessConstraints ?? "-",
-            },
-            {
-              label: "Brukerrestriksjoner",
-              content: constraints.useConstraints ?? "-",
-            },
-            {
-              label: "Lisens",
-              content: constraints.otherConstraintsLink ? (
-                <a
-                  href={constraints.otherConstraintsLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {constraints.otherConstraintsLinkText}
-                </a>
-              ) : (
-                "-"
-              ),
-            },
-            {
-              label: "Sikkerhetsnivå",
-              content: constraints.securityConstraints ?? "-",
-            },
-          ]}
-        />
-      ),
-    },
-    ...(processHistory
-      ? [
-          {
-            title: "Prosesshistorie",
-            content: <p>{processHistory}</p>,
-          },
-        ]
-      : []),
-    ...(supplementalDescription
-      ? [
-          {
-            title: "Hjelp til bruk",
-            content: (
-              <>
-                <p className={styles.abstract}>{supplementalDescription}</p>
-                {helpUrl && (
-                  <a
-                    href={helpUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.helpLink}
-                  >
-                    Les mer
-                  </a>
-                )}
-              </>
-            ),
-          },
-        ]
-      : []),
-    {
-      title: "Detaljert informasjon",
-      content: <p className={styles.pending}>Innhold kommer</p>,
-    },
-  ];
-}
-
-function buildDistributionDetails({
-  groups,
-  referenceSystems,
-  dateUpdated,
-  maintenanceFrequency,
-}: {
-  groups: DistributionGroup[];
-  referenceSystems: ReferenceSystem[];
-  dateUpdated: string | null;
-  maintenanceFrequency: string | null;
-}): DetailItem[] {
-  return groups.map((group) => {
-    const formatUrls = buildFormatUrlRows(group.formats);
-    return {
-      actionButton:
-        formatUrls.length === 1 && showCopyLink(group.protocol) ? (
-          <CopyButton url={formatUrls[0].content.props.url} />
-        ) : null,
-      title: group.protocolName ?? "Ukjent protokoll",
-      content: (
-        <FieldList
-          fields={[
-            { label: "Beskrivelse", content: group.protocolDescription },
-            ...formatUrls,
-            {
-              label: "Formater",
-              content: (
-                <span className={styles.tags} data-color="info">
-                  {/* Filtering unique format names, to avoid duplicate Tags with same text */}
-                  {[...new Set(group.formats.map((f) => f.name))].map(
-                    (name) => (
-                      <Tag key={name}>{name}</Tag>
-                    ),
-                  )}
-                </span>
-              ),
-            },
-            {
-              label: "Oppdateringsfrekvens",
-              content: maintenanceFrequency ?? "-",
-            },
-            {
-              label: "Ressurs sist oppdatert",
-              content: formatDate(dateUpdated),
-            },
-            ...(group.unitsOfDistribution
-              ? [
-                  {
-                    label: "Geografisk distribusjonsinndeling",
-                    content: (
-                      <span className={styles.tags} data-color="neutral">
-                        {group.unitsOfDistribution.split(",").map((unit) => (
-                          <Tag key={unit}>{unit.trim()}</Tag>
-                        ))}
-                      </span>
-                    ),
-                  },
-                ]
-              : []),
-            {
-              label: "Referansesystem",
-              content: (
-                <span className={styles.tags} data-color="neutral">
-                  {referenceSystems.map((rs) => (
-                    <Tag key={rs.codeSpace}>{rs.code}</Tag>
-                  ))}
-                </span>
-              ),
-            },
-          ]}
-        />
-      ),
-    };
-  });
-}
-
-function CopyButton({ url }: { url: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <Button variant="secondary" onClick={copy}>
-      {copied ? (
-        "Kopiert"
-      ) : (
-        <>
-          <FilesIcon aria-hidden /> Kopier lenke
-        </>
-      )}
-    </Button>
   );
 }

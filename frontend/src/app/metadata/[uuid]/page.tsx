@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import {
-  getFairStatus,
-  getLinkedDistributions,
-  getMetadata,
-  getProductAlerts,
-  getProduktark,
-  getTegneregler,
-} from "@/app/api";
+import { getMetadata, getProductAlerts } from "@/app/api";
 import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
+import { ProductTabsSection } from "@/app/metadata/[uuid]/_components/ProductTabsSection";
 import {
   getRelevantAlerts,
   getUniqueItemsFromListByKey,
@@ -17,10 +11,8 @@ import {
 import { ProductActions } from "./_components/ProductActions";
 import { ProductHeader } from "./_components/ProductHeader";
 import { ProductMeta } from "./_components/ProductMeta";
-import { ProductTabs } from "./_components/ProductTabs";
 import { ProductThumbnail } from "./_components/ProductThumbnail";
 import styles from "./page.module.css";
-import { ProductTabsSection } from "@/app/metadata/[uuid]/_components/ProductTabsSection";
 
 // Setter metadatatittel så det bla vises i faner
 export async function generateMetadata({
