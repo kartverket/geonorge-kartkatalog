@@ -78,7 +78,7 @@ export function ProductMeta({
       )}
       {relevantCategories.length > 0 && (
         <MetaField label="Relevante kategorier">
-          <ThemeTags themes={relevantCategories} data-color="info" />
+          <ThemeTags themes={relevantCategories} data-color="warning" />
         </MetaField>
       )}
       {themes.length > 0 && (
