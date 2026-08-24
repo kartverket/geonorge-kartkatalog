@@ -18,6 +18,17 @@ import type {
   ReferenceSystem,
 } from "@/lib/schemas/product";
 
+const EMPTY_LINKED_DISTRIBUTIONS = {
+  applications: [],
+  viewServices: [],
+  downloadServices: [],
+  seriesMembers: [],
+  parentSeries: [],
+  relatedDatasets: [],
+  serviceLayers: [],
+  parentService: [],
+};
+
 export async function ProductTabsSection({
   uuid,
   metadata,
@@ -37,41 +48,29 @@ export async function ProductTabsSection({
     getLinkedDistributions(uuid),
   ]);
 
-  if (fairStatusResult.status === "rejected") {
-    console.error("Kunne ikke laste FAIR-status", fairStatusResult.reason);
-  }
-  if (tegnereglerResult.status === "rejected") {
-    console.error("Kunne ikke laste tegneregler", tegnereglerResult.reason);
-  }
-  if (produktarkResult.status === "rejected") {
-    console.error("Kunne ikke laste produktark", produktarkResult.reason);
-  }
-  if (linkedDistributionsResult.status === "rejected") {
-    console.error(
-      "Kunne ikke laste koblede distribusjoner",
-      linkedDistributionsResult.reason,
-    );
-  }
+  const fairStatus = unwrapSettled(
+    fairStatusResult,
+    "Kunne ikke laste FAIR-status",
+    null,
+  );
 
-  const fairStatus =
-    fairStatusResult.status === "fulfilled" ? fairStatusResult.value : null;
-  const tegneregler =
-    tegnereglerResult.status === "fulfilled" ? tegnereglerResult.value : null;
-  const produktark =
-    produktarkResult.status === "fulfilled" ? produktarkResult.value : null;
-  const linkedDistributions =
-    linkedDistributionsResult.status === "fulfilled"
-      ? linkedDistributionsResult.value
-      : {
-          applications: [],
-          viewServices: [],
-          downloadServices: [],
-          seriesMembers: [],
-          parentSeries: [],
-          relatedDatasets: [],
-          serviceLayers: [],
-          parentService: [],
-        };
+  const tegneregler = unwrapSettled(
+    tegnereglerResult,
+    "Kunne ikke laste tegneregler",
+    null,
+  );
+
+  const produktark = unwrapSettled(
+    produktarkResult,
+    "Kunne ikke laste produktark",
+    null,
+  );
+
+  const linkedDistributions = unwrapSettled(
+    linkedDistributionsResult,
+    "Kunne ikke laste koblede distribusjoner",
+    EMPTY_LINKED_DISTRIBUTIONS,
+  );
 
   const constraints = {
     ...metadata.constraints,
@@ -366,4 +365,16 @@ function UrlLink({ url }: { url: string }) {
       <CopyButton url={url} className={styles.copyButton} />
     </div>
   );
+}
+
+function unwrapSettled<T>(
+  result: PromiseSettledResult<T>,
+  errorMessage: string,
+  fallback: T,
+): T {
+  if (result.status === "rejected") {
+    console.error(errorMessage, result.reason);
+    return fallback;
+  }
+  return result.value;
 }
