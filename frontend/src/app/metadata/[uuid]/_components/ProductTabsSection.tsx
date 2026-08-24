@@ -240,18 +240,23 @@ function buildDistributionDetails({
   maintenanceFrequency: string | null;
 }): DetailItem[] {
   return groups.map((group) => {
-    const formatUrls = buildFormatUrlRows(group.formats);
+    const urlRows = buildUrlRows(group.formats);
     return {
       actionButton:
-        formatUrls.length === 1 && showCopyLink(group.protocol) ? (
-          <CopyButton url={formatUrls[0].content.props.url} />
+        urlRows.length === 1 && showCopyLink(group.protocol) ? (
+          <CopyButton url={urlRows[0].url} />
         ) : null,
       title: group.protocolName ?? "Ukjent protokoll",
       content: (
         <FieldList
           fields={[
             { label: "Beskrivelse", content: group.protocolDescription },
-            ...formatUrls,
+            ...urlRows.map(
+              (row): Field => ({
+                label: row.label,
+                content: <UrlLink url={row.url} />,
+              }),
+            ),
             {
               label: "Formater",
               content: (
@@ -310,7 +315,11 @@ function buildDistributionDetails({
   });
 }
 
-function buildFormatUrlRows(formats: DistributionGroup["formats"]) {
+type UrlRow = {
+  label: string;
+  url: string;
+};
+function buildUrlRows(formats: DistributionGroup["formats"]): UrlRow[] {
   const byUrls = new Map<string, string[]>();
   formats.forEach((format) => {
     const key = format.urls.join("|");
@@ -329,7 +338,7 @@ function buildFormatUrlRows(formats: DistributionGroup["formats"]) {
         : urls.length > 1
           ? `${names.join(", ")} (${i + 1})`
           : names.join(", "),
-      content: <UrlLink url={url} />,
+      url: url,
     }));
   });
 }
