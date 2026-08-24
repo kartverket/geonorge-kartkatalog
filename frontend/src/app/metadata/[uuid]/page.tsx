@@ -82,6 +82,7 @@ export default async function ProductPage({
           relevantCategories={[
             ...(metadata.dokStatus ? [metadata.dokStatus] : []),
             ...metadata.relevantCategories,
+            ...(metadata.isHighValueDataset ? ["High Value Dataset"] : []),
           ]}
         />
       </div>

@@ -68,6 +68,7 @@ export const ProductMetadataSchema = z.object({
   nationalKeywords: z.array(ProductKeywordSchema),
   relevantCategories: z.array(z.string()),
   dokStatus: z.string().nullable(),
+  isHighValueDataset: z.boolean(),
   distributionFormats: z.array(ProductDistributionFormatSchema),
   thumbnailUrl: z.string().nullable(),
   fairStatusPercentFromMetadata: z.number().nullable(),
