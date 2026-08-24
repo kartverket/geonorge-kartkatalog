@@ -23,6 +23,8 @@ class MetadataMapper(
 ) {
     suspend fun toProductMetadata(record: MetadataRecord): ProductMetadata {
         val accessState = resolveAccessState(record)
+        val spatialScope = mapSpatialScope(record)
+        val collaborationKeywords = mapCollaborationKeywords(record)
         return ProductMetadata(
             title = record.title,
             organization = record.metadataContact.organization.orEmpty(),
@@ -39,11 +41,12 @@ class MetadataMapper(
                     CodeList.SPATIAL_REPRESENTATIONS,
                     record.spatialRepresentationTypes.firstOrNull(),
                 ),
-            spatialScope = mapSpatialScope(record),
+            spatialScope = spatialScope,
             resolutionScale = record.resolutionScale,
             keywordsTheme = mapThemeKeywords(record),
             nationalKeywords = mapNationalKeywords(record),
-            relevantCategories = mapRelevantCategories(record),
+            relevantCategories = mapRelevantCategories(collaborationKeywords),
+            dokStatus = mapDokStatus(collaborationKeywords, spatialScope),
             distributionFormats =
                 record.distributionInfo?.formats.orEmpty().map {
                     it.toProductDistributionFormat()
@@ -149,10 +152,33 @@ class MetadataMapper(
             it.thesaurus.equals("Nasjonal tematisk inndeling (DOK-kategori)", ignoreCase = true)
         }
 
-    private fun mapRelevantCategories(record: MetadataRecord): List<ProductKeyword> =
+    private fun mapCollaborationKeywords(record: MetadataRecord): List<ProductKeyword> =
         mapKeywords(record) {
             it.thesaurusHref?.contains("samarbeid-og-lover", ignoreCase = true) == true
         }
+
+    private val relevantCollaborationNames =
+        setOf("Mareano", "Marine grunnkart", "Økologisk grunnkart")
+
+    private fun mapRelevantCategories(collaborationKeywords: List<ProductKeyword>): List<ProductKeyword> =
+        collaborationKeywords.filter { keyword ->
+            relevantCollaborationNames.any { it.equals(keyword.keywordValue, ignoreCase = true) }
+        }
+
+    private fun mapDokStatus(
+        collaborationKeywords: List<ProductKeyword>,
+        spatialScope: String?,
+    ): String? {
+        val isDok =
+            collaborationKeywords.any {
+                it.keywordValue.equals("Det offentlige kartgrunnlaget", ignoreCase = true)
+            }
+        return when {
+            !isDok -> null
+            spatialScope == "Lokal" -> "Lokalt DOK-datasett"
+            else -> "DOK-datasett"
+        }
+    }
 
     private val spatialScopeTranslations =
         mapOf(
