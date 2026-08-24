@@ -25,6 +25,7 @@ class MetadataMapper(
         val accessState = resolveAccessState(record)
         val spatialScope = mapSpatialScope(record)
         val collaborationKeywords = mapCollaborationKeywords(record)
+        val hvdKeywords = mapHvdKeywords(record)
         return ProductMetadata(
             title = record.title,
             organization = record.metadataContact.organization.orEmpty(),
@@ -47,6 +48,7 @@ class MetadataMapper(
             nationalKeywords = mapNationalKeywords(record),
             relevantCategories = mapRelevantCategories(collaborationKeywords),
             dokStatus = mapDokStatus(collaborationKeywords, spatialScope),
+            isHighValueDataset = hvdKeywords.isNotEmpty(),
             distributionFormats =
                 record.distributionInfo?.formats.orEmpty().map {
                     it.toProductDistributionFormat()
@@ -155,6 +157,14 @@ class MetadataMapper(
     private fun mapCollaborationKeywords(record: MetadataRecord): List<ProductKeyword> =
         mapKeywords(record) {
             it.thesaurusHref?.contains("samarbeid-og-lover", ignoreCase = true) == true
+        }
+
+    private fun mapHvdKeywords(record: MetadataRecord): List<ProductKeyword> =
+        mapKeywords(record) {
+            it.thesaurusHref?.let { href ->
+                href.contains("data.europa.eu/bna/", ignoreCase = true) ||
+                    href.contains("hvd-kategorier", ignoreCase = true)
+            } == true
         }
 
     private val relevantCollaborationTags =

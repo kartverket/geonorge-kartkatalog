@@ -18,6 +18,7 @@ data class ProductMetadata(
     val nationalKeywords: List<ProductKeyword> = emptyList(),
     val relevantCategories: List<String> = emptyList(),
     val dokStatus: String? = null,
+    val isHighValueDataset: Boolean = false,
     val distributionFormats: List<ProductDistributionFormat> = emptyList(),
     val thumbnailUrl: String? = null,
     val fairStatusPercentFromMetadata: Int? = null,
