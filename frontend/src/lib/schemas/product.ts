@@ -66,7 +66,7 @@ export const ProductMetadataSchema = z.object({
   resolutionScale: z.string().nullable(),
   keywordsTheme: z.array(ProductKeywordSchema),
   nationalKeywords: z.array(ProductKeywordSchema),
-  relevantCategories: z.array(ProductKeywordSchema),
+  relevantCategories: z.array(z.string()),
   dokStatus: z.string().nullable(),
   distributionFormats: z.array(ProductDistributionFormatSchema),
   thumbnailUrl: z.string().nullable(),

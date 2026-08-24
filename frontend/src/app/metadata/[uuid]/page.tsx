@@ -81,10 +81,7 @@ export default async function ProductPage({
           fairStatusPercent={metadata.fairStatusPercentFromMetadata}
           relevantCategories={[
             ...(metadata.dokStatus ? [metadata.dokStatus] : []),
-            ...getUniqueItemsFromListByKey(
-              metadata.relevantCategories,
-              "keywordValue",
-            ),
+            ...metadata.relevantCategories,
           ]}
         />
       </div>
