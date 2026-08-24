@@ -1,6 +1,3 @@
-import { Button, Tag } from "@kv-designsystem/react";
-import { FilesIcon, LinkIcon } from "@navikt/aksel-icons";
-import { useState } from "react";
 import {
   getFairStatus,
   getLinkedDistributions,
@@ -8,6 +5,7 @@ import {
   getProduktark,
   getTegneregler,
 } from "@/app/api";
+import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
 import {
   type DetailItem,
   ProductTabs,
@@ -262,7 +260,9 @@ function buildDistributionDetails({
                   {/* Filtering unique format names, to avoid duplicate Tags with same text */}
                   {[...new Set(group.formats.map((f) => f.name))].map(
                     (name) => (
-                      <Tag key={name}>{name}</Tag>
+                      <span className="ds-tag" key={name}>
+                        {name}
+                      </span>
                     ),
                   )}
                 </span>
@@ -283,7 +283,9 @@ function buildDistributionDetails({
                     content: (
                       <span className={styles.tags} data-color="neutral">
                         {group.unitsOfDistribution.split(",").map((unit) => (
-                          <Tag key={unit}>{unit.trim()}</Tag>
+                          <span className="ds-tag" key={unit}>
+                            {unit.trim()}
+                          </span>
                         ))}
                       </span>
                     ),
@@ -295,7 +297,9 @@ function buildDistributionDetails({
               content: (
                 <span className={styles.tags} data-color="neutral">
                   {referenceSystems.map((rs) => (
-                    <Tag key={rs.codeSpace}>{rs.code}</Tag>
+                    <span className="ds-tag" key={rs.codeSpace}>
+                      {rs.code}
+                    </span>
                   ))}
                 </span>
               ),
@@ -305,26 +309,6 @@ function buildDistributionDetails({
       ),
     };
   });
-}
-
-function CopyButton({ url }: { url: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <Button variant="secondary" onClick={copy}>
-      {copied ? (
-        "Kopiert"
-      ) : (
-        <>
-          <FilesIcon aria-hidden /> Kopier lenke
-        </>
-      )}
-    </Button>
-  );
 }
 
 function buildFormatUrlRows(formats: DistributionGroup["formats"]) {
@@ -367,12 +351,6 @@ function FieldList({ fields }: { fields: Field[] }) {
 }
 
 function UrlLink({ url }: { url: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
   return (
     <div className={styles.urlBox}>
       <span className={styles.urlValue}>
@@ -385,10 +363,7 @@ function UrlLink({ url }: { url: string }) {
           {url}
         </a>
       </span>
-      <button type="button" className={styles.copyButton} onClick={copy}>
-        <LinkIcon aria-hidden />
-        {copied ? "Kopiert" : "Kopiér lenke"}
-      </button>
+      <CopyButton url={url} className={styles.copyButton} />
     </div>
   );
 }
