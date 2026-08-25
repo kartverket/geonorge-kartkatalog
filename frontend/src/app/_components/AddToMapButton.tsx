@@ -39,7 +39,7 @@ export default function AddToMapButton({
   }, [item]);
 
   const handleToggleMap = useCallback(() => {
-    if (!item?.Uuid) return;
+    if (!item) return;
 
     setIsInMap((prev) => {
       try {
