@@ -58,3 +58,15 @@ export const showCopyLink = (protocol: string | null) =>
   protocol === "OGC:API-Coverages" ||
   protocol === "OGC:OAPIF" ||
   protocol === "W3C:WS";
+
+export function unwrapSettled<T>(
+  result: PromiseSettledResult<T>,
+  errorMessage: string,
+  fallback: T,
+): T {
+  if (result.status === "rejected") {
+    console.error(errorMessage, result.reason);
+    return fallback;
+  }
+  return result.value;
+}
