@@ -64,6 +64,7 @@ data class MetadataRecord(
     val maintenanceFrequency: String? = null,
     val resolutionScale: String? = null,
     val specificUsage: String? = null,
+    val supplementalDescription: String? = null,
     val processHistory: String? = null,
     val contacts: List<Contact> = emptyList(),
     val dates: List<MetadataDate> = emptyList(),

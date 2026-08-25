@@ -12,7 +12,7 @@ export function ProductMeta({
   themes,
   formats,
   fairStatusPercent,
-  relevantCategories = null,
+  relevantCategories,
 }: {
   spatialScope: string | null;
   representation: string | null;
@@ -22,7 +22,7 @@ export function ProductMeta({
   themes: string[];
   formats: string[];
   fairStatusPercent: number | null;
-  relevantCategories: number | null;
+  relevantCategories: string[];
 }) {
   return (
     <dl className={styles.grid}>
@@ -76,9 +76,9 @@ export function ProductMeta({
           {fairStatusPercent != null ? `${fairStatusPercent}%` : "-"}
         </MetaField>
       )}
-      {relevantCategories && (
+      {relevantCategories.length > 0 && (
         <MetaField label="Relevante kategorier">
-          <span className={styles.pending}>{relevantCategories}</span>
+          <ThemeTags themes={relevantCategories} data-color="warning" />
         </MetaField>
       )}
       {themes.length > 0 && (

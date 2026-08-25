@@ -1,5 +1,6 @@
 import searchResult from "../mocks/searchResult.json";
 import { SearchResults } from "./_components/SearchResults/SearchResults";
+import { SearchHero } from "./_components/SearchHero/SearchHero";
 
 export default function Home() {
   const results = searchResult.Results.map((r) => ({
@@ -16,5 +17,10 @@ export default function Home() {
       r.DatasetServicesWithShowMapLink?.[0]?.GetCapabilitiesUrl,
   }));
 
-  return <SearchResults results={results} numFound={searchResult.NumFound} />;
+  return (
+    <>
+      <SearchHero />
+      <SearchResults results={results} numFound={searchResult.NumFound} />
+    </>
+  );
 }

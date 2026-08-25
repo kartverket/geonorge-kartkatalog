@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import {
-  getFairStatus,
-  getLinkedDistributions,
-  getMetadata,
-  getProductAlerts,
-  getProduktark,
-  getTegneregler,
-} from "@/app/api";
+import { getMetadata, getProductAlerts, getLinkedDistributions } from "@/app/api";
 import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
+import { ProductTabsSection } from "@/app/metadata/[uuid]/_components/ProductTabsSection";
 import {
   getRelevantAlerts,
   getUniqueItemsFromListByKey,
@@ -17,7 +11,6 @@ import {
 import { ProductActions } from "./_components/ProductActions";
 import { ProductHeader } from "./_components/ProductHeader";
 import { ProductMeta } from "./_components/ProductMeta";
-import { ProductTabs } from "./_components/ProductTabs";
 import { ProductThumbnail } from "./_components/ProductThumbnail";
 import styles from "./page.module.css";
 
@@ -93,7 +86,11 @@ export default async function ProductPage({
             "name",
           )}
           fairStatusPercent={metadata.fairStatusPercentFromMetadata}
-          relevantCategories={null} // TODO: GN-241 - Legg til relevantCategories når det er tilgjengelig i metadata
+          relevantCategories={[
+            ...(metadata.dokStatus ? [metadata.dokStatus] : []),
+            ...metadata.nationalInitiatives,
+            ...(metadata.isHighValueDataset ? ["High Value Dataset"] : []),
+          ]}
         />
       </div>
       <ProductActions
@@ -114,66 +111,5 @@ export default async function ProductPage({
         contactPublisher={metadata.contactPublisher}
       />
     </div>
-  );
-}
-
-async function ProductTabsSection({
-  initialLinkedDistributions,
-  uuid,
-  metadata,
-}: {
-  initialLinkedDistributions: Awaited<
-    ReturnType<typeof getLinkedDistributions>
-  >;
-  uuid: string;
-  metadata: Awaited<ReturnType<typeof getMetadata>>;
-}) {
-  const [
-    fairStatusResult,
-    tegnereglerResult,
-    produktarkResult,
-  ] = await Promise.allSettled([
-    getFairStatus(uuid),
-    getTegneregler(uuid),
-    getProduktark(uuid),
-  ]);
-
-  if (fairStatusResult.status === "rejected") {
-    console.error("Kunne ikke laste FAIR-status", fairStatusResult.reason);
-  }
-  if (tegnereglerResult.status === "rejected") {
-    console.error("Kunne ikke laste tegneregler", tegnereglerResult.reason);
-  }
-  if (produktarkResult.status === "rejected") {
-    console.error("Kunne ikke laste produktark", produktarkResult.reason);
-  }
-
-  const fairStatus =
-    fairStatusResult.status === "fulfilled" ? fairStatusResult.value : null;
-  const tegneregler =
-    tegnereglerResult.status === "fulfilled" ? tegnereglerResult.value : null;
-  const produktark =
-    produktarkResult.status === "fulfilled" ? produktarkResult.value : null;
-
-  return (
-    <ProductTabs
-      hierarchyLevel={metadata.hierarchyLevel}
-      abstract={metadata.abstractText}
-      specificUsage={metadata.specificUsage}
-      purpose={metadata.purpose}
-      processHistory={metadata.processHistory}
-      constraints={{
-        ...metadata.constraints,
-        securityConstraints: metadata.securityClassification,
-      }}
-      referenceSystems={metadata.referenceSystems}
-      distributionGroups={metadata.distributionGroups}
-      linkedDistributions={initialLinkedDistributions}
-      dateUpdated={metadata.dateUpdated}
-      maintenanceFrequency={metadata.maintenanceFrequency}
-      fairStatus={fairStatus}
-      tegneregler={tegneregler}
-      produktark={produktark}
-    />
   );
 }
