@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import {
-  getFairStatus,
-  getLinkedDistributions,
-  getMetadata,
-  getProductAlerts,
-  getProduktark,
-  getTegneregler,
-} from "@/app/api";
+import { getMetadata, getProductAlerts } from "@/app/api";
 import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
+import { ProductTabsSection } from "@/app/metadata/[uuid]/_components/ProductTabsSection";
 import {
   getRelevantAlerts,
   getUniqueItemsFromListByKey,
@@ -17,7 +11,6 @@ import {
 import { ProductActions } from "./_components/ProductActions";
 import { ProductHeader } from "./_components/ProductHeader";
 import { ProductMeta } from "./_components/ProductMeta";
-import { ProductTabs } from "./_components/ProductTabs";
 import { ProductThumbnail } from "./_components/ProductThumbnail";
 import styles from "./page.module.css";
 
@@ -96,85 +89,5 @@ export default async function ProductPage({
         contactPublisher={metadata.contactPublisher}
       />
     </div>
-  );
-}
-
-async function ProductTabsSection({
-  uuid,
-  metadata,
-}: {
-  uuid: string;
-  metadata: Awaited<ReturnType<typeof getMetadata>>;
-}) {
-  const [
-    fairStatusResult,
-    tegnereglerResult,
-    produktarkResult,
-    linkedDistributionsResult,
-  ] = await Promise.allSettled([
-    getFairStatus(uuid),
-    getTegneregler(uuid),
-    getProduktark(uuid),
-    getLinkedDistributions(uuid),
-  ]);
-
-  if (fairStatusResult.status === "rejected") {
-    console.error("Kunne ikke laste FAIR-status", fairStatusResult.reason);
-  }
-  if (tegnereglerResult.status === "rejected") {
-    console.error("Kunne ikke laste tegneregler", tegnereglerResult.reason);
-  }
-  if (produktarkResult.status === "rejected") {
-    console.error("Kunne ikke laste produktark", produktarkResult.reason);
-  }
-  if (linkedDistributionsResult.status === "rejected") {
-    console.error(
-      "Kunne ikke laste koblede distribusjoner",
-      linkedDistributionsResult.reason,
-    );
-  }
-
-  const fairStatus =
-    fairStatusResult.status === "fulfilled" ? fairStatusResult.value : null;
-  const tegneregler =
-    tegnereglerResult.status === "fulfilled" ? tegnereglerResult.value : null;
-  const produktark =
-    produktarkResult.status === "fulfilled" ? produktarkResult.value : null;
-  const linkedDistributions =
-    linkedDistributionsResult.status === "fulfilled"
-      ? linkedDistributionsResult.value
-      : {
-          applications: [],
-          viewServices: [],
-          downloadServices: [],
-          seriesMembers: [],
-          parentSeries: [],
-          relatedDatasets: [],
-          serviceLayers: [],
-          parentService: [],
-        };
-
-  return (
-    <ProductTabs
-      hierarchyLevel={metadata.hierarchyLevel}
-      abstract={metadata.abstractText}
-      specificUsage={metadata.specificUsage}
-      purpose={metadata.purpose}
-      processHistory={metadata.processHistory}
-      supplementalDescription={metadata.supplementalDescription}
-      helpUrl={metadata.helpUrl}
-      constraints={{
-        ...metadata.constraints,
-        securityConstraints: metadata.securityClassification,
-      }}
-      referenceSystems={metadata.referenceSystems}
-      distributionGroups={metadata.distributionGroups}
-      linkedDistributions={linkedDistributions}
-      dateUpdated={metadata.dateUpdated}
-      maintenanceFrequency={metadata.maintenanceFrequency}
-      fairStatus={fairStatus}
-      tegneregler={tegneregler}
-      produktark={produktark}
-    />
   );
 }
