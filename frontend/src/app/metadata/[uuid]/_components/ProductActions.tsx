@@ -4,6 +4,7 @@ import {
   PencilIcon,
 } from "@navikt/aksel-icons";
 import AddToCartButton from "@/app/_components/AddToCartButton";
+import AddToMapButton from "@/app/_components/AddToMapButton";
 import {
   getEditUrl,
   getMetadataXmlUrl,
@@ -40,11 +41,27 @@ export function ProductActions({
         }
       : null;
 
+  const mapItem =
+    metadata.accessState === "open"
+      ? {
+          addLayers: [],
+          DistributionProtocol: "OGC:WMS",
+          Uuid: uuid,
+          Title: metadata.title,
+          GetCapabilitiesUrl:
+            "https://wms.geonorge.no/skwms1/wms.matrikkel?service=wms&request=getcapabilities",
+        }
+      : null;
+
   return (
     <div className={styles.actions}>
       <AddToCartButton
         className={`ds-button ${styles.actionButton}`}
         item={cartItem}
+      />
+      <AddToMapButton
+        className={`ds-button ${styles.actionButton}`}
+        item={mapItem}
       />
       {metadata.coverageUrl && (
         <ActionLinkButton
