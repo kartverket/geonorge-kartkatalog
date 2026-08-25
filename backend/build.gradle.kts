@@ -22,6 +22,12 @@ ktor {
     }
 }
 
+tasks.test {
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
+
 dependencies {
     implementation(ktorLibs.server.callLogging)
     implementation(ktorLibs.server.contentNegotiation)

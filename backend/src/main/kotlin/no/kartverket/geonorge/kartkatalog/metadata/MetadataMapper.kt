@@ -130,6 +130,10 @@ class MetadataMapper(
                     record.extensionResources,
                     staticNorgeskartUrl = staticNorgeskartUrl,
                 ),
+            productSpecificationUrl =
+                record.extensionResources.firstOrNull {
+                    it.applicationProfile.trim().equals("produktspesifikasjon", ignoreCase = true)
+                }?.url,
         )
     }
 

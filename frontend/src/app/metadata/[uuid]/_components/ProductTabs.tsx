@@ -23,6 +23,7 @@ export function ProductTabs({
   fairStatus,
   tegneregler,
   produktark,
+  productSpecificationUrl,
   distributionDetails,
   infoDetails,
 }: {
@@ -32,6 +33,7 @@ export function ProductTabs({
   fairStatus: ProductFairStatus | null;
   tegneregler: TegnereglerItem | null;
   produktark: ProduktarkItem | null;
+  productSpecificationUrl: string | null;
   distributionDetails: DetailItem[];
   infoDetails: DetailItem[];
 }) {
@@ -79,6 +81,7 @@ export function ProductTabs({
           <ProductDocumentation
             tegneregler={tegneregler}
             produktark={produktark}
+            productSpecificationUrl={productSpecificationUrl}
           />
         </Tabs.Panel>
         {fairStatus && (
