@@ -47,7 +47,7 @@ class MetadataMapper(
             resolutionScale = record.resolutionScale,
             keywordsTheme = mapThemeKeywords(record),
             nationalKeywords = mapNationalKeywords(record),
-            relevantCategories = mapRelevantCategories(collaborationKeywords),
+            nationalInitiatives = mapNationalInitiatives(collaborationKeywords),
             dokStatus = mapDokStatus(collaborationKeywords, rawSpatialScope),
             isHighValueDataset = hvdKeywords.isNotEmpty(),
             distributionFormats =
@@ -174,7 +174,7 @@ class MetadataMapper(
 
     private fun String.normalizedForMatch(): String = replace(" ", "").lowercase()
 
-    private fun mapRelevantCategories(collaborationKeywords: List<ProductKeyword>): List<String> {
+    private fun mapNationalInitiatives(collaborationKeywords: List<ProductKeyword>): List<String> {
         val matchedKeys =
             collaborationKeywords
                 .mapNotNull { it.keywordValue?.normalizedForMatch() }

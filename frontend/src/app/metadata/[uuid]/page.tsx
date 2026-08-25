@@ -81,7 +81,7 @@ export default async function ProductPage({
           fairStatusPercent={metadata.fairStatusPercentFromMetadata}
           relevantCategories={[
             ...(metadata.dokStatus ? [metadata.dokStatus] : []),
-            ...metadata.relevantCategories,
+            ...metadata.nationalInitiatives,
             ...(metadata.isHighValueDataset ? ["High Value Dataset"] : []),
           ]}
         />
