@@ -29,6 +29,7 @@ export type DatasetCardProps = {
   showThumbnail?: boolean;
   viewMode?: "grid" | "list";
   accessState: "restricted" | "open" | "protected" | null;
+  hierarchyLevel: string | null;
 };
 
 export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
@@ -36,6 +37,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
 
   const isService = p.typeTranslated === "Tjeneste";
   const isOpen = p.accessState === "open";
+  const isDataset = p.hierarchyLevel === "dataset";
   const canDownload = p.distributionProtocol === "GEONORGE:DOWNLOAD";
   const canShowMap = !!p.showMapLink && !!p.mapCapabilitiesUrl;
   const canCopy = isService && !!p.getCapabilitiesUrl;
@@ -137,7 +139,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               icon={<LayersPlusIcon aria-hidden />}
             />
           )}
-          {canDownload && isOpen && p.distributionUrl && (
+          {canDownload && isOpen && isDataset && p.distributionUrl && (
             <AddToCartButton
               item={{
                 uuid: p.uuid,

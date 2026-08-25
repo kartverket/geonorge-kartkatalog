@@ -28,6 +28,7 @@ function toDatasetCardProps(d: LinkedDistribution) {
     formats: d.formats,
     showThumbnail: false,
     accessState: d.accessState,
+    hierarchyLevel: d.hierarchyLevel,
   };
 }
 

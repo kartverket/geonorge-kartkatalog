@@ -20,6 +20,7 @@ export default function Home() {
       : r.AccessIsProtected
         ? ("protected" as const)
         : ("open" as const),
+    hierarchyLevel: r.Type,
   }));
 
   return (
