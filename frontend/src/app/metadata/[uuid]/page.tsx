@@ -79,7 +79,11 @@ export default async function ProductPage({
             "name",
           )}
           fairStatusPercent={metadata.fairStatusPercentFromMetadata}
-          relevantCategories={null} // TODO: GN-241 - Legg til relevantCategories når det er tilgjengelig i metadata
+          relevantCategories={[
+            ...(metadata.dokStatus ? [metadata.dokStatus] : []),
+            ...metadata.nationalInitiatives,
+            ...(metadata.isHighValueDataset ? ["High Value Dataset"] : []),
+          ]}
         />
       </div>
       <ProductActions uuid={uuid} metadata={metadata} />
