@@ -27,6 +27,7 @@ function toDatasetCardProps(d: LinkedDistribution) {
     protocolNames: d.protocolNames,
     formats: d.formats,
     showThumbnail: false,
+    accessState: d.accessState,
   };
 }
 

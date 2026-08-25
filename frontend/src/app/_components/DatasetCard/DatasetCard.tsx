@@ -28,7 +28,7 @@ export type DatasetCardProps = {
   formats?: string[];
   showThumbnail?: boolean;
   viewMode?: "grid" | "list";
-  accessState: "restricted" | "open" | "protected";
+  accessState: "restricted" | "open" | "protected" | null;
 };
 
 export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {

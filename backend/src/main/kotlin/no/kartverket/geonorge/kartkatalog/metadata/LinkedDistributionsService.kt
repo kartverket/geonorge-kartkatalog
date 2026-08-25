@@ -203,6 +203,7 @@ class LinkedDistributionsService(
                     .distinct()
                     .map { codeListTranslator.translate(CodeList.DISTRIBUTION_TYPES, it) ?: it },
             hierarchyLevel = hierarchyLevel,
+            accessState = resolveAccessState(this)
         )
     }
 }

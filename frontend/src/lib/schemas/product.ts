@@ -195,6 +195,7 @@ export const LinkedDistributionSchema = z.object({
   formats: z.array(z.string()),
   protocolNames: z.array(z.string()),
   hierarchyLevel: z.string().nullable(),
+  accessState: z.enum(accessState).nullable(),
 });
 
 export const LinkedDistributionsSchema = z.object({
