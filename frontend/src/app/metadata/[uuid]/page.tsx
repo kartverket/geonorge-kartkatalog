@@ -1,13 +1,9 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
-import {
-  getFairStatus,
-  getLinkedDistributions,
-  getMetadata,
-  getProductAlerts,
-  getTegneregler,
-} from "@/app/api";
+import { getMetadata, getProductAlerts } from "@/app/api";
 import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
+import { ProductTabsSection } from "@/app/metadata/[uuid]/_components/ProductTabsSection";
 import {
   getRelevantAlerts,
   getUniqueItemsFromListByKey,
@@ -15,9 +11,20 @@ import {
 import { ProductActions } from "./_components/ProductActions";
 import { ProductHeader } from "./_components/ProductHeader";
 import { ProductMeta } from "./_components/ProductMeta";
-import { ProductTabs } from "./_components/ProductTabs";
 import { ProductThumbnail } from "./_components/ProductThumbnail";
 import styles from "./page.module.css";
+
+// Setter metadatatittel så det bla vises i faner
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ uuid: string }>;
+}): Promise<Metadata> {
+  const { uuid } = await params;
+  const metadata = await getMetadata(uuid);
+  const pageTitle = metadata?.title || "Kartkatalogen";
+  return { title: pageTitle };
+}
 
 export default async function ProductPage({
   params,
@@ -27,7 +34,10 @@ export default async function ProductPage({
   const { uuid } = await params;
   const [metadata, alerts] = await Promise.all([
     getMetadata(uuid),
-    getProductAlerts(uuid),
+    getProductAlerts(uuid).catch((error) => {
+      console.error("Kunne ikke laste varsler", error);
+      return null;
+    }),
   ]);
   const relevantAlerts = getRelevantAlerts(alerts);
 
@@ -52,7 +62,7 @@ export default async function ProductPage({
           representation={metadata.spatialRepresentation}
           maintenanceFrequency={metadata.maintenanceFrequency}
           resolutionScale={metadata.resolutionScale}
-          dateUpdated={metadata.dateUpdated}
+          dateUpdated={null}
           themes={getUniqueItemsFromListByKey(
             [...metadata.nationalKeywords, ...metadata.keywordsTheme],
             "keywordValue",
@@ -62,7 +72,11 @@ export default async function ProductPage({
             "name",
           )}
           fairStatusPercent={metadata.fairStatusPercentFromMetadata}
-          relevantCategories={null} // TODO: GN-241 - Legg til relevantCategories når det er tilgjengelig i metadata
+          relevantCategories={[
+            ...(metadata.dokStatus ? [metadata.dokStatus] : []),
+            ...metadata.nationalInitiatives,
+            ...(metadata.isHighValueDataset ? ["High Value Dataset"] : []),
+          ]}
         />
       </div>
       <ProductActions uuid={uuid} metadata={metadata} />
@@ -75,41 +89,5 @@ export default async function ProductPage({
         contactPublisher={metadata.contactPublisher}
       />
     </div>
-  );
-}
-
-async function ProductTabsSection({
-  uuid,
-  metadata,
-}: {
-  uuid: string;
-  metadata: Awaited<ReturnType<typeof getMetadata>>;
-}) {
-  const [fairStatus, tegneregler, linkedDistributions] = await Promise.all([
-    getFairStatus(uuid),
-    getTegneregler(uuid),
-    getLinkedDistributions(uuid),
-  ]);
-
-  return (
-    <ProductTabs
-      hierarchyLevel={metadata.hierarchyLevel}
-      abstract={metadata.abstractText}
-      specificUsage={metadata.specificUsage}
-      purpose={metadata.purpose}
-      processHistory={metadata.processHistory}
-      constraints={{
-        ...metadata.constraints,
-        securityConstraints: metadata.securityClassification,
-      }}
-      referenceSystems={metadata.referenceSystems}
-      distributionGroups={metadata.distributionGroups}
-      linkedDistributions={linkedDistributions}
-      dateUpdated={metadata.dateUpdated}
-      maintenanceFrequency={metadata.maintenanceFrequency}
-      fairStatus={fairStatus}
-      tegneregler={tegneregler}
-      productSpecificationUrl={metadata.productSpecificationUrl}
-    />
   );
 }

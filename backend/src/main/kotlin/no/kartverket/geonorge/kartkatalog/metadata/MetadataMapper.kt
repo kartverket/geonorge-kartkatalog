@@ -23,6 +23,10 @@ class MetadataMapper(
 ) {
     suspend fun toProductMetadata(record: MetadataRecord): ProductMetadata {
         val accessState = resolveAccessState(record)
+        val rawSpatialScope = mapRawSpatialScope(record)
+        val spatialScope = mapSpatialScope(rawSpatialScope)
+        val collaborationKeywords = mapCollaborationKeywords(record)
+        val hvdKeywords = mapHvdKeywords(record)
         return ProductMetadata(
             title = record.title,
             organization = record.metadataContact.organization.orEmpty(),
@@ -39,10 +43,13 @@ class MetadataMapper(
                     CodeList.SPATIAL_REPRESENTATIONS,
                     record.spatialRepresentationTypes.firstOrNull(),
                 ),
-            spatialScope = mapSpatialScope(record),
+            spatialScope = spatialScope,
             resolutionScale = record.resolutionScale,
             keywordsTheme = mapThemeKeywords(record),
             nationalKeywords = mapNationalKeywords(record),
+            nationalInitiatives = mapNationalInitiatives(collaborationKeywords),
+            dokStatus = mapDokStatus(collaborationKeywords, rawSpatialScope),
+            isHighValueDataset = hvdKeywords.isNotEmpty(),
             distributionFormats =
                 record.distributionInfo?.formats.orEmpty().map {
                     it.toProductDistributionFormat()
@@ -97,6 +104,11 @@ class MetadataMapper(
             abstractText = record.abstract,
             purpose = record.purpose,
             specificUsage = record.specificUsage,
+            supplementalDescription = record.supplementalDescription,
+            helpUrl =
+                record.extensionResources
+                    .firstOrNull { it.applicationProfile.equals("hjelp", ignoreCase = true) }
+                    ?.url,
             processHistory = record.processHistory,
             constraints = record.legalConstraints?.toProductConstraints(accessState = accessState),
             securityClassification =
@@ -152,6 +164,51 @@ class MetadataMapper(
             it.thesaurus.equals("Nasjonal tematisk inndeling (DOK-kategori)", ignoreCase = true)
         }
 
+    private fun mapCollaborationKeywords(record: MetadataRecord): List<ProductKeyword> =
+        mapKeywords(record) {
+            it.thesaurusHref?.contains("samarbeid-og-lover", ignoreCase = true) == true
+        }
+
+    private fun mapHvdKeywords(record: MetadataRecord): List<ProductKeyword> =
+        mapKeywords(record) {
+            it.thesaurusHref?.contains("data.europa.eu/bna/", ignoreCase = true) == true
+        }
+
+    private val relevantCollaborationTags =
+        mapOf(
+            "mareano" to "Mareano",
+            "marinegrunnkart" to "Marine grunnkart",
+            "økologiskgrunnkart" to "Økologisk grunnkart",
+        )
+
+    private fun String.normalizedForMatch(): String = replace(" ", "").lowercase()
+
+    private fun mapNationalInitiatives(collaborationKeywords: List<ProductKeyword>): List<String> {
+        val matchedKeys =
+            collaborationKeywords
+                .mapNotNull { it.keywordValue?.normalizedForMatch() }
+                .toSet()
+        return relevantCollaborationTags
+            .filterKeys { it in matchedKeys }
+            .values
+            .toList()
+    }
+
+    private fun mapDokStatus(
+        collaborationKeywords: List<ProductKeyword>,
+        rawSpatialScope: String?,
+    ): String? {
+        val isDok =
+            collaborationKeywords.any {
+                it.keywordValue.equals("Det offentlige kartgrunnlaget", ignoreCase = true)
+            }
+        return when {
+            !isDok -> null
+            rawSpatialScope.equals("Local", ignoreCase = true) -> "Lokalt DOK-datasett"
+            else -> "DOK-datasett"
+        }
+    }
+
     private val spatialScopeTranslations =
         mapOf(
             "European" to "Europeisk",
@@ -161,13 +218,14 @@ class MetadataMapper(
             "Regional" to "Regional",
         )
 
-    private fun mapSpatialScope(record: MetadataRecord): String? =
+    private fun mapRawSpatialScope(record: MetadataRecord): String? =
         mapKeywords(record) {
             it.thesaurus?.equals("Spatial scope", ignoreCase = true) == true ||
                 it.thesaurusHref?.contains("SpatialScope", ignoreCase = true) == true
-        }.firstOrNull()?.keywordValue?.let { raw ->
-            spatialScopeTranslations[raw] ?: raw
-        }
+        }.firstOrNull()?.keywordValue
+
+    private fun mapSpatialScope(rawSpatialScope: String?): String? =
+        rawSpatialScope?.let { raw -> spatialScopeTranslations[raw] ?: raw }
 
     private fun mapKeywords(
         record: MetadataRecord,

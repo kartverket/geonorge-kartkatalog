@@ -18,6 +18,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class RegisterClientTest {
     private var capturedPath: String? = null
@@ -110,6 +112,98 @@ class RegisterClientTest {
             mockResponse(content = "", status = HttpStatusCode.InternalServerError)
             assertFailsWith<RegisterException> {
                 client.getCodeList(CodeList.DISTRIBUTION_TYPES)
+            }
+            Unit
+        }
+
+    @Test
+    fun `getTegneregler returns item on success`() =
+        runBlocking {
+            mockResponse(
+                """{"id": "https://register.geonorge.no/tegneregler/test-kart",
+                   "label": "Test Kart",
+                   "status": "Gyldig",
+                   "seoname": "test-kart",
+                   "CartographyFile": "https://example.com/test-kart.zip"}""",
+            )
+            val result = client.getTegneregler("test-kart")
+            assertEquals("/api/tegneregler/test-kart", capturedPath)
+            assertNotNull(result)
+            assertEquals("Test Kart", result.label)
+            assertEquals("Gyldig", result.status)
+            assertEquals("https://example.com/test-kart.zip", result.cartographyFile)
+        }
+
+    @Test
+    fun `getTegneregler returns null on 404`() =
+        runBlocking {
+            mockResponse(content = "", status = HttpStatusCode.NotFound)
+            val result = client.getTegneregler("ukjent-kart")
+            assertNull(result)
+        }
+
+    @Test
+    fun `getTegneregler throws RegisterException on server error`() =
+        runBlocking {
+            mockResponse(content = "", status = HttpStatusCode.InternalServerError)
+            assertFailsWith<RegisterException> {
+                client.getTegneregler("feil-kart")
+            }
+            Unit
+        }
+
+    @Test
+    fun `getTegneregler throws RegisterException on invalid JSON`() =
+        runBlocking {
+            mockResponse(content = "not-json", status = HttpStatusCode.OK)
+            assertFailsWith<RegisterException> {
+                client.getTegneregler("test-kart")
+            }
+            Unit
+        }
+
+    @Test
+    fun `getProduktark returns item on success`() =
+        runBlocking {
+            mockResponse(
+                """{"id": "https://register.geonorge.no/produktark/test-produkt",
+                   "label": "Test Produkt",
+                   "status": "Gyldig",
+                   "seoname": "test-produkt",
+                   "documentreference": "https://example.com/test-produkt.pdf"}""",
+            )
+            val result = client.getProduktark("test-produkt")
+            assertEquals("/api/produktark/test-produkt", capturedPath)
+            assertNotNull(result)
+            assertEquals("Test Produkt", result.label)
+            assertEquals("Gyldig", result.status)
+            assertEquals("https://example.com/test-produkt.pdf", result.documentreference)
+        }
+
+    @Test
+    fun `getProduktark returns null on 404`() =
+        runBlocking {
+            mockResponse(content = "", status = HttpStatusCode.NotFound)
+            val result = client.getProduktark("ukjent-produkt")
+            assertNull(result)
+        }
+
+    @Test
+    fun `getProduktark throws RegisterException on server error`() =
+        runBlocking {
+            mockResponse(content = "", status = HttpStatusCode.InternalServerError)
+            assertFailsWith<RegisterException> {
+                client.getProduktark("feil-produkt")
+            }
+            Unit
+        }
+
+    @Test
+    fun `getProduktark throws RegisterException on invalid JSON`() =
+        runBlocking {
+            mockResponse(content = "not-json", status = HttpStatusCode.OK)
+            assertFailsWith<RegisterException> {
+                client.getProduktark("test-produkt")
             }
             Unit
         }

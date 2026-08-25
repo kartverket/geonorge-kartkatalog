@@ -21,7 +21,6 @@ import { useState } from "react";
 import { LOCATIONS, trackEvent } from "@/posthog/posthog";
 import styles from "./HeaderMenu.module.css";
 import { ProfileContent } from "./ProfileContent";
-import { SearchField } from "./SearchField";
 
 type MenuLink = { label: string; href: Route };
 type MenuSection = { title: string; links: MenuLink[] };
@@ -104,23 +103,27 @@ export function HeaderMenu({
   downloadCount: number;
   posthogClick: (clickItem: string) => void;
 }) {
-  const [view, setView] = useState<"nav" | "search" | "profile">("nav");
+  const [view, setView] = useState<"nav" | "profile">("nav");
   return (
     <div className={styles.panel}>
       <div className={styles.panelInner}>
         <div className={styles.menuActions}>
           <Button
+            asChild
             variant="tertiary"
             data-color="neutral"
             className={styles.inMenuFromSm}
-            aria-expanded={view === "search"}
-            onClick={() => {
-              setView(view === "search" ? "nav" : "search");
-              posthogClick("search");
-            }}
           >
-            <MagnifyingGlassIcon aria-hidden />
-            Søk
+            <Link
+              href="/"
+              onClick={() => {
+                posthogClick("search");
+                closePanel();
+              }}
+            >
+              <MagnifyingGlassIcon aria-hidden />
+              Finn data
+            </Link>
           </Button>
           <Button
             variant="tertiary"
@@ -191,9 +194,7 @@ export function HeaderMenu({
           )}
         </div>
         <Divider className={styles.divider} />
-        {view === "search" ? (
-          <SearchField />
-        ) : view === "profile" ? (
+        {view === "profile" ? (
           <ProfileContent />
         ) : (
           <nav aria-label="Hovedmeny" data-color="info">

@@ -6,7 +6,13 @@ import styles from "./ProductMeta.module.css";
 
 const PAGE_SIZE = 4;
 
-export function ThemeTags({ themes }: { themes: string[] }) {
+export function ThemeTags({
+  themes,
+  "data-color": dataColor = "success",
+}: {
+  themes: string[];
+  "data-color"?: string;
+}) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const visible = themes.slice(0, visibleCount);
@@ -15,7 +21,7 @@ export function ThemeTags({ themes }: { themes: string[] }) {
 
   return (
     <div data-color="info">
-      <div className={styles.tags} data-color="success">
+      <div className={styles.tags} data-color={dataColor}>
         {visible.map((t) => (
           <span className="ds-tag" key={t}>
             {t}

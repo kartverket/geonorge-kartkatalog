@@ -1,0 +1,28 @@
+.hero {
+  width: 100%;
+  background-color: var(--ds-color-info-text-default);
+  color: var(--ds-color-background-default);
+  padding-block: 70px;
+}
+
+.inner {
+  max-width: 561px;
+  margin-inline: auto;
+  display: grid;
+  gap: var(--ds-size-10);
+}
+
+.title {
+  color: inherit;
+  margin: 0;
+}
+
+.form {
+  display: grid;
+  gap: var(--ds-size-2);
+}
+
+.label {
+  color: inherit;
+  font-size: var(--ds-body-sm-font-size);
+}

@@ -11,7 +11,7 @@ export const getUniqueItemsFromListByKey = <
     ...new Set(
       list.flatMap((item) => {
         const value = item[field];
-        return value != null ? [value] : [];
+        return value != null && value !== "" ? [value] : [];
       }),
     ),
   ];

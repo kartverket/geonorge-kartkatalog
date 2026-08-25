@@ -137,3 +137,9 @@
   align-items: center;
   width: 100%;
 }
+
+.helpLink {
+  margin-left: var(--ds-size-8);
+  text-decoration: underline;
+  color: inherit;
+}
