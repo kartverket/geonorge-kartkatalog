@@ -62,7 +62,7 @@ export default async function ProductPage({
           representation={metadata.spatialRepresentation}
           maintenanceFrequency={metadata.maintenanceFrequency}
           resolutionScale={metadata.resolutionScale}
-          dateUpdated={metadata.dateUpdated}
+          dateUpdated={null}
           themes={getUniqueItemsFromListByKey(
             [...metadata.nationalKeywords, ...metadata.keywordsTheme],
             "keywordValue",

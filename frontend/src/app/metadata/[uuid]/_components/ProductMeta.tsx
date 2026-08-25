@@ -77,7 +77,10 @@ export function ProductMeta({
         </MetaField>
       )}
       {relevantCategories.length > 0 && (
-        <MetaField label="Relevante kategorier">
+        <MetaField
+          label="Relevante kategorier"
+          help="Om datasettet er del av DOK, nasjonale samarbeidsinitiativ eller er et EU High Value Dataset"
+        >
           <ThemeTags themes={relevantCategories} data-color="warning" />
         </MetaField>
       )}
