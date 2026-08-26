@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import AddToCartButton from "@/app/_components/AddToCartButton";
+import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = {
@@ -28,12 +28,16 @@ export type DatasetCardProps = {
   formats?: string[];
   showThumbnail?: boolean;
   viewMode?: "grid" | "list";
+  accessState: "restricted" | "open" | "protected" | null;
+  hierarchyLevel: string | null;
 };
 
 export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const [copied, setCopied] = useState(false);
 
   const isService = p.typeTranslated === "Tjeneste";
+  const isOpen = p.accessState === "open";
+  const isDataset = p.hierarchyLevel === "dataset";
   const canDownload = p.distributionProtocol === "GEONORGE:DOWNLOAD";
   const canShowMap = !!p.showMapLink && !!p.mapCapabilitiesUrl;
   const canCopy = isService && !!p.getCapabilitiesUrl;
@@ -135,7 +139,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               icon={<LayersPlusIcon aria-hidden />}
             />
           )}
-          {canDownload && p.distributionUrl && (
+          {canDownload && isOpen && isDataset && p.distributionUrl && (
             <AddToCartButton
               item={{
                 uuid: p.uuid,

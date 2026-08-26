@@ -1,8 +1,8 @@
 "use client";
 
 import { Button, Details, Heading } from "@kv-designsystem/react";
-import { useState } from "react";
 import { CheckmarkIcon, MinusIcon, XMarkIcon } from "@navikt/aksel-icons";
+import { useState } from "react";
 import type { ProductFairStatus } from "@/lib/schemas/product";
 import styles from "./FairSection.module.css";
 

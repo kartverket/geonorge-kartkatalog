@@ -392,8 +392,14 @@ object MetadataParser {
                         onlineResources = ownOnlineResources.ifEmpty { sharedOnlineResources },
                     )
                 }
+            val fallbackFormats =
+                if (formats.isEmpty() && sharedOnlineResources.isNotEmpty()) {
+                    listOf(DistributionFormat(name = "Nedlasting", onlineResources = sharedOnlineResources))
+                } else {
+                    emptyList()
+                }
 
-            return DistributionInfo(formats = formats)
+            return DistributionInfo(formats = formats + fallbackFormats)
         }
 
         private fun parseOnlineResources(dto: Node): List<OnlineResource> {

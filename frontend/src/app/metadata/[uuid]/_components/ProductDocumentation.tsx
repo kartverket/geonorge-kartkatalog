@@ -21,9 +21,11 @@ type DocumentationCard = {
 export function ProductDocumentation({
   tegneregler,
   produktark,
+  productSpecificationUrl,
 }: {
   tegneregler: TegnereglerItem | null;
   produktark: ProduktarkItem | null;
+  productSpecificationUrl?: string | null;
 }) {
   const cardContent: DocumentationCard[] = [
     ...(tegneregler?.documentreference
@@ -54,12 +56,17 @@ export function ProductDocumentation({
         ]
       : []),
 
-    {
-      title: "Produktspesifikasjon",
-      paragraph:
-        "Produktspesifikasjon beskriver i detalje struktur, krav og innhold i datasettet, inkludert standarder og kvalitetskrav.",
-      icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
-    },
+    ...(productSpecificationUrl
+      ? [
+          {
+            title: "Produktspesifikasjon",
+            paragraph:
+              "Produktspesifikasjon beskriver i detalje struktur, krav og innhold i datasettet, inkludert standarder og kvalitetskrav.",
+            icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
+            url: productSpecificationUrl,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -104,7 +111,9 @@ function ButtonCard({
         <Heading data-size="md">{content.title}</Heading>
         <Paragraph data-size="md">{content.paragraph}</Paragraph>
         <Paragraph data-size="sm">
-          Dato publisert: {formatDate(content.dateSubmitted)}
+          {content.dateSubmitted
+            ? `Dato publisert: ${formatDate(content.dateSubmitted)}`
+            : null}
         </Paragraph>
       </a>
     </Card>

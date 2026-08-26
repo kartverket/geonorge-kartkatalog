@@ -86,6 +86,7 @@ export const ProductMetadataSchema = z.object({
   referenceSystems: z.array(ReferenceSystemSchema),
   distributionGroups: z.array(DistributionGroupSchema),
   coverageUrl: z.string().nullable(),
+  productSpecificationUrl: z.string().nullable(),
 });
 
 export type ProductConstraints = Partial<ProductLegalConstraints> & {
@@ -195,6 +196,7 @@ export const LinkedDistributionSchema = z.object({
   formats: z.array(z.string()),
   protocolNames: z.array(z.string()),
   hierarchyLevel: z.string().nullable(),
+  accessState: z.enum(accessState).nullable(),
 });
 
 export const LinkedDistributionsSchema = z.object({
