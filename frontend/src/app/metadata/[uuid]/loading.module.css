@@ -1,0 +1,167 @@
+.content {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: var(--ds-size-26);
+}
+
+.content > div {
+  margin: var(--ds-size-10) 0;
+}
+
+.metaRow {
+  display: flex;
+  gap: var(--ds-size-10);
+  align-items: flex-start;
+}
+
+.header {
+  display: grid;
+  gap: var(--ds-size-6);
+}
+
+.breadcrumb {
+  font-size: var(--ds-body-sm-font-size);
+  margin-bottom: var(--ds-size-10);
+}
+
+.breadcrumbSkeleton {
+  width: min(100%, 22rem);
+  height: 1rem;
+}
+
+.accessSkeleton {
+  width: 10rem;
+  height: 2rem;
+  border-radius: 999px;
+}
+
+.title {
+  font-size: var(--ds-heading-md-font-size);
+  font-weight: var(--ds-font-weight-regular);
+  margin: 0;
+}
+
+.titleSkeleton {
+  width: min(100%, 28rem);
+  height: 2.5rem;
+}
+
+.organization {
+  color: var(--ds-color-neutral-text-subtle);
+  margin: 0;
+}
+
+.organizationSkeleton {
+  width: min(100%, 18rem);
+  height: 1.5rem;
+}
+
+.imageWrapper {
+  width: 100%;
+  max-width: 345px;
+  height: 300px;
+  display: block;
+  flex-shrink: 0;
+  border-radius: var(--ds-border-radius-lg);
+}
+
+.metaGrid {
+  width: 100%;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ds-size-6);
+}
+
+.metaField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+}
+
+.metaLabelShort,
+.metaLabelMedium,
+.metaLabelLong,
+.metaValueShort,
+.metaValueMedium,
+.metaValueTag,
+.tagShort,
+.tagMedium,
+.tagLong {
+  display: block;
+}
+
+.metaLabelShort {
+  width: 5rem;
+  height: 0.875rem;
+}
+
+.metaLabelMedium {
+  width: 7rem;
+  height: 0.875rem;
+}
+
+.metaLabelLong {
+  width: 10rem;
+  height: 0.875rem;
+}
+
+.metaValueShort {
+  width: 7rem;
+  height: 1.5rem;
+}
+
+.metaValueMedium {
+  width: 10rem;
+  height: 1.5rem;
+}
+
+.metaValueTag {
+  width: 8rem;
+  height: 2rem;
+  border-radius: 999px;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-2);
+}
+
+.tagShort {
+  width: 5rem;
+  height: 2rem;
+  border-radius: 999px;
+}
+
+.tagMedium {
+  width: 7rem;
+  height: 2rem;
+  border-radius: 999px;
+}
+
+.tagLong {
+  width: 9rem;
+  height: 2rem;
+  border-radius: 999px;
+}
+
+@media (800px <= width <= 1024px) {
+  .imageWrapper {
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .content {
+    padding-inline: var(--ds-size-5);
+  }
+
+  .metaRow {
+    flex-direction: column;
+  }
+
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+}
