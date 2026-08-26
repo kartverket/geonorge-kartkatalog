@@ -45,22 +45,20 @@ const OgHeader = () => {
   //     lastSearchStringRef.current = searchData.searchString;
   // }
 
-  // const handleSubmitSearch = (searchString, selectedType) => {
-  //     searchString = searchString.toString();
-  //     //searchString = searchString.replace(/[^a-å0-9- ]+/gi, ""); // Removes unwanted characters
-  //     searchString = searchString.replace(/\s\s+/g, " "); // Remove redundant whitespace
-  //     if (searchString.length > 1) {
-  //         const isLoggedIn = !!auth?.user;
-  //         const view = new URLSearchParams(window.location.search).get("view");
-  //         const viewParam = view ? `&view=${view}` : "";
-  //         if (isLoggedIn) {
-  //             location.href = `/${selectedType}?text=${searchString}${viewParam}`;
-  //         }
-  //         else{
-  //             navigate(`/${selectedType}?text=${searchString}${viewParam}`);
-  //         }
-  //     }
-  // };
+  const handleSubmitSearch = (searchString: string) => {
+    console.log("handleSubmitSearch", searchString);
+    return;
+      searchString = searchString.toString();
+      
+      searchString = searchString.replace(/\s\s+/g, " "); // Remove redundant whitespace
+      if (searchString.length > 1) {
+          
+          const view = new URLSearchParams(window.location.search).get("view");
+          const viewParam = view ? `&view=${view}` : "";
+          location.href = `/?text=${searchString}${viewParam}`;
+          
+      }
+  };
 
   // const handleChangeSearchResultsType = (searchResultsType, searchString) => {
   //     //searchString = searchString.replace(/[^a-å0-9- ]+/gi, ""); // Removes unwanted characters
@@ -140,7 +138,10 @@ const OgHeader = () => {
   //         navigate(autoRedirectPath);
   //     }
 
-  MainNavigation.setup("main-navigation", {});
+  MainNavigation.setup("main-navigation", {
+    onSearch: (e) => {handleSubmitSearch(e)},
+    
+  });
 
   // const metadataResultsFound = searchData?.results?.metadata?.NumFound || 0;
   // const articlesResultsFound = searchData?.results?.articles?.NumFound || 0;
@@ -160,27 +161,20 @@ const OgHeader = () => {
     // orginfo: JSON.stringify(orginfo),
     // isLoggedIn: true,
     // language: "no-NB",
-    // environment: "dev",
-    // searchString: searchText,
-    // searchType: "params.searchResultsType",
-    // showsearchtypeselector: false, //showSearchTypeSelector,
+    environment: "dev",
+    searchString: searchText,
+    showsearchtypeselector: false, 
     // metadataresultsfound: true,
     // articlesresultsfound: true,
-    //maincontentid: "main-content",
-    // kartkatalogUrl: "localhost:3000",
+    // maincontentid: "main-content",
+    norwegianurl: "localhost:3000",
+    englishUrl: "localhost:3000",
+    onSearch: () => {handleSubmitSearch(searchText || "")},
+    style: {display: "block", minHeight: "100px"},
+    
   };
   return <>{React.createElement("main-navigation", mainNavigationProps)}</>;
 };
 
-const isLocalhost = Boolean(
-  true,
-  // window.location.hostname === 'localhost' ||
-  //   // [::1] is the IPv6 localhost address.
-  //   window.location.hostname === '[::1]' ||
-  //   // 127.0.0.1/8 is considered localhost for IPv4.
-  //   window.location.hostname.match(
-  //     /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
-  //   )
-);
 
 export default OgHeader;
