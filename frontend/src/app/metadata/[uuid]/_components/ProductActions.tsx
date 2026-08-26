@@ -6,8 +6,8 @@ import {
 import AddSeriesToCartButton from "@/app/_components/addToCart/AddSeriesToCartButton";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import type { DownloadItem } from "@/app/_components/addToCart/cartStorage";
-import AddToCartButton from "@/app/_components/AddToCartButton";
-import AddToMapButton from "@/app/_components/AddToMapButton";
+import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
+import type { MapItem } from "@/app/_components/addToMap/mapStorage";
 import {
   getEditUrl,
   getMetadataXmlUrl,
@@ -69,7 +69,7 @@ export function ProductActions({
     },
   );
 
-  const mapItem =
+  const mapItem: MapItem | null =
     metadata.accessState === "open"
       ? {
           addLayers: [],
