@@ -45,6 +45,14 @@ function toDownloadItem(d: LinkedDistribution): DownloadItem | null {
   };
 }
 
+function getCapabilitiesUrl(
+  distributionGroups: DistributionGroup[],
+): string | null {
+  const group = distributionGroups.find((g) => g.protocol === "OGC:WMS");
+  const rawUrl = group?.formats[0]?.urls[0];
+  return rawUrl ?? null;
+}
+
 export function ProductActions({
   linkedDistributions,
   metadata,
@@ -69,15 +77,17 @@ export function ProductActions({
     },
   );
 
+  // TODO: utvide med at den har relatert karttjeneste
+  const hasMapService = getCapabilitiesUrl(metadata.distributionGroups);
+
   const mapItem: MapItem | null =
-    metadata.accessState === "open"
+    metadata.accessState === "open" && hasMapService
       ? {
           addLayers: [],
           DistributionProtocol: "OGC:WMS",
           Uuid: uuid,
           Title: metadata.title,
-          GetCapabilitiesUrl:
-            "https://wms.geonorge.no/skwms1/wms.matrikkel?service=wms&request=getcapabilities",
+          GetCapabilitiesUrl: hasMapService,
         }
       : null;
 
