@@ -1,6 +1,6 @@
 import searchResult from "../mocks/searchResult.json";
-import { SearchResults } from "./_components/SearchResults/SearchResults";
 import { SearchHero } from "./_components/SearchHero/SearchHero";
+import { SearchResults } from "./_components/SearchResults/SearchResults";
 
 export default function Home() {
   const results = searchResult.Results.map((r) => ({
@@ -15,6 +15,12 @@ export default function Home() {
     showMapLink: r.ShowMapLink,
     mapCapabilitiesUrl:
       r.DatasetServicesWithShowMapLink?.[0]?.GetCapabilitiesUrl,
+    accessState: r.AccessIsRestricted
+      ? ("restricted" as const)
+      : r.AccessIsProtected
+        ? ("protected" as const)
+        : ("open" as const),
+    hierarchyLevel: r.Type,
   }));
 
   return (

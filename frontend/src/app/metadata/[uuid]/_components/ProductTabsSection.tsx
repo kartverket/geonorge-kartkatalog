@@ -1,6 +1,5 @@
 import {
   getFairStatus,
-  getLinkedDistributions,
   type getMetadata,
   getProduktark,
   getTegneregler,
@@ -11,42 +10,33 @@ import {
   ProductTabs,
 } from "@/app/metadata/[uuid]/_components/ProductTabs";
 import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
-import { formatDate, showCopyLink } from "@/app/metadata/[uuid]/_utils/utils";
+import {
+  formatDate,
+  showCopyLink,
+  unwrapSettled,
+} from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
+  LinkedDistributions,
   ProductConstraints,
   ReferenceSystem,
 } from "@/lib/schemas/product";
 
-const EMPTY_LINKED_DISTRIBUTIONS = {
-  applications: [],
-  viewServices: [],
-  downloadServices: [],
-  seriesMembers: [],
-  parentSeries: [],
-  relatedDatasets: [],
-  serviceLayers: [],
-  parentService: [],
-};
-
 export async function ProductTabsSection({
   uuid,
   metadata,
+  linkedDistributions,
 }: {
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
+  linkedDistributions: LinkedDistributions;
 }) {
-  const [
-    fairStatusResult,
-    tegnereglerResult,
-    produktarkResult,
-    linkedDistributionsResult,
-  ] = await Promise.allSettled([
-    getFairStatus(uuid),
-    getTegneregler(uuid),
-    getProduktark(uuid),
-    getLinkedDistributions(uuid),
-  ]);
+  const [fairStatusResult, tegnereglerResult, produktarkResult] =
+    await Promise.allSettled([
+      getFairStatus(uuid),
+      getTegneregler(uuid),
+      getProduktark(uuid),
+    ]);
 
   const fairStatus = unwrapSettled(
     fairStatusResult,
@@ -64,12 +54,6 @@ export async function ProductTabsSection({
     produktarkResult,
     "Kunne ikke laste produktark",
     null,
-  );
-
-  const linkedDistributions = unwrapSettled(
-    linkedDistributionsResult,
-    "Kunne ikke laste koblede distribusjoner",
-    EMPTY_LINKED_DISTRIBUTIONS,
   );
 
   const constraints = {
@@ -375,16 +359,4 @@ function UrlLink({ url }: { url: string }) {
       <CopyButton url={url} className={styles.copyButton} />
     </div>
   );
-}
-
-function unwrapSettled<T>(
-  result: PromiseSettledResult<T>,
-  errorMessage: string,
-  fallback: T,
-): T {
-  if (result.status === "rejected") {
-    console.error(errorMessage, result.reason);
-    return fallback;
-  }
-  return result.value;
 }
