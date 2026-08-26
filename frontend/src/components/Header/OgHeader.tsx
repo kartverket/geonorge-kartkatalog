@@ -1,6 +1,4 @@
-"use client"
-
-
+"use client";
 
 // Dependencies
 import React, { Fragment, useEffect, useRef } from "react";
@@ -17,226 +15,226 @@ import React, { Fragment, useEffect, useRef } from "react";
 
 // Components
 import { MainNavigation } from "@kartverket/geonorge-web-components/MainNavigation";
-import '@kartverket/geonorge-web-components/index.css';
+import "@kartverket/geonorge-web-components/index.css";
+import { useSearchParams } from "next/navigation";
 // import Cookies from 'js-cookie';
 // import { getEnvironment } from "@/utils/runtimeConfig";
+import dynamic from "next/dynamic";
+
 
 const OgHeader = () => {
-    // const navigate = useNavigate();
-    // const dispatch = useDispatch();
+  const searchParams = useSearchParams();
+  const searchText = searchParams.get("text");
 
-    // const { searchData, params } = layoutLoaderData;
+  // const navigate = useNavigate();
+  // const dispatch = useDispatch();
 
-    // // Redux store
-    // const selectedLanguage = useSelector((state) => state.selectedLanguage);
-    // const auth = useSelector((state) => state.auth);
-    // const baatInfo = useSelector((state) => state.baatInfo);
+  // const { searchData, params } = layoutLoaderData;
 
-    // // Refs
-    // const userRef = useRef(null);
-    // const lastSearchStringRef = useRef(searchData?.searchString || "");
+  // // Redux store
+  // const selectedLanguage = useSelector((state) => state.selectedLanguage);
+  // const auth = useSelector((state) => state.auth);
+  // const baatInfo = useSelector((state) => state.baatInfo);
 
-    // // Keep the last non-empty search string so navigating away and back
-    // // doesn't reopen the autocomplete popup.
-    // if (searchData?.searchString) {
-    //     lastSearchStringRef.current = searchData.searchString;
-    // }
+  // // Refs
+  // const userRef = useRef(null);
+  // const lastSearchStringRef = useRef(searchData?.searchString || "");
 
-    // const handleSubmitSearch = (searchString, selectedType) => {
-    //     searchString = searchString.toString();
-    //     //searchString = searchString.replace(/[^a-å0-9- ]+/gi, ""); // Removes unwanted characters
-    //     searchString = searchString.replace(/\s\s+/g, " "); // Remove redundant whitespace
-    //     if (searchString.length > 1) {
-    //         const isLoggedIn = !!auth?.user;
-    //         const view = new URLSearchParams(window.location.search).get("view");
-    //         const viewParam = view ? `&view=${view}` : "";
-    //         if (isLoggedIn) {
-    //             location.href = `/${selectedType}?text=${searchString}${viewParam}`;
-    //         }
-    //         else{
-    //             navigate(`/${selectedType}?text=${searchString}${viewParam}`);
-    //         }
-    //     }
-    // };
+  // // Keep the last non-empty search string so navigating away and back
+  // // doesn't reopen the autocomplete popup.
+  // if (searchData?.searchString) {
+  //     lastSearchStringRef.current = searchData.searchString;
+  // }
 
-    // const handleChangeSearchResultsType = (searchResultsType, searchString) => {
-    //     //searchString = searchString.replace(/[^a-å0-9- ]+/gi, ""); // Removes unwanted characters
-    //     searchString = searchString.replace(/\s\s+/g, " "); // Remove redundant whitespace
-    //     const view = new URLSearchParams(window.location.search).get("view");
-    //     const viewParam = view ? `${searchString && searchString.length ? "&" : "?"}view=${view}` : "";
-    //     const searchStringParameter = searchString && searchString.length ? `?text=${searchString}` : "";
-    //     navigate(`/${searchResultsType}${searchStringParameter}${viewParam}`);
-    // };
+  // const handleSubmitSearch = (searchString, selectedType) => {
+  //     searchString = searchString.toString();
+  //     //searchString = searchString.replace(/[^a-å0-9- ]+/gi, ""); // Removes unwanted characters
+  //     searchString = searchString.replace(/\s\s+/g, " "); // Remove redundant whitespace
+  //     if (searchString.length > 1) {
+  //         const isLoggedIn = !!auth?.user;
+  //         const view = new URLSearchParams(window.location.search).get("view");
+  //         const viewParam = view ? `&view=${view}` : "";
+  //         if (isLoggedIn) {
+  //             location.href = `/${selectedType}?text=${searchString}${viewParam}`;
+  //         }
+  //         else{
+  //             navigate(`/${selectedType}?text=${searchString}${viewParam}`);
+  //         }
+  //     }
+  // };
 
-    // useEffect(() => {
-    //     dispatch(fetchMapItems());
-    //     dispatch(fetchItemsToDownload());
-    //     dispatch(updateOidcCookie());
-    //     dispatch(updateBaatInfo());
-    //     dispatch(autoAddItemFromLocalStorage());
-    // }, []);
+  // const handleChangeSearchResultsType = (searchResultsType, searchString) => {
+  //     //searchString = searchString.replace(/[^a-å0-9- ]+/gi, ""); // Removes unwanted characters
+  //     searchString = searchString.replace(/\s\s+/g, " "); // Remove redundant whitespace
+  //     const view = new URLSearchParams(window.location.search).get("view");
+  //     const viewParam = view ? `${searchString && searchString.length ? "&" : "?"}view=${view}` : "";
+  //     const searchStringParameter = searchString && searchString.length ? `?text=${searchString}` : "";
+  //     navigate(`/${searchResultsType}${searchStringParameter}${viewParam}`);
+  // };
 
-    // useEffect(() => {
-    //     userRef.current = auth?.user;
-    // }, [auth]);
+  // useEffect(() => {
+  //     dispatch(fetchMapItems());
+  //     dispatch(fetchItemsToDownload());
+  //     dispatch(updateOidcCookie());
+  //     dispatch(updateBaatInfo());
+  //     dispatch(autoAddItemFromLocalStorage());
+  // }, []);
 
-    // useEffect(() => {
-    //     const onAccessTokenExpiring = () => {
-    //         // Handle token expiring (e.g., show warning, trigger silent renew, etc.)
-    //         userManager.signinSilent();
-    //     };
+  // useEffect(() => {
+  //     userRef.current = auth?.user;
+  // }, [auth]);
 
-    //     userManager.events.addAccessTokenExpiring(onAccessTokenExpiring);
+  // useEffect(() => {
+  //     const onAccessTokenExpiring = () => {
+  //         // Handle token expiring (e.g., show warning, trigger silent renew, etc.)
+  //         userManager.signinSilent();
+  //     };
 
-    //     return () => {
-    //         userManager.events.removeAccessTokenExpiring(onAccessTokenExpiring);
-    //     };
-    // }, [userManager]);  
-    
-    // useEffect(() => {
-    //     const onUserLoaded = (user) => {
-    //         // Handle user loaded event (e.g., dispatch to Redux, log, etc.)
-    //         dispatch(userLoaded(user));
-    //     };
+  //     userManager.events.addAccessTokenExpiring(onAccessTokenExpiring);
 
-    //     userManager.events.addUserLoaded(onUserLoaded);
+  //     return () => {
+  //         userManager.events.removeAccessTokenExpiring(onAccessTokenExpiring);
+  //     };
+  // }, [userManager]);
 
-    //     return () => {
-    //         userManager.events.removeUserLoaded(onUserLoaded);
-    //     };
-    // }, [userManager, dispatch]);    
+  // useEffect(() => {
+  //     const onUserLoaded = (user) => {
+  //         // Handle user loaded event (e.g., dispatch to Redux, log, etc.)
+  //         dispatch(userLoaded(user));
+  //     };
 
-    // useEffect(() => {
-    //     const isLoggedIn = !!auth?.user;
-    //     const hasBaatInfo = !!baatInfo?.user;
+  //     userManager.events.addUserLoaded(onUserLoaded);
 
-    //     var loggedInCookie = Cookies.get('_loggedInOtherApp');
-    //     var loggedInMenu = Cookies.get('_loggedIn');
-    //     let autoRedirectPath = null;
+  //     return () => {
+  //         userManager.events.removeUserLoaded(onUserLoaded);
+  //     };
+  // }, [userManager, dispatch]);
 
+  // useEffect(() => {
+  //     const isLoggedIn = !!auth?.user;
+  //     const hasBaatInfo = !!baatInfo?.user;
 
-    //     if(loggedInCookie === "true" && !isLoggedIn){
-    //         sessionStorage.autoRedirectPath = window.location.pathname;
-    //         userManager.signinRedirect(); 
-    //     }
-    //     else if(loggedInMenu == "false" && isLoggedIn){
-    //         sessionStorage.autoRedirectPath = window.location.pathname;
-    //         userManager.signoutRedirect();
-    //     }
-    //     else if(sessionStorage?.autoRedirectPath){
-    //             autoRedirectPath = sessionStorage.autoRedirectPath; 
-    //     }
+  //     var loggedInCookie = Cookies.get('_loggedInOtherApp');
+  //     var loggedInMenu = Cookies.get('_loggedIn');
+  //     let autoRedirectPath = null;
 
-    //     if (isLoggedIn || hasBaatInfo) {
-    //         dispatch(autoAddItemFromLocalStorage());
-    //         dispatch(fetchItemsToDownload());
-    //         dispatch(updateOidcCookie());
-    //         dispatch(updateBaatInfo());
-    //     }
+  //     if(loggedInCookie === "true" && !isLoggedIn){
+  //         sessionStorage.autoRedirectPath = window.location.pathname;
+  //         userManager.signinRedirect();
+  //     }
+  //     else if(loggedInMenu == "false" && isLoggedIn){
+  //         sessionStorage.autoRedirectPath = window.location.pathname;
+  //         userManager.signoutRedirect();
+  //     }
+  //     else if(sessionStorage?.autoRedirectPath){
+  //             autoRedirectPath = sessionStorage.autoRedirectPath;
+  //     }
 
-    //     if(autoRedirectPath !== null){
-    //         navigate(autoRedirectPath);
-    //     }
+  //     if (isLoggedIn || hasBaatInfo) {
+  //         dispatch(autoAddItemFromLocalStorage());
+  //         dispatch(fetchItemsToDownload());
+  //         dispatch(updateOidcCookie());
+  //         dispatch(updateBaatInfo());
+  //     }
 
+  //     if(autoRedirectPath !== null){
+  //         navigate(autoRedirectPath);
+  //     }
 
-        MainNavigation.setup("main-navigation", {
-            onSearch: (event:  {detail:{searchString: string} | null} ) => {
-                const searchEvent = event.detail || null;
-                if (searchEvent) {
-                     console.log("hello")
-                    //handleSubmitSearch(searchEvent.searchString, params.searchResultsType);
-                }
-            },
-            onSignInClick: (event: React.MouseEvent<HTMLInputElement>) => {
-                event.preventDefault();
-                sessionStorage.autoRedirectPath = window.location.pathname;
-                console.log("user clickec sign in!")
-                //userManager.signinRedirect();
-            },
-            onSignOutClick: (event: React.MouseEvent<HTMLInputElement>) => {
-                event.preventDefault();
-                sessionStorage.autoRedirectPath = window.location.pathname;
-                if (isLocalhost) 
-                {
+  MainNavigation.setup("main-navigation", {
+    onSearch: (event: { detail: { searchString: string } | null }) => {
+      const searchEvent = event.detail || null;
+      if (searchEvent) {
+        console.log("hello");
+        //handleSubmitSearch(searchEvent.searchString, params.searchResultsType);
+      }
+    },
+    onSignInClick: (event: React.MouseEvent<HTMLInputElement>) => {
+      event.preventDefault();
+      //sessionStorage.autoRedirectPath = window.location.pathname;
+      console.log("user clickec sign in!");
+      //userManager.signinRedirect();
+    },
+    onSignOutClick: (event: React.MouseEvent<HTMLInputElement>) => {
+      event.preventDefault();
+      //sessionStorage.autoRedirectPath = window.location.pathname;
+      if (isLocalhost) {
+        //Cookies.set('_loggedIn', 'false');
+      } else {
+        //Cookies.set('_loggedIn', 'false', { domain: 'geonorge.no' });
+      }
+      console.log("sign out");
+      //userManager.signoutRedirect({ id_token_hint: userRef?.current?.id_token });
+      //userManager.removeUser();
+    },
+    onNorwegianLanguageSelect: async () => {
+      console.log("set norwegian");
+      //await dispatch(updateSelectedLanguage("no"));
+      //window.location.reload();
+    },
+    onEnglishLanguageSelect: async () => {
+      console.log("set english");
+      //await dispatch(updateSelectedLanguage("en"));
+      //window.location.reload();
+    },
+    onSearchTypeChange: (event: any) => {
+      console.log("set search type");
+      //const searchType = event?.detail?.value || null;
+      //handleChangeSearchResultsType(searchType, lastSearchStringRef.current);
+    },
+    onMapItemsChange: (event: any) => {
+      console.log("item changeds");
+      //dispatch(fetchMapItems());
+    },
+    onDownloadItemsChange: (event: any) => {
+      console.log("download items changed");
+      //dispatch(fetchItemsToDownload());
+    },
+  });
 
-                    //Cookies.set('_loggedIn', 'false');
-                }
-                else
-                    {//Cookies.set('_loggedIn', 'false', { domain: 'geonorge.no' });
-                        }
-                            console.log("sign out")
-                //userManager.signoutRedirect({ id_token_hint: userRef?.current?.id_token });
-                //userManager.removeUser();
-            },
-            onNorwegianLanguageSelect: async () => {
-                console.log("set norwegian")
-                //await dispatch(updateSelectedLanguage("no"));
-                window.location.reload();
-            },
-            onEnglishLanguageSelect: async () => {
-                console.log("set english")
-                //await dispatch(updateSelectedLanguage("en"));
-                window.location.reload();
-            },
-            onSearchTypeChange: (event: any) => {
-                console.log("set search type")
-                //const searchType = event?.detail?.value || null;
-                //handleChangeSearchResultsType(searchType, lastSearchStringRef.current);
-            },
-            onMapItemsChange: (event: any) => {
-                console.log("item changeds")
-                //dispatch(fetchMapItems());
-            },
-            onDownloadItemsChange: (event: any) => {
-                console.log("download items changed")
-                //dispatch(fetchItemsToDownload());
-            }
-        });
-    
+  // const metadataResultsFound = searchData?.results?.metadata?.NumFound || 0;
+  // const articlesResultsFound = searchData?.results?.articles?.NumFound || 0;
 
-    // const metadataResultsFound = searchData?.results?.metadata?.NumFound || 0;
-    // const articlesResultsFound = searchData?.results?.articles?.NumFound || 0;
+  const userinfo = {
+    name: "Test Testesen",
+    email: "test@testefjes.no",
+  };
 
-    const userinfo = {
-        name: "Test testesen",
-        email: "test@testefjes.no",
-    };
+  const orginfo = {
+    organizationNumber: 141414,
+    organizationName: "Orgefjes",
+  };
 
-    const orginfo = {
-        organizationNumber: 141414,
-        organizationName: "Orgefjes"
-
-    }
-
-    const mainNavigationProps = {
-        userinfo: JSON.stringify(userinfo),
-        orginfo: JSON.stringify(orginfo),
-        isLoggedIn: true,
-        language: "no-NB",
-        environment: "dev",
-        searchString: "søkestreng",
-        searchType: "params.searchResultsType",
-        showsearchtypeselector: true,//showSearchTypeSelector,
-        metadataresultsfound: true,
-        articlesresultsfound: true,
-        maincontentid: "main-content",
-        kartkatalogUrl:"localhost:3000"
-    };
-    return (
-        <Fragment>
-            <main-navigation {...mainNavigationProps}></main-navigation>
-        </Fragment>
-    );
+  const mainNavigationProps = {
+    userinfo: JSON.stringify(userinfo),
+    orginfo: JSON.stringify(orginfo),
+    isLoggedIn: true,
+    language: "no-NB",
+    environment: "dev",
+    searchString: searchText,
+    searchType: "params.searchResultsType",
+    showsearchtypeselector: false, //showSearchTypeSelector,
+    metadataresultsfound: true,
+    articlesresultsfound: true,
+    maincontentid: "main-content",
+    kartkatalogUrl: "localhost:3000",
+  };
+  return (
+    <Fragment>
+      {React.createElement("main-navigation", mainNavigationProps)}
+    </Fragment>
+  );
 };
 
 const isLocalhost = Boolean(
-    window.location.hostname === 'localhost' ||
-      // [::1] is the IPv6 localhost address.
-      window.location.hostname === '[::1]' ||
-      // 127.0.0.1/8 is considered localhost for IPv4.
-      window.location.hostname.match(
-        /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
-      )
-  );
+  true,
+  // window.location.hostname === 'localhost' ||
+  //   // [::1] is the IPv6 localhost address.
+  //   window.location.hostname === '[::1]' ||
+  //   // 127.0.0.1/8 is considered localhost for IPv4.
+  //   window.location.hostname.match(
+  //     /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
+  //   )
+);
 
 export default OgHeader;
