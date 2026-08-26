@@ -29,6 +29,24 @@ function normalizeDownloadItems(items: DownloadItem[]): StoredDownloadItem[] {
   return [...uniqueItems.values()];
 }
 
+function safeSetItem(key: string, value: string): boolean {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (error) {
+    console.error(`Kunne ikke lagre "${key}" i localStorage`, error);
+    return false;
+  }
+}
+
+function safeRemoveItem(key: string) {
+  try {
+    localStorage.removeItem(key);
+  } catch (error) {
+    console.error(`Kunne ikke fjerne "${key}" fra localStorage`, error);
+  }
+}
+
 function dispatchDownloadItemsChanged() {
   if (typeof document === "undefined") return;
   document.dispatchEvent(new Event(DOWNLOAD_ITEMS_CHANGED_EVENT));
@@ -66,11 +84,14 @@ export function addItemsToCart(items: DownloadItem[]) {
   const selectedItems = new Set(readOrderItems());
 
   for (const item of normalizedItems) {
+    // Elementer vi ikke fikk lagret metadata for skal heller ikke inn i
+    // indeksen, ellers ender vi opp med en kurv som peker på ingenting.
+    if (!safeSetItem(`${item.uuid}.metadata`, JSON.stringify(item))) continue;
     selectedItems.add(item.uuid);
-    localStorage.setItem(`${item.uuid}.metadata`, JSON.stringify(item));
   }
 
-  localStorage.setItem(ORDER_ITEMS_KEY, JSON.stringify([...selectedItems]));
+  safeSetItem(ORDER_ITEMS_KEY, JSON.stringify([...selectedItems]));
+  // Sendes uansett, slik at knappene leser tilbake det som faktisk ble lagret.
   dispatchDownloadItemsChanged();
 }
 
@@ -83,9 +104,9 @@ export function removeItemsFromCart(items: DownloadItem[]) {
   const remainingItems = readOrderItems().filter((id) => !idsToRemove.has(id));
 
   for (const item of normalizedItems) {
-    localStorage.removeItem(`${item.uuid}.metadata`);
+    safeRemoveItem(`${item.uuid}.metadata`);
   }
 
-  localStorage.setItem(ORDER_ITEMS_KEY, JSON.stringify(remainingItems));
+  safeSetItem(ORDER_ITEMS_KEY, JSON.stringify(remainingItems));
   dispatchDownloadItemsChanged();
 }

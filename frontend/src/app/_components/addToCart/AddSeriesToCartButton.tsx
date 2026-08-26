@@ -3,14 +3,12 @@
 import type { ButtonProps } from "@kv-designsystem/react";
 import { Button } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
-import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   addItemsToCart,
-  areAnyItemsInCart,
-  DOWNLOAD_ITEMS_CHANGED_EVENT,
   type DownloadItem,
   removeItemsFromCart,
 } from "@/app/_components/addToCart/cartStorage";
+import { useAreAnyItemsInCart } from "@/app/_components/addToCart/useCart";
 
 export default function AddSeriesToCartButton({
   items,
@@ -23,44 +21,22 @@ export default function AddSeriesToCartButton({
   variant?: ButtonProps["variant"];
   size?: "sm" | "md" | "lg";
 }) {
-  const [areItemsInCart, setAreItemsInCart] = useState(false);
-  const downloadableItems = useMemo(
-    () => items.filter((item) => item.uuid && item.distributionUrl),
-    [items],
+  const areItemsInCart = useAreAnyItemsInCart(items);
+
+  const hasDownloadableItems = items.some(
+    (item) => item.uuid && item.distributionUrl,
   );
 
-  const syncState = useCallback(() => {
-    setAreItemsInCart(areAnyItemsInCart(downloadableItems));
-  }, [downloadableItems]);
+  if (!hasDownloadableItems) return null;
 
-  useEffect(() => {
-    syncState();
-
-    const handleCartChange = () => syncState();
-    document.addEventListener(DOWNLOAD_ITEMS_CHANGED_EVENT, handleCartChange);
-
-    return () => {
-      document.removeEventListener(
-        DOWNLOAD_ITEMS_CHANGED_EVENT,
-        handleCartChange,
-      );
-    };
-  }, [syncState]);
-
-  const handleToggleCart = useCallback(() => {
-    if (downloadableItems.length === 0) return;
-
+  const handleToggleCart = () => {
     if (areItemsInCart) {
-      removeItemsFromCart(downloadableItems);
-      setAreItemsInCart(false);
+      removeItemsFromCart(items);
       return;
     }
 
-    addItemsToCart(downloadableItems);
-    setAreItemsInCart(true);
-  }, [areItemsInCart, downloadableItems]);
-
-  if (downloadableItems.length === 0) return null;
+    addItemsToCart(items);
+  };
 
   return (
     <Button

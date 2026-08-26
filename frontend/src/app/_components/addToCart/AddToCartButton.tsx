@@ -3,14 +3,12 @@
 import type { ButtonProps } from "@kv-designsystem/react";
 import { Button } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
-import { useCallback, useEffect, useState } from "react";
 import {
   addItemsToCart,
-  DOWNLOAD_ITEMS_CHANGED_EVENT,
   type DownloadItem,
-  isItemInCart,
   removeItemsFromCart,
 } from "@/app/_components/addToCart/cartStorage";
+import { useIsItemInCart } from "@/app/_components/addToCart/useCart";
 
 export default function AddToCartButton({
   item,
@@ -23,45 +21,18 @@ export default function AddToCartButton({
   variant?: ButtonProps["variant"];
   size?: "sm" | "md" | "lg";
 }) {
-  const [isInCart, setIsInCart] = useState(false);
-  const distributionUrl = item?.distributionUrl ?? null;
+  const isInCart = useIsItemInCart(item?.uuid);
 
-  const syncState = useCallback(() => {
-    setIsInCart(item?.uuid ? isItemInCart(item.uuid) : false);
-  }, [item?.uuid]);
+  if (!item?.uuid || !item.distributionUrl) return null;
 
-  useEffect(() => {
-    syncState();
-
-    const handleCartChange = () => syncState();
-    document.addEventListener(DOWNLOAD_ITEMS_CHANGED_EVENT, handleCartChange);
-
-    return () => {
-      document.removeEventListener(
-        DOWNLOAD_ITEMS_CHANGED_EVENT,
-        handleCartChange,
-      );
-    };
-  }, [syncState]);
-
-  const handleToggleCart = useCallback(() => {
-    if (!item?.uuid || !distributionUrl) return;
-
-    const cartItem = { uuid: item.uuid, name: item.name, distributionUrl };
-
+  const handleToggleCart = () => {
     if (isInCart) {
-      removeItemsFromCart([cartItem]);
-      setIsInCart(false);
+      removeItemsFromCart([item]);
       return;
     }
 
-    addItemsToCart([cartItem]);
-    setIsInCart(true);
-  }, [distributionUrl, isInCart, item?.name, item?.uuid]);
-
-  if (!item) return null;
-
-  if (!distributionUrl) return null;
+    addItemsToCart([item]);
+  };
 
   return (
     <Button
