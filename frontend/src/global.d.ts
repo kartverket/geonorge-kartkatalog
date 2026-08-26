@@ -1,0 +1,1 @@
+declare module '@kartverket/geonorge-web-components/MainNavigation';

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Footer } from "@/components/Footer/Footer";
 import { Header } from "@/components/Header/Header";
 import "./globals.css";
+import OgHeader from "@/components/Header/OgHeader";
 
 export const metadata: Metadata = {
   title: {
@@ -27,7 +28,8 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Header />
+        <OgHeader/>
+        {/* <Header /> */}
         {children}
         <Footer />
       </body>
