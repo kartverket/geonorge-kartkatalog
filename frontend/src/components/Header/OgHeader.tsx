@@ -21,7 +21,6 @@ import { useSearchParams } from "next/navigation";
 // import { getEnvironment } from "@/utils/runtimeConfig";
 import dynamic from "next/dynamic";
 
-
 const OgHeader = () => {
   const searchParams = useSearchParams();
   const searchText = searchParams.get("text");
@@ -141,56 +140,7 @@ const OgHeader = () => {
   //         navigate(autoRedirectPath);
   //     }
 
-  MainNavigation.setup("main-navigation", {
-    onSearch: (event: { detail: { searchString: string } | null }) => {
-      const searchEvent = event.detail || null;
-      if (searchEvent) {
-        console.log("hello");
-        //handleSubmitSearch(searchEvent.searchString, params.searchResultsType);
-      }
-    },
-    onSignInClick: (event: React.MouseEvent<HTMLInputElement>) => {
-      event.preventDefault();
-      //sessionStorage.autoRedirectPath = window.location.pathname;
-      console.log("user clickec sign in!");
-      //userManager.signinRedirect();
-    },
-    onSignOutClick: (event: React.MouseEvent<HTMLInputElement>) => {
-      event.preventDefault();
-      //sessionStorage.autoRedirectPath = window.location.pathname;
-      if (isLocalhost) {
-        //Cookies.set('_loggedIn', 'false');
-      } else {
-        //Cookies.set('_loggedIn', 'false', { domain: 'geonorge.no' });
-      }
-      console.log("sign out");
-      //userManager.signoutRedirect({ id_token_hint: userRef?.current?.id_token });
-      //userManager.removeUser();
-    },
-    onNorwegianLanguageSelect: async () => {
-      console.log("set norwegian");
-      //await dispatch(updateSelectedLanguage("no"));
-      //window.location.reload();
-    },
-    onEnglishLanguageSelect: async () => {
-      console.log("set english");
-      //await dispatch(updateSelectedLanguage("en"));
-      //window.location.reload();
-    },
-    onSearchTypeChange: (event: any) => {
-      console.log("set search type");
-      //const searchType = event?.detail?.value || null;
-      //handleChangeSearchResultsType(searchType, lastSearchStringRef.current);
-    },
-    onMapItemsChange: (event: any) => {
-      console.log("item changeds");
-      //dispatch(fetchMapItems());
-    },
-    onDownloadItemsChange: (event: any) => {
-      console.log("download items changed");
-      //dispatch(fetchItemsToDownload());
-    },
-  });
+  MainNavigation.setup("main-navigation", {});
 
   // const metadataResultsFound = searchData?.results?.metadata?.NumFound || 0;
   // const articlesResultsFound = searchData?.results?.articles?.NumFound || 0;
@@ -206,24 +156,20 @@ const OgHeader = () => {
   };
 
   const mainNavigationProps = {
-    userinfo: JSON.stringify(userinfo),
-    orginfo: JSON.stringify(orginfo),
-    isLoggedIn: true,
-    language: "no-NB",
-    environment: "dev",
-    searchString: searchText,
-    searchType: "params.searchResultsType",
-    showsearchtypeselector: false, //showSearchTypeSelector,
-    metadataresultsfound: true,
-    articlesresultsfound: true,
-    maincontentid: "main-content",
-    kartkatalogUrl: "localhost:3000",
+    // userinfo: JSON.stringify(userinfo),
+    // orginfo: JSON.stringify(orginfo),
+    // isLoggedIn: true,
+    // language: "no-NB",
+    // environment: "dev",
+    // searchString: searchText,
+    // searchType: "params.searchResultsType",
+    // showsearchtypeselector: false, //showSearchTypeSelector,
+    // metadataresultsfound: true,
+    // articlesresultsfound: true,
+    //maincontentid: "main-content",
+    // kartkatalogUrl: "localhost:3000",
   };
-  return (
-    <Fragment>
-      {React.createElement("main-navigation", mainNavigationProps)}
-    </Fragment>
-  );
+  return <>{React.createElement("main-navigation", mainNavigationProps)}</>;
 };
 
 const isLocalhost = Boolean(

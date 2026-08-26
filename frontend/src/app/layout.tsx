@@ -33,7 +33,6 @@ export default function RootLayout({
         <Suspense>
           <HeaderWrapper />
         </Suspense>
-        {/* <Header /> */}
         <div  id="main-content">
           {children}
         </div>
