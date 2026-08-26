@@ -193,9 +193,9 @@ class LinkedDistributionsService(
             showMapLink = isViewService,
             mapCapabilitiesUrl = if (isViewService) url else null,
             formats =
-                distributionInfo?.formats.orEmpty().map {
-                    it.name
-                }.distinct(),
+                distributionInfo?.formats.orEmpty()
+                    .mapNotNull { it.name.takeIf { name -> name.isNotBlank() } }
+                    .distinct(),
             protocolNames =
                 distributionInfo?.formats.orEmpty()
                     .flatMap { it.onlineResources }
