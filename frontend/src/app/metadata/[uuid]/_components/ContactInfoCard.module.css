@@ -43,6 +43,10 @@
     width: 24px;
     flex-shrink: 0;
   }
+  a {
+    overflow-wrap: break-word;
+    min-width: 0;
+  }
 }
 
 @media (max-width: 800px) {
