@@ -48,7 +48,7 @@ export function FairSection({ fairStatus }: { fairStatus: ProductFairStatus }) {
           className={styles.showMoreButton}
           onClick={() => {
             trackClick(
-              showLevels ? "hide-fari-tab" : "show-more-fair-tab",
+              showLevels ? "hide-fair-tab" : "show-more-fair-tab",
               LOCATIONS.MetadataPageTabs,
             );
             setShowLevels((v) => !v);
