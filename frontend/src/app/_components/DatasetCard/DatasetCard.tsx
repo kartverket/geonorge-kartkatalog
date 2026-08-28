@@ -143,10 +143,6 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           {canOpenApplication && (
             <CardActionButton
               onClick={() => {
-                trackClick("open-application", analyticsLocation, {
-                  datasetTitle: p.title,
-                  datasetUuid: p.uuid,
-                });
                 window.open(p.distributionUrl, "_blank", "noopener");
               }}
               label="Nettside"
@@ -156,10 +152,6 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           {canShowMap && (
             <CardActionButton
               onClick={() => {
-                trackClick("show-map", analyticsLocation, {
-                  datasetTitle: p.title,
-                  datasetUuid: p.uuid,
-                });
                 window.open(p.mapCapabilitiesUrl, "_blank", "noopener");
               }}
               label="Vis kart"
