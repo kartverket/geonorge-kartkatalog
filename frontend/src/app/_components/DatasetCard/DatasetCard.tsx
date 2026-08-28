@@ -104,7 +104,17 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
             </div>
           )}
           <span className={styles.listItemTitle}>
-            <Link href={`/metadata/${p.uuid}`}>{p.title}</Link>
+            <Link
+              href={`/metadata/${p.uuid}`}
+              onClick={() =>
+                trackClick("open-dataset-card", analyticsLocation, {
+                  datasetTitle: p.title,
+                  datasetUuid: p.uuid,
+                })
+              }
+            >
+              {p.title}
+            </Link>
           </span>
           <div className={styles.metaGroup}>
             {!!p.protocolNames?.length && (

@@ -2,7 +2,7 @@
 
 import { Button, Details, Heading } from "@kv-designsystem/react";
 import { CheckmarkIcon, MinusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { useState } from "react";
+import { type MouseEvent, useState } from "react";
 import type { ProductFairStatus } from "@/lib/schemas/product";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./FairSection.module.css";
@@ -14,6 +14,19 @@ function CriterionStatus({ fulfilled }: { fulfilled: boolean | null }) {
 
 export function FairSection({ fairStatus }: { fairStatus: ProductFairStatus }) {
   const [showLevels, setShowLevels] = useState(false);
+
+  const onAccordionClick = (
+    event: MouseEvent<HTMLElement>,
+    principleLabel: string,
+  ) => {
+    const detailsElement = event.currentTarget.closest("details");
+
+    trackClick("toggle-accordion", LOCATIONS.MetadataPageTabs, {
+      accordionTitle: principleLabel,
+      isExpanded: !detailsElement?.open,
+    });
+  };
+
   return (
     <>
       <div className={styles.headingGroup}>
@@ -51,7 +64,11 @@ export function FairSection({ fairStatus }: { fairStatus: ProductFairStatus }) {
       <div className={styles.accordionGroup} data-color="neutral">
         {fairStatus.principles.map((principle) => (
           <Details key={principle.Code}>
-            <Details.Summary>{principle.Label}</Details.Summary>
+            <Details.Summary
+              onClick={(event) => onAccordionClick(event, principle.Label)}
+            >
+              {principle.Label}
+            </Details.Summary>
             <Details.Content>
               <p>
                 <strong>
