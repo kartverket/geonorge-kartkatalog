@@ -95,9 +95,9 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 {p.organization && (
                   <>
                     {" fra "}
-                    <span className={styles.organizationLink}>
+                    <a href="#" className={styles.organizationLink}>
                       {p.organization}
-                    </span>
+                    </a>
                   </>
                 )}
               </span>
