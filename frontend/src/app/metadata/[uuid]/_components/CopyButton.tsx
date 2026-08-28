@@ -8,10 +8,12 @@ export function CopyButton({
   url,
   className,
   eventName = "copy-link",
+  trackingProperties,
 }: {
   url: string;
   className?: string;
   eventName?: string;
+  trackingProperties?: Record<string, unknown>;
 }) {
   const { copied, copy } = useCopyUrl(url);
   return (
@@ -19,7 +21,7 @@ export function CopyButton({
       variant="secondary"
       className={className}
       onClick={() => {
-        trackClick(eventName, LOCATIONS.MetadataPageTabs);
+        trackClick(eventName, LOCATIONS.MetadataPageTabs, trackingProperties);
         copy();
       }}
     >
