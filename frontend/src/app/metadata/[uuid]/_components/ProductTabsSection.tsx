@@ -229,7 +229,10 @@ function buildDistributionDetails({
     return {
       actionButton:
         urlRows.length === 1 && showCopyLink(group.protocol) ? (
-          <CopyButton url={urlRows[0].url} />
+          <CopyButton
+            url={urlRows[0].url}
+            eventName="copy-distribution-link-from-accordion-summary"
+          />
         ) : null,
       title: group.protocolName ?? "Ukjent protokoll",
       content: (
@@ -356,7 +359,11 @@ function UrlLink({ url }: { url: string }) {
           {url}
         </a>
       </span>
-      <CopyButton url={url} className={styles.copyButton} />
+      <CopyButton
+        url={url}
+        className={styles.copyButton}
+        eventName="copy-distribution-link-from-accordion-content"
+      />
     </div>
   );
 }

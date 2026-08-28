@@ -16,7 +16,9 @@ import type {
   LinkedDistributions,
   ProductMetadata,
 } from "@/lib/schemas/product";
+import { LOCATIONS } from "@/posthog/posthog";
 import styles from "./ProductActions.module.css";
+import { TrackedActionLinkButton } from "./TrackedActionLinkButton";
 
 function getGeonorgeDownloadUrl(
   distributionGroups: DistributionGroup[],
@@ -72,54 +74,35 @@ export function ProductActions({
       <AddSeriesToCartButton
         className={`ds-button ${styles.actionButton}`}
         items={downloadableSeriesMembers}
+        location={LOCATIONS.MetadataPage}
         variant="secondary"
       />
       <AddToCartButton
         className={`ds-button ${styles.actionButton}`}
         item={cartItem}
+        location={LOCATIONS.MetadataPage}
       />
       {metadata.coverageUrl && (
-        <ActionLinkButton
+        <TrackedActionLinkButton
+          eventName="show-coverage-map"
           href={metadata.coverageUrl}
           icon={<ExternalLinkIcon aria-hidden />}
           title="Vis dekningskart"
         />
       )}
-      <ActionLinkButton
+      <TrackedActionLinkButton
+        eventName="show-metadata-xml"
         href={getMetadataXmlUrl(uuid)}
         icon={<FileTextIcon aria-hidden />}
         title="Vis metadata XML"
       />
       {/*TODO: GN-227 håndtere at noen datasett ikke burde redigeres fra denne editUrl-en*/}
-      <ActionLinkButton
+      <TrackedActionLinkButton
+        eventName="edit-metadata"
         title="Rediger metadata"
         href={getEditUrl(uuid)}
         icon={<PencilIcon aria-hidden />}
       />
     </div>
-  );
-}
-
-function ActionLinkButton({
-  href,
-  icon,
-  title,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  title: string;
-}) {
-  return (
-    <a
-      data-variant="secondary"
-      data-color="neutral"
-      target="_blank"
-      rel="noreferrer"
-      href={href}
-      className={`ds-button ${styles.actionButton}`}
-    >
-      {icon}
-      {title}
-    </a>
   );
 }

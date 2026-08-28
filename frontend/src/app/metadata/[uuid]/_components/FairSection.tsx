@@ -4,6 +4,7 @@ import { Button, Details, Heading } from "@kv-designsystem/react";
 import { CheckmarkIcon, MinusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import type { ProductFairStatus } from "@/lib/schemas/product";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./FairSection.module.css";
 
 function CriterionStatus({ fulfilled }: { fulfilled: boolean | null }) {
@@ -32,7 +33,13 @@ export function FairSection({ fairStatus }: { fairStatus: ProductFairStatus }) {
         <Button
           variant="tertiary"
           className={styles.showMoreButton}
-          onClick={() => setShowLevels((v) => !v)}
+          onClick={() => {
+            trackClick(
+              showLevels ? "hide-fari-tab" : "show-more-fair-tab",
+              LOCATIONS.MetadataPageTabs,
+            );
+            setShowLevels((v) => !v);
+          }}
         >
           {showLevels ? "Skjul" : "Vis mer"}
         </Button>

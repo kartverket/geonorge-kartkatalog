@@ -2,6 +2,7 @@
 import { Button, Tooltip } from "@kv-designsystem/react";
 import { QuestionmarkCircleIcon } from "@navikt/aksel-icons";
 import styles from "@/app/metadata/[uuid]/_components/ProductMeta.module.css";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 
 export function MetaField({
   label,
@@ -22,6 +23,11 @@ export function MetaField({
               aria-label={`Mer informasjon om ${label}`}
               variant="tertiary"
               icon
+              onClick={() =>
+                trackClick("show-help", LOCATIONS.MetadataPage, {
+                  label,
+                })
+              }
             >
               <QuestionmarkCircleIcon aria-hidden />
             </Button>

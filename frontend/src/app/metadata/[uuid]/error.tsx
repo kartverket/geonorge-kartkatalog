@@ -5,6 +5,7 @@ import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import { useEffect } from "react";
 import styles from "@/app/metadata/[uuid]/error.module.css";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 
 export default function ErrorPage({
   error,
@@ -28,7 +29,14 @@ export default function ErrorPage({
         forsiden.
       </Paragraph>
       <div className={styles.actions}>
-        <Button variant="primary" data-color="neutral" onClick={retry}>
+        <Button
+          variant="primary"
+          data-color="neutral"
+          onClick={() => {
+            trackClick("reload-page", LOCATIONS.MetadataPageError);
+            retry();
+          }}
+        >
           Last på nytt
         </Button>
         <Link href="/">Tilbake til forsiden</Link>

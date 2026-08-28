@@ -9,17 +9,20 @@ import {
   removeItemsFromCart,
 } from "@/app/_components/addToCart/cartStorage";
 import { useAreAnyItemsInCart } from "@/app/_components/addToCart/useCart";
+import { type Location, trackClick } from "@/posthog/posthog";
 
 export default function AddSeriesToCartButton({
   items,
   className,
   variant,
   size,
+  location,
 }: {
   items: DownloadItem[];
   className?: string;
   variant?: ButtonProps["variant"];
   size?: "sm" | "md" | "lg";
+  location: Location;
 }) {
   const areItemsInCart = useAreAnyItemsInCart(items);
 
@@ -30,6 +33,14 @@ export default function AddSeriesToCartButton({
   if (!hasDownloadableItems) return null;
 
   const handleToggleCart = () => {
+    trackClick(
+      areItemsInCart ? "remove-all-from-cart" : "add-all-to-cart",
+      location,
+      {
+        itemCount: items.length,
+      },
+    );
+
     if (areItemsInCart) {
       removeItemsFromCart(items);
       return;

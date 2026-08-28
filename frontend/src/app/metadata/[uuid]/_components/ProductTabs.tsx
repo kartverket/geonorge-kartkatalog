@@ -14,6 +14,7 @@ import type {
 } from "@/lib/schemas/product";
 import type { ProduktarkItem } from "@/lib/schemas/produktark";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./ProductTabs.module.css";
 
 export function ProductTabs({
@@ -61,7 +62,13 @@ export function ProductTabs({
       <Tabs defaultValue="distribution" className={styles.tabs}>
         <Tabs.List>
           {tabs.map((t) => (
-            <Tabs.Tab key={t.value} value={t.value}>
+            <Tabs.Tab
+              key={t.value}
+              value={t.value}
+              onClick={() =>
+                trackClick(`${t.value}-tab`, LOCATIONS.MetadataPageTabs)
+              }
+            >
               {t.label}
             </Tabs.Tab>
           ))}

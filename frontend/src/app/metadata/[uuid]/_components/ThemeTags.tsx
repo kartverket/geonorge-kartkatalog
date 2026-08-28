@@ -2,6 +2,7 @@
 
 import { Button } from "@kv-designsystem/react";
 import { useState } from "react";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./ProductMeta.module.css";
 
 const PAGE_SIZE = 4;
@@ -32,7 +33,12 @@ export function ThemeTags({
         <Button
           variant="tertiary"
           className={styles.themesButton}
-          onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+          onClick={() => {
+            trackClick("show-more-themes", LOCATIONS.MetadataPage, {
+              totalThemes: themes.length,
+            });
+            setVisibleCount((count) => count + PAGE_SIZE);
+          }}
         >
           Vis mer
         </Button>
@@ -41,7 +47,12 @@ export function ThemeTags({
         <Button
           variant="tertiary"
           className={styles.themesButton}
-          onClick={() => setVisibleCount(PAGE_SIZE)}
+          onClick={() => {
+            trackClick("hide-themes", LOCATIONS.MetadataPage, {
+              totalThemes: themes.length,
+            });
+            setVisibleCount(PAGE_SIZE);
+          }}
         >
           Skjul
         </Button>

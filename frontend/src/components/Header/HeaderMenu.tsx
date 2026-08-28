@@ -195,7 +195,7 @@ export function HeaderMenu({
         </div>
         <Divider className={styles.divider} />
         {view === "profile" ? (
-          <ProfileContent />
+          <ProfileContent location={LOCATIONS.HeaderMenu} />
         ) : (
           <nav aria-label="Hovedmeny" data-color="info">
             <ul className={styles.section}>

@@ -13,7 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { LOCATIONS, trackEvent } from "@/posthog/posthog";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
@@ -25,11 +25,11 @@ export function Header() {
 
   const [openPanel, setOpenPanel] = useState<"menu" | "profile" | null>(null);
 
-  const trackClick = (clickItem: string) =>
-    trackEvent(`${clickItem}-clicked`, { location: LOCATIONS.Header });
+  const trackHeaderClick = (clickItem: string) =>
+    trackClick(clickItem, LOCATIONS.Header);
   const togglePanel = (panel: "menu" | "profile") => {
     setOpenPanel((prev) => (prev === panel ? null : panel));
-    trackClick(panel);
+    trackHeaderClick(panel);
   };
 
   // Midlertidig til vi har innlogging koblet på
@@ -73,7 +73,7 @@ export function Header() {
     <div className={styles.root} ref={rootRef}>
       <header className={styles.header}>
         <div className={styles.inner}>
-          <Link href="/" onNavigate={() => trackEvent("geonorge-logo")}>
+          <Link href="/" onNavigate={() => trackHeaderClick("geonorge-logo")}>
             <Image
               src="/geonorge-logo.svg"
               alt="Geonorge"
@@ -92,7 +92,7 @@ export function Header() {
               <Link
                 href="/"
                 aria-current={isHome ? "page" : undefined}
-                onNavigate={() => trackClick("finn-data")}
+                onNavigate={() => trackHeaderClick("finn-data")}
               >
                 <MagnifyingGlassIcon aria-hidden />
                 Finn data
@@ -102,7 +102,7 @@ export function Header() {
               variant="tertiary"
               data-color="neutral"
               className={styles.showFromXl}
-              onClick={() => trackClick("map")}
+              onClick={() => trackHeaderClick("map")}
             >
               <Badge.Position
                 overlap="circle"
@@ -120,7 +120,7 @@ export function Header() {
               variant="tertiary"
               data-color="neutral"
               className={styles.showFromXl}
-              onClick={() => trackClick("cart")}
+              onClick={() => trackHeaderClick("cart")}
             >
               <Badge.Position
                 overlap="circle"
@@ -139,7 +139,7 @@ export function Header() {
                 <ProfileDropdown
                   userName={user.name}
                   className={styles.showFromLg}
-                  posthogClick={() => trackClick("profile")}
+                  posthogClick={() => trackHeaderClick("profile")}
                 />
                 <Button
                   ref={profileButtonRef}
@@ -159,7 +159,7 @@ export function Header() {
                 variant="tertiary"
                 data-color="neutral"
                 className={styles.showFromSm}
-                onClick={() => trackClick("login")}
+                onClick={() => trackHeaderClick("login")}
               >
                 <EnterIcon aria-hidden />
                 Logg inn
@@ -190,7 +190,7 @@ export function Header() {
           userName={user?.name}
           mapCount={mapCount}
           downloadCount={downloadCount}
-          posthogClick={trackClick}
+          posthogClick={trackHeaderClick}
         />
       )}
       {openPanel === "profile" && <HeaderProfile />}

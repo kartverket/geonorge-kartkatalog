@@ -1,6 +1,7 @@
 "use client";
 
 import { Heading, Search } from "@kv-designsystem/react";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./SearchHero.module.css";
 
 export function SearchHero() {
@@ -10,7 +11,7 @@ export function SearchHero() {
         <Heading data-size="lg" className={styles.title}>
           Finn data
         </Heading>
-        <form action="/" method="get" role="search" className={styles.form}>
+        <form action="/" method="get" className={styles.form}>
           <label htmlFor="hero-search" className={styles.label}>
             Søk i Kartkatalogen
           </label>
@@ -21,7 +22,9 @@ export function SearchHero() {
               aria-label="Søk i Kartkatalogen"
               placeholder="Naturvernområder, FKB-Bygning..."
             />
-            <Search.Clear />
+            <Search.Clear
+              onClick={() => trackClick("clear-search", LOCATIONS.SearchHero)}
+            />
           </Search>
         </form>
       </div>
