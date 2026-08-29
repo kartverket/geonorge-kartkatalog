@@ -1,4 +1,6 @@
 .content {
+  /* Unngå at ting (faner, varsel, knapper) går utenfor skjerm og gir y-scroll på hele pagen på små skjermer */
+  width: 100%;
   max-width: 1440px;
   margin-inline: auto;
   padding-inline: var(--ds-size-26);
