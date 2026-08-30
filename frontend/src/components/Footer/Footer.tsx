@@ -7,6 +7,7 @@
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { basePath } from "@/lib/basePath";
 import styles from "./Footer.module.css";
 
 const OM_NETTSTEDET: { label: string; href: Route }[] = [
@@ -40,7 +41,7 @@ export function Footer() {
       <div className={styles.inner}>
         <div className={styles.brand}>
           <Image
-            src="/geonorge-logo-hvit.svg"
+            src={`${basePath}/geonorge-logo-hvit.svg`}
             alt="Geonorge logo hvit"
             width={262}
             height={41}
@@ -48,7 +49,7 @@ export function Footer() {
           <p className={`${styles.tagline} ${styles.taglineKV}`}>
             En tjeneste fra
             <Image
-              src="/KV-logo.svg"
+              src={`${basePath}/KV-logo.svg`}
               alt="Kartverket"
               width={125}
               height={34}
@@ -57,7 +58,7 @@ export function Footer() {
           <p className={`${styles.tagline} ${styles.taglineND}`}>
             I samarbeid med
             <Image
-              src="/norge-digitalt-logo.svg"
+              src={`${basePath}/norge-digitalt-logo.svg`}
               alt="Norge Digitalt"
               width={100}
               height={100}
