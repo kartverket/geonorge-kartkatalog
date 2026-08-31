@@ -13,8 +13,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
-import { SHOW_LOGIN } from "./featureFlags";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
@@ -135,7 +135,7 @@ export function Header() {
               </Badge.Position>
               Nedlastingskurv
             </Button>
-            {SHOW_LOGIN &&
+            {!isBeta &&
               (user ? (
                 <>
                   <ProfileDropdown

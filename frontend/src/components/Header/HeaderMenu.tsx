@@ -18,8 +18,8 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { type MouseEvent, useState } from "react";
+import { isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick, trackEvent } from "@/posthog/posthog";
-import { SHOW_LANGUAGE_SWITCH, SHOW_LOGIN } from "./featureFlags";
 import styles from "./HeaderMenu.module.css";
 import { ProfileContent } from "./ProfileContent";
 
@@ -172,7 +172,7 @@ export function HeaderMenu({
             </Badge.Position>
             Nedlastingskurv
           </Button>
-          {SHOW_LANGUAGE_SWITCH && (
+          {!isBeta && (
             <Button
               variant="tertiary"
               data-color="neutral"
@@ -182,7 +182,7 @@ export function HeaderMenu({
               <span>EN</span>
             </Button>
           )}
-          {SHOW_LOGIN &&
+          {!isBeta &&
             (userName ? (
               <Button
                 variant="tertiary"
