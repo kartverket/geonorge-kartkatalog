@@ -19,6 +19,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { type MouseEvent, useState } from "react";
 import { LOCATIONS, trackClick, trackEvent } from "@/posthog/posthog";
+import { SHOW_LANGUAGE_SWITCH, SHOW_LOGIN } from "./featureFlags";
 import styles from "./HeaderMenu.module.css";
 import { ProfileContent } from "./ProfileContent";
 
@@ -171,39 +172,42 @@ export function HeaderMenu({
             </Badge.Position>
             Nedlastingskurv
           </Button>
-          <Button
-            variant="tertiary"
-            data-color="neutral"
-            onClick={() => posthogClick("change-language")}
-          >
-            <LanguageIcon aria-hidden />
-            <span>EN</span>
-          </Button>
-          {userName ? (
+          {SHOW_LANGUAGE_SWITCH && (
             <Button
               variant="tertiary"
               data-color="neutral"
-              className={styles.inMenuFromSm}
-              aria-expanded={view === "profile"}
-              onClick={() => {
-                setView(view === "profile" ? "nav" : "profile");
-                posthogClick("profile");
-              }}
+              onClick={() => posthogClick("change-language")}
             >
-              <Avatar aria-hidden data-size="xs" />
-              {userName}
-            </Button>
-          ) : (
-            <Button
-              variant="tertiary"
-              data-color="neutral"
-              className={styles.inMenuFromSm}
-              onClick={() => posthogClick("login")}
-            >
-              <EnterIcon aria-hidden />
-              Logg inn
+              <LanguageIcon aria-hidden />
+              <span>EN</span>
             </Button>
           )}
+          {SHOW_LOGIN &&
+            (userName ? (
+              <Button
+                variant="tertiary"
+                data-color="neutral"
+                className={styles.inMenuFromSm}
+                aria-expanded={view === "profile"}
+                onClick={() => {
+                  setView(view === "profile" ? "nav" : "profile");
+                  posthogClick("profile");
+                }}
+              >
+                <Avatar aria-hidden data-size="xs" />
+                {userName}
+              </Button>
+            ) : (
+              <Button
+                variant="tertiary"
+                data-color="neutral"
+                className={styles.inMenuFromSm}
+                onClick={() => posthogClick("login")}
+              >
+                <EnterIcon aria-hidden />
+                Logg inn
+              </Button>
+            ))}
         </div>
         <Divider className={styles.divider} />
         {view === "profile" ? (
