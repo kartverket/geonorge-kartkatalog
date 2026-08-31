@@ -40,10 +40,18 @@ export function ProductTabs({
   const productType = getProductTypeString(hierarchyLevel).toLowerCase();
   const productTypeDefinite = getProductTypeDefiniteString(hierarchyLevel);
 
+  const hasDocumentation = Boolean(
+    tegneregler?.documentreference ||
+      produktark?.documentreference ||
+      productSpecificationUrl,
+  );
+
   const tabs = [
     { value: "distribution", label: `Distribusjoner for ${productType}` },
     { value: "info", label: `Informasjon om ${productType}` },
-    { value: "documentation", label: "Dokumentasjon" },
+    ...(hasDocumentation
+      ? [{ value: "documentation", label: "Dokumentasjon" }]
+      : []),
     ...(fairStatus
       ? [{ value: "quality", label: "Metadatakvalitet (FAIR)" }]
       : []),
@@ -77,13 +85,15 @@ export function ProductTabs({
             <DetailAccordion items={infoDetails} />
           </div>
         </Tabs.Panel>
-        <Tabs.Panel value="documentation" className={styles.panel}>
-          <ProductDocumentation
-            tegneregler={tegneregler}
-            produktark={produktark}
-            productSpecificationUrl={productSpecificationUrl}
-          />
-        </Tabs.Panel>
+        {hasDocumentation && (
+          <Tabs.Panel value="documentation" className={styles.panel}>
+            <ProductDocumentation
+              tegneregler={tegneregler}
+              produktark={produktark}
+              productSpecificationUrl={productSpecificationUrl}
+            />
+          </Tabs.Panel>
+        )}
         {fairStatus && (
           <Tabs.Panel value="quality" className={styles.panel}>
             <FairSection fairStatus={fairStatus} />
