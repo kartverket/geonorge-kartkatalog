@@ -37,6 +37,15 @@ class MetadataRoutesTest {
             .getResourceAsStream("response.xml")!!
             .readBytes()
             .toString(Charsets.UTF_8)
+    private val responseXmlWithWms =
+        responseXml
+            .replace(
+                "https://wfs.geonorge.no/skwms1/wfs.matrikkelen-bygningspunkt?service=WFS&amp;Request=GetCapabilities",
+                "https://wms.geonorge.no/skwms1/wms.matrikkelen-bygningspunkt?service=WMS&amp;Request=GetCapabilities",
+            ).replace(
+                "<gco:CharacterString>OGC:WFS</gco:CharacterString>",
+                "<gco:CharacterString>OGC:WMS</gco:CharacterString>",
+            )
 
     private val solrJson =
         """
@@ -68,6 +77,22 @@ class MetadataRoutesTest {
               "type": "service",
               "servicedataset": ["11111111-1111-1111-1111-111111111111|Datasett||dataset|Org||GEONORGE:DOWNLOAD|https://example.com|Tema"],
               "servicelayers": ["22222222-2222-2222-2222-222222222222|Lag|c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689|service|Org|Lag|OGC:WMS|https://example.com|Tema"]
+            }]
+          }
+        }
+        """.trimIndent()
+
+    private val datasetWithViewServiceSolrJson =
+        """
+        {
+          "responseHeader": {"status": 0, "QTime": 1},
+          "response": {
+            "numFound": 1, "start": 0,
+            "docs": [{
+              "uuid": "c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689",
+              "title": "Test-datasett",
+              "type": "dataset",
+              "datasetservice": ["666e4559-60bf-4a1d-9e72-c43502a9a58b|Administrative enheter WMS||service|Org||OGC:WMS|https://example.com|Tema"]
             }]
           }
         }
@@ -282,6 +307,29 @@ class MetadataRoutesTest {
             assertContains(response.bodyAsText(), "applications")
             assertContains(response.bodyAsText(), "viewServices")
             assertContains(response.bodyAsText(), "downloadServices")
+        }
+    }
+
+    @Test
+    fun `returns WMS capabilities url for linked view service`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXmlWithWms, solrDocJson = datasetWithViewServiceSolrJson)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+            val body = response.bodyAsText()
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(body, "\"viewServices\"")
+            assertContains(
+                body,
+                "\"distributionProtocol\":\"OGC:WMS\"",
+            )
+            assertContains(
+                body,
+                "\"getCapabilitiesUrl\":\"https://wms.geonorge.no/skwms1/" +
+                    "wms.matrikkelen-bygningspunkt?service=WMS&Request=GetCapabilities\"",
+            )
         }
     }
 
