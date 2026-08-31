@@ -135,7 +135,7 @@ export function Header() {
               </Badge.Position>
               Nedlastingskurv
             </Button>
-            {!isBeta &&
+            {isBeta &&
               (user ? (
                 <>
                   <ProfileDropdown

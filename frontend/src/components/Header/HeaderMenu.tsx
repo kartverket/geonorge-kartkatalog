@@ -172,7 +172,7 @@ export function HeaderMenu({
             </Badge.Position>
             Nedlastingskurv
           </Button>
-          {!isBeta && (
+          {isBeta && (
             <Button
               variant="tertiary"
               data-color="neutral"
@@ -182,7 +182,7 @@ export function HeaderMenu({
               <span>EN</span>
             </Button>
           )}
-          {!isBeta &&
+          {isBeta &&
             (userName ? (
               <Button
                 variant="tertiary"
