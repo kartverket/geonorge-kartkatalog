@@ -54,6 +54,7 @@ export function ProductActions({
       <AddToMapButton
         className={`ds-button ${styles.actionButton}`}
         item={mapItem}
+        location={LOCATIONS.MetadataPage}
       />
       {metadata.coverageUrl && (
         <TrackedActionLinkButton
