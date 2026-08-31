@@ -126,22 +126,27 @@ export function Header() {
               </Link>
             </Button>
             <Button
+              asChild
               variant="tertiary"
               data-color="neutral"
               className={styles.showFromXl}
-              onClick={() => trackHeaderClick("cart")}
             >
-              <Badge.Position
-                overlap="circle"
-                placement="top-left"
-                className={styles.badge}
+              <Link
+                href="https://kartkatalog.geonorge.no/nedlasting"
+                onNavigate={() => trackHeaderClick("cart")}
               >
-                {downloadCount > 0 && (
-                  <Badge count={downloadCount} data-color="danger" />
-                )}
-                <DownloadIcon aria-hidden />
-              </Badge.Position>
-              Nedlastingskurv
+                <Badge.Position
+                  overlap="circle"
+                  placement="top-left"
+                  className={styles.badge}
+                >
+                  {downloadCount > 0 && (
+                    <Badge count={downloadCount} data-color="danger" />
+                  )}
+                  <DownloadIcon aria-hidden />
+                </Badge.Position>
+                Nedlastingskurv
+              </Link>
             </Button>
             {user ? (
               <>
