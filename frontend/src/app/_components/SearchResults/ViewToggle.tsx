@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@kv-designsystem/react";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 
 export type ViewMode = "grid" | "list";
 
@@ -11,25 +12,27 @@ type ViewToggleProps = {
 
 export function ViewToggle({ value, onChange }: ViewToggleProps) {
   return (
-    <div
-      role="group"
-      aria-label="Visning"
-      style={{ display: "flex", gap: "0.5rem" }}
-    >
+    <fieldset aria-label="Visning" style={{ display: "flex", gap: "0.5rem" }}>
       <Button
         variant={value === "grid" ? "primary" : "secondary"}
         aria-pressed={value === "grid"}
-        onClick={() => onChange("grid")}
+        onClick={() => {
+          trackClick("grid-view", LOCATIONS.SearchPage);
+          onChange("grid");
+        }}
       >
         Rutenett
       </Button>
       <Button
         variant={value === "list" ? "primary" : "secondary"}
         aria-pressed={value === "list"}
-        onClick={() => onChange("list")}
+        onClick={() => {
+          trackClick("list-view", LOCATIONS.SearchPage);
+          onChange("list");
+        }}
       >
         Liste
       </Button>
-    </div>
+    </fieldset>
   );
 }

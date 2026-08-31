@@ -2,6 +2,7 @@
 
 import { Avatar, Button, Divider, Dropdown } from "@kv-designsystem/react";
 import { Buildings2Icon, LeaveIcon } from "@navikt/aksel-icons";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 
 export function ProfileDropdown({
   userName,
@@ -28,13 +29,21 @@ export function ProfileDropdown({
         <Dropdown.Heading>Velg profil</Dropdown.Heading>
         <Dropdown.List>
           <Dropdown.Item>
-            <Dropdown.Button>
+            <Dropdown.Button
+              onClick={() =>
+                trackClick("personal-profile", LOCATIONS.HeaderDropdown)
+              }
+            >
               <Avatar aria-hidden data-size="xs" />
               Frodo Baggins
             </Dropdown.Button>
           </Dropdown.Item>
           <Dropdown.Item>
-            <Dropdown.Button>
+            <Dropdown.Button
+              onClick={() =>
+                trackClick("organization-profile", LOCATIONS.HeaderDropdown)
+              }
+            >
               <Avatar aria-hidden data-size="xs" variant="square">
                 <Buildings2Icon />
               </Avatar>
@@ -45,7 +54,10 @@ export function ProfileDropdown({
         <Divider />
         <Dropdown.List>
           <Dropdown.Item>
-            <Dropdown.Button data-color="danger">
+            <Dropdown.Button
+              data-color="danger"
+              onClick={() => trackClick("logout", LOCATIONS.HeaderDropdown)}
+            >
               <LeaveIcon aria-hidden />
               Logg ut
             </Dropdown.Button>

@@ -17,8 +17,8 @@ import {
 } from "@navikt/aksel-icons";
 import type { Route } from "next";
 import Link from "next/link";
-import { useState } from "react";
-import { LOCATIONS, trackEvent } from "@/posthog/posthog";
+import { type MouseEvent, useState } from "react";
+import { LOCATIONS, trackClick, trackEvent } from "@/posthog/posthog";
 import styles from "./HeaderMenu.module.css";
 import { ProfileContent } from "./ProfileContent";
 
@@ -88,6 +88,18 @@ function MenuLinkList({
       ))}
     </ul>
   );
+}
+
+function trackAccordionClick(
+  event: MouseEvent<HTMLElement>,
+  sectionTitle: string,
+) {
+  const detailsElement = event.currentTarget.closest("details");
+
+  trackClick("toggle-accordion", LOCATIONS.HeaderMenu, {
+    accordionTitle: sectionTitle,
+    isExpanded: !detailsElement?.open,
+  });
 }
 
 export function HeaderMenu({
@@ -195,7 +207,7 @@ export function HeaderMenu({
         </div>
         <Divider className={styles.divider} />
         {view === "profile" ? (
-          <ProfileContent />
+          <ProfileContent location={LOCATIONS.HeaderMenu} />
         ) : (
           <nav aria-label="Hovedmeny" data-color="info">
             <ul className={styles.section}>
@@ -209,7 +221,13 @@ export function HeaderMenu({
             <div className={styles.accordions}>
               {MENU_SECTIONS.map((section) => (
                 <Details key={section.title}>
-                  <Details.Summary>{section.title}</Details.Summary>
+                  <Details.Summary
+                    onClick={(event) =>
+                      trackAccordionClick(event, section.title)
+                    }
+                  >
+                    {section.title}
+                  </Details.Summary>
                   <Details.Content>
                     <MenuLinkList
                       links={section.links}
