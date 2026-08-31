@@ -38,11 +38,17 @@ export function Header() {
 
   // Midlertidig til nedlasting/kart-state kobles på (produktsiden)
   const mapCount = 0;
-  const downloadCount = 0;
+  const [downloadCount, setDownloadCount] = useState(0);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const storedCount = localStorage.getItem("orderItems");
+    if (storedCount) {
+      setDownloadCount(parseInt(storedCount, 10));
+    }
+  }, []);
 
   useEffect(() => {
     if (!openPanel) return;
