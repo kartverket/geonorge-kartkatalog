@@ -1,7 +1,7 @@
 .banner {
-  background: #ecf5fa;
-  color: #142e3d;
-  border-bottom: 1px solid #3780a8;
+  background: var(--ds-color-info-background-tinted);
+  color: var(--ds-color-info-text-default);
+  border-bottom: 1px solid var(--ds-color-info-border-default);
 }
 
 .inner {
