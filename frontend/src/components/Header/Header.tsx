@@ -103,22 +103,27 @@ export function Header() {
               </Link>
             </Button>
             <Button
+              asChild
               variant="tertiary"
               data-color="neutral"
               className={styles.showFromXl}
-              onClick={() => trackHeaderClick("map")}
             >
-              <Badge.Position
-                overlap="circle"
-                placement="top-left"
-                className={styles.badge}
+              <Link
+                href="https://kartkatalog.geonorge.no/kart?lat=7197860&lon=396722&zoom=4"
+                onNavigate={() => trackHeaderClick("map")}
               >
-                {mapCount > 0 && (
-                  <Badge count={mapCount} data-color="neutral" />
-                )}
-                <LocationPinIcon aria-hidden />
-              </Badge.Position>
-              Kart
+                <Badge.Position
+                  overlap="circle"
+                  placement="top-left"
+                  className={styles.badge}
+                >
+                  {mapCount > 0 && (
+                    <Badge count={mapCount} data-color="neutral" />
+                  )}
+                  <LocationPinIcon aria-hidden />
+                </Badge.Position>
+                Kart
+              </Link>
             </Button>
             <Button
               variant="tertiary"
