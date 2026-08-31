@@ -19,7 +19,6 @@ import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
 import { ProfileDropdown } from "./ProfileDropdown";
-import { isBeta } from "@/lib/basePath";
 
 export function Header() {
   const pathname = usePathname();
