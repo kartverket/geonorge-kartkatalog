@@ -327,7 +327,8 @@ class MetadataRoutesTest {
             )
             assertContains(
                 body,
-                "\"getCapabilitiesUrl\":\"https://wms.geonorge.no/skwms1/wms.matrikkelen-bygningspunkt?service=WMS&Request=GetCapabilities\"",
+                "\"getCapabilitiesUrl\":\"https://wms.geonorge.no/skwms1/" +
+                    "wms.matrikkelen-bygningspunkt?service=WMS&Request=GetCapabilities\"",
             )
         }
     }
