@@ -209,7 +209,7 @@ export function HeaderMenu({
               </Button>
             ))}
         </div>
-        <Divider className={styles.divider} />
+        <Divider className={isBeta ? styles.divider : styles.dividerHidden} />
         {view === "profile" ? (
           <ProfileContent location={LOCATIONS.HeaderMenu} />
         ) : (
