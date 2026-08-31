@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Footer } from "@/components/Footer/Footer";
 import { Header } from "@/components/Header/Header";
+import { LegacyBanner } from "@/components/LegacyBanner/LegacyBanner";
 import "./globals.css";
+import { isBeta } from "@/lib/basePath";
 
 export const metadata: Metadata = {
   title: {
@@ -28,6 +30,7 @@ export default function RootLayout({
       </head>
       <body>
         <Header />
+        {isBeta && <LegacyBanner />}
         {children}
         <Footer />
       </body>
