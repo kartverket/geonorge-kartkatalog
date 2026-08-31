@@ -5,6 +5,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
@@ -174,7 +175,7 @@ class LinkedDistributionsService(
             distributionInfo?.formats.orEmpty().flatMap {
                 it.onlineResources
             }
-        val url = allResources.firstOrNull()?.url
+        val url = allResources.findUrlForProtocol(protocol)
         val isViewService = DistributionProtocols.isViewService(protocol)
 
         return LinkedDistribution(
@@ -205,5 +206,14 @@ class LinkedDistributionsService(
             hierarchyLevel = hierarchyLevel,
             accessState = resolveAccessState(this),
         )
+    }
+
+    private fun List<OnlineResource>.findUrlForProtocol(protocol: String?): String? {
+        if (isEmpty()) return null
+        if (protocol.isNullOrBlank()) return firstOrNull()?.url
+
+        return firstOrNull {
+            it.protocol.equals(protocol, ignoreCase = true)
+        }?.url ?: firstOrNull()?.url
     }
 }
