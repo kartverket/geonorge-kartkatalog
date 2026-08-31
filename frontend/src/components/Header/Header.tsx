@@ -18,6 +18,7 @@ import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
 import { ProfileDropdown } from "./ProfileDropdown";
+import { isBeta } from "@/lib/basePath";
 
 export function Header() {
   const pathname = usePathname();
@@ -73,7 +74,10 @@ export function Header() {
     <div className={styles.root} ref={rootRef}>
       <header className={styles.header}>
         <div className={styles.inner}>
-          <Link href="/" onNavigate={() => trackHeaderClick("geonorge-logo")}>
+          <Link
+            href={isBeta ? " https://kartkatalog.geonorge.no/" : "/"}
+            onNavigate={() => trackHeaderClick("geonorge-logo")}
+          >
             <Image
               src="/geonorge-logo.svg"
               alt="Geonorge"
