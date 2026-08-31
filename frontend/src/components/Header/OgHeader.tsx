@@ -20,8 +20,14 @@ import { useSearchParams } from "next/navigation";
 // import Cookies from 'js-cookie';
 // import { getEnvironment } from "@/utils/runtimeConfig";
 import dynamic from "next/dynamic";
+import { initializeGeonorge } from "@/lib/geonorge";
 
 const OgHeader = () => {
+
+
+  useEffect(() => {
+    initializeGeonorge()
+  },[]);
   const searchParams = useSearchParams();
   const searchText = searchParams.get("text");
 
