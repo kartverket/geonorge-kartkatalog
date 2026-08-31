@@ -8,6 +8,9 @@ RUN npm ci
 
 COPY . .
 
+# Henter base path fra build-args i workflow, default ""
+ARG NEXT_PUBLIC_BASE_PATH=""
+ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 RUN npm run build
 
 FROM node:26-alpine AS runtime

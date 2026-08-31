@@ -1,5 +1,6 @@
 import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
+import { isBeta } from "@/lib/basePath";
 import { getProductTypeString } from "@/lib/productType";
 import type { AccessState } from "@/lib/schemas/product";
 import styles from "./ProductHeader.module.css";
@@ -17,10 +18,13 @@ export function ProductHeader({
 }) {
   return (
     <div className={styles.header}>
-      <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
-        <Link href="/">Geonorge</Link> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
-        {"›"} <span className={styles.current}>{title ?? "-"}</span>
-      </nav>
+      {!isBeta && (
+        <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
+          <Link href="/">Geonorge</Link> {"›"}{" "}
+          <Link href="/">Kartkatalogen</Link> {"›"}{" "}
+          <span className={styles.current}>{title ?? "-"}</span>
+        </nav>
+      )}
       <AccessLock accessState={access} />
       <h1 className={styles.title}>{title ?? "-"}</h1>
       <p className={styles.organization}>
