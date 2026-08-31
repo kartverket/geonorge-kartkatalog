@@ -36,6 +36,11 @@ må matche de andre Header-filene */
   margin-block: var(--ds-size-8);
 }
 
+.dividerHidden {
+  composes: divider;
+  display: none;
+}
+
 .section,
 .linkList {
   list-style: none;
@@ -95,6 +100,12 @@ må matche de andre Header-filene */
 @media (max-width: 1280px) {
   .inMenuFromXl {
     display: inline-flex;
+  }
+}
+
+@media (max-width: 1280px) {
+  .dividerHidden {
+    display: block;
   }
 }
 

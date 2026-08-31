@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
@@ -148,37 +149,38 @@ export function Header() {
                 Nedlastingskurv
               </Link>
             </Button>
-            {user ? (
-              <>
-                <ProfileDropdown
-                  userName={user.name}
-                  className={styles.showFromLg}
-                  posthogClick={() => trackHeaderClick("profile")}
-                />
+            {isBeta &&
+              (user ? (
+                <>
+                  <ProfileDropdown
+                    userName={user.name}
+                    className={styles.showFromLg}
+                    posthogClick={() => trackHeaderClick("profile")}
+                  />
+                  <Button
+                    ref={profileButtonRef}
+                    variant="tertiary"
+                    data-color="neutral"
+                    className={styles.tabletOnly}
+                    aria-expanded={openPanel === "profile"}
+                    aria-controls="header-profile-panel"
+                    onClick={() => togglePanel("profile")}
+                  >
+                    <Avatar aria-hidden data-size="xs" />
+                    {user.name}
+                  </Button>
+                </>
+              ) : (
                 <Button
-                  ref={profileButtonRef}
                   variant="tertiary"
                   data-color="neutral"
-                  className={styles.tabletOnly}
-                  aria-expanded={openPanel === "profile"}
-                  aria-controls="header-profile-panel"
-                  onClick={() => togglePanel("profile")}
+                  className={styles.showFromSm}
+                  onClick={() => trackHeaderClick("login")}
                 >
-                  <Avatar aria-hidden data-size="xs" />
-                  {user.name}
+                  <EnterIcon aria-hidden />
+                  Logg inn
                 </Button>
-              </>
-            ) : (
-              <Button
-                variant="tertiary"
-                data-color="neutral"
-                className={styles.showFromSm}
-                onClick={() => trackHeaderClick("login")}
-              >
-                <EnterIcon aria-hidden />
-                Logg inn
-              </Button>
-            )}
+              ))}
             <Button
               ref={menuButtonRef}
               variant="tertiary"
