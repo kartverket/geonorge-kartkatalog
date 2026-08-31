@@ -94,7 +94,7 @@ export function Header() {
               className={`${styles.showFromSm} ${isHome ? styles.navActive : ""}`}
             >
               <Link
-                href="/"
+                href={isBeta ? " https://kartkatalog.geonorge.no/" : "/"}
                 aria-current={isHome ? "page" : undefined}
                 onNavigate={() => trackHeaderClick("finn-data")}
               >
