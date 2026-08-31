@@ -29,7 +29,7 @@ export function ProductHeader({
       <h1 className={styles.title}>{title ?? "-"}</h1>
       <p className={styles.organization}>
         {getProductTypeString(hierarchyLevel)} fra{" "}
-        <Link href="#">{organization ?? "-"}</Link>
+        <Link href={`https://kartkatalog.geonorge.no/?organizations=${organization}`}>{organization ?? "-"}</Link>
       </p>
     </div>
   );
