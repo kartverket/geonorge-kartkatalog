@@ -1,0 +1,21 @@
+/*
+ * Hold kopierknappen i samme størrelse
+ */
+.swap {
+  display: grid;
+  grid-template-areas: "state";
+  align-items: center;
+  justify-items: center;
+}
+
+.state {
+  grid-area: state;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  white-space: nowrap;
+}
+
+.stateHidden {
+  visibility: hidden;
+}
