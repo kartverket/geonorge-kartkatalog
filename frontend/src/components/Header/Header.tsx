@@ -75,7 +75,7 @@ export function Header() {
       <header className={styles.header}>
         <div className={styles.inner}>
           <Link
-            href={isBeta ? " https://kartkatalog.geonorge.no/" : "/"}
+            href={isBeta ? " https://www.geonorge.no/" : "/"}
             onNavigate={() => trackHeaderClick("geonorge-logo")}
           >
             <Image
