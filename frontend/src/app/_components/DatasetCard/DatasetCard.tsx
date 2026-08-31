@@ -11,6 +11,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
+import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
 import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = {
@@ -28,12 +29,14 @@ export type DatasetCardProps = {
   formats?: string[];
   showThumbnail?: boolean;
   viewMode?: "grid" | "list";
+  analyticsLocation?: Location;
   accessState: "restricted" | "open" | "protected" | null;
   hierarchyLevel: string | null;
 };
 
 export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const [copied, setCopied] = useState(false);
+  const analyticsLocation = p.analyticsLocation ?? LOCATIONS.SearchPage;
 
   const isService = p.typeTranslated === "Tjeneste";
   const isOpen = p.accessState === "open";
@@ -46,6 +49,12 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
 
   async function copyUrl() {
     if (!p.getCapabilitiesUrl) return;
+
+    trackClick("copy-link", analyticsLocation, {
+      datasetTitle: p.title,
+      datasetUuid: p.uuid,
+    });
+
     await navigator.clipboard.writeText(p.getCapabilitiesUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -95,7 +104,17 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
             </div>
           )}
           <span className={styles.listItemTitle}>
-            <Link href={`/metadata/${p.uuid}`}>{p.title}</Link>
+            <Link
+              href={`/metadata/${p.uuid}`}
+              onClick={() =>
+                trackClick("open-dataset-card", analyticsLocation, {
+                  datasetTitle: p.title,
+                  datasetUuid: p.uuid,
+                })
+              }
+            >
+              {p.title}
+            </Link>
           </span>
           <div className={styles.metaGroup}>
             {!!p.protocolNames?.length && (
@@ -123,18 +142,18 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         <div className={styles.buttonGroupContainer}>
           {canOpenApplication && (
             <CardActionButton
-              onClick={() =>
-                window.open(p.distributionUrl, "_blank", "noopener")
-              }
+              onClick={() => {
+                window.open(p.distributionUrl, "_blank", "noopener");
+              }}
               label="Nettside"
               icon={<ExternalLinkIcon aria-hidden />}
             />
           )}
           {canShowMap && (
             <CardActionButton
-              onClick={() =>
-                window.open(p.mapCapabilitiesUrl, "_blank", "noopener")
-              }
+              onClick={() => {
+                window.open(p.mapCapabilitiesUrl, "_blank", "noopener");
+              }}
               label="Vis kart"
               icon={<LayersPlusIcon aria-hidden />}
             />
@@ -146,6 +165,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 name: p.title,
                 distributionUrl: p.distributionUrl,
               }}
+              location={analyticsLocation}
               variant="tertiary"
               size="sm"
             />

@@ -9,23 +9,31 @@ import {
   removeItemsFromCart,
 } from "@/app/_components/addToCart/cartStorage";
 import { useIsItemInCart } from "@/app/_components/addToCart/useCart";
+import { type Location, trackClick } from "@/posthog/posthog";
 
 export default function AddToCartButton({
   item,
   className,
   variant,
   size,
+  location,
 }: {
   item: DownloadItem | null;
   className?: string;
   variant?: ButtonProps["variant"];
   size?: "sm" | "md" | "lg";
+  location: Location;
 }) {
   const isInCart = useIsItemInCart(item?.uuid);
 
   if (!item?.uuid || !item.distributionUrl) return null;
 
   const handleToggleCart = () => {
+    trackClick(isInCart ? "remove-from-cart" : "add-to-cart", location, {
+      itemName: item.name,
+      itemUuid: item.uuid,
+    });
+
     if (isInCart) {
       removeItemsFromCart([item]);
       return;

@@ -1,6 +1,7 @@
 "use client";
 
 import { Details, Heading, Tabs } from "@kv-designsystem/react";
+import type { MouseEvent } from "react";
 import { FairSection } from "@/app/metadata/[uuid]/_components/FairSection";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
@@ -14,6 +15,7 @@ import type {
 } from "@/lib/schemas/product";
 import type { ProduktarkItem } from "@/lib/schemas/produktark";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./ProductTabs.module.css";
 
 export function ProductTabs({
@@ -61,7 +63,13 @@ export function ProductTabs({
       <Tabs defaultValue="distribution" className={styles.tabs}>
         <Tabs.List>
           {tabs.map((t) => (
-            <Tabs.Tab key={t.value} value={t.value}>
+            <Tabs.Tab
+              key={t.value}
+              value={t.value}
+              onClick={() =>
+                trackClick(`${t.value}-tab`, LOCATIONS.MetadataPageTabs)
+              }
+            >
               {t.label}
             </Tabs.Tab>
           ))}
@@ -111,11 +119,25 @@ export type DetailItem = {
 };
 
 function DetailAccordion({ items }: { items: DetailItem[] }) {
+  const onAccordionClick = (
+    event: MouseEvent<HTMLElement>,
+    accordionTitle: string,
+  ) => {
+    const detailsElement = event.currentTarget.closest("details");
+
+    trackClick("toggle-accordion", LOCATIONS.MetadataPageTabs, {
+      accordionTitle,
+      isExpanded: !detailsElement?.open,
+    });
+  };
+
   return (
     <>
       {items.map((item, i) => (
         <Details key={`${i}-${item.title}`}>
-          <Details.Summary>
+          <Details.Summary
+            onClick={(event) => onAccordionClick(event, item.title)}
+          >
             <div className={styles.accordionSummary}>
               {item.title} {item.actionButton}
             </div>
