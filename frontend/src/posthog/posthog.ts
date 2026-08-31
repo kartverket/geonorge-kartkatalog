@@ -5,6 +5,7 @@ export const LOCATIONS = {
   HeaderMenu: "header-menu",
   HeaderDropdown: "header-dropdown",
   HeaderProfile: "header-profile",
+  LegacyBanner: "legacy-banner",
   SearchHero: "search-hero",
   SearchPage: "search-page",
   MetadataPage: "metadata-page",
