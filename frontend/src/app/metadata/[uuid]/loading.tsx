@@ -2,6 +2,7 @@
 
 import { Skeleton } from "@kv-designsystem/react";
 import styles from "@/app/metadata/[uuid]/loading.module.css";
+import { isBeta } from "@/lib/basePath";
 
 const metaFieldSkeletons = [
   {
@@ -51,11 +52,13 @@ export default function Loading() {
 function ProductHeaderSkeleton() {
   return (
     <div aria-hidden className={styles.header}>
-      <nav aria-label="Laster brødsmulesti" className={styles.breadcrumb}>
-        <Skeleton className={styles.breadcrumbSkeleton}>
-          Laster brødsmulesti
-        </Skeleton>
-      </nav>
+      {!isBeta && (
+        <nav aria-label="Laster brødsmulesti" className={styles.breadcrumb}>
+          <Skeleton className={styles.breadcrumbSkeleton}>
+            Laster brødsmulesti
+          </Skeleton>
+        </nav>
+      )}
       <Skeleton className={styles.accessSkeleton} />
       <h1 className={styles.title}>
         <Skeleton className={styles.titleSkeleton}>Laster tittel</Skeleton>

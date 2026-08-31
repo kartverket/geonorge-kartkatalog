@@ -13,7 +13,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { LOCATIONS, trackEvent } from "@/posthog/posthog";
+import { isBeta } from "@/lib/basePath";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
@@ -25,11 +26,11 @@ export function Header() {
 
   const [openPanel, setOpenPanel] = useState<"menu" | "profile" | null>(null);
 
-  const trackClick = (clickItem: string) =>
-    trackEvent(`${clickItem}-clicked`, { location: LOCATIONS.Header });
+  const trackHeaderClick = (clickItem: string) =>
+    trackClick(clickItem, LOCATIONS.Header);
   const togglePanel = (panel: "menu" | "profile") => {
     setOpenPanel((prev) => (prev === panel ? null : panel));
-    trackClick(panel);
+    trackHeaderClick(panel);
   };
 
   // Midlertidig til vi har innlogging koblet på
@@ -73,7 +74,10 @@ export function Header() {
     <div className={styles.root} ref={rootRef}>
       <header className={styles.header}>
         <div className={styles.inner}>
-          <Link href="/" onNavigate={() => trackEvent("geonorge-logo")}>
+          <Link
+            href={isBeta ? " https://www.geonorge.no/" : "/"}
+            onNavigate={() => trackHeaderClick("geonorge-logo")}
+          >
             <Image
               src="/geonorge-logo.svg"
               alt="Geonorge"
@@ -90,81 +94,92 @@ export function Header() {
               className={`${styles.showFromSm} ${isHome ? styles.navActive : ""}`}
             >
               <Link
-                href="/"
+                href={isBeta ? " https://kartkatalog.geonorge.no/" : "/"}
                 aria-current={isHome ? "page" : undefined}
-                onNavigate={() => trackClick("finn-data")}
+                onNavigate={() => trackHeaderClick("finn-data")}
               >
                 <MagnifyingGlassIcon aria-hidden />
                 Finn data
               </Link>
             </Button>
             <Button
+              asChild
               variant="tertiary"
               data-color="neutral"
               className={styles.showFromXl}
-              onClick={() => trackClick("map")}
             >
-              <Badge.Position
-                overlap="circle"
-                placement="top-left"
-                className={styles.badge}
+              <Link
+                href="https://kartkatalog.geonorge.no/kart?lat=7197860&lon=396722&zoom=4"
+                onNavigate={() => trackHeaderClick("map")}
               >
-                {mapCount > 0 && (
-                  <Badge count={mapCount} data-color="neutral" />
-                )}
-                <LocationPinIcon aria-hidden />
-              </Badge.Position>
-              Kart
+                <Badge.Position
+                  overlap="circle"
+                  placement="top-left"
+                  className={styles.badge}
+                >
+                  {mapCount > 0 && (
+                    <Badge count={mapCount} data-color="neutral" />
+                  )}
+                  <LocationPinIcon aria-hidden />
+                </Badge.Position>
+                Kart
+              </Link>
             </Button>
             <Button
+              asChild
               variant="tertiary"
               data-color="neutral"
               className={styles.showFromXl}
-              onClick={() => trackClick("cart")}
             >
-              <Badge.Position
-                overlap="circle"
-                placement="top-left"
-                className={styles.badge}
+              <Link
+                href="https://kartkatalog.geonorge.no/nedlasting"
+                onNavigate={() => trackHeaderClick("cart")}
               >
-                {downloadCount > 0 && (
-                  <Badge count={downloadCount} data-color="danger" />
-                )}
-                <DownloadIcon aria-hidden />
-              </Badge.Position>
-              Nedlastingskurv
+                <Badge.Position
+                  overlap="circle"
+                  placement="top-left"
+                  className={styles.badge}
+                >
+                  {downloadCount > 0 && (
+                    <Badge count={downloadCount} data-color="danger" />
+                  )}
+                  <DownloadIcon aria-hidden />
+                </Badge.Position>
+                Nedlastingskurv
+              </Link>
             </Button>
-            {user ? (
-              <>
-                <ProfileDropdown
-                  userName={user.name}
-                  className={styles.showFromLg}
-                  posthogClick={() => trackClick("profile")}
-                />
+            {isBeta &&
+              (user ? (
+                <>
+                  <ProfileDropdown
+                    userName={user.name}
+                    className={styles.showFromLg}
+                    posthogClick={() => trackHeaderClick("profile")}
+                  />
+                  <Button
+                    ref={profileButtonRef}
+                    variant="tertiary"
+                    data-color="neutral"
+                    className={styles.tabletOnly}
+                    aria-expanded={openPanel === "profile"}
+                    aria-controls="header-profile-panel"
+                    onClick={() => togglePanel("profile")}
+                  >
+                    <Avatar aria-hidden data-size="xs" />
+                    {user.name}
+                  </Button>
+                </>
+              ) : (
                 <Button
-                  ref={profileButtonRef}
                   variant="tertiary"
                   data-color="neutral"
-                  className={styles.tabletOnly}
-                  aria-expanded={openPanel === "profile"}
-                  aria-controls="header-profile-panel"
-                  onClick={() => togglePanel("profile")}
+                  className={styles.showFromSm}
+                  onClick={() => trackHeaderClick("login")}
                 >
-                  <Avatar aria-hidden data-size="xs" />
-                  {user.name}
+                  <EnterIcon aria-hidden />
+                  Logg inn
                 </Button>
-              </>
-            ) : (
-              <Button
-                variant="tertiary"
-                data-color="neutral"
-                className={styles.showFromSm}
-                onClick={() => trackClick("login")}
-              >
-                <EnterIcon aria-hidden />
-                Logg inn
-              </Button>
-            )}
+              ))}
             <Button
               ref={menuButtonRef}
               variant="tertiary"
@@ -190,7 +205,7 @@ export function Header() {
           userName={user?.name}
           mapCount={mapCount}
           downloadCount={downloadCount}
-          posthogClick={trackClick}
+          posthogClick={trackHeaderClick}
         />
       )}
       {openPanel === "profile" && <HeaderProfile />}

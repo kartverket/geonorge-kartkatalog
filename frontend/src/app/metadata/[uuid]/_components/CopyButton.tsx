@@ -3,17 +3,30 @@ import { Button } from "@kv-designsystem/react";
 import { CheckmarkIcon, FilesIcon } from "@navikt/aksel-icons";
 import { useCopyUrl } from "@/app/metadata/[uuid]/_utils/hooks";
 import styles from "./CopyButton.module.css";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 
 export function CopyButton({
   url,
   className,
+  eventName = "copy-link",
+  trackingProperties,
 }: {
   url: string;
   className?: string;
+  eventName?: string;
+  trackingProperties?: Record<string, unknown>;
 }) {
   const { copied, copy } = useCopyUrl(url);
+
   return (
-    <Button variant="secondary" className={className} onClick={copy}>
+    <Button
+      variant="secondary"
+      className={className}
+      onClick={() => {
+        trackClick(eventName, LOCATIONS.MetadataPageTabs, trackingProperties);
+        copy();
+      }}
+    >
       <span className={styles.swap}>
         <span className={`${styles.state} ${copied ? styles.stateHidden : ""}`}>
           <FilesIcon aria-hidden /> Kopier lenke

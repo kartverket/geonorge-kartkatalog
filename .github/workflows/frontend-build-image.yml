@@ -88,6 +88,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
+          build-args: |
+            NEXT_PUBLIC_BASE_PATH=/beta
 
       - name: Summarize image digest
         run: |
@@ -108,7 +110,6 @@ jobs:
         uses: kartverket/pharos@v0.6.4
         with:
           image_url: ${{ env.DOCKER_REGISTRY }}/${{ env.NAME }}:${{ needs.build_image.outputs.short_tag }}
-
 
   deploy:
     runs-on: ubuntu-latest

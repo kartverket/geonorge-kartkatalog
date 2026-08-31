@@ -226,10 +226,23 @@ function buildDistributionDetails({
 }): DetailItem[] {
   return groups.map((group) => {
     const urlRows = buildUrlRows(group.formats);
+    const formatNames = [
+      ...new Set(group.formats.map((format) => format.name)),
+    ];
+
     return {
       actionButton:
         urlRows.length === 1 && showCopyLink(group.protocol) ? (
-          <CopyButton url={urlRows[0].url} />
+          <CopyButton
+            url={urlRows[0].url}
+            eventName="copy-distribution-link-from-accordion-summary"
+            trackingProperties={{
+              protocol: group.protocol,
+              protocolName: group.protocolName,
+              format: formatNames.join(", "),
+              urlLabel: urlRows[0].label,
+            }}
+          />
         ) : null,
       title: group.protocolName ?? "Ukjent protokoll",
       content: (
@@ -239,7 +252,15 @@ function buildDistributionDetails({
             ...urlRows.map(
               (row): Field => ({
                 label: row.label,
-                content: <UrlLink url={row.url} />,
+                content: (
+                  <UrlLink
+                    url={row.url}
+                    protocol={group.protocol}
+                    protocolName={group.protocolName}
+                    format={row.formatNames.join(", ")}
+                    urlLabel={row.label}
+                  />
+                ),
               }),
             ),
             {
@@ -303,6 +324,7 @@ function buildDistributionDetails({
 type UrlRow = {
   label: string;
   url: string;
+  formatNames: string[];
 };
 function buildUrlRows(formats: DistributionGroup["formats"]): UrlRow[] {
   const byUrls = new Map<string, string[]>();
@@ -324,6 +346,7 @@ function buildUrlRows(formats: DistributionGroup["formats"]): UrlRow[] {
           ? `${names.join(", ")} (${i + 1})`
           : names.join(", "),
       url: url,
+      formatNames: names,
     }));
   });
 }
@@ -343,7 +366,19 @@ function FieldList({ fields }: { fields: Field[] }) {
   );
 }
 
-function UrlLink({ url }: { url: string }) {
+function UrlLink({
+  url,
+  protocol,
+  protocolName,
+  format,
+  urlLabel,
+}: {
+  url: string;
+  protocol: string | null;
+  protocolName: string | null;
+  format: string;
+  urlLabel: string;
+}) {
   return (
     <div className={styles.urlBox}>
       <span className={styles.urlValue}>
@@ -356,7 +391,17 @@ function UrlLink({ url }: { url: string }) {
           {url}
         </a>
       </span>
-      <CopyButton url={url} className={styles.copyButton} />
+      <CopyButton
+        url={url}
+        className={styles.copyButton}
+        eventName="copy-distribution-link-from-accordion-content"
+        trackingProperties={{
+          protocol,
+          protocolName,
+          format,
+          urlLabel,
+        }}
+      />
     </div>
   );
 }

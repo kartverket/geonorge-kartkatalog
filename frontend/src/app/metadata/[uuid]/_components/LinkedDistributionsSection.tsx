@@ -8,6 +8,7 @@ import type {
   LinkedDistribution,
   LinkedDistributions,
 } from "@/lib/schemas/product";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./LinkedDistributionsSection.module.css";
 
 const PAGE_SIZE = 4;
@@ -27,6 +28,7 @@ function toDatasetCardProps(d: LinkedDistribution) {
     protocolNames: d.protocolNames,
     formats: d.formats,
     showThumbnail: false,
+    analyticsLocation: LOCATIONS.MetadataPageLinkedDistributions,
     accessState: d.accessState,
     hierarchyLevel: d.hierarchyLevel,
   };
@@ -86,7 +88,17 @@ function DistributionGroup({
         <Button
           variant="tertiary"
           className={styles.loadMoreButton}
-          onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+          onClick={() => {
+            trackClick(
+              "load-more-linked-distributions",
+              LOCATIONS.MetadataPageLinkedDistributions,
+              {
+                heading,
+                totalItems: items.length,
+              },
+            );
+            setVisibleCount((count) => count + PAGE_SIZE);
+          }}
         >
           Last inn flere
         </Button>
@@ -95,7 +107,17 @@ function DistributionGroup({
         <Button
           variant="tertiary"
           className={styles.loadMoreButton}
-          onClick={() => setVisibleCount(PAGE_SIZE)}
+          onClick={() => {
+            trackClick(
+              "hide-linked-distributions",
+              LOCATIONS.MetadataPageLinkedDistributions,
+              {
+                heading,
+                totalItems: items.length,
+              },
+            );
+            setVisibleCount(PAGE_SIZE);
+          }}
         >
           Skjul
         </Button>

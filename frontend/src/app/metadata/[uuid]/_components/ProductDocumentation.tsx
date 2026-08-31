@@ -7,6 +7,7 @@ import {
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import type { ProduktarkItem } from "@/lib/schemas/produktark";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./ProductDocumentation.module.css";
 
 type DocumentationCard = {
@@ -92,7 +93,16 @@ function ButtonCard({
 }) {
   return (
     <Card asChild data-color="neutral" className={styles.card}>
-      <a target="_blank" rel="noreferrer" href={content.url}>
+      <a
+        target="_blank"
+        rel="noreferrer"
+        href={content.url}
+        onClick={() =>
+          trackClick("open-documentation-card", LOCATIONS.MetadataPageTabs, {
+            cardTitle: content.title,
+          })
+        }
+      >
         <div className={styles.tagGroup}>
           {content.icon}
           {content.status ? (
