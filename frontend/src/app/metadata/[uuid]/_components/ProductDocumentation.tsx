@@ -20,7 +20,6 @@ type ProductDocumentationProps = {
 type DocumentationAction = {
   label: string;
   url: string;
-  variant?: "primary" | "secondary";
 };
 
 type DocumentationCardBase = {
@@ -59,16 +58,7 @@ export function ProductDocumentation({
 }: ProductDocumentationProps) {
   const cards = [
     createTegnereglerCard(tegneregler),
-    produktark?.documentreference
-      ? createLinkCard({
-          title: "Produktark",
-          status: produktark.status,
-          paragraph: PRODUKTARK_DESCRIPTION,
-          icon: <FileTextIcon aria-hidden className={styles.icon} />,
-          url: produktark.documentreference,
-          dateSubmitted: produktark.dateSubmitted,
-        })
-      : null,
+    createProduktarkCard(produktark),
     productSpecificationUrl
       ? createLinkCard({
           title: "Produktspesifikasjon",
@@ -133,7 +123,7 @@ function DocumentationCardBody({ card }: { card: DocumentationCard }) {
             <Button
               key={action.label}
               asChild
-              variant={action.variant ?? "secondary"}
+              variant="secondary"
               data-color="neutral"
               className={styles.cardButton}
             >
@@ -191,7 +181,7 @@ function createTegnereglerCard(
   tegneregler: TegnereglerItem | null,
 ): ActionDocumentationCard | null {
   const actions = [
-    createAction("Vis tegneregler", tegneregler?.documentreference, "primary"),
+    createAction("Vis tegneregler", tegneregler?.documentreference),
     createAction("Vis digital kartografi", tegneregler?.cartographyFile),
     createAction("Se flere versjoner", tegneregler?.id),
   ].filter(isDefined);
@@ -211,6 +201,29 @@ function createTegnereglerCard(
   };
 }
 
+function createProduktarkCard(
+  produktark: ProduktarkItem | null,
+): ActionDocumentationCard | null {
+  const actions = [
+    createAction("Vis produktark", produktark?.documentreference),
+    createAction("Se flere versjoner", produktark?.id),
+  ].filter(isDefined);
+
+  if (actions.length === 0) {
+    return null;
+  }
+
+  return {
+    kind: "actions",
+    title: "Produktark",
+    status: produktark?.status,
+    paragraph: PRODUKTARK_DESCRIPTION,
+    icon: <FileTextIcon aria-hidden className={styles.icon} />,
+    actions,
+    dateSubmitted: produktark?.dateSubmitted,
+  };
+}
+
 function createLinkCard(
   card: Omit<LinkDocumentationCard, "kind">,
 ): LinkDocumentationCard {
@@ -223,13 +236,12 @@ function createLinkCard(
 function createAction(
   label: string,
   url?: string | null,
-  variant?: DocumentationAction["variant"],
 ): DocumentationAction | null {
   if (!url) {
     return null;
   }
 
-  return { label, url, variant };
+  return { label, url };
 }
 
 function isDefined<T>(value: T | null): value is T {
