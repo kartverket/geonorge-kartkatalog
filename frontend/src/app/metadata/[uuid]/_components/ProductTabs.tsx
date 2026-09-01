@@ -27,7 +27,6 @@ export function ProductTabs({
   tegneregler,
   produktark,
   produktspesifikasjon,
-  productSpecificationUrl,
   distributionDetails,
   infoDetails,
 }: {
@@ -38,7 +37,6 @@ export function ProductTabs({
   tegneregler: TegnereglerItem | null;
   produktark: ProduktarkItem | null;
   produktspesifikasjon: ProduktspesifikasjonItem | null;
-  productSpecificationUrl: string | null;
   distributionDetails: DetailItem[];
   infoDetails: DetailItem[];
 }) {
@@ -52,8 +50,9 @@ export function ProductTabs({
       produktark?.documentreference ||
       produktark?.id ||
       produktspesifikasjon?.documentreference ||
-      produktspesifikasjon?.id ||
-      productSpecificationUrl,
+      produktspesifikasjon?.applicationSchema ||
+      produktspesifikasjon?.gmlApplicationSchema ||
+      produktspesifikasjon?.id,
   );
 
   const tabs = [
@@ -107,7 +106,6 @@ export function ProductTabs({
               tegneregler={tegneregler}
               produktark={produktark}
               produktspesifikasjon={produktspesifikasjon}
-              productSpecificationUrl={productSpecificationUrl}
             />
           </Tabs.Panel>
         )}

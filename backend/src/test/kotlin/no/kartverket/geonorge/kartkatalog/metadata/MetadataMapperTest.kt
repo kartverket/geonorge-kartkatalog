@@ -11,7 +11,6 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ExtensionResource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
@@ -67,34 +66,8 @@ class MetadataMapperTest {
             assertEquals("Lisens", mapped.constraints?.useConstraints)
         }
 
-    @Suppress("ktlint:standard:max-line-length")
-    @Test
-    fun `maps product specification url from extension resources`() =
-        runBlocking {
-            val mapper =
-                MetadataMapper(createTranslator(responseContent = """{"containeditems": []}"""), staticNorgeskartUrl)
-            val record =
-                minimalRecord(
-                    extensionResources =
-                        listOf(
-                            ExtensionResource(
-                                applicationProfile = "produktspesifikasjon",
-                                url = "https://register.geonorge.no/produktspesifikasjoner/administrative-enheter-norge",
-                            ),
-                        ),
-                )
-
-            val mapped = mapper.toProductMetadata(record)
-
-            assertEquals(
-                "https://register.geonorge.no/produktspesifikasjoner/administrative-enheter-norge",
-                mapped.productSpecificationUrl,
-            )
-        }
-
     private fun minimalRecord(
         legalConstraints: LegalConstraints? = null,
-        extensionResources: List<ExtensionResource> = emptyList(),
     ): MetadataRecord =
         MetadataRecord(
             uuid = "c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689",
@@ -104,7 +77,6 @@ class MetadataMapperTest {
             metadataContact = Contact(role = "pointOfContact", organization = "Kartverket"),
             title = "Test dataset",
             legalConstraints = legalConstraints,
-            extensionResources = extensionResources,
         )
 
     private fun createTranslator(

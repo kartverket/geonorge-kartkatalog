@@ -16,7 +16,6 @@ type ProductDocumentationProps = {
   tegneregler: TegnereglerItem | null;
   produktark: ProduktarkItem | null;
   produktspesifikasjon: ProduktspesifikasjonItem | null;
-  productSpecificationUrl?: string | null;
 };
 
 type DocumentationAction = {
@@ -32,17 +31,16 @@ type DocumentationCardBase = {
   dateSubmitted?: string | null;
 };
 
-type LinkDocumentationCard = DocumentationCardBase & {
-  kind: "link";
-  url: string;
-};
-
 type ActionDocumentationCard = DocumentationCardBase & {
   kind: "actions";
   actions: DocumentationAction[];
 };
 
-type DocumentationCard = LinkDocumentationCard | ActionDocumentationCard;
+type DocumentationCard = ActionDocumentationCard;
+
+type ActionCardConfig = Omit<ActionDocumentationCard, "kind" | "actions"> & {
+  actions: Array<DocumentationAction | null>;
+};
 
 const TEGNEREGLER_DESCRIPTION =
   "Tegneregler forklarer hvordan dataene skal visualiseres i kart, inkludert symboler, farger og utforming.";
@@ -57,15 +55,11 @@ export function ProductDocumentation({
   tegneregler,
   produktark,
   produktspesifikasjon,
-  productSpecificationUrl,
 }: ProductDocumentationProps) {
   const cards = [
     createTegnereglerCard(tegneregler),
     createProduktarkCard(produktark),
-    createProduktspesifikasjonCard(
-      produktspesifikasjon,
-      productSpecificationUrl,
-    ),
+    createProduktspesifikasjonCard(produktspesifikasjon),
   ].filter(isDefined);
 
   return (
@@ -78,26 +72,6 @@ export function ProductDocumentation({
 }
 
 function DocumentationCard({ card }: { card: DocumentationCard }) {
-  if (card.kind === "link") {
-    return (
-      <Card asChild data-color="neutral" className={styles.card}>
-        <a
-          target="_blank"
-          rel="noreferrer"
-          href={card.url}
-          onClick={() =>
-            trackClick("open-documentation-card", LOCATIONS.MetadataPageTabs, {
-              cardTitle: card.title,
-            })
-          }
-          className={styles.cardBody}
-        >
-          <DocumentationCardBody card={card} />
-        </a>
-      </Card>
-    );
-  }
-
   return (
     <Card data-color="neutral" className={styles.card}>
       <div className={styles.cardBody}>
@@ -116,40 +90,38 @@ function DocumentationCardBody({ card }: { card: DocumentationCard }) {
       </div>
       <Heading data-size="md">{card.title}</Heading>
       <Paragraph data-size="md">{card.paragraph}</Paragraph>
-      {card.kind === "actions" ? (
-        <div className={styles.cardButtonRow}>
-          {card.actions.map((action) => (
-            <Button
-              key={action.label}
-              asChild
-              variant="secondary"
-              data-color="neutral"
-              className={styles.cardButton}
+      <div className={styles.cardButtonRow}>
+        {card.actions.map((action) => (
+          <Button
+            key={action.label}
+            asChild
+            variant="secondary"
+            data-color="neutral"
+            className={styles.cardButton}
+          >
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href={action.url}
+              onClick={() =>
+                trackClick(
+                  "open-documentation-card-link",
+                  LOCATIONS.MetadataPageTabs,
+                  {
+                    cardTitle: card.title,
+                    linkLabel: action.label,
+                  },
+                )
+              }
             >
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href={action.url}
-                onClick={() =>
-                  trackClick(
-                    "open-documentation-card-link",
-                    LOCATIONS.MetadataPageTabs,
-                    {
-                      cardTitle: card.title,
-                      linkLabel: action.label,
-                    },
-                  )
-                }
-              >
-                <span className={styles.cardButtonContent}>
-                  <ExternalLinkIcon aria-hidden />
-                  <span>{action.label}</span>
-                </span>
-              </a>
-            </Button>
-          ))}
-        </div>
-      ) : null}
+              <span className={styles.cardButtonContent}>
+                <ExternalLinkIcon aria-hidden />
+                <span>{action.label}</span>
+              </span>
+            </a>
+          </Button>
+        ))}
+      </div>
       <Paragraph data-size="sm" className={styles.dateText}>
         {card.dateSubmitted
           ? `Dato publisert: ${formatDate(card.dateSubmitted)}`
@@ -179,95 +151,58 @@ function StatusTag({ status }: { status?: string | null }) {
 function createTegnereglerCard(
   tegneregler: TegnereglerItem | null,
 ): ActionDocumentationCard | null {
-  const actions = [
-    createAction("Vis tegneregler", tegneregler?.documentreference),
-    createAction("Vis digital kartografi", tegneregler?.cartographyFile),
-    createAction("Se flere versjoner", tegneregler?.id),
-  ].filter(isDefined);
-
-  if (actions.length === 0) {
-    return null;
-  }
-
-  return {
-    kind: "actions",
+  return createActionCard({
     title: "Tegneregler",
     status: tegneregler?.status,
     paragraph: TEGNEREGLER_DESCRIPTION,
     icon: <PencilBoardIcon aria-hidden className={styles.icon} />,
-    actions,
     dateSubmitted: tegneregler?.dateSubmitted,
-  };
+    actions: [
+      createAction("Vis tegneregler", tegneregler?.documentreference),
+      createAction("Vis digital kartografi", tegneregler?.cartographyFile),
+      createAction("Se flere versjoner", tegneregler?.id),
+    ],
+  });
 }
 
 function createProduktarkCard(
   produktark: ProduktarkItem | null,
 ): ActionDocumentationCard | null {
-  const actions = [
-    createAction("Vis produktark", produktark?.documentreference),
-    createAction("Se flere versjoner", produktark?.id),
-  ].filter(isDefined);
-
-  if (actions.length === 0) {
-    return null;
-  }
-
-  return {
-    kind: "actions",
+  return createActionCard({
     title: "Produktark",
     status: produktark?.status,
     paragraph: PRODUKTARK_DESCRIPTION,
     icon: <FileTextIcon aria-hidden className={styles.icon} />,
-    actions,
     dateSubmitted: produktark?.dateSubmitted,
-  };
+    actions: [
+      createAction("Vis produktark", produktark?.documentreference),
+      createAction("Se flere versjoner", produktark?.id),
+    ],
+  });
 }
 
 function createProduktspesifikasjonCard(
   produktspesifikasjon: ProduktspesifikasjonItem | null,
-  productSpecificationUrl?: string | null,
-): ActionDocumentationCard | LinkDocumentationCard | null {
-  const actions = [
-    createAction(
-      "Vis produktspesifikasjon",
-      produktspesifikasjon?.documentreference ?? productSpecificationUrl,
-    ),
-    createAction("Vis datamodell", produktspesifikasjon?.applicationSchema),
-    createAction("Vis GML-skjema", produktspesifikasjon?.gmlApplicationSchema),
-    createAction("Se flere versjoner", produktspesifikasjon?.id ?? null),
-  ].filter(isDefined);
-
-  if (actions.length > 0) {
-    return {
-      kind: "actions",
-      title: "Produktspesifikasjon",
-      status: produktspesifikasjon?.status,
-      paragraph: PRODUCT_SPECIFICATION_DESCRIPTION,
-      icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
-      actions,
-      dateSubmitted: produktspesifikasjon?.dateSubmitted,
-    };
-  }
-
-  if (!productSpecificationUrl) {
-    return null;
-  }
-
-  return createLinkCard({
+): ActionDocumentationCard | null {
+  return createActionCard({
     title: "Produktspesifikasjon",
+    status: produktspesifikasjon?.status,
     paragraph: PRODUCT_SPECIFICATION_DESCRIPTION,
     icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
-    url: productSpecificationUrl,
+    dateSubmitted: produktspesifikasjon?.dateSubmitted,
+    actions: [
+      createAction(
+        "Vis produktspesifikasjon",
+        produktspesifikasjon?.documentreference,
+      ),
+      createAction("Vis datamodell", produktspesifikasjon?.applicationSchema),
+      createAction(
+        "Vis GML-skjema",
+        produktspesifikasjon?.gmlApplicationSchema,
+      ),
+      createAction("Se flere versjoner", produktspesifikasjon?.id ?? null),
+    ],
   });
-}
-
-function createLinkCard(
-  card: Omit<LinkDocumentationCard, "kind">,
-): LinkDocumentationCard {
-  return {
-    kind: "link",
-    ...card,
-  };
 }
 
 function createAction(
@@ -279,6 +214,29 @@ function createAction(
   }
 
   return { label, url };
+}
+
+function createActionCard({
+  actions,
+  ...card
+}: ActionCardConfig): ActionDocumentationCard | null {
+  const definedActions = createActions(actions);
+
+  if (definedActions.length === 0) {
+    return null;
+  }
+
+  return {
+    kind: "actions",
+    ...card,
+    actions: definedActions,
+  };
+}
+
+function createActions(
+  actions: Array<DocumentationAction | null>,
+): DocumentationAction[] {
+  return actions.filter(isDefined);
 }
 
 function isDefined<T>(value: T | null): value is T {

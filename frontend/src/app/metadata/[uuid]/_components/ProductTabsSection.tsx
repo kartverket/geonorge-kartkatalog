@@ -100,7 +100,6 @@ export async function ProductTabsSection({
       tegneregler={tegneregler}
       produktark={produktark}
       produktspesifikasjon={produktspesifikasjon}
-      productSpecificationUrl={metadata.productSpecificationUrl}
     />
   );
 }
