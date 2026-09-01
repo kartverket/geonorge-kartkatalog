@@ -91,7 +91,8 @@ jobs:
           push: true
           build-args: |
             NEXT_PUBLIC_BASE_PATH=/beta
-
+            NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=phc_7SSwxHEWr80MdWwKQfAbFKhvn3R1wvr1vK9ndObb21T
+            NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
       - name: Summarize image digest
         run: |
           echo "Tags: ${{ steps.meta.outputs.tags }}" >> "$GITHUB_STEP_SUMMARY"
