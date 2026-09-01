@@ -1,9 +1,12 @@
 import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
+import type { Route } from "next";
 import Link from "next/link";
 import { isBeta } from "@/lib/basePath";
 import { getProductTypeString } from "@/lib/productType";
 import type { AccessState } from "@/lib/schemas/product";
 import styles from "./ProductHeader.module.css";
+
+const catalogUrl = process.env.KATALOG_BASE_URL ?? "/";
 
 export function ProductHeader({
   title,
@@ -29,7 +32,15 @@ export function ProductHeader({
       <h1 className={styles.title}>{title ?? "-"}</h1>
       <p className={styles.organization}>
         {getProductTypeString(hierarchyLevel)} fra{" "}
-        <Link href="#">{organization ?? "-"}</Link>
+        <Link
+          href={
+            organization != null
+              ? (`${catalogUrl}/?organizations=${encodeURIComponent(organization)}` as Route)
+              : "#"
+          }
+        >
+          {organization ?? "-"}
+        </Link>
       </p>
     </div>
   );

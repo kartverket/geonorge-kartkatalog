@@ -50,3 +50,22 @@
 .dateText {
   margin-top: auto;
 }
+
+@media (max-width: 600px) {
+  /* Sentrer kort på mindre skjermer */
+  .cardWrapper {
+    justify-content: center;
+  }
+}
+
+/* Lar tittel wrappe */
+.card :global(.ds-heading) {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 450px) {
+  /* Reduserer x-padding for å unngå wrap på "Produktspesifikasjon" */
+  .cardWrapper .card {
+    --dsc-card-padding: var(--ds-size-6) var(--ds-size-4);
+  }
+}

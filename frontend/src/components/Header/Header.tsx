@@ -13,7 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { isBeta } from "@/lib/basePath";
+import { basePath, isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
@@ -79,7 +79,7 @@ export function Header() {
             onNavigate={() => trackHeaderClick("geonorge-logo")}
           >
             <Image
-              src="/geonorge-logo.svg"
+              src={`${basePath}/geonorge-logo.svg`}
               alt="Geonorge"
               width={211}
               height={33}
@@ -148,7 +148,7 @@ export function Header() {
                 Nedlastingskurv
               </Link>
             </Button>
-            {isBeta &&
+            {!isBeta &&
               (user ? (
                 <>
                   <ProfileDropdown
