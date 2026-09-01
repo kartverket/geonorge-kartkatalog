@@ -2,8 +2,8 @@
 import { Button } from "@kv-designsystem/react";
 import { CheckmarkIcon, FilesIcon } from "@navikt/aksel-icons";
 import { useCopyUrl } from "@/app/metadata/[uuid]/_utils/hooks";
-import styles from "./CopyButton.module.css";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
+import styles from "./CopyButton.module.css";
 
 export function CopyButton({
   url,
