@@ -214,7 +214,7 @@ export function HeaderMenu({
             </Badge.Position>
             Nedlastingskurv
           </Button>
-          {isBeta && (
+          {!isBeta && (
             <Button
               variant="tertiary"
               data-color="neutral"
@@ -224,7 +224,7 @@ export function HeaderMenu({
               <span>EN</span>
             </Button>
           )}
-          {isBeta &&
+          {!isBeta &&
             (userName ? (
               <Button
                 variant="tertiary"
@@ -251,7 +251,7 @@ export function HeaderMenu({
               </Button>
             ))}
         </div>
-        <Divider className={isBeta ? styles.divider : styles.dividerHidden} />
+        <Divider className={!isBeta ? styles.divider : styles.dividerHidden} />
         {view === "profile" ? (
           <ProfileContent location={LOCATIONS.HeaderMenu} />
         ) : (

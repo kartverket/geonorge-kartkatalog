@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Footer } from "@/components/Footer/Footer";
 import { Header } from "@/components/Header/Header";
 import { LegacyBanner } from "@/components/LegacyBanner/LegacyBanner";
+import { CookieYesPosthogSync } from "@/components/PosthogConsent/CookieYesPosthogSync";
 import "./globals.css";
 import { isBeta } from "@/lib/basePath";
 
@@ -29,6 +30,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <CookieYesPosthogSync />
         <Header />
         {isBeta && <LegacyBanner />}
         {children}
