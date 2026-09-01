@@ -1,10 +1,11 @@
 import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
+import type { Route } from "next";
 import Link from "next/link";
 import { isBeta } from "@/lib/basePath";
 import { getProductTypeString } from "@/lib/productType";
 import type { AccessState } from "@/lib/schemas/product";
 import styles from "./ProductHeader.module.css";
-import { Route } from "next";
+
 const catalogUrl = process.env.KATALOG_BASE_URL ?? "/";
 
 export function ProductHeader({
