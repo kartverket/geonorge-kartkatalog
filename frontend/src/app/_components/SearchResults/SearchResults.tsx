@@ -14,7 +14,8 @@ export function SearchResults({ results, numFound }: SearchResultsProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} data-color="neutral">
+      <div className={styles.pageInner}>
       <div className={styles.header}>
         <h1>Datasett ({numFound})</h1>
         <ViewToggle value={viewMode} onChange={setViewMode} />
@@ -27,6 +28,7 @@ export function SearchResults({ results, numFound }: SearchResultsProps) {
         {results.map((r) => (
           <DatasetCard key={r.uuid} viewMode={viewMode} {...r} />
         ))}
+        </div>
       </div>
     </main>
   );
