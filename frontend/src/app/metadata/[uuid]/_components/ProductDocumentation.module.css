@@ -37,9 +37,8 @@
   width: 100%;
 }
 
-.cardButton[data-variant="secondary"] {
-  --dsc-button-border-color: var(--ds-color-info-text-default);
-  --dsc-button-color: var(--ds-color-info-text-default);
+.cardButton[data-variant="primary"] {
+  color: #ffffff;
 }
 
 .cardButtonContent {

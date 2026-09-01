@@ -91,11 +91,11 @@ function DocumentationCardBody({ card }: { card: DocumentationCard }) {
       <Heading data-size="md">{card.title}</Heading>
       <Paragraph data-size="md">{card.paragraph}</Paragraph>
       <div className={styles.cardButtonRow}>
-        {card.actions.map((action) => (
+        {card.actions.map((action, index) => (
           <Button
             key={action.label}
             asChild
-            variant="secondary"
+            variant={index === 0 ? "primary" : "secondary"}
             data-color="neutral"
             className={styles.cardButton}
           >
