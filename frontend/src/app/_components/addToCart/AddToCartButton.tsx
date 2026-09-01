@@ -17,12 +17,16 @@ export default function AddToCartButton({
   variant,
   size,
   location,
+  addLabel = "Legg til i handlekurv",
+  removeLabel = "Fjern fra handlekurv",
 }: {
   item: DownloadItem | null;
   className?: string;
   variant?: ButtonProps["variant"];
   size?: "sm" | "md" | "lg";
   location: Location;
+  addLabel?: string;
+  removeLabel?: string;
 }) {
   const isInCart = useIsItemInCart(item?.uuid);
 
@@ -53,12 +57,12 @@ export default function AddToCartButton({
       {isInCart ? (
         <>
           <TrashIcon aria-hidden />
-          Fjern fra handlekurv
+          {removeLabel}
         </>
       ) : (
         <>
           <DownloadIcon aria-hidden />
-          Legg til i handlekurv
+          {addLabel}
         </>
       )}
     </Button>

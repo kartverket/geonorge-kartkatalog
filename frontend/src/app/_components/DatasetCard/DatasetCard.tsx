@@ -5,7 +5,6 @@ import {
   CheckmarkIcon,
   ExternalLinkIcon,
   FilesIcon,
-  LayersPlusIcon,
 } from "@navikt/aksel-icons";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -13,6 +12,7 @@ import { useState } from "react";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import { AccessStateTag } from "@/components/AccessStateTag/AccessStateTag";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
+import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
 import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = {
@@ -141,12 +141,17 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
             />
           )}
           {canShowMap && (
-            <CardActionButton
-              onClick={() => {
-                window.open(p.mapCapabilitiesUrl, "_blank", "noopener");
+            <AddToMapButton
+              item={{
+                addLayers: [],
+                DistributionProtocol: "OGC:WMS",
+                Uuid: p.uuid,
+                Title: p.title,
+                GetCapabilitiesUrl: p.mapCapabilitiesUrl ?? null,
               }}
-              label="Vis kart"
-              icon={<LayersPlusIcon aria-hidden />}
+              variant="secondary"
+              size="sm"
+              location={analyticsLocation}
             />
           )}
           {canDownload && isOpen && isDataset && p.distributionUrl && (
@@ -157,8 +162,10 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 distributionUrl: p.distributionUrl,
               }}
               location={analyticsLocation}
-              variant="tertiary"
+              variant="secondary"
               size="sm"
+              addLabel="Last ned"
+              removeLabel="Fjern nedlasting"
             />
           )}
           {canCopy && (
@@ -190,7 +197,7 @@ function CardActionButton({
   icon: ReactNode;
 }) {
   return (
-    <Button variant="tertiary" data-size="sm" onClick={onClick}>
+    <Button variant="secondary" data-size="sm" onClick={onClick}>
       {icon}
       {label}
     </Button>
