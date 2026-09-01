@@ -232,6 +232,8 @@ function createProduktspesifikasjonCard(
       "Vis produktspesifikasjon",
       produktspesifikasjon?.documentreference ?? productSpecificationUrl,
     ),
+    createAction("Vis datamodell", produktspesifikasjon?.applicationSchema),
+    createAction("Vis GML-skjema", produktspesifikasjon?.gmlApplicationSchema),
     createAction("Se flere versjoner", produktspesifikasjon?.id ?? null),
   ].filter(isDefined);
 

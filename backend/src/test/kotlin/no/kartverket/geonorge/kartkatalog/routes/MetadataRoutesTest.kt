@@ -175,6 +175,8 @@ class MetadataRoutesTest {
                                     |"label": "SOSI produktspesifikasjon: Matrikkelen - Bygningspunkt",
                                     |"status": "Gyldig",
                                     |"dateSubmitted": "2022-12-14T00:00:00",
+                                    |"GMLApplicationSchema": "https://example.com/matrikkelen-bygningspunkt.gml",
+                                    |"ApplicationSchema": "https://example.com/matrikkelen-bygningspunkt.uml",
                                     |"documentreference": "https://example.com/matrikkelen-bygningspunkt.pdf"}
                                     """.trimMargin(),
                                 status = HttpStatusCode.OK,
@@ -339,6 +341,8 @@ class MetadataRoutesTest {
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertContains(body, "SOSI produktspesifikasjon")
+            assertContains(body, "gmlApplicationSchema")
+            assertContains(body, "applicationSchema")
             assertContains(body, "documentreference")
         }
     }

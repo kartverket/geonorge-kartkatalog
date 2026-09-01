@@ -111,6 +111,10 @@ data class RegisterProduktspesifikasjonItem(
     val dateSubmitted: String? = null,
     val dateAccepted: String? = null,
     val draftDate: String? = null,
+    @SerialName("GMLApplicationSchema")
+    val gmlApplicationSchema: String? = null,
+    @SerialName("ApplicationSchema")
+    val applicationSchema: String? = null,
     val documentreference: String? = null,
     @SerialName("FAIRStatusPerCent")
     val fairStatusPerCent: Double? = null,

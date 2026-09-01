@@ -216,6 +216,8 @@ class RegisterClientTest {
                    "label": "Test Produktspesifikasjon",
                    "status": "Gyldig",
                    "seoname": "test-produkt",
+                   "GMLApplicationSchema": "https://example.com/test-produktspesifikasjon.gml",
+                   "ApplicationSchema": "https://example.com/test-produktspesifikasjon.uml",
                    "documentreference": "https://example.com/test-produktspesifikasjon.pdf"}""",
             )
             val result = client.getProduktspesifikasjon("test-produkt")
@@ -223,6 +225,14 @@ class RegisterClientTest {
             assertNotNull(result)
             assertEquals("Test Produktspesifikasjon", result.label)
             assertEquals("Gyldig", result.status)
+            assertEquals(
+                "https://example.com/test-produktspesifikasjon.gml",
+                result.gmlApplicationSchema,
+            )
+            assertEquals(
+                "https://example.com/test-produktspesifikasjon.uml",
+                result.applicationSchema,
+            )
             assertEquals("https://example.com/test-produktspesifikasjon.pdf", result.documentreference)
         }
 

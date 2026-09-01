@@ -6,6 +6,8 @@ export const ProduktspesifikasjonItemSchema = z.object({
   status: z.string().nullable(),
   owner: z.string().nullable(),
   dateSubmitted: z.string().nullable(),
+  gmlApplicationSchema: z.string().nullable(),
+  applicationSchema: z.string().nullable(),
   documentreference: z.string().nullable(),
 });
 
