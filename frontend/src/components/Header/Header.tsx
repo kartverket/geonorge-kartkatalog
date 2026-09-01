@@ -148,7 +148,7 @@ export function Header() {
                 Nedlastingskurv
               </Link>
             </Button>
-            {isBeta &&
+            {!isBeta &&
               (user ? (
                 <>
                   <ProfileDropdown
