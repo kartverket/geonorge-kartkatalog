@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+import { markPosthogInitialized } from "@/components/PosthogConsent/posthogConsent";
 
 const projectToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 const apiHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
@@ -10,8 +11,10 @@ if (process.env.NODE_ENV === "production" && projectToken && apiHost) {
     autocapture: false,
     disable_session_recording: true,
     capture_pageview: false,
+    capture_pageleave: false,
     capture_heatmaps: false,
-    // TODO: sette opp sånn at vi kun tracker når bruker har tillatt. Dette har vi feks gjort i kartkatalog.react
-    // opt_out_capturing_by_default: true,
+    opt_out_capturing_by_default: true,
   });
+
+  markPosthogInitialized();
 }
