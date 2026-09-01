@@ -16,17 +16,25 @@ export function SearchResults({ results, numFound }: SearchResultsProps) {
   return (
     <main className={styles.page} data-color="neutral">
       <div className={styles.pageInner}>
-        <div className={styles.header}>
-          <ViewToggle value={viewMode} onChange={setViewMode} />
-        </div>
-        <div
-          className={`${styles.results} ${
-            viewMode === "list" ? styles.list : styles.grid
-          }`}
-        >
-          {results.map((r) => (
-            <DatasetCard key={r.uuid} viewMode={viewMode} {...r} />
-          ))}
+        <div className={styles.layout}>
+          {/* Midlertidig plassholder for filter - fjernes når filter er implementert */}
+          <aside className={styles.filterPlaceholder}>
+            Filter (placeholder)
+          </aside>
+          <div className={styles.content}>
+            <div className={styles.header}>
+              <ViewToggle value={viewMode} onChange={setViewMode} />
+            </div>
+            <div
+              className={`${styles.results} ${
+                viewMode === "list" ? styles.list : styles.grid
+              }`}
+            >
+              {results.map((r) => (
+                <DatasetCard key={r.uuid} viewMode={viewMode} {...r} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </main>
