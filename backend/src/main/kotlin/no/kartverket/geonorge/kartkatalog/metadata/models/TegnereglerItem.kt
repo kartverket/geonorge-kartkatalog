@@ -11,6 +11,7 @@ data class TegnereglerItem(
     val owner: String? = null,
     val dateSubmitted: String? = null,
     val documentreference: String? = null,
+    val cartographyFile: String? = null,
 )
 
 fun RegisterTegnereglerItem.toTegnereglerItem() =
@@ -21,4 +22,5 @@ fun RegisterTegnereglerItem.toTegnereglerItem() =
         owner = this.owner,
         dateSubmitted = this.dateSubmitted,
         documentreference = this.documentreference,
+        cartographyFile = this.cartographyFile,
     )

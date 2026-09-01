@@ -7,6 +7,7 @@ export const TegnereglerItemSchema = z.object({
   owner: z.string().nullable(),
   dateSubmitted: z.string().nullable(),
   documentreference: z.string().nullable(),
+  cartographyFile: z.string().nullable(),
 });
 
 export type TegnereglerItem = z.infer<typeof TegnereglerItemSchema>;

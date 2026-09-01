@@ -44,6 +44,7 @@ export function ProductTabs({
 
   const hasDocumentation = Boolean(
     tegneregler?.documentreference ||
+      tegneregler?.cartographyFile ||
       produktark?.documentreference ||
       productSpecificationUrl,
   );
