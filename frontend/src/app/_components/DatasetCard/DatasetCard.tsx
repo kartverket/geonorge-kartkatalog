@@ -11,6 +11,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
+import { AccessStateTag } from "@/components/AccessStateTag/AccessStateTag";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
 import styles from "./DatasetCard.module.css";
 
@@ -85,18 +86,12 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         {p.showThumbnail !== false && renderThumbnail()}
         <div className={styles.contentWrapper}>
           {p.typeTranslated && (
-            <div className={styles.headerLine}>
-              <span>
+            <div className={styles.badgeRow}>
+              <AccessStateTag accessState={p.accessState} context="datasett" />
+              <Tag data-color="neutral" data-size="sm">
                 {p.typeTranslated}
-                {p.organization && (
-                  <>
-                    {" fra "}
-                    <a href="#" className={styles.organizationLink}>
-                      {p.organization}
-                    </a>
-                  </>
-                )}
-              </span>
+                {p.organization && ` fra ${p.organization}`}
+              </Tag>
             </div>
           )}
           <span className={styles.listItemTitle}>
