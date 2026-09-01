@@ -103,7 +103,11 @@ class RegisterClient(
                 null
             }
             !response.status.isSuccess() -> {
-                log.warn("Produktspesifikasjon request failed for seoname: {} with status: {}", seoname, response.status)
+                log.warn(
+                    "Produktspesifikasjon request failed for seoname: {} with status: {}",
+                    seoname,
+                    response.status,
+                )
                 throw RegisterException("Register request failed with status ${response.status}")
             }
             else ->

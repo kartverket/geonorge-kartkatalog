@@ -66,9 +66,7 @@ class MetadataMapperTest {
             assertEquals("Lisens", mapped.constraints?.useConstraints)
         }
 
-    private fun minimalRecord(
-        legalConstraints: LegalConstraints? = null,
-    ): MetadataRecord =
+    private fun minimalRecord(legalConstraints: LegalConstraints? = null): MetadataRecord =
         MetadataRecord(
             uuid = "c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689",
             language = "nor",

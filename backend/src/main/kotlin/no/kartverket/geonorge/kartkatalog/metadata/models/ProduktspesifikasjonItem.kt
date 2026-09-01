@@ -26,4 +26,3 @@ fun RegisterProduktspesifikasjonItem.toProduktspesifikasjonItem() =
         applicationSchema = this.applicationSchema,
         documentreference = this.documentreference,
     )
-

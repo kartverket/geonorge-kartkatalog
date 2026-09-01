@@ -23,4 +23,3 @@ class TegnereglerItemTest {
         assertEquals("https://example.com/digital-kartografi.zip", mapped.cartographyFile)
     }
 }
-

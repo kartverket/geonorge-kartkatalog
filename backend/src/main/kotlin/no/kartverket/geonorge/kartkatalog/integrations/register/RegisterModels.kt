@@ -119,4 +119,3 @@ data class RegisterProduktspesifikasjonItem(
     @SerialName("FAIRStatusPerCent")
     val fairStatusPerCent: Double? = null,
 )
-

@@ -35,10 +35,11 @@ fun Route.metadataRoutes(
                     it.isNotBlank()
                 }
                     ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
-            val result = metadataService.getTegneregler(uuid) ?: return@get call.respond(
-                HttpStatusCode.NotFound,
-                mapOf("error" to "No tegneregler found for UUID: $uuid"),
-            )
+            val result =
+                metadataService.getTegneregler(uuid) ?: return@get call.respond(
+                    HttpStatusCode.NotFound,
+                    mapOf("error" to "No tegneregler found for UUID: $uuid"),
+                )
             call.respond(result)
         }
         get("{uuid}/produktark") {
@@ -47,10 +48,11 @@ fun Route.metadataRoutes(
                     it.isNotBlank()
                 }
                     ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
-            val result = metadataService.getProduktark(uuid) ?: return@get call.respond(
-                HttpStatusCode.NotFound,
-                mapOf("error" to "No produktark found for UUID: $uuid"),
-            )
+            val result =
+                metadataService.getProduktark(uuid) ?: return@get call.respond(
+                    HttpStatusCode.NotFound,
+                    mapOf("error" to "No produktark found for UUID: $uuid"),
+                )
             call.respond(result)
         }
         get("{uuid}/produktspesifikasjon") {
@@ -59,10 +61,11 @@ fun Route.metadataRoutes(
                     it.isNotBlank()
                 }
                     ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
-            val result = metadataService.getProduktspesifikasjon(uuid) ?: return@get call.respond(
-                HttpStatusCode.NotFound,
-                mapOf("error" to "No produktspesifikasjon found for UUID: $uuid"),
-            )
+            val result =
+                metadataService.getProduktspesifikasjon(uuid) ?: return@get call.respond(
+                    HttpStatusCode.NotFound,
+                    mapOf("error" to "No produktspesifikasjon found for UUID: $uuid"),
+                )
             call.respond(result)
         }
     }
