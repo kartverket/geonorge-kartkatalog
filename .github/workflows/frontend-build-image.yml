@@ -6,8 +6,8 @@ on:
       - main
       - dev
     paths-ignore:
-      - '.github/agents/**'
-      - 'backend/**'
+      - ".github/agents/**"
+      - "backend/**"
   workflow_dispatch:
 
 permissions:
@@ -16,13 +16,14 @@ permissions:
 env:
   DOCKER_REGISTRY: ghcr.io
   NAME: kartverket/geonorge-kartkatalog-nfe
-#   ENV_SUFFIX: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
-#   DEPLOY_PATH: ${{ github.ref_name == 'main' && 'env/atkv3-prod/geonorge-kartkatalog/kartkatalog-frontend-version' || 'env/atkv3-dev/geonorge-kartkatalog-dev/kartkatalog-frontend-version' }}
-  DEPLOY_PATH: 'env/atkv3-dev/geonorge-ny-kartkatalog-dev/kartkatalog-frontend-version'
+  #   ENV_SUFFIX: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+  #   DEPLOY_PATH_DEV: ${{ github.ref_name == 'main' && 'env/atkv3-prod/geonorge-kartkatalog/kartkatalog-frontend-version' || 'env/atkv3-dev/geonorge-kartkatalog-dev/kartkatalog-frontend-version' }}
+  DEPLOY_PATH_DEV: "env/atkv3-dev/geonorge-ny-kartkatalog-dev/kartkatalog-frontend-version"
+  DEPLOY_PATH_PROD: "env/atkv3-prod/geonorge-ny-kartkatalog/kartkatalog-frontend-version"
 
 jobs:
-#   test:
-#     uses: ./.github/workflows/test.yaml
+  #   test:
+  #     uses: ./.github/workflows/test.yaml
 
   build_image:
     name: Build image
@@ -144,7 +145,8 @@ jobs:
           COMMIT_MESSAGE: ${{ needs.build_image.outputs.commit_message }}
           IMAGE: "${{ env.DOCKER_REGISTRY }}/${{ env.NAME }}:${{ needs.build_image.outputs.short_tag }}"
         run: |
-          echo "\"${IMAGE}\"" > "${{ env.DEPLOY_PATH }}"
+          echo "\"${IMAGE}\"" > "${{ env.DEPLOY_PATH_DEV }}"
+          echo "\"${IMAGE}\"" > "${{ env.DEPLOY_PATH_PROD }}"
           git add .
           git commit -m "$COMMIT_MESSAGE"
           git push
