@@ -4,8 +4,9 @@
 }
 
 .pageInner {
-  padding: 2rem clamp(1rem, 4vw, 3rem);
-  max-width: 1400px;
+  padding-block: 2rem;
+  padding-inline: var(--page-content-padding-inline);
+  max-width: var(--page-content-max-width);
   margin: 0 auto;
 }
 
@@ -23,7 +24,7 @@
 
 .results.grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
 }
 
