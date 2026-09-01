@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+import { canTrackAnalytics } from "@/components/PosthogConsent/posthogConsent";
 
 export const LOCATIONS = {
   Header: "header",
@@ -24,8 +25,11 @@ export function trackEvent(
   eventName: string,
   properties?: AnalyticsProperties,
 ): void {
-  if (process.env.NODE_ENV === "development") {
-    console.log(`[PostHog] ${eventName}`, properties);
+  if (!canTrackAnalytics()) {
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[PostHog] ${eventName} (no analytics consent)`, properties);
+    }
+
     return;
   }
 
