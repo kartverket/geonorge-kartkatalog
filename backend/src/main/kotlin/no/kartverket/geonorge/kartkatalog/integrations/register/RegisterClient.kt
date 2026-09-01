@@ -93,6 +93,29 @@ class RegisterClient(
         }
     }
 
+    suspend fun getProduktspesifikasjon(seoname: String): RegisterProduktspesifikasjonItem? {
+        val path = "/api/produktspesifikasjoner/${encode(seoname, UTF_8)}"
+        val response = getResponse(path)
+
+        return when {
+            response.status == HttpStatusCode.NotFound -> {
+                log.debug("Produktspesifikasjon not found for seoname: {}", seoname)
+                null
+            }
+            !response.status.isSuccess() -> {
+                log.warn("Produktspesifikasjon request failed for seoname: {} with status: {}", seoname, response.status)
+                throw RegisterException("Register request failed with status ${response.status}")
+            }
+            else ->
+                try {
+                    json.decodeFromString(RegisterProduktspesifikasjonItem.serializer(), response.bodyAsText())
+                } catch (e: Exception) {
+                    log.error("Failed to parse Produktspesifikasjon response for seoname: {}", seoname, e)
+                    throw RegisterException("Failed to parse Register response from $path", e)
+                }
+        }
+    }
+
     private suspend fun <T> fetch(
         path: String,
         deserializer: DeserializationStrategy<T>,

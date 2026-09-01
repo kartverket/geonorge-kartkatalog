@@ -2,6 +2,7 @@ import {
   getFairStatus,
   type getMetadata,
   getProduktark,
+  getProduktspesifikasjon,
   getTegneregler,
 } from "@/app/api";
 import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
@@ -31,12 +32,17 @@ export async function ProductTabsSection({
   metadata: Awaited<ReturnType<typeof getMetadata>>;
   linkedDistributions: LinkedDistributions;
 }) {
-  const [fairStatusResult, tegnereglerResult, produktarkResult] =
-    await Promise.allSettled([
-      getFairStatus(uuid),
-      getTegneregler(uuid),
-      getProduktark(uuid),
-    ]);
+  const [
+    fairStatusResult,
+    tegnereglerResult,
+    produktarkResult,
+    produktspesifikasjonResult,
+  ] = await Promise.allSettled([
+    getFairStatus(uuid),
+    getTegneregler(uuid),
+    getProduktark(uuid),
+    getProduktspesifikasjon(uuid),
+  ]);
 
   const fairStatus = unwrapSettled(
     fairStatusResult,
@@ -53,6 +59,12 @@ export async function ProductTabsSection({
   const produktark = unwrapSettled(
     produktarkResult,
     "Kunne ikke laste produktark",
+    null,
+  );
+
+  const produktspesifikasjon = unwrapSettled(
+    produktspesifikasjonResult,
+    "Kunne ikke laste produktspesifikasjon",
     null,
   );
 
@@ -87,6 +99,7 @@ export async function ProductTabsSection({
       fairStatus={fairStatus}
       tegneregler={tegneregler}
       produktark={produktark}
+      produktspesifikasjon={produktspesifikasjon}
       productSpecificationUrl={metadata.productSpecificationUrl}
     />
   );

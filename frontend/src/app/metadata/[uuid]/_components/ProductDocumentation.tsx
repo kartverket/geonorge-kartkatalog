@@ -7,6 +7,7 @@ import {
 } from "@navikt/aksel-icons";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import type { ProduktarkItem } from "@/lib/schemas/produktark";
+import type { ProduktspesifikasjonItem } from "@/lib/schemas/produktspesifikasjon";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./ProductDocumentation.module.css";
@@ -14,6 +15,7 @@ import styles from "./ProductDocumentation.module.css";
 type ProductDocumentationProps = {
   tegneregler: TegnereglerItem | null;
   produktark: ProduktarkItem | null;
+  produktspesifikasjon: ProduktspesifikasjonItem | null;
   productSpecificationUrl?: string | null;
 };
 
@@ -54,19 +56,16 @@ const PRODUCT_SPECIFICATION_DESCRIPTION =
 export function ProductDocumentation({
   tegneregler,
   produktark,
+  produktspesifikasjon,
   productSpecificationUrl,
 }: ProductDocumentationProps) {
   const cards = [
     createTegnereglerCard(tegneregler),
     createProduktarkCard(produktark),
-    productSpecificationUrl
-      ? createLinkCard({
-          title: "Produktspesifikasjon",
-          paragraph: PRODUCT_SPECIFICATION_DESCRIPTION,
-          icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
-          url: productSpecificationUrl,
-        })
-      : null,
+    createProduktspesifikasjonCard(
+      produktspesifikasjon,
+      productSpecificationUrl,
+    ),
   ].filter(isDefined);
 
   return (
@@ -222,6 +221,42 @@ function createProduktarkCard(
     actions,
     dateSubmitted: produktark?.dateSubmitted,
   };
+}
+
+function createProduktspesifikasjonCard(
+  produktspesifikasjon: ProduktspesifikasjonItem | null,
+  productSpecificationUrl?: string | null,
+): ActionDocumentationCard | LinkDocumentationCard | null {
+  const actions = [
+    createAction(
+      "Vis produktspesifikasjon",
+      produktspesifikasjon?.documentreference ?? productSpecificationUrl,
+    ),
+    createAction("Se flere versjoner", produktspesifikasjon?.id ?? null),
+  ].filter(isDefined);
+
+  if (actions.length > 0) {
+    return {
+      kind: "actions",
+      title: "Produktspesifikasjon",
+      status: produktspesifikasjon?.status,
+      paragraph: PRODUCT_SPECIFICATION_DESCRIPTION,
+      icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
+      actions,
+      dateSubmitted: produktspesifikasjon?.dateSubmitted,
+    };
+  }
+
+  if (!productSpecificationUrl) {
+    return null;
+  }
+
+  return createLinkCard({
+    title: "Produktspesifikasjon",
+    paragraph: PRODUCT_SPECIFICATION_DESCRIPTION,
+    icon: <TasklistStartIcon aria-hidden className={styles.icon} />,
+    url: productSpecificationUrl,
+  });
 }
 
 function createLinkCard(

@@ -207,4 +207,50 @@ class RegisterClientTest {
             }
             Unit
         }
+
+    @Test
+    fun `getProduktspesifikasjon returns item on success`() =
+        runBlocking {
+            mockResponse(
+                """{"id": "https://register.geonorge.no/register/versjoner/produktspesifikasjoner/test-produkt",
+                   "label": "Test Produktspesifikasjon",
+                   "status": "Gyldig",
+                   "seoname": "test-produkt",
+                   "documentreference": "https://example.com/test-produktspesifikasjon.pdf"}""",
+            )
+            val result = client.getProduktspesifikasjon("test-produkt")
+            assertEquals("/api/produktspesifikasjoner/test-produkt", capturedPath)
+            assertNotNull(result)
+            assertEquals("Test Produktspesifikasjon", result.label)
+            assertEquals("Gyldig", result.status)
+            assertEquals("https://example.com/test-produktspesifikasjon.pdf", result.documentreference)
+        }
+
+    @Test
+    fun `getProduktspesifikasjon returns null on 404`() =
+        runBlocking {
+            mockResponse(content = "", status = HttpStatusCode.NotFound)
+            val result = client.getProduktspesifikasjon("ukjent-produkt")
+            assertNull(result)
+        }
+
+    @Test
+    fun `getProduktspesifikasjon throws RegisterException on server error`() =
+        runBlocking {
+            mockResponse(content = "", status = HttpStatusCode.InternalServerError)
+            assertFailsWith<RegisterException> {
+                client.getProduktspesifikasjon("feil-produkt")
+            }
+            Unit
+        }
+
+    @Test
+    fun `getProduktspesifikasjon throws RegisterException on invalid JSON`() =
+        runBlocking {
+            mockResponse(content = "not-json", status = HttpStatusCode.OK)
+            assertFailsWith<RegisterException> {
+                client.getProduktspesifikasjon("test-produkt")
+            }
+            Unit
+        }
 }

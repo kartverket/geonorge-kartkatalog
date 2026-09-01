@@ -14,6 +14,10 @@ import {
   parseProduktarkItem,
 } from "@/lib/schemas/produktark";
 import {
+  type ProduktspesifikasjonItem,
+  parseProduktspesifikasjonItem,
+} from "@/lib/schemas/produktspesifikasjon";
+import {
   parseTegnereglerItem,
   type TegnereglerItem,
 } from "@/lib/schemas/tegneregler";
@@ -168,6 +172,27 @@ export async function getProduktark(
   if (body === null) return null;
 
   return parseProduktarkItem(body);
+}
+
+/**
+ * Fetch produktspesifikasjon (product specification) for a product by UUID.
+ * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
+ */
+export async function getProduktspesifikasjon(
+  uuid: string,
+): Promise<ProduktspesifikasjonItem | null> {
+  if (!uuid) throw new Error("uuid is required");
+  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/produktspesifikasjon`;
+  const body = await fetchJson(
+    url,
+    { method: "GET" },
+    {
+      notFoundOn404: false,
+    },
+  );
+  if (body === null) return null;
+
+  return parseProduktspesifikasjonItem(body);
 }
 
 /**

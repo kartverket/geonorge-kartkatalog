@@ -14,6 +14,7 @@ import type {
   ProductFairStatus,
 } from "@/lib/schemas/product";
 import type { ProduktarkItem } from "@/lib/schemas/produktark";
+import type { ProduktspesifikasjonItem } from "@/lib/schemas/produktspesifikasjon";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./ProductTabs.module.css";
@@ -25,6 +26,7 @@ export function ProductTabs({
   fairStatus,
   tegneregler,
   produktark,
+  produktspesifikasjon,
   productSpecificationUrl,
   distributionDetails,
   infoDetails,
@@ -35,6 +37,7 @@ export function ProductTabs({
   fairStatus: ProductFairStatus | null;
   tegneregler: TegnereglerItem | null;
   produktark: ProduktarkItem | null;
+  produktspesifikasjon: ProduktspesifikasjonItem | null;
   productSpecificationUrl: string | null;
   distributionDetails: DetailItem[];
   infoDetails: DetailItem[];
@@ -44,8 +47,12 @@ export function ProductTabs({
 
   const hasDocumentation = Boolean(
     tegneregler?.documentreference ||
+      tegneregler?.id ||
       tegneregler?.cartographyFile ||
       produktark?.documentreference ||
+      produktark?.id ||
+      produktspesifikasjon?.documentreference ||
+      produktspesifikasjon?.id ||
       productSpecificationUrl,
   );
 
@@ -99,6 +106,7 @@ export function ProductTabs({
             <ProductDocumentation
               tegneregler={tegneregler}
               produktark={produktark}
+              produktspesifikasjon={produktspesifikasjon}
               productSpecificationUrl={productSpecificationUrl}
             />
           </Tabs.Panel>

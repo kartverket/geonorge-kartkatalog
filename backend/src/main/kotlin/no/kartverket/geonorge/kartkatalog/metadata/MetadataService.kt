@@ -4,8 +4,10 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClie
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProduktarkItem
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProduktspesifikasjonItem
 import no.kartverket.geonorge.kartkatalog.metadata.models.TegnereglerItem
 import no.kartverket.geonorge.kartkatalog.metadata.models.toProduktarkItem
+import no.kartverket.geonorge.kartkatalog.metadata.models.toProduktspesifikasjonItem
 import no.kartverket.geonorge.kartkatalog.metadata.models.toTegnereglerItem
 
 class MetadataService(
@@ -33,6 +35,14 @@ class MetadataService(
         return produktarkPath?.let {
             val seoname = it.substringAfterLast("/produktark/")
             registerClient.getProduktark(seoname)?.toProduktarkItem()
+        }
+    }
+
+    suspend fun getProduktspesifikasjon(uuid: String): ProduktspesifikasjonItem? {
+        val produktspesifikasjonPath = getExtensionUrl(uuid, "produktspesifikasjon")
+        return produktspesifikasjonPath?.let {
+            val seoname = it.substringAfterLast("/produktspesifikasjoner/")
+            registerClient.getProduktspesifikasjon(seoname)?.toProduktspesifikasjonItem()
         }
     }
 
