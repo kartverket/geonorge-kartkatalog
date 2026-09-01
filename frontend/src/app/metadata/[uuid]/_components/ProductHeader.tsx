@@ -1,5 +1,5 @@
-import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
+import { AccessStateTag } from "@/components/AccessStateTag/AccessStateTag";
 import { isBeta } from "@/lib/basePath";
 import { getProductTypeString } from "@/lib/productType";
 import type { AccessState } from "@/lib/schemas/product";
@@ -25,7 +25,7 @@ export function ProductHeader({
           <span className={styles.current}>{title ?? "-"}</span>
         </nav>
       )}
-      <AccessLock accessState={access} />
+      <AccessStateTag accessState={access} context="tilgang" />
       <h1 className={styles.title}>{title ?? "-"}</h1>
       <p className={styles.organization}>
         {getProductTypeString(hierarchyLevel)} fra{" "}
@@ -33,32 +33,4 @@ export function ProductHeader({
       </p>
     </div>
   );
-}
-
-function AccessLock({ accessState }: { accessState: AccessState | null }) {
-  switch (accessState) {
-    case "protected":
-      return (
-        <span className="ds-tag" data-color="danger">
-          <PadlockLockedIcon aria-hidden className={styles.tagIcon} />
-          Beskyttet tilgang
-        </span>
-      );
-    case "restricted":
-      return (
-        <span className="ds-tag" data-color="warning">
-          <PadlockLockedIcon aria-hidden className={styles.tagIcon} />
-          Begrenset tilgang
-        </span>
-      );
-    case "open":
-      return (
-        <span className="ds-tag" data-color="info">
-          <PadlockUnlockedIcon aria-hidden className={styles.tagIcon} />
-          Åpen tilgang
-        </span>
-      );
-    default:
-      return null;
-  }
 }
