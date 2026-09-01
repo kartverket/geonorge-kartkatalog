@@ -1,12 +1,12 @@
 .page {
-    width: 100%;
-    background: var(--ds-color-background-tinted);
+  width: 100%;
+  background: var(--ds-color-background-tinted);
 }
 
 .pageInner {
-    padding: 2rem clamp(1rem, 4vw, 3rem);
-    max-width: 1400px;
-    margin: 0 auto;
+  padding: 2rem clamp(1rem, 4vw, 3rem);
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .header {
@@ -23,7 +23,7 @@
 
 .results.grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
 }
 

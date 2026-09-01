@@ -81,11 +81,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         viewMode === "list" ? styles.listMode : styles.gridMode
       }`}
     >
-      <Card
-        data-color="neutral"
-        variant="tinted"
-        className={styles.productCard}
-      >
+      <Card data-color="neutral" className={styles.productCard}>
         {p.showThumbnail !== false && renderThumbnail()}
         <div className={styles.contentWrapper}>
           {p.typeTranslated && (
