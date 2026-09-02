@@ -47,6 +47,16 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const canCopy = isService && !!p.getCapabilitiesUrl;
   const canOpenApplication =
     p.typeTranslated === "Applikasjon" && !!p.distributionUrl;
+  const accessContext =
+    p.typeTranslated === "Tjeneste"
+      ? "tjeneste"
+      : p.typeTranslated === "Tjenestelag"
+        ? "tjenestelag"
+        : p.typeTranslated === "Applikasjon"
+          ? "applikasjon"
+          : p.typeTranslated === "Datasettserie"
+            ? "datasettserie"
+            : "datasett";
 
   async function copyUrl() {
     if (!p.getCapabilitiesUrl) return;
@@ -87,8 +97,15 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         <div className={styles.contentWrapper}>
           {p.typeTranslated && (
             <div className={styles.badgeRow}>
-              <AccessStateTag accessState={p.accessState} context="datasett" />
-              <Tag data-color="neutral" data-size="sm" className={styles.typeTag}>
+              <AccessStateTag
+                accessState={p.accessState}
+                context={accessContext}
+              />
+              <Tag
+                data-color="neutral"
+                data-size="sm"
+                className={styles.typeTag}
+              >
                 {p.typeTranslated}
                 {p.organization && ` fra ${p.organization}`}
               </Tag>

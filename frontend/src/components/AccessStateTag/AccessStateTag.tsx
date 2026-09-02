@@ -2,7 +2,15 @@ import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
 import type { AccessState } from "@/lib/schemas/product";
 import styles from "./AccessStateTag.module.css";
 
-const LABEL: Record<"tilgang" | "datasett", Record<AccessState, string>> = {
+const LABEL: Record<
+  | "tilgang"
+  | "datasett"
+  | "tjeneste"
+  | "tjenestelag"
+  | "applikasjon"
+  | "datasettserie",
+  Record<AccessState, string>
+> = {
   tilgang: {
     open: "Åpen tilgang",
     restricted: "Begrenset tilgang",
@@ -12,6 +20,26 @@ const LABEL: Record<"tilgang" | "datasett", Record<AccessState, string>> = {
     open: "Åpent datasett",
     restricted: "Begrenset datasett",
     protected: "Beskyttet datasett",
+  },
+  tjeneste: {
+    open: "Åpen tjeneste",
+    restricted: "Begrenset tjeneste",
+    protected: "Beskyttet tjeneste",
+  },
+  tjenestelag: {
+    open: "Åpent tjenestelag",
+    restricted: "Begrenset tjenestelag",
+    protected: "Beskyttet tjenestelag",
+  },
+  applikasjon: {
+    open: "Åpen applikasjon",
+    restricted: "Begrenset applikasjon",
+    protected: "Beskyttet applikasjon",
+  },
+  datasettserie: {
+    open: "Åpen datasettserie",
+    restricted: "Begrenset datasettserie",
+    protected: "Beskyttet datasettserie",
   },
 };
 
@@ -27,7 +55,7 @@ export function AccessStateTag({
   showIcon = true,
 }: {
   accessState: AccessState | null;
-  context: "tilgang" | "datasett";
+  context: keyof typeof LABEL;
   showIcon?: boolean;
 }) {
   if (!accessState) return null;
