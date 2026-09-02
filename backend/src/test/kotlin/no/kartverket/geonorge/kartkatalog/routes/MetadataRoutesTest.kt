@@ -168,6 +168,26 @@ class MetadataRoutesTest {
                             )
                         }
 
+                        request.url.encodedPath.contains("/api/produktspesifikasjoner/") -> {
+                            respond(
+                                content =
+                                    """{"id": "https://register.geonorge.no/register/versjoner/produktspesifikasjoner/kartverket/matrikkelen-bygningspunkt",
+                                    |"label": "SOSI produktspesifikasjon: Matrikkelen - Bygningspunkt",
+                                    |"status": "Gyldig",
+                                    |"dateSubmitted": "2022-12-14T00:00:00",
+                                    |"GMLApplicationSchema": "https://example.com/matrikkelen-bygningspunkt.gml",
+                                    |"ApplicationSchema": "https://example.com/matrikkelen-bygningspunkt.uml",
+                                    |"documentreference": "https://example.com/matrikkelen-bygningspunkt.pdf"}
+                                    """.trimMargin(),
+                                status = HttpStatusCode.OK,
+                                headers =
+                                    headersOf(
+                                        HttpHeaders.ContentType,
+                                        ContentType.Application.Json.toString(),
+                                    ),
+                            )
+                        }
+
                         request.url.encodedPath == "/solr/metadata/select" -> {
                             if (solrFails) {
                                 respond(content = "", status = HttpStatusCode.ServiceUnavailable)
@@ -307,6 +327,23 @@ class MetadataRoutesTest {
             assertContains(response.bodyAsText(), "applications")
             assertContains(response.bodyAsText(), "viewServices")
             assertContains(response.bodyAsText(), "downloadServices")
+        }
+    }
+
+    @Test
+    fun `returns 200 with product specification for valid uuid`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/produktspesifikasjon")
+            val body = response.bodyAsText()
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(body, "SOSI produktspesifikasjon")
+            assertContains(body, "gmlApplicationSchema")
+            assertContains(body, "applicationSchema")
+            assertContains(body, "documentreference")
         }
     }
 
