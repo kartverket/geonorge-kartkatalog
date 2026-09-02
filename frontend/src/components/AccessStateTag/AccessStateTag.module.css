@@ -3,6 +3,6 @@
 }
 
 .tag {
-    height: var(--ds-size-8);
-    font-size: var(--ds-body-xs-font-size);
+  height: var(--ds-size-8);
+  font-size: var(--ds-body-xs-font-size);
 }

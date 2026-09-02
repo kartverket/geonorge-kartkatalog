@@ -766,7 +766,7 @@
     },
     {
       "Uuid": "2751aacf-5472-4850-a208-3532a51c529a",
-      "Title": "Sjøkart - Dybdedata",
+      "Title": "Sjøkart - Dybdedata lang lang lang lang lang lang lang lang lang lang laaaaaang lenge enn lengst enda lengre lengste tittelen som finnes i hele hele hele hele hele hele hele verden",
       "Abstract": "Datasettet inneholder ugraderte vektoriserte dybdedata til fri bruk. De er enkelt tilgjengelige for innsyn på www.norgeskart.no. Dybdeinformasjonen er referert til sjøkartnull (EPSG 9672). Kystkontur, konstruert kyst og skjær er referert til middel høyvann. Dybdedata gjelder kun saltvann. Dybdedataene er et DOK datasett.  \n\nDybdedataene er grunnlag for Kartverkets navigasjonsprodukter og tjenester. Dybdedataene forvaltes i sjødivisjonens maritime primærdatabase. Databasen inneholder sjømålingsdata av forskjellig alder og kvalitet som er sammenstilt til et sømløst vektorisert datasett. Datasettet oppdateres kontinuerlig. \nDatasettet er ugradert og oppløsning på tetthet mellom dybdepunkt er i henhold til graderingsregimet og gjeldende lovverk om skjermingsverdig informasjon (dvs. 50 m mellom dybdepunktene). Kurveintervallet er: 2, 5, 10, 15, 20, 30, 40, 50, 100, 150, 200, 250, osv. Noen havner har tettere kurveintervall i intervallet 0-30 m (kurver for hver meter). \nOmråder som ikke er sjømålt er også beskrevet i dette datsettet.\n\nDatasettet er grunnlag for offisielle sjøkart og navigasjonsprodukt, men er ikke et navigasjonsprodukt. \n\nDatasettet er også tilgjengelig som WMS og WFS-tjeneste. \nDet finnes en egen WMS-tjeneste som viser datakvalitet på dybdemålingene.",
       "Type": "dataset",
       "TypeTranslated": "Datasett",

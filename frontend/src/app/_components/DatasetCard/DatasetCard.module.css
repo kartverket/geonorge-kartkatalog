@@ -62,7 +62,7 @@
 }
 
 .typeTag {
-    font-size: var(--ds-body-xs-font-size);
+  font-size: var(--ds-body-xs-font-size);
 }
 
 .typeRow {
@@ -88,10 +88,10 @@
 }
 
 .listItemTitle a {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .listItemTitle a::after {
@@ -152,7 +152,7 @@
 .gridMode .buttonGroupContainer {
   margin-top: auto;
   width: 100%;
-    padding: var(--ds-size-4) var(--ds-size-4) var(--ds-size-6);
+  padding: var(--ds-size-4) var(--ds-size-4) var(--ds-size-6);
 }
 
 .gridMode .buttonGroupContainer :global(.ds-button) {
@@ -162,11 +162,11 @@
 /* Liste */
 
 .listMode .productCard {
-    --dsc-card-padding: var(--ds-size-4);
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
+  --dsc-card-padding: var(--ds-size-4);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
 }
 
 .listMode .contentWrapper {
