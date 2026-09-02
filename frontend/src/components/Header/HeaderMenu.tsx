@@ -150,15 +150,27 @@ export function HeaderMenu({
   userName,
   mapCount,
   downloadCount,
-  posthogClick,
+  findDataHref,
+  mapHref,
+  downloadHref,
+  posthogClickAction,
 }: {
   closePanel: () => void;
   userName?: string;
   mapCount: number;
   downloadCount: number;
-  posthogClick: (clickItem: string) => void;
+  findDataHref: string;
+  mapHref: string;
+  downloadHref: string;
+  posthogClickAction: (clickItem: string) => void;
 }) {
   const [view, setView] = useState<"nav" | "profile">("nav");
+
+  const onActionNavigate = (clickItem: string) => {
+    posthogClickAction(clickItem);
+    closePanel();
+  };
+
   return (
     <div className={styles.panel}>
       <div className={styles.panelInner}>
@@ -169,56 +181,64 @@ export function HeaderMenu({
             data-color="neutral"
             className={styles.inMenuFromSm}
           >
-            <Link
-              href="/"
+            <a
+              href={findDataHref}
               onClick={() => {
-                posthogClick("search");
-                closePanel();
+                onActionNavigate("finn-data");
               }}
             >
               <MagnifyingGlassIcon aria-hidden />
               Finn data
-            </Link>
+            </a>
           </Button>
           <Button
+            asChild
             variant="tertiary"
             data-color="neutral"
             className={styles.inMenuFromXl}
-            onClick={() => posthogClick("map")}
           >
-            <Badge.Position
-              overlap="circle"
-              placement="top-left"
-              className={styles.badge}
-            >
-              {mapCount > 0 && <Badge count={mapCount} data-color="neutral" />}
-              <LocationPinIcon aria-hidden />
-            </Badge.Position>
-            Kart
+            <a href={mapHref} onClick={() => onActionNavigate("kart")}>
+              <Badge.Position
+                overlap="circle"
+                placement="top-left"
+                className={styles.badge}
+              >
+                {mapCount > 0 && (
+                  <Badge count={mapCount} data-color="neutral" />
+                )}
+                <LocationPinIcon aria-hidden />
+              </Badge.Position>
+              Kart
+            </a>
           </Button>
           <Button
+            asChild
             variant="tertiary"
             data-color="neutral"
             className={styles.inMenuFromXl}
-            onClick={() => posthogClick("cart")}
           >
-            <Badge.Position
-              overlap="circle"
-              placement="top-left"
-              className={styles.badge}
+            <a
+              href={downloadHref}
+              onClick={() => onActionNavigate("nedlastingskurv")}
             >
-              {downloadCount > 0 && (
-                <Badge count={downloadCount} data-color="danger" />
-              )}
-              <DownloadIcon aria-hidden />
-            </Badge.Position>
-            Nedlastingskurv
+              <Badge.Position
+                overlap="circle"
+                placement="top-left"
+                className={styles.badge}
+              >
+                {downloadCount > 0 && (
+                  <Badge count={downloadCount} data-color="danger" />
+                )}
+                <DownloadIcon aria-hidden />
+              </Badge.Position>
+              Nedlastingskurv
+            </a>
           </Button>
           {!isBeta && (
             <Button
               variant="tertiary"
               data-color="neutral"
-              onClick={() => posthogClick("change-language")}
+              onClick={() => posthogClickAction("change-language")}
             >
               <LanguageIcon aria-hidden />
               <span>EN</span>
@@ -233,7 +253,7 @@ export function HeaderMenu({
                 aria-expanded={view === "profile"}
                 onClick={() => {
                   setView(view === "profile" ? "nav" : "profile");
-                  posthogClick("profile");
+                  posthogClickAction("profil");
                 }}
               >
                 <Avatar aria-hidden data-size="xs" />
@@ -244,7 +264,7 @@ export function HeaderMenu({
                 variant="tertiary"
                 data-color="neutral"
                 className={styles.inMenuFromSm}
-                onClick={() => posthogClick("login")}
+                onClick={() => posthogClickAction("login")}
               >
                 <EnterIcon aria-hidden />
                 Logg inn
