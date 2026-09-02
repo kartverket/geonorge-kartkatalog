@@ -83,12 +83,12 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
       }`}
     >
       <Card data-color="neutral" className={styles.productCard}>
-        {p.showThumbnail !== false && renderThumbnail()}
+        {viewMode !== "list" && p.showThumbnail !== false && renderThumbnail()}
         <div className={styles.contentWrapper}>
           {p.typeTranslated && (
             <div className={styles.badgeRow}>
               <AccessStateTag accessState={p.accessState} context="datasett" />
-              <Tag data-color="neutral" data-size="sm">
+              <Tag data-color="neutral" data-size="sm" className={styles.typeTag}>
                 {p.typeTranslated}
                 {p.organization && ` fra ${p.organization}`}
               </Tag>
@@ -107,28 +107,30 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               {p.title}
             </Link>
           </span>
-          <div className={styles.metaGroup}>
-            {!!p.protocolNames?.length && (
-              <div className={styles.typeRow} data-color="neutral">
-                <span>Type: </span>
-                {p.protocolNames.map((name) => (
-                  <Tag key={name} data-size="sm">
-                    {name}
-                  </Tag>
-                ))}
-              </div>
-            )}
-            {!!p.formats?.length && (
-              <div className={styles.formatList} data-color="info">
-                <span>Formater:</span>
-                {p.formats.map((f) => (
-                  <Tag key={f} data-size="sm">
-                    {f}
-                  </Tag>
-                ))}
-              </div>
-            )}
-          </div>
+          {(!!p.protocolNames?.length || !!p.formats?.length) && (
+            <div className={styles.metaGroup}>
+              {!!p.protocolNames?.length && (
+                <div className={styles.typeRow} data-color="neutral">
+                  <span>Type: </span>
+                  {p.protocolNames.map((name) => (
+                    <Tag key={name} data-size="sm">
+                      {name}
+                    </Tag>
+                  ))}
+                </div>
+              )}
+              {!!p.formats?.length && (
+                <div className={styles.formatList} data-color="info">
+                  <span>Formater:</span>
+                  {p.formats.map((f) => (
+                    <Tag key={f} data-size="sm">
+                      {f}
+                    </Tag>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <div className={styles.buttonGroupContainer}>
           {canOpenApplication && (
