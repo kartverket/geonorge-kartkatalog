@@ -41,6 +41,12 @@ export function Header() {
   const mapCount = 0;
   const downloadCount = 0;
 
+  const geonorgeHref = isBeta ? "https://www.geonorge.no/" : "/";
+  const findDataHref = isBeta ? "https://kartkatalog.geonorge.no/" : "/";
+  const mapHref =
+    "https://kartkatalog.geonorge.no/kart?lat=7197860&lon=396722&zoom=4";
+  const downloadHref = "https://kartkatalog.geonorge.no/nedlasting";
+
   const rootRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
@@ -75,8 +81,8 @@ export function Header() {
       <header className={styles.header}>
         <div className={styles.inner}>
           <Link
-            href={isBeta ? " https://www.geonorge.no/" : "/"}
-            onNavigate={() => trackHeaderClick("geonorge-logo")}
+            href={geonorgeHref}
+            onClick={() => trackHeaderClick("geonorge-logo")}
           >
             <Image
               src={`${basePath}/geonorge-logo.svg`}
@@ -94,9 +100,9 @@ export function Header() {
               className={`${styles.showFromSm} ${isHome ? styles.navActive : ""}`}
             >
               <Link
-                href={isBeta ? " https://kartkatalog.geonorge.no/" : "/"}
+                href={findDataHref}
                 aria-current={isHome ? "page" : undefined}
-                onNavigate={() => trackHeaderClick("finn-data")}
+                onClick={() => trackHeaderClick("finn-data")}
               >
                 <MagnifyingGlassIcon aria-hidden />
                 Finn data
@@ -108,10 +114,7 @@ export function Header() {
               data-color="neutral"
               className={styles.showFromXl}
             >
-              <Link
-                href="https://kartkatalog.geonorge.no/kart?lat=7197860&lon=396722&zoom=4"
-                onNavigate={() => trackHeaderClick("map")}
-              >
+              <Link href={mapHref} onClick={() => trackHeaderClick("kart")}>
                 <Badge.Position
                   overlap="circle"
                   placement="top-left"
@@ -132,8 +135,8 @@ export function Header() {
               className={styles.showFromXl}
             >
               <Link
-                href="https://kartkatalog.geonorge.no/nedlasting"
-                onNavigate={() => trackHeaderClick("cart")}
+                href={downloadHref}
+                onClick={() => trackHeaderClick("nedlastingskurv")}
               >
                 <Badge.Position
                   overlap="circle"
@@ -154,7 +157,7 @@ export function Header() {
                   <ProfileDropdown
                     userName={user.name}
                     className={styles.showFromLg}
-                    posthogClick={() => trackHeaderClick("profile")}
+                    posthogClick={() => trackHeaderClick("profil")}
                   />
                   <Button
                     ref={profileButtonRef}
@@ -205,7 +208,10 @@ export function Header() {
           userName={user?.name}
           mapCount={mapCount}
           downloadCount={downloadCount}
-          posthogClick={trackHeaderClick}
+          findDataHref={findDataHref}
+          mapHref={mapHref}
+          downloadHref={downloadHref}
+          posthogClickAction={trackHeaderClick}
         />
       )}
       {openPanel === "profile" && <HeaderProfile />}
