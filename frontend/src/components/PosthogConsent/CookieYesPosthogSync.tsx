@@ -13,6 +13,11 @@ type CookieYesCategories =
   | null
   | undefined;
 
+type CookieYesConsentSnapshot = {
+  isUserActionCompleted?: boolean;
+  categories?: CookieYesCategories | null;
+} | null;
+
 type CookieYesBannerLoadDetail = {
   categories?: CookieYesCategories | null;
 } | null;
@@ -21,116 +26,56 @@ type CookieYesConsentUpdateDetail = {
   accepted?: CookieYesCategories | null;
 } | null;
 
-const CATEGORY_ALIASES = {
-  analytics: ["analytics", "statistical", "statistics"],
-  functional: ["functional", "preferences", "preference", "necessary"],
-  performance: ["performance"],
-  advertisement: ["advertisement", "advertising", "marketing"],
-} satisfies Record<keyof ConsentState, readonly string[]>;
+const consentCategoryKeys = Object.keys(DEFAULT_CONSENT) as Array<
+  keyof ConsentState
+>;
 
-function normalizeKey(value: string): string {
-  return value.trim().toLowerCase();
-}
+function normalizeConsent({
+  categories = {},
+  accepted,
+}: {
+  categories?: CookieYesCategories | null;
+  accepted?: CookieYesCategories | null;
+} = {}): ConsentState {
+  const acceptedValues = Array.isArray(accepted) ? accepted : null;
+  const categoryValues =
+    categories && !Array.isArray(categories) ? categories : null;
 
-function toBoolean(value: unknown): boolean {
-  if (typeof value === "boolean") {
-    return value;
-  }
+  return consentCategoryKeys.reduce<ConsentState>(
+    (normalizedConsent, categoryKey) => {
+      normalizedConsent[categoryKey] = acceptedValues
+        ? acceptedValues.includes(categoryKey)
+        : Boolean(categoryValues?.[categoryKey]);
 
-  if (typeof value === "number") {
-    return value === 1;
-  }
-
-  if (typeof value === "string") {
-    return [
-      "1",
-      "accept",
-      "accepted",
-      "allow",
-      "allowed",
-      "true",
-      "yes",
-    ].includes(normalizeKey(value));
-  }
-
-  return false;
-}
-
-function hasCategories(categories: CookieYesCategories): boolean {
-  if (!categories) {
-    return false;
-  }
-
-  if (Array.isArray(categories)) {
-    return categories.length > 0;
-  }
-
-  return Object.keys(categories).length > 0;
-}
-
-function normalizeConsent(categories: CookieYesCategories): ConsentState {
-  const consent = { ...DEFAULT_CONSENT };
-
-  if (!categories) {
-    return consent;
-  }
-
-  if (Array.isArray(categories)) {
-    const accepted = new Set(
-      categories.map((category) => normalizeKey(String(category))),
-    );
-
-    for (const [key, aliases] of Object.entries(CATEGORY_ALIASES) as Array<
-      [keyof ConsentState, readonly string[]]
-    >) {
-      consent[key] = aliases.some((alias) => accepted.has(alias));
-    }
-
-    return consent;
-  }
-
-  for (const [key, value] of Object.entries(categories)) {
-    const normalizedCategory = normalizeKey(key);
-
-    for (const [category, aliases] of Object.entries(CATEGORY_ALIASES) as Array<
-      [keyof ConsentState, readonly string[]]
-    >) {
-      if (aliases.includes(normalizedCategory)) {
-        consent[category] = consent[category] || toBoolean(value);
-      }
-    }
-  }
-
-  return consent;
+      return normalizedConsent;
+    },
+    { ...DEFAULT_CONSENT },
+  );
 }
 
 function readConsentFromCookieYes(): ConsentState {
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" || !window.getCkyConsent) {
     return { ...DEFAULT_CONSENT };
   }
 
-  try {
-    return normalizeConsent(window.getCkyConsent?.()?.categories);
-  } catch {
+  const existingConsent = window.getCkyConsent();
+
+  if (!existingConsent?.isUserActionCompleted) {
     return { ...DEFAULT_CONSENT };
   }
+
+  return normalizeConsent({ categories: existingConsent.categories });
 }
 
 function resolveBannerLoadConsent(
   detail: CookieYesBannerLoadDetail,
 ): ConsentState {
-  if (hasCategories(detail?.categories)) {
-    return normalizeConsent(detail?.categories);
-  }
-
-  return readConsentFromCookieYes();
+  return normalizeConsent({ categories: detail?.categories });
 }
 
 declare global {
   interface Window {
-    getCkyConsent?: () => {
-      categories?: CookieYesCategories | null;
-    } | null;
+    getCkyConsent?: () => CookieYesConsentSnapshot | null;
   }
 }
 
@@ -145,7 +90,7 @@ export function CookieYesPosthogSync() {
 
     const handleConsentUpdate = (event: Event) => {
       const { detail } = event as CustomEvent<CookieYesConsentUpdateDetail>;
-      syncAnalyticsConsent(normalizeConsent(detail?.accepted));
+      syncAnalyticsConsent(normalizeConsent({ accepted: detail?.accepted }));
     };
 
     document.addEventListener(
