@@ -1,0 +1,8 @@
+.tagIcon {
+  margin-right: var(--ds-size-2);
+}
+
+.tag {
+  height: var(--ds-size-8);
+  font-size: var(--ds-body-xs-font-size);
+}

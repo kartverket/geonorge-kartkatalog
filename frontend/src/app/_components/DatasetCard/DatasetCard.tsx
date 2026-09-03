@@ -5,13 +5,14 @@ import {
   CheckmarkIcon,
   ExternalLinkIcon,
   FilesIcon,
-  LayersPlusIcon,
 } from "@navikt/aksel-icons";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
+import { AccessStateTag } from "@/components/AccessStateTag/AccessStateTag";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
+import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
 import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = {
@@ -28,13 +29,18 @@ export type DatasetCardProps = {
   protocolNames?: string[];
   formats?: string[];
   showThumbnail?: boolean;
+  compact?: boolean;
   viewMode?: "grid" | "list";
   analyticsLocation?: Location;
   accessState: "restricted" | "open" | "protected" | null;
   hierarchyLevel: string | null;
 };
 
-export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
+export function DatasetCard({
+  viewMode = "grid",
+  compact = false,
+  ...p
+}: DatasetCardProps) {
   const [copied, setCopied] = useState(false);
   const analyticsLocation = p.analyticsLocation ?? LOCATIONS.SearchPage;
 
@@ -46,6 +52,16 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const canCopy = isService && !!p.getCapabilitiesUrl;
   const canOpenApplication =
     p.typeTranslated === "Applikasjon" && !!p.distributionUrl;
+  const accessContext =
+    p.typeTranslated === "Tjeneste"
+      ? "tjeneste"
+      : p.typeTranslated === "Tjenestelag"
+        ? "tjenestelag"
+        : p.typeTranslated === "Applikasjon"
+          ? "applikasjon"
+          : p.typeTranslated === "Datasettserie"
+            ? "datasettserie"
+            : "datasett";
 
   async function copyUrl() {
     if (!p.getCapabilitiesUrl) return;
@@ -76,34 +92,28 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   );
 
   return (
-    <div
-      className={`${styles.listItem} ${
-        viewMode === "list" ? styles.listMode : styles.gridMode
-      }`}
-    >
-      <Card
-        data-color="neutral"
-        variant="tinted"
-        className={styles.productCard}
-      >
-        {p.showThumbnail !== false && renderThumbnail()}
+    <div className={viewMode === "list" ? styles.listMode : styles.gridMode}>
+      <Card data-color="neutral" className={styles.productCard}>
+        {viewMode !== "list" && p.showThumbnail !== false && renderThumbnail()}
         <div className={styles.contentWrapper}>
           {p.typeTranslated && (
-            <div className={styles.headerLine}>
-              <span>
-                {p.typeTranslated}
-                {p.organization && (
-                  <>
-                    {" fra "}
-                    <a href="/#" className={styles.organizationLink}>
-                      {p.organization}
-                    </a>
-                  </>
-                )}
-              </span>
+            <div className={styles.badgeRow}>
+              <AccessStateTag
+                accessState={p.accessState}
+                context={accessContext}
+              />
+              <Tag
+                data-color="neutral"
+                data-size="sm"
+                className={styles.typeTag}
+              >
+                {p.organization ?? p.typeTranslated}
+              </Tag>
             </div>
           )}
-          <span className={styles.listItemTitle}>
+          <span
+            className={`${styles.listItemTitle} ${compact ? styles.listItemTitleCompact : ""}`}
+          >
             <Link
               href={`/metadata/${p.uuid}`}
               onClick={() =>
@@ -116,28 +126,30 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               {p.title}
             </Link>
           </span>
-          <div className={styles.metaGroup}>
-            {!!p.protocolNames?.length && (
-              <div className={styles.typeRow} data-color="neutral">
-                <span>Type: </span>
-                {p.protocolNames.map((name) => (
-                  <Tag key={name} data-size="sm">
-                    {name}
-                  </Tag>
-                ))}
-              </div>
-            )}
-            {!!p.formats?.length && (
-              <div className={styles.formatList} data-color="info">
-                <span>Formater:</span>
-                {p.formats.map((f) => (
-                  <Tag key={f} data-size="sm">
-                    {f}
-                  </Tag>
-                ))}
-              </div>
-            )}
-          </div>
+          {((!compact && !!p.protocolNames?.length) || !!p.formats?.length) && (
+            <div className={styles.metaGroup}>
+              {!compact && !!p.protocolNames?.length && (
+                <div className={styles.typeRow} data-color="neutral">
+                  <span>Type: </span>
+                  {p.protocolNames.map((name) => (
+                    <Tag key={name} data-size="sm">
+                      {name}
+                    </Tag>
+                  ))}
+                </div>
+              )}
+              {!!p.formats?.length && (
+                <div className={styles.formatList} data-color="info">
+                  <span>Formater:</span>
+                  {p.formats.map((f) => (
+                    <Tag key={f} data-size="sm">
+                      {f}
+                    </Tag>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <div className={styles.buttonGroupContainer}>
           {canOpenApplication && (
@@ -150,12 +162,17 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
             />
           )}
           {canShowMap && (
-            <CardActionButton
-              onClick={() => {
-                window.open(p.mapCapabilitiesUrl, "_blank", "noopener");
+            <AddToMapButton
+              item={{
+                addLayers: [],
+                DistributionProtocol: "OGC:WMS",
+                Uuid: p.uuid,
+                Title: p.title,
+                GetCapabilitiesUrl: p.mapCapabilitiesUrl ?? null,
               }}
-              label="Vis kart"
-              icon={<LayersPlusIcon aria-hidden />}
+              variant="secondary"
+              size="sm"
+              location={analyticsLocation}
             />
           )}
           {canDownload && isOpen && isDataset && p.distributionUrl && (
@@ -166,8 +183,10 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 distributionUrl: p.distributionUrl,
               }}
               location={analyticsLocation}
-              variant="tertiary"
+              variant="secondary"
               size="sm"
+              addLabel="Last ned"
+              removeLabel="Fjern nedlasting"
             />
           )}
           {canCopy && (
@@ -199,7 +218,7 @@ function CardActionButton({
   icon: ReactNode;
 }) {
   return (
-    <Button variant="tertiary" data-size="sm" onClick={onClick}>
+    <Button variant="secondary" data-size="sm" onClick={onClick}>
       {icon}
       {label}
     </Button>
