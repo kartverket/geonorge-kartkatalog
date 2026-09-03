@@ -10,9 +10,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
+import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
 import { AccessStateTag } from "@/components/AccessStateTag/AccessStateTag";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
-import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
 import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = {
