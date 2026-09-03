@@ -12,7 +12,10 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
-import { AccessStateTag } from "@/components/AccessStateTag/AccessStateTag";
+import {
+  AccessStateTag,
+  type AccessTagContext,
+} from "@/components/AccessStateTag/AccessStateTag";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
 import styles from "./DatasetCard.module.css";
 
@@ -37,6 +40,13 @@ export type DatasetCardProps = {
   hierarchyLevel: string | null;
 };
 
+const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
+  Tjeneste: "tjeneste",
+  Tjenestelag: "tjenestelag",
+  Applikasjon: "applikasjon",
+  Datasettserie: "datasettserie",
+};
+
 export function DatasetCard({
   viewMode = "grid",
   compact = false,
@@ -53,16 +63,9 @@ export function DatasetCard({
   const canCopy = isService && !!p.getCapabilitiesUrl;
   const canOpenApplication =
     p.typeTranslated === "Applikasjon" && !!p.distributionUrl;
+
   const accessContext =
-    p.typeTranslated === "Tjeneste"
-      ? "tjeneste"
-      : p.typeTranslated === "Tjenestelag"
-        ? "tjenestelag"
-        : p.typeTranslated === "Applikasjon"
-          ? "applikasjon"
-          : p.typeTranslated === "Datasettserie"
-            ? "datasettserie"
-            : "datasett";
+    TYPE_TO_ACCESS_CONTEXT[p.typeTranslated ?? ""] ?? "datasett";
 
   async function copyUrl() {
     if (!p.getCapabilitiesUrl) return;

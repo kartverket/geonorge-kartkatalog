@@ -2,15 +2,15 @@ import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
 import type { AccessState } from "@/lib/schemas/product";
 import styles from "./AccessStateTag.module.css";
 
-const LABEL: Record<
+export type AccessTagContext =
   | "tilgang"
   | "datasett"
   | "tjeneste"
   | "tjenestelag"
   | "applikasjon"
-  | "datasettserie",
-  Record<AccessState, string>
-> = {
+  | "datasettserie";
+
+const LABEL: Record<AccessTagContext, Record<AccessState, string>> = {
   tilgang: {
     open: "Åpen tilgang",
     restricted: "Begrenset tilgang",
@@ -55,7 +55,7 @@ export function AccessStateTag({
   showIcon = true,
 }: {
   accessState: AccessState | null;
-  context: keyof typeof LABEL;
+  context: AccessTagContext;
   showIcon?: boolean;
 }) {
   if (!accessState) return null;
