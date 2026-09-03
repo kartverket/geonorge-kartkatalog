@@ -92,11 +92,7 @@ export function DatasetCard({
   );
 
   return (
-    <div
-      className={`${styles.listItem} ${
-        viewMode === "list" ? styles.listMode : styles.gridMode
-      }`}
-    >
+    <div className={viewMode === "list" ? styles.listMode : styles.gridMode}>
       <Card data-color="neutral" className={styles.productCard}>
         {viewMode !== "list" && p.showThumbnail !== false && renderThumbnail()}
         <div className={styles.contentWrapper}>

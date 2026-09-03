@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <>
       <SearchHero />
-      <SearchResults results={results} numFound={searchResult.NumFound} />
+      <SearchResults results={results} />
     </>
   );
 }

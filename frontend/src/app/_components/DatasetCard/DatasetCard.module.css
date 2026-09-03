@@ -5,9 +5,6 @@
   align-items: center;
   gap: var(--ds-size-0);
   width: 100%;
-  --dsc-card-border-radius: var(--ds-border-radius-lg);
-  --dsc-card-border-color: var(--ds-color-border-subtle);
-  --dsc-card-background: var(--ds-color-surface-default);
   --dsc-card-padding: var(--ds-size-0);
   --dsc-card-content-margin-block: 0;
 }
@@ -124,10 +121,6 @@
   color: var(--ds-color-neutral-text-subtle);
   --dsc-button-padding: var(--ds-size-2) var(--ds-size-2);
   font-size: var(--ds-body-xs-font-size);
-}
-
-.buttonGroupContainer a {
-  text-decoration: none !important;
 }
 
 /* grid */

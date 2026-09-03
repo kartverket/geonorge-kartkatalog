@@ -7,10 +7,9 @@ import { type ViewMode, ViewToggle } from "./ViewToggle";
 
 type SearchResultsProps = {
   results: Array<Omit<DatasetCardProps, "viewMode">>;
-  numFound: number;
 };
 
-export function SearchResults({ results, numFound }: SearchResultsProps) {
+export function SearchResults({ results }: SearchResultsProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   return (
