@@ -92,16 +92,16 @@ class SearchRoutesTest {
 
             val response = client.get("/api/search?text=matrikkel&limit=25")
             val body = response.bodyAsText()
+            val expectedMapCapabilitiesUrl =
+                "\"mapCapabilitiesUrl\":\"https://wms.geonorge.no/skwms1/" +
+                    "wms.matrikkelkart?service=wms&request=getcapabilities\""
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals(listOf("/solr/metadata_all/select"), requestedPaths)
             assertContains(body, "\"numFound\":1")
             assertContains(body, "\"typeTranslated\":\"Datasett\"")
             assertContains(body, "\"showMapLink\":true")
-            assertContains(
-                body,
-                "\"mapCapabilitiesUrl\":\"https://wms.geonorge.no/skwms1/wms.matrikkelkart?service=wms&request=getcapabilities\"",
-            )
+            assertContains(body, expectedMapCapabilitiesUrl)
             assertContains(body, "\"accessState\":\"open\"")
             assertContains(body, "\"hierarchyLevel\":\"dataset\"")
             assertContains(body, "\"facets\":[")

@@ -143,11 +143,24 @@ private fun resolveAccess(
     otherConstraintsAccess: String?,
     accessConstraint: String?,
 ): AccessFlags {
-    val normalized = listOfNotNull(dataAccess, otherConstraintsAccess, accessConstraint).joinToString(" ").lowercase()
+    val normalized =
+        listOfNotNull(dataAccess, otherConstraintsAccess, accessConstraint)
+            .joinToString(" ")
+            .lowercase()
     val isRestricted =
         containsAny(normalized, "norge digitalt", "norway digital restricted", "inspire_directive_article13_1d")
     val isProtected = !isRestricted && containsAny(normalized, "beskyttet", "inspire_directive_article13_1b")
-    val isOpenData = !isRestricted && !isProtected && containsAny(normalized, "åpne data", "open data", "no restrictions", "nolimitations", "no limitations")
+    val isOpenData =
+        !isRestricted &&
+            !isProtected &&
+            containsAny(
+                normalized,
+                "åpne data",
+                "open data",
+                "no restrictions",
+                "nolimitations",
+                "no limitations",
+            )
     return AccessFlags(
         isOpenData = isOpenData,
         isRestricted = isRestricted,

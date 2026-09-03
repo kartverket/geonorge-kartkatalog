@@ -118,12 +118,54 @@ object SearchQueryBuilder {
     }
 }
 
-private const val SEARCH_FL =
-    "uuid,title,abstract,purpose,type,theme,organization,organizations,organization_seo_lowercase,organization_shortname," +
-        "placegroups,organizationgroup,topic_category,organization_logo_url,thumbnail_url,distribution_url," +
-        "distribution_protocol,distribution_name,product_page_url,date_published,date_updated,nationalinitiative," +
-        "score,ServiceDistributionProtocolForDataset,ServiceDistributionUrlForDataset,ServiceDistributionNameForDataset," +
-        "DistributionProtocols,legend_description_url,product_sheet_url,product_specification_url,area,datasetservice," +
-        "popularMetadata,bundle,servicelayers,accessconstraint,servicedataset,applicationdataset,otherconstraintsaccess," +
-        "dataaccess,ServiceDistributionUuidForDataset,ServiceDistributionAccessConstraint,parentidentifier,serie,seriedatasets," +
-        "distributions,typename,spatialscope"
+private val SEARCH_FL =
+    listOf(
+        "uuid",
+        "title",
+        "abstract",
+        "purpose",
+        "type",
+        "theme",
+        "organization",
+        "organizations",
+        "organization_seo_lowercase",
+        "organization_shortname",
+        "placegroups",
+        "organizationgroup",
+        "topic_category",
+        "organization_logo_url",
+        "thumbnail_url",
+        "distribution_url",
+        "distribution_protocol",
+        "distribution_name",
+        "product_page_url",
+        "date_published",
+        "date_updated",
+        "nationalinitiative",
+        "score",
+        "ServiceDistributionProtocolForDataset",
+        "ServiceDistributionUrlForDataset",
+        "ServiceDistributionNameForDataset",
+        "DistributionProtocols",
+        "legend_description_url",
+        "product_sheet_url",
+        "product_specification_url",
+        "area",
+        "datasetservice",
+        "popularMetadata",
+        "bundle",
+        "servicelayers",
+        "accessconstraint",
+        "servicedataset",
+        "applicationdataset",
+        "otherconstraintsaccess",
+        "dataaccess",
+        "ServiceDistributionUuidForDataset",
+        "ServiceDistributionAccessConstraint",
+        "parentidentifier",
+        "serie",
+        "seriedatasets",
+        "distributions",
+        "typename",
+        "spatialscope",
+    ).joinToString(",")
