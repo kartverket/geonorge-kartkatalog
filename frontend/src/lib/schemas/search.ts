@@ -42,15 +42,14 @@ const SearchResultItemSchema = z
     hierarchyLevel: item.hierarchyLevel,
   }));
 
-export const SearchResultSchema = z
-  .object({
-    numFound: z.number(),
-    limit: z.number(),
-    offset: z.number(),
-    results: z.array(SearchResultItemSchema),
-    facets: z.array(SearchFacetSchema).default([]),
-    type: z.string(),
-  });
+export const SearchResultSchema = z.object({
+  numFound: z.number(),
+  limit: z.number(),
+  offset: z.number(),
+  results: z.array(SearchResultItemSchema),
+  facets: z.array(SearchFacetSchema).default([]),
+  type: z.string(),
+});
 
 export type SearchResult = z.infer<typeof SearchResultSchema>;
 export type SearchResultItem = SearchResult["results"][number];

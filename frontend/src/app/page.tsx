@@ -1,5 +1,5 @@
-import { SearchHero } from "./_components/SearchHero/SearchHero";
 import type { DatasetCardProps } from "./_components/DatasetCard/DatasetCard";
+import { SearchHero } from "./_components/SearchHero/SearchHero";
 import { SearchResults } from "./_components/SearchResults/SearchResults";
 import { getSearchResults } from "./api";
 
@@ -20,7 +20,8 @@ export default async function Home({
     limit: Number(limit) || 25,
     orderby: orderby || "score",
   });
-  const results: Array<Omit<DatasetCardProps, "viewMode">> = searchResult.results;
+  const results: Array<Omit<DatasetCardProps, "viewMode">> =
+    searchResult.results;
 
   return (
     <>
