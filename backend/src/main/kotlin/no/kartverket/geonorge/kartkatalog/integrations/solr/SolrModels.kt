@@ -39,6 +39,8 @@ data class SolrDocument(
     val organizationSeoLowercase: String? = null,
     val placegroups: List<String>? = null,
     val organizationgroup: String? = null,
+    @SerialName("organization_shortname")
+    val organizationShortName: String? = null,
     @SerialName("topic_category")
     val topicCategory: String? = null,
     @SerialName("organization_logo_url")
@@ -91,6 +93,8 @@ data class SolrDocument(
     val serie: String? = null,
     val seriedatasets: List<String>? = null,
     val distributions: List<String>? = null,
+    val typename: String? = null,
+    val spatialscope: List<String>? = null,
 )
 
 data class RelatedServiceReference(

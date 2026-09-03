@@ -17,6 +17,7 @@ import {
   type ProduktspesifikasjonItem,
   parseProduktspesifikasjonItem,
 } from "@/lib/schemas/produktspesifikasjon";
+import { parseSearchResult, type SearchResult } from "@/lib/schemas/search";
 import {
   parseTegnereglerItem,
   type TegnereglerItem,
@@ -214,4 +215,26 @@ export async function getTegneregler(
   if (body === null) return null;
 
   return parseTegnereglerItem(body);
+}
+
+export async function getSearchResults({
+  text,
+  limit = 25,
+  offset = 1,
+  orderby = "score",
+}: {
+  text?: string;
+  limit?: number;
+  offset?: number;
+  orderby?: string;
+}): Promise<SearchResult> {
+  const params = new URLSearchParams();
+  if (text?.trim()) params.set("text", text.trim());
+  params.set("limit", String(limit));
+  params.set("offset", String(offset));
+  params.set("orderby", orderby);
+
+  const url = `${API_BASE}/api/search?${params.toString()}`;
+  const body = await fetchJson(url, { method: "GET" });
+  return parseSearchResult(body);
 }
