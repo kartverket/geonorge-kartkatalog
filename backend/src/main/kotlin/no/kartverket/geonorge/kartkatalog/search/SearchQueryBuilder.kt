@@ -117,7 +117,9 @@ private val solrBooleanKeywords =
             if (char in solrSpecialChars) sb.append('\\')
             sb.append(char)
         }
-        return sb.toString()
+        return solrBooleanKeywords.replace(sb.toString()) {
+            "\\${it.value}"
+        }
     }
 }
 
