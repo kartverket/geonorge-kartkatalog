@@ -29,13 +29,18 @@ export type DatasetCardProps = {
   protocolNames?: string[];
   formats?: string[];
   showThumbnail?: boolean;
+  compact?: boolean;
   viewMode?: "grid" | "list";
   analyticsLocation?: Location;
   accessState: "restricted" | "open" | "protected" | null;
   hierarchyLevel: string | null;
 };
 
-export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
+export function DatasetCard({
+  viewMode = "grid",
+  compact = false,
+  ...p
+}: DatasetCardProps) {
   const [copied, setCopied] = useState(false);
   const analyticsLocation = p.analyticsLocation ?? LOCATIONS.SearchPage;
 
@@ -106,12 +111,13 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 data-size="sm"
                 className={styles.typeTag}
               >
-                {p.typeTranslated}
-                {p.organization && ` fra ${p.organization}`}
+                {p.organization ?? p.typeTranslated}
               </Tag>
             </div>
           )}
-          <span className={styles.listItemTitle}>
+          <span
+            className={`${styles.listItemTitle} ${compact ? styles.listItemTitleCompact : ""}`}
+          >
             <Link
               href={`/metadata/${p.uuid}`}
               onClick={() =>
@@ -124,9 +130,9 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               {p.title}
             </Link>
           </span>
-          {(!!p.protocolNames?.length || !!p.formats?.length) && (
+          {((!compact && !!p.protocolNames?.length) || !!p.formats?.length) && (
             <div className={styles.metaGroup}>
-              {!!p.protocolNames?.length && (
+              {!compact && !!p.protocolNames?.length && (
                 <div className={styles.typeRow} data-color="neutral">
                   <span>Type: </span>
                   {p.protocolNames.map((name) => (
