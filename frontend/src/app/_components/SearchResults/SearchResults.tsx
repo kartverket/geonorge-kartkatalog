@@ -16,7 +16,7 @@ export function SearchResults({ results, numFound }: SearchResultsProps) {
   return (
     <main className={styles.page}>
       <div className={styles.header}>
-        <h1>Datasett ({numFound})</h1>
+        <h1>Treff ({numFound})</h1>
         <ViewToggle value={viewMode} onChange={setViewMode} />
       </div>
       <div
