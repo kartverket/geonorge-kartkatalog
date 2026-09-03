@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { AccessStateTag } from "@/components/AccessStateTag/AccessStateTag";
 import { isBeta } from "@/lib/basePath";

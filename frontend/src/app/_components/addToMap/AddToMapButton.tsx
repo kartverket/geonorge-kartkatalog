@@ -2,7 +2,7 @@
 
 import type { ButtonProps } from "@kv-designsystem/react";
 import { Button } from "@kv-designsystem/react";
-import { LayersPlusIcon, LayerMinusIcon } from "@navikt/aksel-icons";
+import { LayerMinusIcon, LayersPlusIcon } from "@navikt/aksel-icons";
 import {
   addItemToMap,
   type MapItem,
