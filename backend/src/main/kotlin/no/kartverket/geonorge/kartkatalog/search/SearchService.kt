@@ -32,44 +32,29 @@ private fun SolrDocument.toSearchResultItem(): SearchResultItem {
         viewServices.firstOrNull {
             !it.getCapabilitiesUrl.isNullOrBlank()
         }
-    val firstWfsService =
-        datasetServices.firstOrNull {
-            it.distributionProtocol.equals("OGC:WFS", ignoreCase = true)
-        }
-
     val access = resolveAccess(dataaccess, otherconstraintsaccess, accessconstraint)
+    val mapCapabilitiesUrl =
+        when {
+            !serviceDistributionUrlForDataset.isNullOrBlank() -> serviceDistributionUrlForDataset
+            firstViewService != null -> firstViewService.getCapabilitiesUrl
+            (type.equals("service", ignoreCase = true) || type.equals("servicelayer", ignoreCase = true)) &&
+                DistributionProtocols.isViewService(distributionProtocol) -> distributionUrl
+            else -> null
+        }
 
     return SearchResultItem(
         uuid = uuid,
         title = title.orEmpty(),
-        abstractText = abstractText,
-        type = type,
-        typeTranslated = translateType(type),
-        typeName = typename,
-        theme = theme,
         organization = organizationgroup ?: organization,
-        organizations = organizations.orEmpty(),
-        organizationLogo = organizationLogoUrl,
+        typeTranslated = translateType(type),
         thumbnailUrl = thumbnailUrl?.takeUnless { it.equals("https://editor.geonorge.no/thumbnails/undefined", ignoreCase = true) },
         distributionUrl = distributionUrl,
         distributionProtocol = distributionProtocol,
-        distributionName = distributionName,
-        datasetServicesWithShowMapLink = viewServices.map { it.toDatasetServiceLink() },
-        serviceDatasets = servicedataset.orEmpty(),
-        distributions = distributions.orEmpty(),
-        accessConstraint = accessconstraint,
-        otherConstraintsAccess = otherconstraintsaccess,
-        dataAccess = dataaccess,
-        accessIsOpenData = access.isOpenData,
-        accessIsRestricted = access.isRestricted,
-        accessIsProtected = access.isProtected,
-        serviceDistributionUrlForDataset = serviceDistributionUrlForDataset ?: firstViewService?.getCapabilitiesUrl,
-        serviceUuid = serviceDistributionUuidForDataset ?: firstViewService?.uuid,
-        serviceWfsDistributionUrlForDataset = firstWfsService?.getCapabilitiesUrl,
         getCapabilitiesUrl = distributionUrl,
-        date = dateUpdated,
         showMapLink = canShowMap(type, distributionProtocol, distributionUrl, viewServices, serviceDistributionUrlForDataset),
-        spatialScope = spatialscope?.firstOrNull(),
+        mapCapabilitiesUrl = mapCapabilitiesUrl,
+        accessState = access.asAccessState(),
+        hierarchyLevel = type,
     )
 }
 
@@ -79,22 +64,11 @@ private fun parseDatasetServices(raw: List<String>?): List<DatasetServiceReferen
         val uuid = parts.getOrNull(0)?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
         DatasetServiceReference(
             uuid = uuid,
-            title = parts.getOrNull(1).orEmpty(),
             type = parts.getOrNull(3),
-            organization = parts.getOrNull(4),
-            distributionName = parts.getOrNull(5),
             distributionProtocol = parts.getOrNull(6),
             getCapabilitiesUrl = parts.getOrNull(7),
         )
     }
-
-private fun DatasetServiceReference.toDatasetServiceLink(): DatasetServiceLink =
-    DatasetServiceLink(
-        uuid = uuid,
-        title = title,
-        distributionProtocol = distributionProtocol,
-        getCapabilitiesUrl = getCapabilitiesUrl,
-    )
 
 private fun canShowMap(
     type: String?,
@@ -118,6 +92,14 @@ private data class AccessFlags(
     val isRestricted: Boolean,
     val isProtected: Boolean,
 )
+
+private fun AccessFlags.asAccessState(): String? =
+    when {
+        isRestricted -> "restricted"
+        isProtected -> "protected"
+        isOpenData -> "open"
+        else -> null
+    }
 
 private fun resolveAccess(
     dataAccess: String?,
@@ -150,4 +132,11 @@ private fun translateType(type: String?): String? =
         "dimensionGroup" -> "Datapakke"
         else -> type
     }
+
+private data class DatasetServiceReference(
+    val uuid: String,
+    val type: String? = null,
+    val distributionProtocol: String? = null,
+    val getCapabilitiesUrl: String? = null,
+)
 

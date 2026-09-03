@@ -89,11 +89,12 @@ class SearchRoutesTest {
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals(listOf("/solr/metadata_all/select"), requestedPaths)
-            assertContains(body, "\"NumFound\":1")
-            assertContains(body, "\"TypeTranslated\":\"Datasett\"")
-            assertContains(body, "\"ShowMapLink\":true")
-            assertContains(body, "\"ServiceWfsDistributionUrlForDataset\":\"https://wfs.geonorge.no/skwms1/wfs.matrikkelen-bygningspunkt?service=WFS&Request=GetCapabilities\"")
-            assertContains(body, "\"DatasetServicesWithShowMapLink\":[{")
+            assertContains(body, "\"numFound\":1")
+            assertContains(body, "\"typeTranslated\":\"Datasett\"")
+            assertContains(body, "\"showMapLink\":true")
+            assertContains(body, "\"mapCapabilitiesUrl\":\"https://wms.geonorge.no/skwms1/wms.matrikkelkart?service=wms&request=getcapabilities\"")
+            assertContains(body, "\"accessState\":\"open\"")
+            assertContains(body, "\"hierarchyLevel\":\"dataset\"")
         }
 
     @Test
