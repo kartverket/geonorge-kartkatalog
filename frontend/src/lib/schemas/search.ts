@@ -2,6 +2,16 @@ import { z } from "zod";
 
 const accessState = ["restricted", "open", "protected"] as const;
 
+const SearchFacetValueSchema = z.object({
+  name: z.string(),
+  count: z.number(),
+});
+
+const SearchFacetSchema = z.object({
+  facetField: z.string(),
+  values: z.array(SearchFacetValueSchema),
+});
+
 const SearchResultItemSchema = z
   .object({
     uuid: z.string(),
@@ -38,6 +48,7 @@ export const SearchResultSchema = z
     limit: z.number(),
     offset: z.number(),
     results: z.array(SearchResultItemSchema),
+    facets: z.array(SearchFacetSchema).default([]),
     type: z.string(),
   });
 

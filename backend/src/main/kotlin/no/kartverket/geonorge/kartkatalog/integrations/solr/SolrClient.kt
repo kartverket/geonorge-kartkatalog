@@ -102,6 +102,7 @@ data class MetadataSolrQuery(
     val start: Int? = null,
     val sort: String? = null,
     val fq: List<String> = emptyList(),
+    val facetFields: List<String> = emptyList(),
     val wt: String = "json",
 ) {
     fun toParameters(): Parameters =
@@ -112,6 +113,12 @@ data class MetadataSolrQuery(
             start?.let { append("start", it.toString()) }
             sort?.takeIf { it.isNotBlank() }?.let { append("sort", it) }
             fq.filter { it.isNotBlank() }.forEach { append("fq", it) }
+            if (facetFields.isNotEmpty()) {
+                append("facet", "true")
+                append("facet.limit", "550")
+                append("facet.mincount", "0")
+                facetFields.forEach { append("facet.field", it) }
+            }
             append("wt", wt)
         }
 }

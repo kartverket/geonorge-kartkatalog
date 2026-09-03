@@ -14,6 +14,7 @@ object SearchQueryBuilder {
             start = normalized.offset - 1,
             sort = buildSort(normalized),
             fq = buildFilters(normalized),
+            facetFields = buildFacetFields(normalized),
             wt = "json",
         )
     }
@@ -68,11 +69,40 @@ object SearchQueryBuilder {
         }
 
     internal fun buildFilters(request: SearchRequest): List<String> {
-        if (request.listHidden) return emptyList()
-        return listOf(
-            "-serie:*series_historic*",
-            "-serie:*series_time*",
+        val filters = mutableListOf<String>()
+        if (!request.listHidden) {
+            filters += listOf(
+                "-serie:*series_historic*",
+                "-serie:*series_time*",
+            )
+        }
+
+        filters +=
+            request.facets
+                .groupBy { it.name }
+                .map { (name, facets) ->
+                    val values = facets.joinToString(" OR ") { "\"${escapeSolrQuery(it.value)}\"" }
+                    "{!tag=$name}$name:($values)"
+                }
+
+        return filters
+    }
+
+    internal fun buildFacetFields(request: SearchRequest): List<String> {
+        val defaultFields = listOf(
+            "type",
+            "theme",
+            "organizations",
+            "nationalinitiative",
+            "DistributionProtocols",
+            "area",
+            "dataaccess",
+            "spatialscope",
         )
+
+        return (defaultFields + request.facets.map { it.name })
+            .distinct()
+            .map { name -> if (request.facets.any { it.name == name }) "{!ex=$name}$name" else name }
     }
 
     private fun escapeSolrQuery(input: String): String {

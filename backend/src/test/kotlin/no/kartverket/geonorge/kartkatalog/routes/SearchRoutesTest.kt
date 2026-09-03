@@ -27,6 +27,12 @@ class SearchRoutesTest {
         """
         {
           "responseHeader": {"status": 0, "QTime": 1},
+          "facet_counts": {
+            "facet_fields": {
+              "type": ["dataset", 1, "service", 0],
+              "organizations": ["Kartverket", 1]
+            }
+          },
           "response": {
             "numFound": 1,
             "start": 0,
@@ -95,6 +101,9 @@ class SearchRoutesTest {
             assertContains(body, "\"mapCapabilitiesUrl\":\"https://wms.geonorge.no/skwms1/wms.matrikkelkart?service=wms&request=getcapabilities\"")
             assertContains(body, "\"accessState\":\"open\"")
             assertContains(body, "\"hierarchyLevel\":\"dataset\"")
+            assertContains(body, "\"facets\":[")
+            assertContains(body, "\"facetField\":\"type\"")
+            assertContains(body, "\"name\":\"dataset\"")
         }
 
     @Test

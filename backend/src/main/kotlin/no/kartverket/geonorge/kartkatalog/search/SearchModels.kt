@@ -8,6 +8,7 @@ data class SearchRequest(
     val offset: Int = 1,
     val orderBy: String = "score",
     val listHidden: Boolean = false,
+    val facets: List<SearchFacetInput> = emptyList(),
 ) {
     fun normalized(): SearchRequest =
         copy(
@@ -15,6 +16,12 @@ data class SearchRequest(
             limit = limit.coerceIn(1, 1000),
             offset = offset.coerceAtLeast(1),
             orderBy = orderBy.takeIf { it in validOrderBy } ?: "score",
+            facets =
+                facets.mapNotNull { facet ->
+                    val name = facet.name.trim().takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+                    val value = facet.value.trim().takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+                    canonicalFacetName(name)?.let { SearchFacetInput(it, value) }
+                },
         )
 
     companion object {
@@ -38,7 +45,25 @@ data class SearchResponse(
     val limit: Int,
     val offset: Int,
     val results: List<SearchResultItem>,
+    val facets: List<SearchFacet> = emptyList(),
     val type: String = "search",
+)
+
+data class SearchFacetInput(
+    val name: String,
+    val value: String,
+)
+
+@Serializable
+data class SearchFacet(
+    val facetField: String,
+    val values: List<SearchFacetValue>,
+)
+
+@Serializable
+data class SearchFacetValue(
+    val name: String,
+    val count: Int,
 )
 
 @Serializable
@@ -56,3 +81,17 @@ data class SearchResultItem(
     val accessState: String? = null,
     val hierarchyLevel: String? = null,
 )
+
+internal fun canonicalFacetName(name: String): String? =
+    when (name.lowercase()) {
+        "type" -> "type"
+        "theme" -> "theme"
+        "organization", "organizations" -> "organizations"
+        "nationalinitiative" -> "nationalinitiative"
+        "distributionprotocols" -> "DistributionProtocols"
+        "area" -> "area"
+        "dataaccess" -> "dataaccess"
+        "spatialscope" -> "spatialscope"
+        else -> null
+    }
+

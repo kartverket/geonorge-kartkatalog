@@ -2,7 +2,9 @@ package no.kartverket.geonorge.kartkatalog.search
 
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrFacetCounts
 import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
+import kotlinx.serialization.json.JsonPrimitive
 
 class SearchService(
     private val solrClient: SolrClient,
@@ -17,9 +19,34 @@ class SearchService(
             limit = normalized.limit,
             offset = normalized.offset,
             results = response.response.docs.map { it.toSearchResultItem() },
+            facets = response.facetCounts.toSearchFacets(),
         )
     }
 }
+
+private fun SolrFacetCounts?.toSearchFacets(): List<SearchFacet> =
+    this?.facetFields.orEmpty().map { (facetField, values) ->
+        SearchFacet(
+            facetField = facetField,
+            values = values.toFacetValues(),
+        )
+    }
+
+private fun List<JsonPrimitive>.pairs(): List<Pair<JsonPrimitive, JsonPrimitive>> =
+    chunked(2).mapNotNull { chunk ->
+        val name = chunk.getOrNull(0) ?: return@mapNotNull null
+        val count = chunk.getOrNull(1) ?: return@mapNotNull null
+        name to count
+    }
+
+private fun kotlinx.serialization.json.JsonArray.toFacetValues(): List<SearchFacetValue> =
+    mapNotNull { it as? JsonPrimitive }
+        .pairs()
+        .mapNotNull { (name, count) ->
+            val facetName = name.content
+            val facetCount = count.content.toIntOrNull() ?: return@mapNotNull null
+            SearchFacetValue(name = facetName, count = facetCount)
+        }
 
 private fun SolrDocument.toSearchResultItem(): SearchResultItem {
     val datasetServices = parseDatasetServices(datasetservice)

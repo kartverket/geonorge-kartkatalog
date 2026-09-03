@@ -34,5 +34,43 @@ class SearchQueryBuilderTest {
 
         assertEquals(emptyList(), query.fq)
     }
-}
 
+    @Test
+    fun `builds grouped facet filters and facet fields`() {
+        val query =
+            SearchQueryBuilder.build(
+                SearchRequest(
+                    text = "kart",
+                    facets =
+                        listOf(
+                            SearchFacetInput(name = "type", value = "dataset"),
+                            SearchFacetInput(name = "type", value = "series"),
+                            SearchFacetInput(name = "organization", value = "Kartverket"),
+                        ),
+                ),
+            )
+
+        assertEquals(
+            listOf(
+                "-serie:*series_historic*",
+                "-serie:*series_time*",
+                "{!tag=type}type:(\"dataset\" OR \"series\")",
+                "{!tag=organizations}organizations:(\"Kartverket\")",
+            ),
+            query.fq,
+        )
+        assertEquals(
+            listOf(
+                "{!ex=type}type",
+                "theme",
+                "{!ex=organizations}organizations",
+                "nationalinitiative",
+                "DistributionProtocols",
+                "area",
+                "dataaccess",
+                "spatialscope",
+            ),
+            query.facetFields,
+        )
+    }
+}
