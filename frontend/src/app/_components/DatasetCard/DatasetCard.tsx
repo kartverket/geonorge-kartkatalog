@@ -6,6 +6,7 @@ import {
   ExternalLinkIcon,
   FilesIcon,
 } from "@navikt/aksel-icons";
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
@@ -79,11 +80,12 @@ export function DatasetCard({
   const renderThumbnail = () => (
     <div className={styles.thumbnailContainer}>
       {p.thumbnailUrl ? (
-        <img
+        <Image
           src={p.thumbnailUrl}
           alt=""
+          fill
+          sizes="(max-width: 767px) 100vw, 430px"
           className={styles.thumbnail}
-          loading="lazy"
         />
       ) : (
         <div className={styles.thumbnailFallback}>Ingen forhåndsvisning</div>
