@@ -1,10 +1,10 @@
 package no.kartverket.geonorge.kartkatalog.search
 
+import kotlinx.serialization.json.JsonPrimitive
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrFacetCounts
 import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
-import kotlinx.serialization.json.JsonPrimitive
 
 class SearchService(
     private val solrClient: SolrClient,
@@ -74,11 +74,21 @@ private fun SolrDocument.toSearchResultItem(): SearchResultItem {
         title = title.orEmpty(),
         organization = organizationgroup ?: organization,
         typeTranslated = translateType(type),
-        thumbnailUrl = thumbnailUrl?.takeUnless { it.equals("https://editor.geonorge.no/thumbnails/undefined", ignoreCase = true) },
+        thumbnailUrl =
+            thumbnailUrl?.takeUnless {
+                it.equals("https://editor.geonorge.no/thumbnails/undefined", ignoreCase = true)
+            },
         distributionUrl = distributionUrl,
         distributionProtocol = distributionProtocol,
         getCapabilitiesUrl = distributionUrl,
-        showMapLink = canShowMap(type, distributionProtocol, distributionUrl, viewServices, serviceDistributionUrlForDataset),
+        showMapLink =
+            canShowMap(
+                type,
+                distributionProtocol,
+                distributionUrl,
+                viewServices,
+                serviceDistributionUrlForDataset,
+            ),
         mapCapabilitiesUrl = mapCapabilitiesUrl,
         accessState = access.asAccessState(),
         hierarchyLevel = type,
@@ -134,7 +144,8 @@ private fun resolveAccess(
     accessConstraint: String?,
 ): AccessFlags {
     val normalized = listOfNotNull(dataAccess, otherConstraintsAccess, accessConstraint).joinToString(" ").lowercase()
-    val isRestricted = containsAny(normalized, "norge digitalt", "norway digital restricted", "inspire_directive_article13_1d")
+    val isRestricted =
+        containsAny(normalized, "norge digitalt", "norway digital restricted", "inspire_directive_article13_1d")
     val isProtected = !isRestricted && containsAny(normalized, "beskyttet", "inspire_directive_article13_1b")
     val isOpenData = !isRestricted && !isProtected && containsAny(normalized, "åpne data", "open data", "no restrictions", "nolimitations", "no limitations")
     return AccessFlags(
@@ -166,4 +177,3 @@ private data class DatasetServiceReference(
     val distributionProtocol: String? = null,
     val getCapabilitiesUrl: String? = null,
 )
-

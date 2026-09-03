@@ -3,7 +3,8 @@ package no.kartverket.geonorge.kartkatalog.search
 import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
 
 object SearchQueryBuilder {
-    private val solrSpecialChars = charArrayOf('+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/')
+    private val solrSpecialChars =
+        charArrayOf('+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/')
 
     fun build(request: SearchRequest): MetadataSolrQuery {
         val normalized = request.normalized()
@@ -33,12 +34,12 @@ object SearchQueryBuilder {
                 "uuid:($escaped)^81",
                 "(type:dataset AND titleText:$titleText)^79",
                 "titleText:$titleText^78",
-                "(type:dataset AND titleText:${titleText}*)^77",
-                "titleText:${titleText}*^76",
-                "(type:dataset AND title_lowercase:*${titleText}*)^75",
-                "titleText:*${titleText}*^74",
-                "(type:dataset AND allText:*${textAll}*)^71",
-                "allText:*${textAll}*^70",
+                "(type:dataset AND titleText:$titleText*)^77",
+                "titleText:$titleText*^76",
+                "(type:dataset AND title_lowercase:*$titleText*)^75",
+                "titleText:*$titleText*^74",
+                "(type:dataset AND allText:*$textAll*)^71",
+                "allText:*$textAll*^70",
                 "allText2:($escaped)",
             )
 
@@ -71,10 +72,11 @@ object SearchQueryBuilder {
     internal fun buildFilters(request: SearchRequest): List<String> {
         val filters = mutableListOf<String>()
         if (!request.listHidden) {
-            filters += listOf(
-                "-serie:*series_historic*",
-                "-serie:*series_time*",
-            )
+            filters +=
+                listOf(
+                    "-serie:*series_historic*",
+                    "-serie:*series_time*",
+                )
         }
 
         filters +=
@@ -89,16 +91,17 @@ object SearchQueryBuilder {
     }
 
     internal fun buildFacetFields(request: SearchRequest): List<String> {
-        val defaultFields = listOf(
-            "type",
-            "theme",
-            "organizations",
-            "nationalinitiative",
-            "DistributionProtocols",
-            "area",
-            "dataaccess",
-            "spatialscope",
-        )
+        val defaultFields =
+            listOf(
+                "type",
+                "theme",
+                "organizations",
+                "nationalinitiative",
+                "DistributionProtocols",
+                "area",
+                "dataaccess",
+                "spatialscope",
+            )
 
         return (defaultFields + request.facets.map { it.name })
             .distinct()
@@ -124,4 +127,3 @@ private const val SEARCH_FL =
         "popularMetadata,bundle,servicelayers,accessconstraint,servicedataset,applicationdataset,otherconstraintsaccess," +
         "dataaccess,ServiceDistributionUuidForDataset,ServiceDistributionAccessConstraint,parentidentifier,serie,seriedatasets," +
         "distributions,typename,spatialscope"
-

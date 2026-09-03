@@ -46,8 +46,7 @@ class SolrClient(
         return querySolr(applicationPath, query).response.docs
     }
 
-    suspend fun searchMetadataAll(query: MetadataSolrQuery): SolrResponse =
-        querySolr(metadataAllPath, query)
+    suspend fun searchMetadataAll(query: MetadataSolrQuery): SolrResponse = querySolr(metadataAllPath, query)
 
     private suspend fun querySolr(
         path: String,

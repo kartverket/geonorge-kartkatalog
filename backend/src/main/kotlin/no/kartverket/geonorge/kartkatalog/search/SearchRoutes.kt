@@ -37,4 +37,3 @@ private fun io.ktor.http.Parameters.toFacetInputs(): List<SearchFacetInput> {
         if (name.isBlank() || value.isBlank()) null else SearchFacetInput(name = name, value = value)
     }
 }
-

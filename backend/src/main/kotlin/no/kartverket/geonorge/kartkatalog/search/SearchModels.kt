@@ -94,4 +94,3 @@ internal fun canonicalFacetName(name: String): String? =
         "spatialscope" -> "spatialscope"
         else -> null
     }
-

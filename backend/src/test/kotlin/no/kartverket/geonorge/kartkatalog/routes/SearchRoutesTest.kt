@@ -98,7 +98,10 @@ class SearchRoutesTest {
             assertContains(body, "\"numFound\":1")
             assertContains(body, "\"typeTranslated\":\"Datasett\"")
             assertContains(body, "\"showMapLink\":true")
-            assertContains(body, "\"mapCapabilitiesUrl\":\"https://wms.geonorge.no/skwms1/wms.matrikkelkart?service=wms&request=getcapabilities\"")
+            assertContains(
+                body,
+                "\"mapCapabilitiesUrl\":\"https://wms.geonorge.no/skwms1/wms.matrikkelkart?service=wms&request=getcapabilities\"",
+            )
             assertContains(body, "\"accessState\":\"open\"")
             assertContains(body, "\"hierarchyLevel\":\"dataset\"")
             assertContains(body, "\"facets\":[")
@@ -133,4 +136,3 @@ class SearchRoutesTest {
             assertEquals(HttpStatusCode.OK, response.status)
         }
 }
-
