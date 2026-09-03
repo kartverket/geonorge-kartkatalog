@@ -6,6 +6,9 @@ object SearchQueryBuilder {
     private val solrSpecialChars =
         charArrayOf('+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/')
 
+private val solrBooleanKeywords =
+    Regex("""(?<!\S)(AND|OR|NOT)(?!\S)""")
+
     fun build(request: SearchRequest): MetadataSolrQuery {
         val normalized = request.normalized()
         return MetadataSolrQuery(
