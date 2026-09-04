@@ -1,31 +1,31 @@
-import searchResult from "../mocks/searchResult.json";
+import type { DatasetCardProps } from "./_components/DatasetCard/DatasetCard";
 import { SearchHero } from "./_components/SearchHero/SearchHero";
 import { SearchResults } from "./_components/SearchResults/SearchResults";
+import { getSearchResults } from "./api";
 
-export default function Home() {
-  const results = searchResult.Results.map((r) => ({
-    uuid: r.Uuid,
-    title: r.Title,
-    organization: r.Organization,
-    typeTranslated: r.TypeTranslated,
-    thumbnailUrl: r.ThumbnailUrl,
-    distributionUrl: r.DistributionUrl,
-    distributionProtocol: r.DistributionProtocol,
-    getCapabilitiesUrl: r.GetCapabilitiesUrl,
-    showMapLink: r.ShowMapLink,
-    mapCapabilitiesUrl:
-      r.DatasetServicesWithShowMapLink?.[0]?.GetCapabilitiesUrl,
-    accessState: r.AccessIsRestricted
-      ? ("restricted" as const)
-      : r.AccessIsProtected
-        ? ("protected" as const)
-        : ("open" as const),
-    hierarchyLevel: r.Type,
-  }));
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    text?: string;
+    offset?: string;
+    limit?: string;
+    orderby?: string;
+  }>;
+}) {
+  const { text, offset, limit, orderby } = await searchParams;
+  const searchResult = await getSearchResults({
+    text,
+    offset: Number(offset) || 1,
+    limit: Number(limit) || 25,
+    orderby: orderby || "score",
+  });
+  const results: Array<Omit<DatasetCardProps, "viewMode">> =
+    searchResult.results;
 
   return (
     <>
-      <SearchHero />
+      <SearchHero initialValue={text ?? ""} />
       <SearchResults results={results} />
     </>
   );

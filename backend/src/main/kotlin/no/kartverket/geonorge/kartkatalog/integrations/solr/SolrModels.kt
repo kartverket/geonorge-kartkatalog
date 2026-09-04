@@ -3,11 +3,14 @@ package no.kartverket.geonorge.kartkatalog.integrations.solr
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
 
 @Serializable
 data class SolrResponse(
     val responseHeader: SolrResponseHeader,
     val response: SolrResponseBody,
+    @SerialName("facet_counts")
+    val facetCounts: SolrFacetCounts? = null,
 )
 
 @Serializable
@@ -25,6 +28,12 @@ data class SolrResponseBody(
 )
 
 @Serializable
+data class SolrFacetCounts(
+    @SerialName("facet_fields")
+    val facetFields: Map<String, JsonArray> = emptyMap(),
+)
+
+@Serializable
 data class SolrDocument(
     val uuid: String,
     val title: String? = null,
@@ -39,6 +48,8 @@ data class SolrDocument(
     val organizationSeoLowercase: String? = null,
     val placegroups: List<String>? = null,
     val organizationgroup: String? = null,
+    @SerialName("organization_shortname")
+    val organizationShortName: String? = null,
     @SerialName("topic_category")
     val topicCategory: String? = null,
     @SerialName("organization_logo_url")
@@ -91,6 +102,8 @@ data class SolrDocument(
     val serie: String? = null,
     val seriedatasets: List<String>? = null,
     val distributions: List<String>? = null,
+    val typename: String? = null,
+    val spatialscope: List<String>? = null,
 )
 
 data class RelatedServiceReference(

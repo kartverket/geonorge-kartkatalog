@@ -16,6 +16,8 @@ import no.kartverket.geonorge.kartkatalog.metadata.LinkedDistributionsService
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
+import no.kartverket.geonorge.kartkatalog.search.SearchService
+import no.kartverket.geonorge.kartkatalog.search.searchRoutes
 
 fun Application.configureRouting(appConfig: AppConfig) {
     val httpClient = HttpClient(CIO)
@@ -26,6 +28,7 @@ fun Application.configureRouting(appConfig: AppConfig) {
     val metadataService = MetadataService(geonetworkClient, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient, codeListTranslator)
+    val searchService = SearchService(solrClient)
 
     monitor.subscribe(ApplicationStopping) { httpClient.close() }
 
@@ -33,6 +36,7 @@ fun Application.configureRouting(appConfig: AppConfig) {
         get("/") {
             call.respondText("Hello, World!")
         }
+        searchRoutes(searchService)
         metadataRoutes(metadataService, linkedDistributionsService)
     }
 }

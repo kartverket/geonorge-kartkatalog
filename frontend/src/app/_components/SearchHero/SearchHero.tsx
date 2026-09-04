@@ -4,7 +4,7 @@ import { Heading, Search } from "@kv-designsystem/react";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./SearchHero.module.css";
 
-export function SearchHero() {
+export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
   return (
     <section className={styles.hero}>
       <div className={styles.inner}>
@@ -18,9 +18,10 @@ export function SearchHero() {
           <Search data-color="neutral">
             <Search.Input
               id="hero-search"
-              name="q"
+              name="text"
               aria-label="Søk i Kartkatalogen"
               placeholder="Naturvernområder, FKB-Bygning..."
+              defaultValue={initialValue}
             />
             <Search.Clear
               onClick={() => trackClick("clear-search", LOCATIONS.SearchHero)}

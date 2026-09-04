@@ -14,6 +14,7 @@ class SolrClient(
     private val baseUrl: String,
 ) {
     private val metadataPath = "solr/metadata/select"
+    private val metadataAllPath = "solr/metadata_all/select"
     private val servicesPath = "solr/services/select"
     private val applicationPath = "solr/applications/select"
 
@@ -44,6 +45,8 @@ class SolrClient(
 
         return querySolr(applicationPath, query).response.docs
     }
+
+    suspend fun searchMetadataAll(query: MetadataSolrQuery): SolrResponse = querySolr(metadataAllPath, query)
 
     private suspend fun querySolr(
         path: String,
@@ -95,6 +98,10 @@ data class MetadataSolrQuery(
     val q: String,
     val fl: String,
     val rows: Int = 1,
+    val start: Int? = null,
+    val sort: String? = null,
+    val fq: List<String> = emptyList(),
+    val facetFields: List<String> = emptyList(),
     val wt: String = "json",
 ) {
     fun toParameters(): Parameters =
@@ -102,6 +109,15 @@ data class MetadataSolrQuery(
             append("q", q)
             append("fl", fl)
             append("rows", rows.toString())
+            start?.let { append("start", it.toString()) }
+            sort?.takeIf { it.isNotBlank() }?.let { append("sort", it) }
+            fq.filter { it.isNotBlank() }.forEach { append("fq", it) }
+            if (facetFields.isNotEmpty()) {
+                append("facet", "true")
+                append("facet.limit", "550")
+                append("facet.mincount", "0")
+                facetFields.forEach { append("facet.field", it) }
+            }
             append("wt", wt)
         }
 }
