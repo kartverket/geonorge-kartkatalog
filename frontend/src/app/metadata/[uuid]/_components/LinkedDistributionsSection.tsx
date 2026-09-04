@@ -87,7 +87,8 @@ function DistributionGroup({
       </div>
       {hasMore && (
         <Button
-          variant="tertiary"
+          variant="secondary"
+          data-size="sm"
           className={styles.loadMoreButton}
           onClick={() => {
             trackClick(
@@ -106,7 +107,8 @@ function DistributionGroup({
       )}
       {canCollapse && (
         <Button
-          variant="tertiary"
+          variant="secondary"
+          data-size="sm"
           className={styles.loadMoreButton}
           onClick={() => {
             trackClick(
