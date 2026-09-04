@@ -88,7 +88,7 @@ function DocumentationCardBody({ card }: { card: DocumentationCard }) {
         {card.icon}
         <StatusTag status={card.status} />
       </div>
-      <Heading data-size="md">{card.title}</Heading>
+      <Heading data-size="sm">{card.title}</Heading>
       <Paragraph data-size="md">{card.paragraph}</Paragraph>
       <div className={styles.cardButtonRow}>
         {card.actions.map((action, index) => (
