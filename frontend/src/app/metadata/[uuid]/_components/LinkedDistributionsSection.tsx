@@ -28,6 +28,7 @@ function toDatasetCardProps(d: LinkedDistribution) {
     protocolNames: d.protocolNames,
     formats: d.formats,
     showThumbnail: false,
+    compact: true,
     analyticsLocation: LOCATIONS.MetadataPageLinkedDistributions,
     accessState: d.accessState,
     hierarchyLevel: d.hierarchyLevel,

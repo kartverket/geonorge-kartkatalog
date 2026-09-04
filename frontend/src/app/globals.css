@@ -6,7 +6,7 @@
   HeaderMenu.module.css (panelhøyde). */
   --header-height-mobile: var(--ds-size-18);
   --page-content-max-width: 1440px;
-  --page-content-padding-inline: var(--ds-size-26);
+  --page-content-padding-inline: var(--ds-size-8);
   --page-content-padding-inline-mobile: var(--ds-size-5);
 }
 

@@ -2,7 +2,7 @@
 
 import type { ButtonProps } from "@kv-designsystem/react";
 import { Button } from "@kv-designsystem/react";
-import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
+import { LayerMinusIcon, LayersPlusIcon } from "@navikt/aksel-icons";
 import {
   addItemToMap,
   type MapItem,
@@ -52,12 +52,12 @@ export default function AddToMapButton({
     >
       {isInMap ? (
         <>
-          <TrashIcon aria-hidden />
+          <LayerMinusIcon aria-hidden />
           Fjern fra kart
         </>
       ) : (
         <>
-          <DownloadIcon aria-hidden />
+          <LayersPlusIcon aria-hidden />
           Legg til i kart
         </>
       )}
