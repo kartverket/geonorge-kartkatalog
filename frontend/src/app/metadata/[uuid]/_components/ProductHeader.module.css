@@ -26,3 +26,13 @@
 .organization a {
   text-decoration: underline;
 }
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.badgeRow .ds-tag {
+  font-size: var(--ds-body-xs-font-size);
+}

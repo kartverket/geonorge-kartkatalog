@@ -55,7 +55,7 @@ export function ProductMeta({
           label="Representasjonsform"
           help="Hvordan de geografiske dataene er representert"
         >
-          <span className="ds-tag" data-color="neutral">
+          <span className="ds-tag" data-color="info">
             {representation}
           </span>
         </MetaField>
@@ -78,15 +78,15 @@ export function ProductMeta({
       )}
       {relevantCategories.length > 0 && (
         <MetaField
-          label="Relevante kategorier"
+          label="Initiativer og samarbeid"
           help="Nasjonale og internasjonale samarbeidsinitiativ datasettet inngår i"
         >
-          <ThemeTags themes={relevantCategories} data-color="warning" />
+          <ThemeTags themes={relevantCategories} data-color="info" />
         </MetaField>
       )}
       {themes.length > 0 && (
         <MetaField label="Tema">
-          <ThemeTags themes={themes} />
+          <ThemeTags themes={themes} data-color="info" />
         </MetaField>
       )}
       {formats.length > 0 && (
