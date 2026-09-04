@@ -78,7 +78,7 @@ export function ProductMeta({
       )}
       {relevantCategories.length > 0 && (
         <MetaField
-          label="Relevante kategorier"
+          label="Initiativer og samarbeid"
           help="Nasjonale og internasjonale samarbeidsinitiativ datasettet inngår i"
         >
           <ThemeTags themes={relevantCategories} data-color="info" />
