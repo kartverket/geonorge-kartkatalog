@@ -152,8 +152,22 @@ class MetadataMapper(
         return codeListTranslator.translate(CodeList.RESTRICTIONS, code)
     }
 
-    private fun mapThemeKeywords(record: MetadataRecord): List<ProductKeyword> =
-        mapKeywords(record) { it.type.equals("theme", ignoreCase = true) }
+    private suspend fun mapThemeKeywords(record: MetadataRecord): List<ProductKeyword> =
+        record.keywordGroups
+            .filter { it.type.equals("theme", ignoreCase = true) }
+            .flatMap { group ->
+                group.keywords.map { keyword ->
+                    ProductKeyword(
+                        keywordValue =
+                            if (group.isInspireTheme()) {
+                                codeListTranslator.translate(CodeList.INSPIRE, keyword.value) ?: keyword.value
+                            } else {
+                                keyword.value
+                            },
+                        type = group.type,
+                    )
+                }
+            }
 
     private fun mapNationalKeywords(record: MetadataRecord): List<ProductKeyword> =
         mapKeywords(record) {
@@ -237,6 +251,10 @@ class MetadataMapper(
                     )
                 }
             }
+
+    private fun KeywordGroup.isInspireTheme(): Boolean =
+        thesaurusHref?.contains("inspire.ec.europa.eu/theme", ignoreCase = true) == true ||
+            thesaurus?.contains("INSPIRE themes", ignoreCase = true) == true
 
     private fun DistributionFormat.toProductDistributionFormat() =
         ProductDistributionFormat(
