@@ -8,13 +8,16 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class MetadataParserTest {
+    private fun parseFixture(name: String) = MetadataParser.parse(javaClass.classLoader.getResourceAsStream(name)!!)
+
     private val record by lazy {
-        val xml = javaClass.classLoader.getResourceAsStream("response.xml")!!
-        MetadataParser.parse(xml)
+        parseFixture("response.xml")
     }
     private val recordWithQuantitativeResult by lazy {
-        val xml = javaClass.classLoader.getResourceAsStream("response2.xml")!!
-        MetadataParser.parse(xml)
+        parseFixture("response2.xml")
+    }
+    private val recordWithNorwegianPreferredLocale by lazy {
+        parseFixture("response3.xml")
     }
 
     @Test
@@ -102,6 +105,25 @@ class MetadataParserTest {
         assertEquals("onGoing", record.status)
         assertEquals("continual", record.maintenanceFrequency)
         assertNotNull(record.specificUsage)
+    }
+
+    @Test
+    fun `falls back to base string when only english localization is available`() {
+        assertEquals("Arter av nasjonal forvaltningsinteresse", recordWithQuantitativeResult.title)
+        assertTrue(recordWithQuantitativeResult.purpose!!.startsWith("Formålet med datasettet er å vise leveområder"))
+        assertEquals("Buildings", record.keywordGroups[0].keywords[0].value)
+    }
+
+    @Test
+    fun `prefers norwegian localized text when locale is recognized`() {
+        assertEquals("Arter av nasjonal forvaltningsinteresse", recordWithNorwegianPreferredLocale.title)
+        assertTrue(
+            recordWithNorwegianPreferredLocale.purpose!!.startsWith("Formålet med datasettet er å vise leveområder"),
+        )
+        assertEquals(
+            "geodataloven",
+            recordWithNorwegianPreferredLocale.keywordGroups[1].keywords[1].value,
+        )
     }
 
     @Test
@@ -248,8 +270,8 @@ class MetadataParserTest {
             recordWithQuantitativeResult.dataQualityMeasures.find {
                 it.nameOfMeasure?.contains("FAIR", ignoreCase = true) == true
             }
-        assertNotNull(measure)
-        assertEquals(87, measure!!.value)
+        val fairMeasure = assertNotNull(measure)
+        assertEquals(87, fairMeasure.value)
         assertTrue(measure.valueUnit?.contains("percent") == true)
         assertTrue(measure.measureDescription!!.contains("FAIR", ignoreCase = true))
     }

@@ -237,10 +237,8 @@ function buildDistributionDetails({
   maintenanceFrequency: string | null;
 }): DetailItem[] {
   return groups.map((group) => {
-    const urlRows = buildUrlRows(group.formats);
-    const formatNames = [
-      ...new Set(group.formats.map((format) => format.name)),
-    ];
+    const urlRows = buildUrlRows(group.entries);
+    const formatNames = getGroupFormatNames(group.entries);
 
     return {
       actionButton:
@@ -280,13 +278,11 @@ function buildDistributionDetails({
               content: (
                 <span className={styles.tags} data-color="info">
                   {/* Filtering unique format names, to avoid duplicate Tags with same text */}
-                  {[...new Set(group.formats.map((f) => f.name))].map(
-                    (name) => (
-                      <span className="ds-tag" key={name}>
-                        {name}
-                      </span>
-                    ),
-                  )}
+                  {formatNames.map((name) => (
+                    <span className="ds-tag" key={name}>
+                      {name}
+                    </span>
+                  ))}
                 </span>
               ),
             },
@@ -338,29 +334,21 @@ type UrlRow = {
   url: string;
   formatNames: string[];
 };
-function buildUrlRows(formats: DistributionGroup["formats"]): UrlRow[] {
-  const byUrls = new Map<string, string[]>();
-  formats.forEach((format) => {
-    const key = format.urls.join("|");
-    byUrls.set(key, [...(byUrls.get(key) ?? []), format.name]);
-  });
+function getGroupFormatNames(entries: DistributionGroup["entries"]): string[] {
+  return [...new Set(entries.flatMap((entry) => entry.formatNames))];
+}
 
-  const entries = [...byUrls.entries()];
-  const isSingleSharedUrl =
-    entries.length === 1 && entries[0][0].split("|").length === 1;
+function buildUrlRows(entries: DistributionGroup["entries"]): UrlRow[] {
+  const isSingleUrl = entries.length === 1;
 
-  return entries.flatMap(([key, names]) => {
-    const urls = key ? key.split("|") : [];
-    return urls.map((url, i) => ({
-      label: isSingleSharedUrl
+  return entries.map((entry) => ({
+    label:
+      isSingleUrl || entry.formatNames.length === 0
         ? "Tilgangs-URL"
-        : urls.length > 1
-          ? `${names.join(", ")} (${i + 1})`
-          : names.join(", "),
-      url: url,
-      formatNames: names,
-    }));
-  });
+        : entry.formatNames.join(", "),
+    url: entry.url,
+    formatNames: entry.formatNames,
+  }));
 }
 
 type Field = { label: string; content: React.ReactNode };

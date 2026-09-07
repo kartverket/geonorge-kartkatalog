@@ -13,13 +13,19 @@ type MapSource = {
   getCapabilitiesUrl: string;
 };
 
+function getPrimaryGroupUrl(
+  group: DistributionGroup | undefined,
+): string | null {
+  return group?.entries[0]?.url ?? null;
+}
+
 export function getGeonorgeDownloadUrl(
   distributionGroups: DistributionGroup[],
 ): string | null {
   const group = distributionGroups.find(
     (distributionGroup) => distributionGroup.protocol === "GEONORGE:DOWNLOAD",
   );
-  const rawUrl = group?.formats[0]?.urls[0];
+  const rawUrl = getPrimaryGroupUrl(group);
 
   if (!rawUrl) return null;
 
@@ -80,7 +86,7 @@ function getDirectWmsMapSource(
   const group = distributionGroups.find(
     (distributionGroup) => distributionGroup.protocol === "OGC:WMS",
   );
-  const rawUrl = group?.formats[0]?.urls[0];
+  const rawUrl = getPrimaryGroupUrl(group);
 
   if (!rawUrl) return null;
 

@@ -13,25 +13,32 @@ class CodeListTranslator(
         value: String?,
     ): String? {
         val codeValue = value?.takeIf { it.isNotBlank() } ?: return null
-        return findItem(codeList, value)?.label ?: codeValue
+        return translate(getCodeListItems(codeList), codeValue)
+    }
+
+    fun translate(
+        codeListItems: List<RegisterCodeListItem>?,
+        value: String?,
+    ): String? {
+        val codeValue = value?.takeIf { it.isNotBlank() } ?: return null
+        return findItem(codeListItems, codeValue)?.label ?: codeValue
     }
 
     suspend fun findItem(
         codeList: CodeList,
         value: String?,
     ): RegisterCodeListItem? {
+        val codeValue = value?.takeIf { it.isNotBlank() } ?: return null
+        return findItem(getCodeListItems(codeList), codeValue)
+    }
+
+    fun findItem(
+        codeListItems: List<RegisterCodeListItem>?,
+        value: String?,
+    ): RegisterCodeListItem? {
         val codeValue =
             value?.takeIf { it.isNotBlank() }
                 ?: return null
-
-        val codeListItems =
-            try {
-                registerClient.getCodeList(codeList).containedItems
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-                null
-            }
 
         return codeListItems?.firstOrNull { item ->
             item.effectiveCodeValue.equals(
@@ -41,4 +48,13 @@ class CodeListTranslator(
                 item.label.equals(codeValue, ignoreCase = true)
         }
     }
+
+    suspend fun getCodeListItems(codeList: CodeList): List<RegisterCodeListItem>? =
+        try {
+            registerClient.getCodeList(codeList).containedItems
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
+        }
 }

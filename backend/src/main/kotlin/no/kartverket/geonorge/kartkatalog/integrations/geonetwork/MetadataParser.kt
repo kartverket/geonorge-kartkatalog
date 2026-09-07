@@ -46,6 +46,7 @@ object MetadataParser {
 
         fun parse(): MetadataRecord {
             val idInfo = md.node("gmd:identificationInfo/*")
+            val titleNode = idInfo?.node("gmd:citation/gmd:CI_Citation/gmd:title")
             return MetadataRecord(
                 uuid = md.text("gmd:fileIdentifier/gco:CharacterString") ?: "",
                 parentIdentifier = md.text("gmd:parentIdentifier/gco:CharacterString"),
@@ -66,11 +67,9 @@ object MetadataParser {
                 referenceSystems = parseReferenceSystems(),
                 extensionResources = parseExtensionResources(),
                 applicationSchemaInfos = parseApplicationSchemaInfos(),
-                title =
-                    idInfo?.text("gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString")
-                        ?: "",
-                abstract = idInfo?.text("gmd:abstract/gco:CharacterString"),
-                purpose = idInfo?.text("gmd:purpose/gco:CharacterString"),
+                title = titleNode?.preferredText(anchorExpr = "gmx:Anchor") ?: "",
+                abstract = idInfo?.node("gmd:abstract")?.preferredText(),
+                purpose = idInfo?.node("gmd:purpose")?.preferredText(),
                 status = idInfo?.attr("gmd:status/gmd:MD_ProgressCode", "codeListValue"),
                 maintenanceFrequency =
                     idInfo?.attr(
@@ -80,16 +79,17 @@ object MetadataParser {
                     ),
                 resolutionScale = parseResolutionScale(idInfo),
                 specificUsage =
-                    idInfo?.text(
-                        "gmd:resourceSpecificUsage/gmd:MD_Usage" +
-                            "/gmd:specificUsage/gco:CharacterString",
-                    ),
-                supplementalDescription = idInfo?.text("gmd:supplementalInformation/gco:CharacterString"),
+                    idInfo
+                        ?.node(
+                            "gmd:resourceSpecificUsage/gmd:MD_Usage" +
+                                "/gmd:specificUsage",
+                        )?.preferredText(),
+                supplementalDescription = idInfo?.node("gmd:supplementalInformation")?.preferredText(),
                 processHistory =
-                    md.text(
+                    md.node(
                         "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage" +
-                            "/gmd:LI_Lineage/gmd:statement/gco:CharacterString",
-                    ),
+                            "/gmd:LI_Lineage/gmd:statement",
+                    )?.preferredText(),
                 contacts =
                     idInfo
                         ?.nodes("gmd:pointOfContact/gmd:CI_ResponsibleParty")
@@ -187,7 +187,7 @@ object MetadataParser {
                         applicationProfile =
                             or.text("gmd:applicationProfile/gco:CharacterString") ?: "",
                         url = or.text("gmd:linkage/gmd:URL"),
-                        name = or.text("gmd:name/gco:CharacterString"),
+                        name = or.node("gmd:name")?.preferredText(),
                         nameEnglish =
                             or.text(
                                 "gmd:name/gmd:PT_FreeText/gmd:textGroup" +
@@ -215,7 +215,7 @@ object MetadataParser {
         private fun parseContact(node: Node): Contact =
             Contact(
                 name = node.text("gmd:individualName/gco:CharacterString"),
-                organization = node.text("gmd:organisationName/gco:CharacterString"),
+                organization = node.node("gmd:organisationName")?.preferredText(),
                 organizationEnglish =
                     node.text(
                         "gmd:organisationName/gmd:PT_FreeText/gmd:textGroup" +
@@ -246,7 +246,7 @@ object MetadataParser {
             val keywords =
                 node.nodes("gmd:keyword").map { kw ->
                     val anchor = kw.node("gmx:Anchor")
-                    val value = anchor?.textContent?.trim() ?: kw.text("gco:CharacterString") ?: ""
+                    val value = kw.preferredText(anchorExpr = "gmx:Anchor") ?: ""
                     val href = anchor?.attr("xlink:href")
                     val english =
                         kw.text("gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString")
@@ -275,11 +275,8 @@ object MetadataParser {
             var otherConstraintsAccess: String? = null
 
             idInfo.nodes("gmd:resourceConstraints/gmd:MD_Constraints").forEach { c ->
-                c.nodes("gmd:useLimitation/gco:CharacterString").forEach { n ->
-                    n.textContent
-                        .trim()
-                        .takeIf { it.isNotEmpty() }
-                        ?.let { useLimitations.add(it) }
+                c.nodes("gmd:useLimitation").forEach { n ->
+                    n.preferredText()?.let { useLimitations.add(it) }
                 }
             }
             idInfo.nodes("gmd:resourceConstraints/gmd:MD_LegalConstraints").forEach { c ->
@@ -404,19 +401,19 @@ object MetadataParser {
 
         private fun parseOnlineResources(dto: Node): List<OnlineResource> {
             val units =
-                dto.text("gmd:unitsOfDistribution/gco:CharacterString")
+                dto.node("gmd:unitsOfDistribution")?.preferredText()
             return dto.nodes("gmd:onLine/gmd:CI_OnlineResource").map {
                     or ->
                 OnlineResource(
                     url = or.text("gmd:linkage/gmd:URL") ?: "",
                     protocol =
                         or.text("gmd:protocol/gco:CharacterString"),
-                    name = or.text("gmd:name/gco:CharacterString"),
+                    name = or.node("gmd:name")?.preferredText(),
                     description =
-                        or.text("gmd:description/gco:CharacterString"),
+                        or.node("gmd:description")?.preferredText(),
                     unitsOfDistribution = units,
                     applicationProfile =
-                        or.text("gmd:applicationProfile/gco:CharacterString"),
+                        or.node("gmd:applicationProfile")?.preferredText(),
                     function =
                         or.attr(
                             "gmd:function/gmd:CI_OnLineFunctionCode",
@@ -435,16 +432,16 @@ object MetadataParser {
                         dcp =
                             op.nodes("srv:DCP/srv:DCPList").mapNotNull { it.attr("codeListValue") },
                         operationDescription =
-                            op.text("srv:operationDescription/gco:CharacterString"),
+                            op.node("srv:operationDescription")?.preferredText(),
                         connectPoints =
                             op.nodes("srv:connectPoint/gmd:CI_OnlineResource").map { or ->
                                 OnlineResource(
                                     url = or.text("gmd:linkage/gmd:URL") ?: "",
                                     protocol = or.text("gmd:protocol/gco:CharacterString"),
-                                    name = or.text("gmd:name/gco:CharacterString"),
-                                    description = or.text("gmd:description/gco:CharacterString"),
+                                    name = or.node("gmd:name")?.preferredText(),
+                                    description = or.node("gmd:description")?.preferredText(),
                                     applicationProfile =
-                                        or.text("gmd:applicationProfile/gco:CharacterString"),
+                                        or.node("gmd:applicationProfile")?.preferredText(),
                                     function =
                                         or.attr(
                                             "gmd:function/gmd:CI_OnLineFunctionCode",
@@ -461,9 +458,7 @@ object MetadataParser {
                 val specNode = result.node("gmd:specification")
                 val titleNode = specNode?.node("gmd:CI_Citation/gmd:title")
                 val title =
-                    titleNode?.node("gmx:Anchor")?.textContent?.trim()
-                        ?: titleNode?.text("gco:CharacterString")
-                        ?: ""
+                    titleNode?.preferredText(anchorExpr = "gmx:Anchor") ?: ""
                 val date =
                     result.text(
                         "gmd:specification/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date/gco:Date",
@@ -474,7 +469,7 @@ object MetadataParser {
                             "/gmd:dateType/gmd:CI_DateTypeCode",
                         "codeListValue",
                     )
-                val explanation = result.text("gmd:explanation/gco:CharacterString")
+                val explanation = result.node("gmd:explanation")?.preferredText()
                 val explanationEnglish =
                     result.text(
                         "gmd:explanation/gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString",
@@ -509,7 +504,7 @@ object MetadataParser {
                     node.node("gmd:nameOfMeasure/gmx:Anchor")?.textContent?.trim()
                         ?: node.text("gmd:nameOfMeasure/gco:CharacterString")
 
-                val desc = node.text("gmd:measureDescription/gco:CharacterString")
+                val desc = node.node("gmd:measureDescription")?.preferredText()
 
                 // valueUnit is typically an element with xlink:href attribute
                 val unit =
@@ -554,6 +549,27 @@ object MetadataParser {
                 ?.trim()
                 ?.takeIf { it.isNotEmpty() }
 
+        private fun Node.preferredText(
+            baseExpr: String = "gco:CharacterString",
+            localizedExpr: String = "gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString",
+            anchorExpr: String? = null,
+        ): String? {
+            val localized =
+                nodes(localizedExpr).mapNotNull { localizedNode ->
+                    localizedNode
+                        .textContent
+                        ?.trim()
+                        ?.takeIf { it.isNotEmpty() }
+                        ?.let { LocalizedText(localizedNode.attr("locale"), it) }
+                }
+
+            return localized.firstOrNull { it.locale.isNorwegianLocale() }?.value
+                ?: text(baseExpr)
+                ?: anchorExpr?.let { text(it) }
+                ?: localized.firstOrNull { !it.locale.isEnglishLocale() }?.value
+                ?: localized.firstOrNull()?.value
+        }
+
         private fun Node.node(expr: String): Node? = xpath.node(expr, this)
 
         private fun Node.nodes(expr: String): List<Node> = xpath.nodes(expr, this)
@@ -580,6 +596,40 @@ object MetadataParser {
                 ?.nodeValue
                 ?.trim()
                 ?.takeIf { it.isNotEmpty() }
+        }
+
+        private fun String?.isNorwegianLocale(): Boolean {
+            val locale = this?.trim()?.removePrefix("#")?.lowercase() ?: return false
+            return locale in norwegianLocales || locale.startsWith("nb-") || locale.startsWith("nn-")
+        }
+
+        private fun String?.isEnglishLocale(): Boolean {
+            val locale = this?.trim()?.removePrefix("#")?.lowercase() ?: return false
+            return locale in englishLocales || locale.startsWith("en-")
+        }
+
+        private data class LocalizedText(
+            val locale: String?,
+            val value: String,
+        )
+
+        private companion object {
+            private val norwegianLocales =
+                setOf(
+                    "locale-nor",
+                    "locale-no",
+                    "locale-nb",
+                    "locale-nob",
+                    "locale-nn",
+                    "nor",
+                    "no",
+                    "nb",
+                    "nob",
+                    "nn",
+                    "nno",
+                )
+            private val englishLocales =
+                setOf("locale-eng", "locale-en", "eng", "en")
         }
     }
 }

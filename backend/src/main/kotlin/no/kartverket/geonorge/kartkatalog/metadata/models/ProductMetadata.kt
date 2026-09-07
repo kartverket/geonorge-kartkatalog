@@ -82,14 +82,14 @@ data class ProductDistributionGroup(
     val protocol: String? = null,
     val protocolName: String? = null,
     val protocolDescription: String? = null,
-    val formats: List<ProductDistributionFormatEntry> = emptyList(),
+    val entries: List<ProductDistributionEntry> = emptyList(),
     val unitsOfDistribution: String? = null,
 )
 
 @Serializable
-data class ProductDistributionFormatEntry(
-    val name: String,
-    val urls: List<String> = emptyList(),
+data class ProductDistributionEntry(
+    val url: String,
+    val formatNames: List<String> = emptyList(),
 )
 
 @Serializable
