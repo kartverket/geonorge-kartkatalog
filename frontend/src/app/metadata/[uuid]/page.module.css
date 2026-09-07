@@ -20,6 +20,11 @@
   .content {
     padding-inline: var(--page-content-padding-inline-mobile);
   }
+
+  .content > div {
+    margin: var(--ds-size-6) 0;
+  }
+
   .metaRow {
     flex-direction: column;
   }

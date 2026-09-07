@@ -85,6 +85,7 @@ export function Header() {
             onClick={() => trackHeaderClick("geonorge-logo")}
           >
             <Image
+              className={styles.logo}
               src={`${basePath}/geonorge-logo.svg`}
               alt="Geonorge"
               width={211}

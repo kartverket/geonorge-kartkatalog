@@ -43,6 +43,10 @@
   gap: var(--ds-size-2);
 }
 
+.themesButton {
+  margin-top: var(--ds-size-2);
+}
+
 @media (max-width: 800px) {
   .grid {
     grid-template-columns: 1fr;

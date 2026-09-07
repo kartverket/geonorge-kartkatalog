@@ -26,3 +26,19 @@
 .organization a {
   text-decoration: underline;
 }
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.orgTag {
+  font-size: var(--ds-body-xs-font-size);
+}
+
+@media (max-width: 800px) {
+  .title {
+    font-size: var(--ds-heading-sm-font-size);
+  }
+}
