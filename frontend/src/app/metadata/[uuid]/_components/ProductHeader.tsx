@@ -1,7 +1,6 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { AccessStateTag } from "@/components/AccessStateTag/AccessStateTag";
-import { isBeta } from "@/lib/basePath";
 import { getProductTypeString } from "@/lib/productType";
 import type { AccessState } from "@/lib/schemas/product";
 import styles from "./ProductHeader.module.css";
@@ -21,11 +20,10 @@ export function ProductHeader({
 }) {
   return (
     <div className={styles.header}>
-        <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
-          <Link href="/">Geonorge</Link> {"›"}{" "}
-          <Link href="/">Kartkatalogen</Link> {"›"}{" "}
-          <span className={styles.current}>{title ?? "-"}</span>
-        </nav>
+      <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
+        <Link href="/">Geonorge</Link> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
+        {"›"} <span className={styles.current}>{title ?? "-"}</span>
+      </nav>
       <AccessStateTag accessState={access} context="tilgang" />
       <h1 className={styles.title}>{title ?? "-"}</h1>
       <p className={styles.organization}>

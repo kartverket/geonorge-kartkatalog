@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
 import type { Alert } from "@/lib/schemas/alerts";
 
 export default function ProductAlert({ alert }: { alert: Alert }) {
   const parser = new DOMParser();
-  if(!alert.note) {
+  if (!alert.note) {
     return null;
   }
   const parsedAlertNote = parser.parseFromString(alert.note, "text/html");

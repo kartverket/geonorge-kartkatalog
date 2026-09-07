@@ -1,7 +1,7 @@
 "use client";
 
 import { Heading, Search } from "@kv-designsystem/react";
-import {isBeta} from "@/lib/basePath";
+import { isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./SearchHero.module.css";
 
@@ -12,7 +12,11 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
         <Heading data-size="lg" className={styles.title}>
           Finn data
         </Heading>
-        <form action={isBeta ? "/beta": "/"} method="get" className={styles.form}>
+        <form
+          action={isBeta ? "/beta" : "/"}
+          method="get"
+          className={styles.form}
+        >
           <label htmlFor="hero-search" className={styles.label}>
             Søk i Kartkatalogen
           </label>
