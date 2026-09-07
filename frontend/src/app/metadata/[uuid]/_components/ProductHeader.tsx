@@ -18,12 +18,11 @@ export function ProductHeader({
 }) {
   return (
     <div className={styles.header}>
-        <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
-          <Link href="/">Geonorge</Link> {"›"}{" "}
-          <Link href="/">Kartkatalogen</Link> {"›"}{" "}
-          <span className={styles.current}>{title ?? "-"}</span>
-        </nav>
-      )}
+      <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
+        <Link href="/">Geonorge</Link> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
+        {"›"} <span className={styles.current}>{title ?? "-"}</span>
+      </nav>
+      )
       <div className={styles.badgeRow}>
         <AccessStateTag accessState={access} context="tilgang" />
         <span className="ds-tag" data-color="neutral" data-size="sm">
