@@ -5,10 +5,7 @@ import type { MouseEvent } from "react";
 import { FairSection } from "@/app/metadata/[uuid]/_components/FairSection";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
-import {
-  getProductTypeDefiniteString,
-  getProductTypeString,
-} from "@/lib/productType";
+import { getProductTypeDefiniteString } from "@/lib/productType";
 import type {
   LinkedDistributions,
   ProductFairStatus,
@@ -40,7 +37,6 @@ export function ProductTabs({
   distributionDetails: DetailItem[];
   infoDetails: DetailItem[];
 }) {
-  const productType = getProductTypeString(hierarchyLevel).toLowerCase();
   const productTypeDefinite = getProductTypeDefiniteString(hierarchyLevel);
 
   const hasDocumentation = Boolean(

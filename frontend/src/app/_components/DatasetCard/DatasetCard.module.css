@@ -1,6 +1,6 @@
-.productCard {
+.productCard.productCard {
   position: relative;
-  display: flex !important; /* .ds-card sin egen display:block har lik spesifisitet */
+  display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--ds-size-0);

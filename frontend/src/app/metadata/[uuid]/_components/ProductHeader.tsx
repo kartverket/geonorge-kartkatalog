@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { AccessStateTag } from "@/components/AccessStateTag/AccessStateTag";
-import { isBeta } from "@/lib/basePath";
-import { getProductTypeString } from "@/lib/productType";
 import type { AccessState } from "@/lib/schemas/product";
 import styles from "./ProductHeader.module.css";
 
@@ -9,12 +7,10 @@ export function ProductHeader({
   title,
   organization,
   access,
-  hierarchyLevel,
 }: {
   title: string | null;
   organization: string | null;
   access: AccessState | null;
-  hierarchyLevel: string | null;
 }) {
   return (
     <div className={styles.header}>

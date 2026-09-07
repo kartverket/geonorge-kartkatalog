@@ -1,17 +1,22 @@
 import type { Alerts } from "@/lib/schemas/alerts";
 
+type NonEmptyValue<T> = Exclude<T, "" | null | undefined>;
+
+const hasNonEmptyValue = <T>(value: T): value is NonEmptyValue<T> =>
+  value != null && value !== "";
+
 export const getUniqueItemsFromListByKey = <
-  T extends Record<string, any>,
+  T extends Record<string, unknown>,
   K extends keyof T,
 >(
   list: T[],
   field: K,
-): Exclude<T[K], null | undefined>[] => {
+): NonEmptyValue<T[K]>[] => {
   return [
     ...new Set(
       list.flatMap((item) => {
         const value = item[field];
-        return value != null && value !== "" ? [value] : [];
+        return hasNonEmptyValue(value) ? [value] : [];
       }),
     ),
   ];
