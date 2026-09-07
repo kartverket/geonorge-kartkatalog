@@ -615,7 +615,19 @@ object MetadataParser {
 
         private companion object {
             private val norwegianLocales =
-                setOf("locale-nor", "locale-no", "locale-nb", "locale-nob", "locale-nn", "nor", "no", "nb", "nob", "nn", "nno")
+                setOf(
+                    "locale-nor",
+                    "locale-no",
+                    "locale-nb",
+                    "locale-nob",
+                    "locale-nn",
+                    "nor",
+                    "no",
+                    "nb",
+                    "nob",
+                    "nn",
+                    "nno",
+                )
             private val englishLocales =
                 setOf("locale-eng", "locale-en", "eng", "en")
         }

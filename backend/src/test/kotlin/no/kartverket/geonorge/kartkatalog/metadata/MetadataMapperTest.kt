@@ -10,7 +10,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionInfo
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
