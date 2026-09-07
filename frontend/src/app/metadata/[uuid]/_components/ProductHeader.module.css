@@ -36,3 +36,9 @@
 .badgeRow .ds-tag {
   font-size: var(--ds-body-xs-font-size);
 }
+
+@media (max-width: 800px) {
+  .title {
+    font-size: var(--ds-heading-sm-font-size);
+  }
+}
