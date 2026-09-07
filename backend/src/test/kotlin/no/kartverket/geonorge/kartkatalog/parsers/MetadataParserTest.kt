@@ -8,8 +8,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class MetadataParserTest {
-    private fun parseFixture(name: String) =
-        MetadataParser.parse(javaClass.classLoader.getResourceAsStream(name)!!)
+    private fun parseFixture(name: String) = MetadataParser.parse(javaClass.classLoader.getResourceAsStream(name)!!)
 
     private val record by lazy {
         parseFixture("response.xml")
@@ -118,7 +117,9 @@ class MetadataParserTest {
     @Test
     fun `prefers norwegian localized text when locale is recognized`() {
         assertEquals("Arter av nasjonal forvaltningsinteresse", recordWithNorwegianPreferredLocale.title)
-        assertTrue(recordWithNorwegianPreferredLocale.purpose!!.startsWith("Formålet med datasettet er å vise leveområder"))
+        assertTrue(
+            recordWithNorwegianPreferredLocale.purpose!!.startsWith("Formålet med datasettet er å vise leveområder"),
+        )
         assertEquals(
             "geodataloven",
             recordWithNorwegianPreferredLocale.keywordGroups[1].keywords[1].value,
