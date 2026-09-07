@@ -32,13 +32,22 @@ const EMPTY_LINKED_DISTRIBUTIONS: LinkedDistributions = {
   parentService: [],
 };
 
+function decodeRouteUuid(uuid: string) {
+  try {
+    return decodeURIComponent(uuid);
+  } catch {
+    return uuid;
+  }
+}
+
 // Setter metadatatittel så det bla vises i faner
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ uuid: string }>;
 }): Promise<Metadata> {
-  const { uuid } = await params;
+  const { uuid: rawUuid } = await params;
+  const uuid = decodeRouteUuid(rawUuid);
   const metadata = await getMetadata(uuid);
   const pageTitle = metadata?.title || "Kartkatalogen";
   return { title: pageTitle };
@@ -49,7 +58,8 @@ export default async function ProductPage({
 }: {
   params: Promise<{ uuid: string }>;
 }) {
-  const { uuid } = await params;
+  const { uuid: rawUuid } = await params;
+  const uuid = decodeRouteUuid(rawUuid);
   const metadata = await getMetadata(uuid);
   const [alertsResult, linkedDistributionsResult] = await Promise.allSettled([
     getProductAlerts(uuid),
