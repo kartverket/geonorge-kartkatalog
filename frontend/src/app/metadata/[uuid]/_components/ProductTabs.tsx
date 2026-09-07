@@ -56,8 +56,11 @@ export function ProductTabs({
   );
 
   const tabs = [
-    { value: "distribution", label: `Distribusjoner for ${productType}` },
-    { value: "info", label: `Informasjon om ${productType}` },
+    {
+      value: "distribution",
+      label: `Distribusjoner for ${productTypeDefinite}`,
+    },
+    { value: "info", label: `Informasjon om ${productTypeDefinite}` },
     ...(hasDocumentation
       ? [{ value: "documentation", label: "Dokumentasjon" }]
       : []),
@@ -83,7 +86,7 @@ export function ProductTabs({
         </Tabs.List>
 
         <Tabs.Panel value="distribution" className={styles.panel}>
-          <Heading data-size="xs">Tilganger til {productType}</Heading>
+          <Heading data-size="xs">Tilganger til {productTypeDefinite}</Heading>
           <div className={styles.accordionGroup} data-color="neutral">
             <DetailAccordion items={distributionDetails} />
           </div>

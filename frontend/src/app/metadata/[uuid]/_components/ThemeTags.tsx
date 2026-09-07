@@ -31,7 +31,8 @@ export function ThemeTags({
       </div>
       {hasMore && (
         <Button
-          variant="tertiary"
+          variant="secondary"
+          data-size="sm"
           className={styles.themesButton}
           onClick={() => {
             trackClick("show-more-themes", LOCATIONS.MetadataPage, {
@@ -45,7 +46,8 @@ export function ThemeTags({
       )}
       {canCollapse && (
         <Button
-          variant="tertiary"
+          variant="secondary"
+          data-size="sm"
           className={styles.themesButton}
           onClick={() => {
             trackClick("hide-themes", LOCATIONS.MetadataPage, {
