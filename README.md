@@ -1,2 +1,2 @@
-# Monorepo for kartkatalogen
+# Monorepo for kartkatalogen.
 
