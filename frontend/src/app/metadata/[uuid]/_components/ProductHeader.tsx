@@ -18,7 +18,6 @@ export function ProductHeader({
 }) {
   return (
     <div className={styles.header}>
-      {!isBeta && (
         <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
           <Link href="/">Geonorge</Link> {"›"}{" "}
           <Link href="/">Kartkatalogen</Link> {"›"}{" "}

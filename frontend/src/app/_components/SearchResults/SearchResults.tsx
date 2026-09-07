@@ -18,7 +18,7 @@ export function SearchResults({ results }: SearchResultsProps) {
         <div className={styles.layout}>
           {/* Midlertidig plassholder for filter - fjernes når filter er implementert */}
           <aside className={styles.filterPlaceholder}>
-            Filter (placeholder)
+            Filter (kommer snart!)
           </aside>
           <div className={styles.content}>
             <div className={styles.header}>

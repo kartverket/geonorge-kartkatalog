@@ -42,7 +42,7 @@ export function Header() {
   const downloadCount = 0;
 
   const geonorgeHref = isBeta ? "https://www.geonorge.no/" : "/";
-  const findDataHref = isBeta ? "https://kartkatalog.geonorge.no/" : "/";
+  const findDataHref = "/";
   const mapHref =
     "https://kartkatalog.geonorge.no/kart?lat=7197860&lon=396722&zoom=4";
   const downloadHref = "https://kartkatalog.geonorge.no/nedlasting";
