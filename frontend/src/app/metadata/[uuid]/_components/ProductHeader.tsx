@@ -21,13 +21,11 @@ export function ProductHeader({
 }) {
   return (
     <div className={styles.header}>
-      {!isBeta && (
         <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
           <Link href="/">Geonorge</Link> {"›"}{" "}
           <Link href="/">Kartkatalogen</Link> {"›"}{" "}
           <span className={styles.current}>{title ?? "-"}</span>
         </nav>
-      )}
       <AccessStateTag accessState={access} context="tilgang" />
       <h1 className={styles.title}>{title ?? "-"}</h1>
       <p className={styles.organization}>
