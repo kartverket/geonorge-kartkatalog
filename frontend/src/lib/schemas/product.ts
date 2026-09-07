@@ -33,16 +33,16 @@ export const ReferenceSystemSchema = z.object({
   codeSpace: z.string().nullable(),
 });
 
-export const DistributionFormatEntrySchema = z.object({
-  name: z.string(),
-  urls: z.array(z.string()),
+export const DistributionEntrySchema = z.object({
+  url: z.string(),
+  formatNames: z.array(z.string()),
 });
 
 export const DistributionGroupSchema = z.object({
   protocol: z.string().nullable(),
   protocolName: z.string().nullable(),
   protocolDescription: z.string().nullable(),
-  formats: z.array(DistributionFormatEntrySchema),
+  entries: z.array(DistributionEntrySchema),
   unitsOfDistribution: z.string().nullable(),
 });
 

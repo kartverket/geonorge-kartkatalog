@@ -5,12 +5,13 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Distribu
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductConstraints
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionEntry
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
-import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormatEntry
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionGroup
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
@@ -21,6 +22,11 @@ class MetadataMapper(
     private val codeListTranslator: CodeListTranslator,
     private val staticNorgeskartUrl: String,
 ) {
+    private data class ResourceContribution(
+        val formatName: String,
+        val resource: OnlineResource,
+    )
+
     suspend fun toProductMetadata(record: MetadataRecord): ProductMetadata {
         val accessState = resolveAccessState(record)
         val rawSpatialScope = mapRawSpatialScope(record)
@@ -58,47 +64,7 @@ class MetadataMapper(
                 record.referenceSystems.map {
                     it.toProductReferenceSystem()
                 },
-            distributionGroups =
-                record.distributionInfo?.formats.orEmpty()
-                    .groupBy { it.onlineResources.firstOrNull { !it.protocol.isNullOrBlank() }?.protocol }
-                    .map { (protocol, formatsInGroup) ->
-                        val resources =
-                            formatsInGroup.flatMap {
-                                it.onlineResources
-                            }
-                        val distributionType =
-                            codeListTranslator.findItem(
-                                CodeList.DISTRIBUTION_TYPES,
-                                protocol,
-                            )
-                        ProductDistributionGroup(
-                            protocol = protocol,
-                            protocolName =
-                                distributionType?.label
-                                    ?: protocol.orEmpty(),
-                            protocolDescription =
-                                distributionType?.description,
-                            formats =
-                                formatsInGroup.map {
-                                    ProductDistributionFormatEntry(
-                                        name = it.name,
-                                        urls =
-                                            it.onlineResources.map { r ->
-                                                DistributionProtocols.appendUuidForGeonorgeDownload(
-                                                    r.url,
-                                                    protocol,
-                                                    record.uuid,
-                                                )
-                                            }.distinct(),
-                                    )
-                                },
-                            unitsOfDistribution =
-                                resources.firstOrNull {
-                                    it.unitsOfDistribution != null
-                                }
-                                    ?.unitsOfDistribution,
-                        )
-                    },
+            distributionGroups = mapDistributionGroups(record),
             thumbnailUrl = pickThumbnailUrl(record),
             fairStatusPercentFromMetadata = findFairPercent(record),
             abstractText = record.abstract,
@@ -255,6 +221,61 @@ class MetadataMapper(
     private fun KeywordGroup.isInspireTheme(): Boolean =
         thesaurusHref?.contains("inspire.ec.europa.eu/theme", ignoreCase = true) == true ||
             thesaurus?.contains("INSPIRE themes", ignoreCase = true) == true
+
+    private suspend fun mapDistributionGroups(record: MetadataRecord): List<ProductDistributionGroup> =
+        record.distributionInfo?.formats.orEmpty()
+            .flatMap { format ->
+                format.onlineResources.map { resource ->
+                    ResourceContribution(formatName = format.name, resource = resource)
+                }
+            }.groupBy { it.resource.protocol?.takeIf(String::isNotBlank) }
+            .map { (protocol, contributions) ->
+                val distributionType =
+                    codeListTranslator.findItem(
+                        CodeList.DISTRIBUTION_TYPES,
+                        protocol,
+                    )
+                ProductDistributionGroup(
+                    protocol = protocol,
+                    protocolName = distributionType?.label ?: protocol.orEmpty(),
+                    protocolDescription = distributionType?.description,
+                    entries = mapDistributionEntries(contributions, record.uuid),
+                    unitsOfDistribution =
+                        contributions.firstNotNullOfOrNull {
+                            it.resource.unitsOfDistribution?.takeIf(String::isNotBlank)
+                        },
+                )
+            }
+
+    private fun mapDistributionEntries(
+        contributions: List<ResourceContribution>,
+        uuid: String,
+    ): List<ProductDistributionEntry> =
+        contributions
+            .mapNotNull { contribution ->
+                contribution.resource.url.takeIf(String::isNotBlank)?.let { rawUrl ->
+                    normalizeDistributionUrl(rawUrl, contribution.resource.protocol, uuid) to contribution.formatName
+                }
+            }.groupBy(
+                keySelector = { it.first },
+                valueTransform = { it.second },
+            ).map { (url, formatNames) ->
+                ProductDistributionEntry(
+                    url = url,
+                    formatNames = formatNames.distinct(),
+                )
+            }
+
+    private fun normalizeDistributionUrl(
+        url: String,
+        protocol: String?,
+        uuid: String,
+    ): String =
+        DistributionProtocols.appendUuidForGeonorgeDownload(
+            url,
+            protocol,
+            uuid,
+        )
 
     private fun DistributionFormat.toProductDistributionFormat() =
         ProductDistributionFormat(

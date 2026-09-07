@@ -278,6 +278,23 @@ class MetadataRoutesTest {
     }
 
     @Test
+    fun `returns distribution entries in metadata response`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response =
+                client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val body = response.bodyAsText()
+            assertContains(body, "\"protocol\":\"OGC:WFS\"")
+            assertContains(body, "\"entries\":[")
+            assertContains(body, "\"formatNames\":[\"GML\"]")
+        }
+    }
+
+    @Test
     fun `returns 404 when record not found for metadata`() {
         val (metadataService, linkedDistributionsService) =
             createMetadataService(emptyGeonetworkXml)
