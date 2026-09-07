@@ -13,6 +13,8 @@ import kotlinx.coroutines.runBlocking
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionInfo
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Keyword
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
@@ -134,9 +136,53 @@ class MetadataMapperTest {
             assertContentEquals(listOf("GML", "GeoJSON"), wfsGroup.entries[0].formatNames)
         }
 
+    @Test
+    fun `translates multiple inspire theme keywords with a single register fetch`() =
+        runBlocking {
+            var requestCount = 0
+            val mapper =
+                MetadataMapper(
+                    createTranslator(
+                        responseContent =
+                            """
+                            {"containeditems": [
+                              {"label": "Addresses", "codevalue": "addresses"},
+                              {"label": "Transport networks", "codevalue": "transportnetworks"}
+                            ]}
+                            """.trimIndent(),
+                        onRequest = { requestCount++ },
+                    ),
+                    staticNorgeskartUrl = staticNorgeskartUrl,
+                )
+            val record =
+                minimalRecord(
+                    keywordGroups =
+                        listOf(
+                            KeywordGroup(
+                                type = "theme",
+                                thesaurus = "INSPIRE themes",
+                                keywords =
+                                    listOf(
+                                        Keyword(value = "addresses"),
+                                        Keyword(value = "transportnetworks"),
+                                    ),
+                            ),
+                        ),
+                )
+
+            val mapped = mapper.toProductMetadata(record)
+
+            assertContentEquals(
+                listOf("Addresses", "Transport networks"),
+                mapped.keywordsTheme.map { it.keywordValue },
+            )
+            assertEquals(1, requestCount)
+        }
+
     private fun minimalRecord(
         legalConstraints: LegalConstraints? = null,
         distributionInfo: DistributionInfo? = null,
+        keywordGroups: List<KeywordGroup> = emptyList(),
     ): MetadataRecord =
         MetadataRecord(
             uuid = "c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689",
@@ -147,14 +193,17 @@ class MetadataMapperTest {
             title = "Test dataset",
             legalConstraints = legalConstraints,
             distributionInfo = distributionInfo,
+            keywordGroups = keywordGroups,
         )
 
     private fun createTranslator(
         responseContent: String,
         responseStatus: HttpStatusCode = HttpStatusCode.OK,
+        onRequest: () -> Unit = {},
     ): CodeListTranslator {
         val engine =
             MockEngine {
+                onRequest()
                 respond(
                     content = responseContent,
                     status = responseStatus,

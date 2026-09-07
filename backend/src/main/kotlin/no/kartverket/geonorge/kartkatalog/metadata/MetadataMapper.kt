@@ -121,18 +121,31 @@ class MetadataMapper(
     private suspend fun mapThemeKeywords(record: MetadataRecord): List<ProductKeyword> =
         record.keywordGroups
             .filter { it.type.equals("theme", ignoreCase = true) }
-            .flatMap { group ->
-                group.keywords.map { keyword ->
-                    ProductKeyword(
-                        keywordValue =
-                            if (group.isInspireTheme()) {
-                                codeListTranslator.translate(CodeList.INSPIRE, keyword.value) ?: keyword.value
-                            } else {
-                                keyword.value
-                            },
-                        type = group.type,
-                    )
-                }
+            .let { themeGroups ->
+                val inspireCodeListItems =
+                    if (themeGroups.any { it.isInspireTheme() }) {
+                        codeListTranslator.getCodeListItems(CodeList.INSPIRE)
+                    } else {
+                        null
+                    }
+
+                themeGroups
+                    .flatMap { group ->
+                        group.keywords.map { keyword ->
+                            ProductKeyword(
+                                keywordValue =
+                                    if (group.isInspireTheme()) {
+                                        codeListTranslator.translate(
+                                            inspireCodeListItems,
+                                            keyword.value,
+                                        ) ?: keyword.value
+                                    } else {
+                                        keyword.value
+                                    },
+                                type = group.type,
+                            )
+                        }
+                    }
             }
 
     private fun mapNationalKeywords(record: MetadataRecord): List<ProductKeyword> =
