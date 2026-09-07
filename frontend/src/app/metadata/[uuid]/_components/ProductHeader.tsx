@@ -22,12 +22,17 @@ export function ProductHeader({
         <Link href="/">Geonorge</Link> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
         {"›"} <span className={styles.current}>{title ?? "-"}</span>
       </nav>
-      )
       <div className={styles.badgeRow}>
         <AccessStateTag accessState={access} context="tilgang" />
-        <span className="ds-tag" data-color="neutral" data-size="sm">
-          {organization ?? getProductTypeString(hierarchyLevel)}
-        </span>
+        {organization && (
+          <span
+            className={`ds-tag ${styles.orgTag}`}
+            data-color="neutral"
+            data-size="sm"
+          >
+            {organization}
+          </span>
+        )}
       </div>
       <h1 className={styles.title}>{title ?? "-"}</h1>
     </div>
