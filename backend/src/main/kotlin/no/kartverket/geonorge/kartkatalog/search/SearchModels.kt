@@ -57,6 +57,7 @@ data class SearchFacetInput(
 @Serializable
 data class SearchFacet(
     val facetField: String,
+    val label: String? = null,
     val values: List<SearchFacetValue>,
 )
 
@@ -65,6 +66,19 @@ data class SearchFacetValue(
     val name: String,
     val count: Int,
 )
+
+val FACET_LABELS: Map<String, String> =
+    linkedMapOf(
+        "type" to "Type",
+        "theme" to "Tema",
+        "area" to "Geografisk område",
+        "dataaccess" to "Tilgang til data",
+        "DistributionProtocols" to "Distribusjonsform",
+        "nationalinitiative" to "Samarbeid og lover",
+    )
+
+val FACET_ORDER: Map<String, Int> =
+    FACET_LABELS.keys.withIndex().associate { (i, field) -> field to i }
 
 @Serializable
 data class SearchResultItem(

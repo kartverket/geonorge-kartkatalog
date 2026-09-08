@@ -28,9 +28,11 @@ private fun SolrFacetCounts?.toSearchFacets(): List<SearchFacet> =
     this?.facetFields.orEmpty().map { (facetField, values) ->
         SearchFacet(
             facetField = facetField,
+            label = FACET_LABELS[facetField],
             values = values.toFacetValues(),
         )
     }
+        .sortedWith(compareBy(nullsLast()) { FACET_ORDER[it.facetField] })
 
 private fun List<JsonPrimitive>.pairs(): List<Pair<JsonPrimitive, JsonPrimitive>> =
     chunked(2).mapNotNull { chunk ->
