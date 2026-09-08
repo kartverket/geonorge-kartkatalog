@@ -36,13 +36,13 @@ export function FacetGroup({
           onChange={() => onToggle(field, v.name)}
         />
       ))}
-      {hasMore && !expanded && (
+      {hasMore && (
         <Button
           variant="tertiary"
           data-size="sm"
-          onClick={() => setExpanded(true)}
+          onClick={() => setExpanded((e) => !e)}
         >
-          Vis flere
+          {expanded ? "Vis mindre" : "Vis flere"}
         </Button>
       )}
     </fieldset>
