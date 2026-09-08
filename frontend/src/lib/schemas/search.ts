@@ -13,6 +13,21 @@ const SearchFacetSchema = z.object({
   values: z.array(SearchFacetValueSchema),
 });
 
+type SearchResultItemOutput = {
+  uuid: string;
+  title: string;
+  organization: string | undefined;
+  typeTranslated: string | undefined;
+  thumbnailUrl: string | undefined;
+  distributionUrl: string | undefined;
+  distributionProtocol: string | undefined;
+  getCapabilitiesUrl: string | undefined;
+  showMapLink: boolean;
+  mapCapabilitiesUrl: string | undefined;
+  accessState: (typeof accessState)[number] | null;
+  hierarchyLevel: string | null;
+};
+
 const SearchResultItemSchema = z
   .object({
     uuid: z.string(),
@@ -28,20 +43,22 @@ const SearchResultItemSchema = z
     accessState: z.enum(accessState).nullable(),
     hierarchyLevel: z.string().nullable(),
   })
-  .transform((item) => ({
-    uuid: item.uuid,
-    title: item.title,
-    organization: item.organization ?? undefined,
-    typeTranslated: item.typeTranslated ?? undefined,
-    thumbnailUrl: item.thumbnailUrl ?? undefined,
-    distributionUrl: item.distributionUrl ?? undefined,
-    distributionProtocol: item.distributionProtocol ?? undefined,
-    getCapabilitiesUrl: item.getCapabilitiesUrl ?? undefined,
-    showMapLink: item.showMapLink,
-    mapCapabilitiesUrl: item.mapCapabilitiesUrl ?? undefined,
-    accessState: item.accessState,
-    hierarchyLevel: item.hierarchyLevel,
-  }));
+  .transform(
+    (item): SearchResultItemOutput => ({
+      uuid: item.uuid,
+      title: item.title,
+      organization: item.organization ?? undefined,
+      typeTranslated: item.typeTranslated ?? undefined,
+      thumbnailUrl: item.thumbnailUrl ?? undefined,
+      distributionUrl: item.distributionUrl ?? undefined,
+      distributionProtocol: item.distributionProtocol ?? undefined,
+      getCapabilitiesUrl: item.getCapabilitiesUrl ?? undefined,
+      showMapLink: item.showMapLink,
+      mapCapabilitiesUrl: item.mapCapabilitiesUrl ?? undefined,
+      accessState: item.accessState,
+      hierarchyLevel: item.hierarchyLevel,
+    }),
+  );
 
 export const SearchResultSchema = z.object({
   numFound: z.number(),
