@@ -64,6 +64,9 @@
   .results.results {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+  }
+  .pageInner {
+    padding-inline: var(--page-content-padding-inline-mobile);
   }
 }
