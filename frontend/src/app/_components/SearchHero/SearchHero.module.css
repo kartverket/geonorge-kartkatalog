@@ -1,15 +1,72 @@
 .hero {
   width: 100%;
+  position: relative;
+  overflow: hidden;
   background-color: var(--ds-color-info-text-default);
   color: var(--ds-color-background-default);
   padding-block: 70px;
 }
 
+.background {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+}
+
+.backgroundInner {
+  position: relative;
+  height: 100%;
+  max-width: var(--page-content-max-width);
+  margin: 0 auto;
+  padding-inline: var(--page-content-padding-inline-mobile);
+}
+
 .inner {
+  position: relative;
+  z-index: 1;
   max-width: 561px;
   margin-inline: auto;
   display: grid;
   gap: var(--ds-size-10);
+}
+
+.pin {
+  position: absolute;
+  width: 137px;
+  height: 175px;
+}
+
+.leftPin {
+  top: -58px;
+  right: var(--page-content-padding-inline-mobile);
+}
+
+.rightPin {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .backgroundInner {
+    padding-inline: var(--page-content-padding-inline);
+  }
+
+  .pin {
+    width: 214px;
+    height: 242px;
+  }
+
+  .leftPin {
+    top: -81px;
+    right: auto;
+    left: var(--page-content-padding-inline);
+  }
+
+  .rightPin {
+    display: block;
+    right: var(--page-content-padding-inline);
+    bottom: -145px;
+  }
 }
 
 .title {

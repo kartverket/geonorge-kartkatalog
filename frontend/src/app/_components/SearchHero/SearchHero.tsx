@@ -1,6 +1,7 @@
 "use client";
 
 import { Heading, Search } from "@kv-designsystem/react";
+import { LocationPinFillIcon } from "@navikt/aksel-icons";
 import { isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./SearchHero.module.css";
@@ -8,6 +9,18 @@ import styles from "./SearchHero.module.css";
 export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
   return (
     <section className={styles.hero}>
+      <div className={styles.background} aria-hidden="true">
+        <div className={styles.backgroundInner}>
+          <LocationPinFillIcon
+            className={`${styles.pin} ${styles.leftPin}`}
+            aria-hidden
+          />
+          <LocationPinFillIcon
+            className={`${styles.pin} ${styles.rightPin}`}
+            aria-hidden
+          />
+        </div>
+      </div>
       <div className={styles.inner}>
         <Heading data-size="lg" className={styles.title}>
           Finn data
