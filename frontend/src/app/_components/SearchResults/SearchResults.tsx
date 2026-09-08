@@ -2,24 +2,27 @@
 
 import { useState } from "react";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
+import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
 import styles from "./SearchResults.module.css";
 import { type ViewMode, ViewToggle } from "./ViewToggle";
 
 type SearchResultsProps = {
   results: Array<Omit<DatasetCardProps, "viewMode">>;
+  facets: Array<{
+    facetField: string;
+    label: string | null;
+    values: Array<{ name: string; count: number }>;
+  }>;
 };
 
-export function SearchResults({ results }: SearchResultsProps) {
+export function SearchResults({ results, facets }: SearchResultsProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   return (
     <main className={styles.page} data-color="neutral">
       <div className={styles.pageInner}>
         <div className={styles.layout}>
-          {/* Midlertidig plassholder for filter - fjernes når filter er implementert */}
-          <aside className={styles.filterPlaceholder}>
-            Filter (kommer snart!)
-          </aside>
+          <FacetSidebar facets={facets} />
           <div className={styles.content}>
             <div className={styles.header}>
               <ViewToggle value={viewMode} onChange={setViewMode} />
