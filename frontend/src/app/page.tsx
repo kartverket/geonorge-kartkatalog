@@ -26,7 +26,7 @@ export default async function Home({
   return (
     <>
       <SearchHero initialValue={text ?? ""} />
-      <SearchResults results={results} />
+      <SearchResults results={results} totalCount={searchResult.numFound} />
     </>
   );
 }
