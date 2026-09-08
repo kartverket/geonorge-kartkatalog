@@ -166,6 +166,20 @@ export function DatasetCard({
               icon={<ExternalLinkIcon aria-hidden />}
             />
           )}
+          {canDownload && isOpen && isDataset && p.distributionUrl && (
+            <AddToCartButton
+              item={{
+                uuid: p.uuid,
+                name: p.title,
+                distributionUrl: p.distributionUrl,
+              }}
+              location={analyticsLocation}
+              variant="primary"
+              size="sm"
+              addLabel="Last ned"
+              removeLabel="Fjern nedlasting"
+            />
+          )}
           {canShowMap && (
             <AddToMapButton
               item={{
@@ -178,20 +192,6 @@ export function DatasetCard({
               variant="secondary"
               size="sm"
               location={analyticsLocation}
-            />
-          )}
-          {canDownload && isOpen && isDataset && p.distributionUrl && (
-            <AddToCartButton
-              item={{
-                uuid: p.uuid,
-                name: p.title,
-                distributionUrl: p.distributionUrl,
-              }}
-              location={analyticsLocation}
-              variant="secondary"
-              size="sm"
-              addLabel="Last ned"
-              removeLabel="Fjern nedlasting"
             />
           )}
           {canCopy && (

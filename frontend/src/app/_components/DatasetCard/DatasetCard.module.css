@@ -115,11 +115,8 @@
   align-items: center;
 }
 
-.buttonGroupContainer :global(.ds-button) {
-  justify-content: center;
-  position: relative;
+.buttonGroupContainer button {
   z-index: 1;
-  color: var(--ds-color-neutral-text-subtle);
   --dsc-button-padding: var(--ds-size-2) var(--ds-size-2);
   font-size: var(--ds-body-xs-font-size);
 }
