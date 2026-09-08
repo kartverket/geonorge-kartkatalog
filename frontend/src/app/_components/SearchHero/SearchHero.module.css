@@ -46,7 +46,7 @@
   display: none;
 }
 
-@media (min-width: 768px) {
+@media (width > 800px) {
   .backgroundInner {
     padding-inline: var(--page-content-padding-inline);
   }

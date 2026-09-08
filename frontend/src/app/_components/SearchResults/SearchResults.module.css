@@ -56,3 +56,9 @@
   flex: 1;
   min-width: 0;
 }
+
+@media (max-width: 800px) {
+  .filterPlaceholder {
+    display: none;
+  }
+}
