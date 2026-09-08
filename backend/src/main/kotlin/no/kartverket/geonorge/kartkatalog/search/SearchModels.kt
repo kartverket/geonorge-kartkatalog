@@ -64,6 +64,7 @@ data class SearchFacet(
 @Serializable
 data class SearchFacetValue(
     val name: String,
+    val label: String? = null,
     val count: Int,
 )
 

@@ -30,7 +30,7 @@ export function FacetGroup({
       {visible.map((v) => (
         <Checkbox
           key={v.name}
-          label={`${v.name} (${v.count})`}
+          label={`${v.label ?? v.name} (${v.count})`}
           value={v.name}
           checked={selected.includes(v.name)}
           onChange={() => onToggle(field, v.name)}

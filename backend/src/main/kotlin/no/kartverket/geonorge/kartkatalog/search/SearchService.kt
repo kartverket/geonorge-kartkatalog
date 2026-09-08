@@ -29,7 +29,7 @@ private fun SolrFacetCounts?.toSearchFacets(): List<SearchFacet> =
         SearchFacet(
             facetField = facetField,
             label = FACET_LABELS[facetField],
-            values = values.toFacetValues(),
+            values = values.toFacetValues(facetField),
         )
     }
         .sortedWith(compareBy(nullsLast()) { FACET_ORDER[it.facetField] })
@@ -41,13 +41,17 @@ private fun List<JsonPrimitive>.pairs(): List<Pair<JsonPrimitive, JsonPrimitive>
         name to count
     }
 
-private fun kotlinx.serialization.json.JsonArray.toFacetValues(): List<SearchFacetValue> =
+private fun kotlinx.serialization.json.JsonArray.toFacetValues(facetField: String): List<SearchFacetValue> =
     mapNotNull { it as? JsonPrimitive }
         .pairs()
         .mapNotNull { (name, count) ->
             val facetName = name.content
             val facetCount = count.content.toIntOrNull() ?: return@mapNotNull null
-            SearchFacetValue(name = facetName, count = facetCount)
+            SearchFacetValue(
+                name = facetName,
+                label = if (facetField == "type") translateType(facetName) else null,
+                count = facetCount,
+            )
         }
 
 private fun SolrDocument.toSearchResultItem(): SearchResultItem {
