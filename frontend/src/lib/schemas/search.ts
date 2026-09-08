@@ -9,6 +9,7 @@ const SearchFacetValueSchema = z.object({
 
 const SearchFacetSchema = z.object({
   facetField: z.string(),
+  label: z.string().nullable(),
   values: z.array(SearchFacetValueSchema),
 });
 
