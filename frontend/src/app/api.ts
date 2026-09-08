@@ -232,6 +232,7 @@ export async function getSearchResults({
   limit?: number;
   offset?: number;
   orderby?: string;
+  filters?: Record<string, string[]>;
 }): Promise<SearchResult> {
   const params = new URLSearchParams();
   if (text?.trim()) params.set("text", text.trim());
