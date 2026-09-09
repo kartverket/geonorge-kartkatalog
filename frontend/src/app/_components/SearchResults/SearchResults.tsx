@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
 import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
 import styles from "./SearchResults.module.css";
@@ -22,7 +22,9 @@ export function SearchResults({ results, facets }: SearchResultsProps) {
     <main className={styles.page} data-color="neutral">
       <div className={styles.pageInner}>
         <div className={styles.layout}>
-          <FacetSidebar facets={facets} />
+          <Suspense fallback={null}>
+            <FacetSidebar facets={facets} />
+          </Suspense>
           <div className={styles.content}>
             <div className={styles.header}>
               <ViewToggle value={viewMode} onChange={setViewMode} />

@@ -25,8 +25,8 @@ export function FacetGroup({
     initialVisibleCount != null && values.length > initialVisibleCount;
 
   return (
-    <fieldset>
-      <legend>{label}</legend>
+    <fieldset suppressHydrationWarning>
+      <legend suppressHydrationWarning>{label}</legend>
       {visible.map((v) => (
         <Checkbox
           key={v.name}
