@@ -6,6 +6,8 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrFacetCounts
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
+import java.text.Collator
+import java.util.Locale
 
 class SearchService(
     private val solrClient: SolrClient,
@@ -47,23 +49,49 @@ private fun List<JsonPrimitive>.pairs(): List<Pair<JsonPrimitive, JsonPrimitive>
 private fun kotlinx.serialization.json.JsonArray.toFacetValues(
     facetField: String,
     fylkeNames: Map<String, String>,
-): List<SearchFacetValue> =
-    mapNotNull { it as? JsonPrimitive }
-        .pairs()
-        .mapNotNull { (name, count) ->
-            val facetName = name.content
-            val facetCount = count.content.toIntOrNull() ?: return@mapNotNull null
-            SearchFacetValue(
-                name = facetName,
-                label =
-                    when (facetField) {
-                        "type" -> translateType(facetName)
-                        "area" -> fylkeNames[facetName]
-                        else -> null
-                    },
-                count = facetCount,
-            )
-        }
+): List<SearchFacetValue> {
+    val values =
+        mapNotNull { it as? JsonPrimitive }
+            .pairs()
+            .mapNotNull { (name, count) ->
+                val facetName = name.content
+                if (isJunkFacetValue(facetField, facetName)) return@mapNotNull null
+                val facetCount = count.content.toIntOrNull() ?: return@mapNotNull null
+                SearchFacetValue(
+                    name = facetName,
+                    label =
+                        when (facetField) {
+                            "type" -> translateType(facetName)
+                            "area" -> fylkeNames[facetName]
+                            else -> null
+                        },
+                    count = facetCount,
+                )
+            }
+
+    return when (facetField) {
+        "type" -> values.sortedBy { TYPE_VALUE_ORDER[it.name] ?: Int.MAX_VALUE }
+        "area" -> values.sortedWith(compareBy(norwegianCollator) { it.label ?: it.name })
+        else -> values
+    }
+}
+
+private val norwegianCollator: Comparator<String> =
+    Collator.getInstance(Locale.forLanguageTag("nb")).let { c -> Comparator { a, b -> c.compare(a, b) } }
+
+private val TYPE_VALUE_ORDER: Map<String, Int> =
+    listOf("dataset", "series", "service", "servicelayer", "software")
+        .withIndex().associate { (i, code) -> code to i }
+
+private fun isJunkFacetValue(
+    facetField: String,
+    value: String,
+): Boolean =
+    when (facetField) {
+        "theme" -> value.startsWith("http")
+        "area" -> value.matches(Regex("^0/\\d+/\\d+$"))
+        else -> false
+    }
 
 private fun SolrDocument.toSearchResultItem(): SearchResultItem {
     val datasetServices = parseDatasetServices(datasetservice)
