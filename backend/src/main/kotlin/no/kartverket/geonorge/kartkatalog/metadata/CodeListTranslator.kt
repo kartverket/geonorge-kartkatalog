@@ -3,11 +3,15 @@ package no.kartverket.geonorge.kartkatalog.metadata
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterCodeListItem
+import org.slf4j.LoggerFactory
 import kotlin.coroutines.cancellation.CancellationException
 
 class CodeListTranslator(
     private val registerClient: RegisterClient,
 ) {
+    private val log = LoggerFactory.getLogger(CodeListTranslator::class.java)
+    private val codeListCache = TimedCache<CodeList, List<RegisterCodeListItem>>(ttlMillis = 24 * 60 * 60 * 1000)
+
     suspend fun translate(
         codeList: CodeList,
         value: String?,
@@ -50,11 +54,14 @@ class CodeListTranslator(
     }
 
     suspend fun getCodeListItems(codeList: CodeList): List<RegisterCodeListItem>? =
-        try {
-            registerClient.getCodeList(codeList).containedItems
-        } catch (e: CancellationException) {
-            throw e
-        } catch (_: Exception) {
-            null
+        codeListCache.getOrFetch(codeList) {
+            try {
+                registerClient.getCodeList(codeList).containedItems
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                log.warn("Failed to fetch code list {}", codeList, e)
+                null
+            }
         }
 }
