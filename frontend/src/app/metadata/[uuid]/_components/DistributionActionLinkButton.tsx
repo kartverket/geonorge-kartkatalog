@@ -10,12 +10,14 @@ export function DistributionActionLinkButton({
   title,
   eventName,
   trackingProperties,
+  size,
 }: {
   href: string;
   icon: ReactNode;
   title: string;
   eventName: string;
   trackingProperties?: Record<string, unknown>;
+  size?: "sm" | "md" | "lg";
 }) {
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -25,7 +27,7 @@ export function DistributionActionLinkButton({
   };
 
   return (
-    <Button variant="secondary" onClick={handleClick}>
+    <Button variant="secondary" onClick={handleClick} data-size={size}>
       {icon}
       {title}
     </Button>

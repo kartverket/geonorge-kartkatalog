@@ -51,6 +51,7 @@ export function DistributionDetailActionButton({
           name: title,
           distributionUrl: getGeonorgeDownloadUrl([group]),
         }}
+        size="sm"
         location={LOCATIONS.MetadataPageTabs}
         variant="secondary"
         addLabel="Last ned"
@@ -63,6 +64,7 @@ export function DistributionDetailActionButton({
   if (isDirectDownloadPageProtocol(group.protocol)) {
     return (
       <DistributionActionLinkButton
+        size="sm"
         href={firstUrl}
         icon={<ExternalLinkIcon aria-hidden />}
         title="Åpne nedlastinger"
@@ -75,6 +77,7 @@ export function DistributionDetailActionButton({
   if (isCopyableDistributionProtocol(group.protocol)) {
     return (
       <CopyButton
+        size="sm"
         url={firstUrl}
         eventName="copy-distribution-link-from-accordion-summary"
         trackingProperties={trackingProperties}

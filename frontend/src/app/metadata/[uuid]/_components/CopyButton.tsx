@@ -13,12 +13,14 @@ export function CopyButton({
   eventName = "copy-link",
   trackingProperties,
   preventAccordionToggle = false,
+  size,
 }: {
   url: string;
   className?: string;
   eventName?: string;
   trackingProperties?: Record<string, unknown>;
   preventAccordionToggle?: boolean;
+  size?: "sm" | "md" | "lg";
 }) {
   const { copied, copy } = useCopyUrl(url);
 
@@ -33,7 +35,12 @@ export function CopyButton({
   };
 
   return (
-    <Button variant="secondary" className={className} onClick={handleClick}>
+    <Button
+      variant="secondary"
+      className={className}
+      onClick={handleClick}
+      data-size={size}
+    >
       <span className={styles.swap}>
         <span className={`${styles.state} ${copied ? styles.stateHidden : ""}`}>
           <FilesIcon aria-hidden /> Kopier lenke
