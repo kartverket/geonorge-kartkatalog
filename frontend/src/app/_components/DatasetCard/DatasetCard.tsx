@@ -16,6 +16,7 @@ import {
   AccessStateTag,
   type AccessTagContext,
 } from "@/components/AccessStateTag/AccessStateTag";
+import { isAllowedThumbnailUrl } from "@/lib/isAllowedThumbnailUrl";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
 import styles from "./DatasetCard.module.css";
 
@@ -63,6 +64,9 @@ export function DatasetCard({
   const canCopy = isService && !!p.getCapabilitiesUrl;
   const applicationUrl =
     p.typeTranslated === "Applikasjon" ? p.distributionUrl : null;
+  const thumbnailUrl = isAllowedThumbnailUrl(p.thumbnailUrl)
+    ? p.thumbnailUrl
+    : null;
 
   const accessContext =
     TYPE_TO_ACCESS_CONTEXT[p.typeTranslated ?? ""] ?? "datasett";
@@ -82,9 +86,9 @@ export function DatasetCard({
 
   const renderThumbnail = () => (
     <div className={styles.thumbnailContainer}>
-      {p.thumbnailUrl ? (
+      {thumbnailUrl ? (
         <Image
-          src={p.thumbnailUrl}
+          src={thumbnailUrl}
           alt=""
           fill
           sizes="(max-width: 767px) 100vw, 430px"
