@@ -4,32 +4,35 @@ import kotlinx.serialization.json.JsonPrimitive
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrFacetCounts
+import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
 
 class SearchService(
     private val solrClient: SolrClient,
+    private val areaResolver: AreaResolver,
 ) {
     suspend fun search(request: SearchRequest): SearchResponse {
         val normalized = request.normalized()
         val query = SearchQueryBuilder.build(normalized)
         val response = solrClient.searchMetadataAll(query)
+        val fylkeNames = areaResolver.getFylkeNames().orEmpty()
 
         return SearchResponse(
             numFound = response.response.numFound,
             limit = normalized.limit,
             offset = normalized.offset,
             results = response.response.docs.map { it.toSearchResultItem() },
-            facets = response.facetCounts.toSearchFacets(),
+            facets = response.facetCounts.toSearchFacets(fylkeNames),
         )
     }
 }
 
-private fun SolrFacetCounts?.toSearchFacets(): List<SearchFacet> =
+private fun SolrFacetCounts?.toSearchFacets(fylkeNames: Map<String, String>): List<SearchFacet> =
     this?.facetFields.orEmpty().map { (facetField, values) ->
         SearchFacet(
             facetField = facetField,
             label = FACET_LABELS[facetField],
-            values = values.toFacetValues(facetField),
+            values = values.toFacetValues(facetField, fylkeNames),
         )
     }
         .sortedWith(compareBy(nullsLast()) { FACET_ORDER[it.facetField] })
@@ -41,7 +44,10 @@ private fun List<JsonPrimitive>.pairs(): List<Pair<JsonPrimitive, JsonPrimitive>
         name to count
     }
 
-private fun kotlinx.serialization.json.JsonArray.toFacetValues(facetField: String): List<SearchFacetValue> =
+private fun kotlinx.serialization.json.JsonArray.toFacetValues(
+    facetField: String,
+    fylkeNames: Map<String, String>,
+): List<SearchFacetValue> =
     mapNotNull { it as? JsonPrimitive }
         .pairs()
         .mapNotNull { (name, count) ->
@@ -49,7 +55,12 @@ private fun kotlinx.serialization.json.JsonArray.toFacetValues(facetField: Strin
             val facetCount = count.content.toIntOrNull() ?: return@mapNotNull null
             SearchFacetValue(
                 name = facetName,
-                label = if (facetField == "type") translateType(facetName) else null,
+                label =
+                    when (facetField) {
+                        "type" -> translateType(facetName)
+                        "area" -> fylkeNames[facetName]
+                        else -> null
+                    },
                 count = facetCount,
             )
         }

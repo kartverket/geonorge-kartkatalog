@@ -11,6 +11,7 @@ import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
 import no.kartverket.geonorge.kartkatalog.metadata.LinkedDistributionsService
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
@@ -24,6 +25,7 @@ fun Application.configureRouting(appConfig: AppConfig) {
     val geonetworkClient = GeonetworkClient(httpClient, appConfig.geonetworkBaseUrl)
     val registerClient = RegisterClient(httpClient, appConfig.registerBaseUrl)
     val codeListTranslator = CodeListTranslator(registerClient)
+    val areaResolver = AreaResolver(registerClient)
     val metadataMapper = MetadataMapper(codeListTranslator, appConfig.staticNorgeskartUrl)
     val metadataService = MetadataService(geonetworkClient, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
