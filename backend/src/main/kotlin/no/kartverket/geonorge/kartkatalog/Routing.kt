@@ -30,7 +30,7 @@ fun Application.configureRouting(appConfig: AppConfig) {
     val metadataService = MetadataService(geonetworkClient, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient, codeListTranslator)
-    val searchService = SearchService(solrClient)
+    val searchService = SearchService(solrClient, areaResolver)
 
     monitor.subscribe(ApplicationStopping) { httpClient.close() }
 
