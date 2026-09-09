@@ -133,7 +133,11 @@ class SearchRoutesTest {
                     ) {
                         install(ContentNegotiation) { json() }
                     }
-                val searchService = SearchService(SolrClient(client, "https://solr.example.test"))
+                val searchService =
+                    SearchService(
+                        SolrClient(client, "https://solr.example.test"),
+                        AreaResolver(RegisterClient(client, "https://register.example.test")),
+                    )
                 routing { searchRoutes(searchService) }
             }
 
