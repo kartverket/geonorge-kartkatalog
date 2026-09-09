@@ -78,7 +78,6 @@ export default async function ProductPage({
   return (
     <div className={styles.content}>
       <ProductHeader
-        hierarchyLevel={metadata.hierarchyLevel}
         title={metadata.title}
         organization={metadata.organization}
         access={metadata.accessState}
