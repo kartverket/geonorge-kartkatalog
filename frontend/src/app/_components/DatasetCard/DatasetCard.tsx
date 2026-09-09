@@ -22,22 +22,22 @@ import styles from "./DatasetCard.module.css";
 export type DatasetCardProps = {
   uuid: string;
   title: string;
-  organization?: string;
-  typeTranslated?: string;
-  thumbnailUrl?: string;
-  distributionUrl?: string;
-  distributionProtocol?: string;
-  getCapabilitiesUrl?: string;
-  showMapLink?: boolean;
-  mapCapabilitiesUrl?: string;
+  organization: string | null;
+  typeTranslated: string | null;
+  thumbnailUrl: string | null;
+  distributionUrl: string | null;
+  distributionProtocol: string | null;
+  getCapabilitiesUrl: string | null;
+  showMapLink: boolean | null;
+  mapCapabilitiesUrl: string | null;
   protocolNames?: string[];
   formats?: string[];
+  accessState: "restricted" | "open" | "protected" | null;
+  hierarchyLevel: string | null;
   showThumbnail?: boolean;
   compact?: boolean;
   viewMode?: "grid" | "list";
   analyticsLocation?: Location;
-  accessState: "restricted" | "open" | "protected" | null;
-  hierarchyLevel: string | null;
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -61,8 +61,8 @@ export function DatasetCard({
   const canDownload = p.distributionProtocol === "GEONORGE:DOWNLOAD";
   const canShowMap = !!p.showMapLink && !!p.mapCapabilitiesUrl;
   const canCopy = isService && !!p.getCapabilitiesUrl;
-  const canOpenApplication =
-    p.typeTranslated === "Applikasjon" && !!p.distributionUrl;
+  const applicationUrl =
+    p.typeTranslated === "Applikasjon" ? p.distributionUrl : null;
 
   const accessContext =
     TYPE_TO_ACCESS_CONTEXT[p.typeTranslated ?? ""] ?? "datasett";
@@ -157,10 +157,10 @@ export function DatasetCard({
           )}
         </div>
         <div className={styles.buttonGroupContainer}>
-          {canOpenApplication && (
+          {applicationUrl && (
             <CardActionButton
               onClick={() => {
-                window.open(p.distributionUrl, "_blank", "noopener");
+                window.open(applicationUrl, "_blank", "noopener");
               }}
               label="Nettside"
               icon={<ExternalLinkIcon aria-hidden />}
