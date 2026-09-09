@@ -1,3 +1,5 @@
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import {
   getFairStatus,
   type getMetadata,
@@ -6,11 +8,13 @@ import {
   getTegneregler,
 } from "@/app/api";
 import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
+import { DistributionActionLinkButton } from "@/app/metadata/[uuid]/_components/DistributionActionLinkButton";
 import {
   type DetailItem,
   ProductTabs,
 } from "@/app/metadata/[uuid]/_components/ProductTabs";
 import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
+import { getGeonorgeDownloadUrl } from "@/app/metadata/[uuid]/_utils/distributions";
 import {
   formatDate,
   showCopyLink,
@@ -22,6 +26,7 @@ import type {
   ProductConstraints,
   ReferenceSystem,
 } from "@/lib/schemas/product";
+import { LOCATIONS } from "@/posthog/posthog";
 
 export async function ProductTabsSection({
   uuid,
@@ -83,6 +88,10 @@ export async function ProductTabsSection({
   });
 
   const distributionDetails = buildDistributionDetails({
+    uuid,
+    title: metadata.title,
+    hierarchyLevel: metadata.hierarchyLevel,
+    accessState: metadata.accessState,
     groups: metadata.distributionGroups,
     referenceSystems: metadata.referenceSystems,
     dateUpdated: metadata.dateUpdated,
@@ -226,11 +235,19 @@ function buildInfoDetails({
 }
 
 function buildDistributionDetails({
+  uuid,
+  title,
+  hierarchyLevel,
+  accessState,
   groups,
   referenceSystems,
   dateUpdated,
   maintenanceFrequency,
 }: {
+  uuid: string;
+  title: string;
+  hierarchyLevel: string | null;
+  accessState: "restricted" | "open" | "protected" | null;
   groups: DistributionGroup[];
   referenceSystems: ReferenceSystem[];
   dateUpdated: string | null;
@@ -239,21 +256,18 @@ function buildDistributionDetails({
   return groups.map((group) => {
     const urlRows = buildUrlRows(group.entries);
     const formatNames = getGroupFormatNames(group.entries);
+    const firstUrlRow = urlRows[0];
 
     return {
-      actionButton:
-        urlRows.length === 1 && showCopyLink(group.protocol) ? (
-          <CopyButton
-            url={urlRows[0].url}
-            eventName="copy-distribution-link-from-accordion-summary"
-            trackingProperties={{
-              protocol: group.protocol,
-              protocolName: group.protocolName,
-              format: formatNames.join(", "),
-              urlLabel: urlRows[0].label,
-            }}
-          />
-        ) : null,
+      actionButton: buildDistributionActionButton({
+        uuid,
+        title,
+        hierarchyLevel,
+        accessState,
+        group,
+        firstUrlRow,
+        formatNames,
+      }),
       title: group.protocolName ?? "Ukjent protokoll",
       content: (
         <FieldList
@@ -262,15 +276,7 @@ function buildDistributionDetails({
             ...urlRows.map(
               (row): Field => ({
                 label: row.label,
-                content: (
-                  <UrlLink
-                    url={row.url}
-                    protocol={group.protocol}
-                    protocolName={group.protocolName}
-                    format={row.formatNames.join(", ")}
-                    urlLabel={row.label}
-                  />
-                ),
+                content: <UrlLink url={row.url} />,
               }),
             ),
             {
@@ -329,6 +335,81 @@ function buildDistributionDetails({
   });
 }
 
+function buildDistributionActionButton({
+  uuid,
+  title,
+  hierarchyLevel,
+  accessState,
+  group,
+  firstUrlRow,
+  formatNames,
+}: {
+  uuid: string;
+  title: string;
+  hierarchyLevel: string | null;
+  accessState: "restricted" | "open" | "protected" | null;
+  group: DistributionGroup;
+  firstUrlRow: UrlRow | undefined;
+  formatNames: string[];
+}) {
+  if (!firstUrlRow) return null;
+
+  const trackingProperties = {
+    protocol: group.protocol,
+    protocolName: group.protocolName,
+    format: formatNames.join(", "),
+    urlLabel: firstUrlRow.label,
+  };
+
+  if (
+    group.protocol === "GEONORGE:DOWNLOAD" &&
+    hierarchyLevel === "dataset" &&
+    accessState === "open"
+  ) {
+    const distributionUrl = getGeonorgeDownloadUrl([group]);
+
+    return (
+      <AddToCartButton
+        item={{
+          uuid,
+          name: title,
+          distributionUrl,
+        }}
+        location={LOCATIONS.MetadataPageTabs}
+        variant="secondary"
+        addLabel="Last ned"
+        removeLabel="Fjern fra handlekurv"
+        preventAccordionToggle
+      />
+    );
+  }
+
+  if (group.protocol === "WWW:DOWNLOAD-1.0-http--download") {
+    return (
+      <DistributionActionLinkButton
+        href={firstUrlRow.url}
+        icon={<ExternalLinkIcon aria-hidden />}
+        title="Åpne nedlastinger"
+        eventName="open-download-distribution-from-accordion-summary"
+        trackingProperties={trackingProperties}
+      />
+    );
+  }
+
+  if (showCopyLink(group.protocol)) {
+    return (
+      <CopyButton
+        url={firstUrlRow.url}
+        eventName="copy-distribution-link-from-accordion-summary"
+        trackingProperties={trackingProperties}
+        preventAccordionToggle
+      />
+    );
+  }
+
+  return null;
+}
+
 type UrlRow = {
   label: string;
   url: string;
@@ -366,19 +447,7 @@ function FieldList({ fields }: { fields: Field[] }) {
   );
 }
 
-function UrlLink({
-  url,
-  protocol,
-  protocolName,
-  format,
-  urlLabel,
-}: {
-  url: string;
-  protocol: string | null;
-  protocolName: string | null;
-  format: string;
-  urlLabel: string;
-}) {
+function UrlLink({ url }: { url: string }) {
   return (
     <div className={styles.urlBox}>
       <span className={styles.urlValue}>
@@ -391,17 +460,6 @@ function UrlLink({
           {url}
         </a>
       </span>
-      <CopyButton
-        url={url}
-        className={styles.copyButton}
-        eventName="copy-distribution-link-from-accordion-content"
-        trackingProperties={{
-          protocol,
-          protocolName,
-          format,
-          urlLabel,
-        }}
-      />
     </div>
   );
 }

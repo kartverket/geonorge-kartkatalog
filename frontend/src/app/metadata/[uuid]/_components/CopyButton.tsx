@@ -1,6 +1,8 @@
 "use client";
+
 import { Button } from "@kv-designsystem/react";
 import { CheckmarkIcon, FilesIcon } from "@navikt/aksel-icons";
+import type { MouseEvent } from "react";
 import { useCopyUrl } from "@/app/metadata/[uuid]/_utils/hooks";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./CopyButton.module.css";
@@ -10,23 +12,28 @@ export function CopyButton({
   className,
   eventName = "copy-link",
   trackingProperties,
+  preventAccordionToggle = false,
 }: {
   url: string;
   className?: string;
   eventName?: string;
   trackingProperties?: Record<string, unknown>;
+  preventAccordionToggle?: boolean;
 }) {
   const { copied, copy } = useCopyUrl(url);
 
+  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+    if (preventAccordionToggle) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    trackClick(eventName, LOCATIONS.MetadataPageTabs, trackingProperties);
+    copy();
+  };
+
   return (
-    <Button
-      variant="secondary"
-      className={className}
-      onClick={() => {
-        trackClick(eventName, LOCATIONS.MetadataPageTabs, trackingProperties);
-        copy();
-      }}
-    >
+    <Button variant="secondary" className={className} onClick={handleClick}>
       <span className={styles.swap}>
         <span className={`${styles.state} ${copied ? styles.stateHidden : ""}`}>
           <FilesIcon aria-hidden /> Kopier lenke
