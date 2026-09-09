@@ -4,7 +4,7 @@
   overflow: hidden;
   background-color: var(--ds-color-info-text-default);
   color: var(--ds-color-background-default);
-  padding-block: 70px;
+  padding-block: 60px;
 }
 
 .background {
@@ -52,6 +52,21 @@
   color: initial;
 }
 
+.title {
+  color: inherit;
+  margin: 0;
+}
+
+.form {
+  display: grid;
+  gap: var(--ds-size-2);
+}
+
+.label {
+  color: inherit;
+  font-size: var(--ds-body-sm-font-size);
+}
+
 @media (width > 800px) {
   .backgroundInner {
     padding-inline: var(--page-content-padding-inline);
@@ -79,17 +94,8 @@
   }
 }
 
-.title {
-  color: inherit;
-  margin: 0;
-}
-
-.form {
-  display: grid;
-  gap: var(--ds-size-2);
-}
-
-.label {
-  color: inherit;
-  font-size: var(--ds-body-sm-font-size);
+@media (width <= 800px) {
+  .hero {
+    padding-block: 40px;
+  }
 }
