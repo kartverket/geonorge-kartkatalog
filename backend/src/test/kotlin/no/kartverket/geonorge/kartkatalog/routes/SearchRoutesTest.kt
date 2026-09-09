@@ -15,7 +15,9 @@ import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.search.SearchService
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
 import kotlin.test.Test
@@ -86,7 +88,11 @@ class SearchRoutesTest {
                     ) {
                         install(ContentNegotiation) { json() }
                     }
-                val searchService = SearchService(SolrClient(client, "https://solr.example.test"))
+                val searchService =
+                    SearchService(
+                        SolrClient(client, "https://solr.example.test"),
+                        AreaResolver(RegisterClient(client, "https://register.example.test")),
+                    )
                 routing { searchRoutes(searchService) }
             }
 
