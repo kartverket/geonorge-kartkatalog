@@ -48,6 +48,10 @@
   display: none;
 }
 
+.searchField {
+  color: initial;
+}
+
 @media (width > 800px) {
   .backgroundInner {
     padding-inline: var(--page-content-padding-inline);

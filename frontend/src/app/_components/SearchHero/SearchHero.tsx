@@ -33,7 +33,7 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
           <label htmlFor="hero-search" className={styles.label}>
             Søk i Kartkatalogen
           </label>
-          <Search data-color="neutral">
+          <Search className={styles.searchField}>
             <Search.Input
               id="hero-search"
               name="text"
