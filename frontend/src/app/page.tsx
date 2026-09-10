@@ -33,7 +33,14 @@ export default async function Home({
   return (
     <>
       <SearchHero initialValue={text ?? ""} />
-      <SearchResults results={results} facets={searchResult.facets} />
+      <SearchResults
+        initialResults={results}
+        totalCount={searchResult.numFound}
+        searchText={text ?? ""}
+        orderby={orderby || "score"}
+        initialLimit={searchResult.limit}
+        facets={searchResult.facets}
+      />
     </>
   );
 }
