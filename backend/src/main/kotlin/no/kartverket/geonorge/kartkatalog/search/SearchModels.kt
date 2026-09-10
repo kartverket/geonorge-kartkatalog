@@ -65,6 +65,7 @@ data class SearchFacet(
 data class SearchFacetValue(
     val name: String,
     val label: String? = null,
+    val category: String? = null,
     val count: Int,
 )
 
