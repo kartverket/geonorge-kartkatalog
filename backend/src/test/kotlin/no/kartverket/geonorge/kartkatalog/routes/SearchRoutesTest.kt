@@ -106,7 +106,11 @@ class SearchRoutesTest {
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals(
-                listOf("/solr/metadata_all/select", "/api/sosi-kodelister/inndelinger/inndelingsbase/fylkesnummer"),
+                listOf(
+                    "/solr/metadata_all/select",
+                    "/api/sosi-kodelister/inndelinger/inndelingsbase/fylkesnummer",
+                    "/api/metadata-kodelister/hvd-kategorier",
+                ),
                 requestedPaths,
             )
             assertContains(body, "\"numFound\":1")
