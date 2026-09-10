@@ -19,11 +19,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(searchResult);
   } catch (error) {
     if (error instanceof HttpError) {
+      const isProd = process.env.NODE_ENV === "production";
       return NextResponse.json(
-        {
-          error: error.message,
-          body: error.body,
-        },
+        isProd ? { error: error.message } : { error: error.message, body: error.body },
         { status: error.status },
       );
     }
