@@ -18,6 +18,7 @@ import type {
   ProductConstraints,
   ReferenceSystem,
 } from "@/lib/schemas/product";
+import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
 
 export async function ProductTabsSection({
   uuid,
@@ -269,7 +270,15 @@ function buildDistributionDetails({
             ...urlRows.map(
               (row): Field => ({
                 label: row.label,
-                content: <UrlLink url={row.url} />,
+                content: (
+                  <UrlLink
+                    url={row.url}
+                    protocol={group.protocol}
+                    protocolName={group.protocolName}
+                    format={row.formatNames.join(", ")}
+                    urlLabel={row.label}
+                  />
+                ),
               }),
             ),
             {
@@ -365,7 +374,19 @@ function FieldList({ fields }: { fields: Field[] }) {
   );
 }
 
-function UrlLink({ url }: { url: string }) {
+function UrlLink({
+  url,
+  protocol,
+  protocolName,
+  format,
+  urlLabel,
+}: {
+  url: string;
+  protocol: string | null;
+  protocolName: string | null;
+  format: string;
+  urlLabel: string;
+}) {
   return (
     <div className={styles.urlBox}>
       <span className={styles.urlValue}>
@@ -378,6 +399,17 @@ function UrlLink({ url }: { url: string }) {
           {url}
         </a>
       </span>
+      <CopyButton
+        url={url}
+        className={styles.copyButton}
+        eventName="copy-distribution-link-from-accordion-content"
+        trackingProperties={{
+          protocol,
+          protocolName,
+          format,
+          urlLabel,
+        }}
+      />
     </div>
   );
 }
