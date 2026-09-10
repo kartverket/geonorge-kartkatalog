@@ -63,7 +63,9 @@ private fun kotlinx.serialization.json.JsonArray.toFacetValues(
                         when (facetField) {
                             "type" -> translateType(facetName)
                             "area" -> fylkeNames[facetName]
-                            "nationalinitiative" -> NATIONAL_INITIATIVE_LABELS[facetName]
+                            "nationalinitiative" ->
+                                NATIONAL_INITIATIVE_OVERRIDES[facetName]
+                                    ?: camelCaseToReadable(facetName)
                             else -> null
                         },
                     count = facetCount,
@@ -84,18 +86,17 @@ private val TYPE_VALUE_ORDER: Map<String, Int> =
     listOf("dataset", "series", "service", "servicelayer", "software")
         .withIndex().associate { (i, code) -> code to i }
 
-private val NATIONAL_INITIATIVE_LABELS: Map<String, String> =
-    mapOf(
-        "fellesDatakatalog" to "Felles datakatalog",
-        "geodataloven" to "Geodataloven",
-        "dataNorgeNo" to "Data.norge.no",
-        "arealplanerPBL" to "Arealplaner PBL",
-        "ØkologiskGrunnkart" to "Økologisk grunnkart",
-        "MarineGrunnkart" to "Marine grunnkart",
-        "modellbaserteVegprosjekter" to "Modellbaserte vegprosjekter",
-        "arcticSDI" to "Arctic SDI",
-        "beredskapsbase" to "Beredskapsbase",
-    )
+private val NATIONAL_INITIATIVE_OVERRIDES: Map<String, String> =
+    mapOf("dataNorgeNo" to "Data.norge.no")
+
+private fun camelCaseToReadable(value: String): String =
+    value
+        .replace(Regex("(?<=[a-zæøå0-9])(?=[A-ZÆØÅ])"), " ")
+        .split(" ")
+        .joinToString(" ") { word -> if (isAcronym(word)) word else word.lowercase() }
+        .replaceFirstChar { it.uppercase() }
+
+private fun isAcronym(word: String): Boolean = word.length > 1 && word.all { it.isUpperCase() }
 
 private fun isJunkFacetValue(
     facetField: String,
