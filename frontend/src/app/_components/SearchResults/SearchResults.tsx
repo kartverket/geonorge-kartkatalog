@@ -1,16 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
 import styles from "./SearchResults.module.css";
-import { type ViewMode, ViewToggle } from "./ViewToggle";
+import { ViewToggle } from "./ViewToggle";
+import {
+  getViewModeFromCookieString,
+  VIEW_MODE_COOKIE_NAME,
+  type ViewMode,
+} from "./viewMode";
 
 type SearchResultsProps = {
+  initialViewMode?: ViewMode;
   results: Array<Omit<DatasetCardProps, "viewMode">>;
 };
 
-export function SearchResults({ results }: SearchResultsProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+function getInitialViewMode(initialViewMode: ViewMode): ViewMode {
+  if (typeof document === "undefined") {
+    return initialViewMode;
+  }
+
+  return getViewModeFromCookieString(document.cookie) ?? initialViewMode;
+}
+
+async function persistViewMode(viewMode: ViewMode) {
+  if ("cookieStore" in window) {
+    await window.cookieStore.set({
+      name: VIEW_MODE_COOKIE_NAME,
+      value: viewMode,
+      path: "/",
+      sameSite: "lax",
+    });
+    return;
+  }
+
+  // biome-ignore lint/suspicious/noDocumentCookie: Needed as a fallback where Cookie Store API is unavailable.
+  document.cookie = `${VIEW_MODE_COOKIE_NAME}=${viewMode}; path=/; SameSite=Lax`;
+}
+
+export function SearchResults({
+  initialViewMode = "grid",
+  results,
+}: SearchResultsProps) {
+  const [viewMode, setViewMode] = useState<ViewMode>(() =>
+    getInitialViewMode(initialViewMode),
+  );
+
+  useEffect(() => {
+    void persistViewMode(viewMode);
+  }, [viewMode]);
 
   return (
     <main className={styles.page} data-color="neutral">
