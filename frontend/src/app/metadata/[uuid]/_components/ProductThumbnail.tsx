@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isAllowedThumbnailUrl } from "@/lib/isAllowedThumbnailUrl";
 import styles from "./ProductThumbnail.module.css";
 
 export function ProductThumbnail({
@@ -6,7 +7,7 @@ export function ProductThumbnail({
 }: {
   thumbnailUrl: string | null;
 }) {
-  if (!thumbnailUrl) return null;
+  if (!isAllowedThumbnailUrl(thumbnailUrl)) return null;
   return (
     <div className={styles.wrapper}>
       <Image

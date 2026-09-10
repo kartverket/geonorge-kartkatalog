@@ -72,7 +72,6 @@ export const SearchResultSchema = z.object({
 });
 
 export type SearchResult = z.infer<typeof SearchResultSchema>;
-export type SearchResultItem = SearchResult["results"][number];
 
 export function parseSearchResult(body: unknown): SearchResult {
   const res = SearchResultSchema.safeParse(body);

@@ -16,28 +16,29 @@ import {
   AccessStateTag,
   type AccessTagContext,
 } from "@/components/AccessStateTag/AccessStateTag";
+import { isAllowedThumbnailUrl } from "@/lib/isAllowedThumbnailUrl";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
 import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = {
   uuid: string;
   title: string;
-  organization?: string;
-  typeTranslated?: string;
-  thumbnailUrl?: string;
-  distributionUrl?: string;
-  distributionProtocol?: string;
-  getCapabilitiesUrl?: string;
-  showMapLink?: boolean;
-  mapCapabilitiesUrl?: string;
+  organization: string | null;
+  typeTranslated: string | null;
+  thumbnailUrl: string | null;
+  distributionUrl: string | null;
+  distributionProtocol: string | null;
+  getCapabilitiesUrl: string | null;
+  showMapLink: boolean | null;
+  mapCapabilitiesUrl: string | null;
   protocolNames?: string[];
   formats?: string[];
+  accessState: "restricted" | "open" | "protected" | null;
+  hierarchyLevel: string | null;
   showThumbnail?: boolean;
   compact?: boolean;
   viewMode?: "grid" | "list";
   analyticsLocation?: Location;
-  accessState: "restricted" | "open" | "protected" | null;
-  hierarchyLevel: string | null;
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -61,8 +62,11 @@ export function DatasetCard({
   const canDownload = p.distributionProtocol === "GEONORGE:DOWNLOAD";
   const canShowMap = !!p.showMapLink && !!p.mapCapabilitiesUrl;
   const canCopy = isService && !!p.getCapabilitiesUrl;
-  const canOpenApplication =
-    p.typeTranslated === "Applikasjon" && !!p.distributionUrl;
+  const applicationUrl =
+    p.typeTranslated === "Applikasjon" ? p.distributionUrl : null;
+  const thumbnailUrl = isAllowedThumbnailUrl(p.thumbnailUrl)
+    ? p.thumbnailUrl
+    : null;
 
   const accessContext =
     TYPE_TO_ACCESS_CONTEXT[p.typeTranslated ?? ""] ?? "datasett";
@@ -82,9 +86,9 @@ export function DatasetCard({
 
   const renderThumbnail = () => (
     <div className={styles.thumbnailContainer}>
-      {p.thumbnailUrl ? (
+      {thumbnailUrl ? (
         <Image
-          src={p.thumbnailUrl}
+          src={thumbnailUrl}
           alt=""
           fill
           sizes="(max-width: 767px) 100vw, 430px"
@@ -157,13 +161,27 @@ export function DatasetCard({
           )}
         </div>
         <div className={styles.buttonGroupContainer}>
-          {canOpenApplication && (
+          {applicationUrl && (
             <CardActionButton
               onClick={() => {
-                window.open(p.distributionUrl, "_blank", "noopener");
+                window.open(applicationUrl, "_blank", "noopener");
               }}
               label="Nettside"
               icon={<ExternalLinkIcon aria-hidden />}
+            />
+          )}
+          {canDownload && isOpen && isDataset && p.distributionUrl && (
+            <AddToCartButton
+              item={{
+                uuid: p.uuid,
+                name: p.title,
+                distributionUrl: p.distributionUrl,
+              }}
+              location={analyticsLocation}
+              variant="primary"
+              size="sm"
+              addLabel="Last ned"
+              removeLabel="Fjern nedlasting"
             />
           )}
           {canShowMap && (
@@ -178,20 +196,6 @@ export function DatasetCard({
               variant="secondary"
               size="sm"
               location={analyticsLocation}
-            />
-          )}
-          {canDownload && isOpen && isDataset && p.distributionUrl && (
-            <AddToCartButton
-              item={{
-                uuid: p.uuid,
-                name: p.title,
-                distributionUrl: p.distributionUrl,
-              }}
-              location={analyticsLocation}
-              variant="secondary"
-              size="sm"
-              addLabel="Last ned"
-              removeLabel="Fjern nedlasting"
             />
           )}
           {canCopy && (
