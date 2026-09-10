@@ -57,7 +57,14 @@ export function parseConsentCookieString(
 
   if (!raw) return null;
 
-  const value = decodeURIComponent(raw.slice(CONSENT_COOKIE_NAME.length + 1));
+  let value: string;
+
+  try {
+    value = decodeURIComponent(raw.slice(CONSENT_COOKIE_NAME.length + 1));
+  } catch {
+    return null;
+  }
+
   const parts = new Map<string, string>();
 
   for (const pair of value.split(",")) {
