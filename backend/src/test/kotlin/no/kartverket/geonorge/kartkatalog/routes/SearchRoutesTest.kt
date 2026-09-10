@@ -18,6 +18,7 @@ import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
+import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
 import no.kartverket.geonorge.kartkatalog.search.SearchService
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
 import kotlin.test.Test
@@ -92,6 +93,7 @@ class SearchRoutesTest {
                     SearchService(
                         SolrClient(client, "https://solr.example.test"),
                         AreaResolver(RegisterClient(client, "https://register.example.test")),
+                        HvdResolver(RegisterClient(client, "https://register.example.test")),
                     )
                 routing { searchRoutes(searchService) }
             }
@@ -140,6 +142,7 @@ class SearchRoutesTest {
                     SearchService(
                         SolrClient(client, "https://solr.example.test"),
                         AreaResolver(RegisterClient(client, "https://register.example.test")),
+                        HvdResolver(RegisterClient(client, "https://register.example.test")),
                     )
                 routing { searchRoutes(searchService) }
             }
