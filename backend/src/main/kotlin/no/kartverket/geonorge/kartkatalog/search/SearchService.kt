@@ -63,6 +63,7 @@ private fun kotlinx.serialization.json.JsonArray.toFacetValues(
                         when (facetField) {
                             "type" -> translateType(facetName)
                             "area" -> fylkeNames[facetName]
+                            "nationalinitiative" -> NATIONAL_INITIATIVE_LABELS[facetName]
                             else -> null
                         },
                     count = facetCount,
@@ -83,13 +84,26 @@ private val TYPE_VALUE_ORDER: Map<String, Int> =
     listOf("dataset", "series", "service", "servicelayer", "software")
         .withIndex().associate { (i, code) -> code to i }
 
+private val NATIONAL_INITIATIVE_LABELS: Map<String, String> =
+    mapOf(
+        "fellesDatakatalog" to "Felles datakatalog",
+        "geodataloven" to "Geodataloven",
+        "dataNorgeNo" to "Data.norge.no",
+        "arealplanerPBL" to "Arealplaner PBL",
+        "ØkologiskGrunnkart" to "Økologisk grunnkart",
+        "MarineGrunnkart" to "Marine grunnkart",
+        "modellbaserteVegprosjekter" to "Modellbaserte vegprosjekter",
+        "arcticSDI" to "Arctic SDI",
+        "beredskapsbase" to "Beredskapsbase",
+    )
+
 private fun isJunkFacetValue(
     facetField: String,
     value: String,
 ): Boolean =
     when (facetField) {
         "theme" -> value.startsWith("http")
-        "area" -> value.matches(Regex("^0/\\d+/\\d+$"))
+        "area" -> value != "Norge" && value != "Havområder" && !value.matches(Regex("^0/\\d+$"))
         else -> false
     }
 
