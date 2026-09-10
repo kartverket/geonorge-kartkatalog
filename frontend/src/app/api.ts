@@ -111,7 +111,11 @@ export async function getLinkedDistributions(
 ): Promise<LinkedDistributions> {
   if (!uuid) throw new Error("uuid is required");
   const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/linked-distributions`;
-  const body = await fetchJson(url, { method: "GET" }, {notFoundOn404: false});
+  const body = await fetchJson(
+    url,
+    { method: "GET" },
+    { notFoundOn404: false },
+  );
   return parseLinkedDistributions(body);
 }
 

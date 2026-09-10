@@ -14,13 +14,11 @@ export default async function Home({
 }: {
   searchParams: Promise<{
     text?: string;
-    offset?: string;
-    limit?: string;
     orderby?: string;
   }>;
 }) {
   const cookieStore = await cookies();
-  const { text, offset, limit, orderby } = await searchParams;
+  const { text, orderby } = await searchParams;
   const storedViewMode = hasPerformanceConsentInCookieString(
     cookieStore.toString(),
   )
@@ -28,8 +26,8 @@ export default async function Home({
     : undefined;
   const searchResult = await getSearchResults({
     text,
-    offset: Number(offset) || 1,
-    limit: Number(limit) || 25,
+    offset: 1,
+    limit: 25,
     orderby: orderby || "score",
   });
   const results: Array<Omit<DatasetCardProps, "viewMode">> =
@@ -40,7 +38,11 @@ export default async function Home({
       <SearchHero initialValue={text ?? ""} />
       <SearchResults
         initialViewMode={isViewMode(storedViewMode) ? storedViewMode : "grid"}
-        results={results}
+        initialResults={results}
+        totalCount={searchResult.numFound}
+        searchText={text ?? ""}
+        orderby={orderby || "score"}
+        initialLimit={searchResult.limit}
       />
     </>
   );

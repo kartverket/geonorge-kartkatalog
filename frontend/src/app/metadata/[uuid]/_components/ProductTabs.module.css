@@ -140,10 +140,9 @@
 }
 
 /*
- * Wrap kopierknapp i accordion under url på mindre skjermer
- * ipad air = 820px
+ * Wrap kopierknapp i accordion under url på mobil
  */
-@media (max-width: 820px) {
+@media (max-width: 800px) {
   .urlBox {
     flex-wrap: wrap;
   }
@@ -167,7 +166,7 @@
  * (14rem etikettkolonne ville latt ~60px stå igjen til verdien), så
  * feltene stables og margene strammes inn.
  */
-@media (max-width: 820px) {
+@media (max-width: 800px) {
   /* Reduserer padding på små skjermer. Mest kritisk for accordion under distribusjoner */
   .panel {
     padding-inline: var(--ds-size-2);
