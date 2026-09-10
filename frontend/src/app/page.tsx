@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { hasPerformanceConsentInCookieString } from "@/components/PosthogConsent/consentCookie";
 import type { DatasetCardProps } from "./_components/DatasetCard/DatasetCard";
 import { SearchHero } from "./_components/SearchHero/SearchHero";
 import { SearchResults } from "./_components/SearchResults/SearchResults";
@@ -20,7 +21,11 @@ export default async function Home({
 }) {
   const cookieStore = await cookies();
   const { text, offset, limit, orderby } = await searchParams;
-  const storedViewMode = cookieStore.get(VIEW_MODE_COOKIE_NAME)?.value;
+  const storedViewMode = hasPerformanceConsentInCookieString(
+    cookieStore.toString(),
+  )
+    ? cookieStore.get(VIEW_MODE_COOKIE_NAME)?.value
+    : undefined;
   const searchResult = await getSearchResults({
     text,
     offset: Number(offset) || 1,

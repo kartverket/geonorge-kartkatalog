@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { hasPerformanceConsentInCookieString } from "@/components/PosthogConsent/consentCookie";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
 import styles from "./SearchResults.module.css";
 import { ViewToggle } from "./ViewToggle";
@@ -38,6 +39,28 @@ async function persistViewMode(viewMode: ViewMode) {
   document.cookie = `${VIEW_MODE_COOKIE_NAME}=${viewMode}; path=/; SameSite=Lax`;
 }
 
+async function clearPersistedViewMode() {
+  if ("cookieStore" in window) {
+    await window.cookieStore.delete({
+      name: VIEW_MODE_COOKIE_NAME,
+      path: "/",
+    });
+    return;
+  }
+
+  // biome-ignore lint/suspicious/noDocumentCookie: Needed as a fallback where Cookie Store API is unavailable.
+  document.cookie = `${VIEW_MODE_COOKIE_NAME}=; path=/; SameSite=Lax; Max-Age=0`;
+}
+
+async function syncPersistedViewMode(viewMode: ViewMode) {
+  if (!hasPerformanceConsentInCookieString(document.cookie)) {
+    await clearPersistedViewMode();
+    return;
+  }
+
+  await persistViewMode(viewMode);
+}
+
 export function SearchResults({
   initialViewMode = "grid",
   results,
@@ -47,7 +70,37 @@ export function SearchResults({
   );
 
   useEffect(() => {
-    void persistViewMode(viewMode);
+    void syncPersistedViewMode(viewMode);
+  }, [viewMode]);
+
+  useEffect(() => {
+    const handleConsentChange = () => {
+      void syncPersistedViewMode(viewMode);
+    };
+
+    document.addEventListener(
+      "cookieyes_banner_load",
+      handleConsentChange as EventListener,
+    );
+    document.addEventListener(
+      "cookieyes_consent_update",
+      handleConsentChange as EventListener,
+    );
+    window.addEventListener("pageshow", handleConsentChange);
+    window.addEventListener("focus", handleConsentChange);
+
+    return () => {
+      document.removeEventListener(
+        "cookieyes_banner_load",
+        handleConsentChange as EventListener,
+      );
+      document.removeEventListener(
+        "cookieyes_consent_update",
+        handleConsentChange as EventListener,
+      );
+      window.removeEventListener("pageshow", handleConsentChange);
+      window.removeEventListener("focus", handleConsentChange);
+    };
   }, [viewMode]);
 
   return (

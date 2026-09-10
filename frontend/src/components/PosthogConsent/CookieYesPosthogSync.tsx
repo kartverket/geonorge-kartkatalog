@@ -4,8 +4,9 @@ import { useEffect } from "react";
 import {
   type ConsentState,
   DEFAULT_CONSENT,
-  syncAnalyticsConsent,
-} from "./posthogConsent";
+  parseConsentCookieString,
+} from "./consentCookie";
+import { syncAnalyticsConsent } from "./posthogConsent";
 
 type CookieYesCategories =
   | Record<string, unknown>
@@ -25,8 +26,6 @@ type CookieYesBannerLoadDetail = {
 type CookieYesConsentUpdateDetail = {
   accepted?: CookieYesCategories | null;
 } | null;
-
-const CONSENT_COOKIE_NAME = "cookieyes-consent";
 
 const consentCategoryKeys = Object.keys(DEFAULT_CONSENT) as Array<
   keyof ConsentState
@@ -59,28 +58,7 @@ function normalizeConsent({
 function parseConsentCookie(): ConsentState | null {
   if (typeof document === "undefined") return null;
 
-  const raw = document.cookie
-    .split("; ")
-    .find((entry) => entry.startsWith(`${CONSENT_COOKIE_NAME}=`));
-  if (!raw) return null;
-
-  const value = decodeURIComponent(raw.slice(CONSENT_COOKIE_NAME.length + 1));
-  const parts = new Map<string, string>();
-  for (const pair of value.split(",")) {
-    const idx = pair.indexOf(":");
-    if (idx === -1) continue;
-    parts.set(pair.slice(0, idx).trim(), pair.slice(idx + 1).trim());
-  }
-
-  if (parts.get("action") !== "yes") return null;
-
-  return consentCategoryKeys.reduce<ConsentState>(
-    (state, key) => {
-      state[key] = parts.get(key) === "yes";
-      return state;
-    },
-    { ...DEFAULT_CONSENT },
-  );
+  return parseConsentCookieString(document.cookie);
 }
 
 function readConsentFromCookieYes(): ConsentState {
