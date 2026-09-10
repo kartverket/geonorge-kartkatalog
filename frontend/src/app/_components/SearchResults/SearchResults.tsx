@@ -118,7 +118,10 @@ export function SearchResults({
             </div>
             <div className={styles.loadMoreSection}>
               {loadMoreError ? (
-                <Paragraph className={styles.loadMoreMessage} aria-live="polite">
+                <Paragraph
+                  className={styles.loadMoreMessage}
+                  aria-live="polite"
+                >
                   {loadMoreError}
                 </Paragraph>
               ) : null}
@@ -132,7 +135,10 @@ export function SearchResults({
                   {isLoadingMore ? "Laster flere treff..." : "Vis mer"}
                 </Button>
               ) : results.length > 0 ? (
-                <Paragraph className={styles.loadMoreMessage} aria-live="polite">
+                <Paragraph
+                  className={styles.loadMoreMessage}
+                  aria-live="polite"
+                >
                   Alle treff er vist.
                 </Paragraph>
               ) : null}

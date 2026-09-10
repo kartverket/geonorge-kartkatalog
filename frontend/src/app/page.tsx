@@ -27,7 +27,7 @@ export default async function Home({
     orderby: orderby || "score",
     filters: filters,
   });
-  const results: Array<Omit<DatasetCardProps
+  const results: Array<Omit<DatasetCardProps, "viewMode">> =
     searchResult.results;
 
   return (

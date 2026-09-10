@@ -15,52 +15,20 @@ const SearchFacetSchema = z.object({
   values: z.array(SearchFacetValueSchema),
 });
 
-type SearchResultItemOutput = {
-  uuid: string;
-  title: string;
-  organization: string | undefined;
-  typeTranslated: string | undefined;
-  thumbnailUrl: string | undefined;
-  distributionUrl: string | undefined;
-  distributionProtocol: string | undefined;
-  getCapabilitiesUrl: string | undefined;
-  showMapLink: boolean;
-  mapCapabilitiesUrl: string | undefined;
-  accessState: (typeof accessState)[number] | null;
-  hierarchyLevel: string | null;
-};
-
-const SearchResultItemSchema = z
-  .object({
-    uuid: z.string(),
-    title: z.string(),
-    organization: z.string().nullable(),
-    typeTranslated: z.string().nullable(),
-    thumbnailUrl: z.string().nullable(),
-    distributionUrl: z.string().nullable(),
-    distributionProtocol: z.string().nullable(),
-    getCapabilitiesUrl: z.string().nullable(),
-    showMapLink: z.boolean(),
-    mapCapabilitiesUrl: z.string().nullable(),
-    accessState: z.enum(accessState).nullable(),
-    hierarchyLevel: z.string().nullable(),
-  })
-  .transform(
-    (item): SearchResultItemOutput => ({
-      uuid: item.uuid,
-      title: item.title,
-      organization: item.organization ?? undefined,
-      typeTranslated: item.typeTranslated ?? undefined,
-      thumbnailUrl: item.thumbnailUrl ?? undefined,
-      distributionUrl: item.distributionUrl ?? undefined,
-      distributionProtocol: item.distributionProtocol ?? undefined,
-      getCapabilitiesUrl: item.getCapabilitiesUrl ?? undefined,
-      showMapLink: item.showMapLink,
-      mapCapabilitiesUrl: item.mapCapabilitiesUrl ?? undefined,
-      accessState: item.accessState,
-      hierarchyLevel: item.hierarchyLevel,
-    }),
-  );
+const SearchResultItemSchema = z.object({
+  uuid: z.string(),
+  title: z.string(),
+  organization: z.string().nullable(),
+  typeTranslated: z.string().nullable(),
+  thumbnailUrl: z.string().nullable(),
+  distributionUrl: z.string().nullable(),
+  distributionProtocol: z.string().nullable(),
+  getCapabilitiesUrl: z.string().nullable(),
+  showMapLink: z.boolean(),
+  mapCapabilitiesUrl: z.string().nullable(),
+  accessState: z.enum(accessState).nullable(),
+  hierarchyLevel: z.string().nullable(),
+});
 
 export const SearchResultSchema = z.object({
   numFound: z.number(),
