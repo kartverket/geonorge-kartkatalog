@@ -5,6 +5,12 @@ export type ConsentState = {
   advertisement: boolean;
 };
 
+export type ConsentCategories =
+  | Record<string, unknown>
+  | string[]
+  | null
+  | undefined;
+
 export const DEFAULT_CONSENT: ConsentState = {
   analytics: false,
   functional: false,
@@ -17,6 +23,29 @@ export const CONSENT_COOKIE_NAME = "cookieyes-consent";
 const consentCategoryKeys = Object.keys(DEFAULT_CONSENT) as Array<
   keyof ConsentState
 >;
+
+export function normalizeConsent({
+  categories = {},
+  accepted,
+}: {
+  categories?: ConsentCategories | null;
+  accepted?: ConsentCategories | null;
+} = {}): ConsentState {
+  const acceptedValues = Array.isArray(accepted) ? accepted : null;
+  const categoryValues =
+    categories && !Array.isArray(categories) ? categories : null;
+
+  return consentCategoryKeys.reduce<ConsentState>(
+    (normalizedConsent, categoryKey) => {
+      normalizedConsent[categoryKey] = acceptedValues
+        ? acceptedValues.includes(categoryKey)
+        : Boolean(categoryValues?.[categoryKey]);
+
+      return normalizedConsent;
+    },
+    { ...DEFAULT_CONSENT },
+  );
+}
 
 export function parseConsentCookieString(
   cookieString: string,
@@ -46,12 +75,6 @@ export function parseConsentCookieString(
     },
     { ...DEFAULT_CONSENT },
   );
-}
-
-export function hasAnalyticsConsentInCookieString(
-  cookieString: string,
-): boolean {
-  return parseConsentCookieString(cookieString)?.analytics === true;
 }
 
 export function hasPerformanceConsentInCookieString(
