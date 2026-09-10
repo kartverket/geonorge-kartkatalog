@@ -133,7 +133,11 @@ export function FacetGroup({
         <Button
           variant="secondary"
           data-size="sm"
-          className={styles.showMore}
+          className={
+            expanded
+              ? `${styles.showMore} ${styles.chevronOpen}`
+              : styles.showMore
+          }
           onClick={() => setExpanded((e) => !e)}
         >
           <ChevronDownIcon aria-hidden />

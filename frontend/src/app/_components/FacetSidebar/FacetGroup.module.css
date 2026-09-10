@@ -9,7 +9,7 @@
 }
 
 .legend {
-    padding: 0;
+  padding: 0;
 }
 
 .checkboxes {
@@ -19,9 +19,9 @@
 }
 
 .expandableRow {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .chevronOpen svg {
@@ -37,6 +37,6 @@
 }
 
 .showMore {
-    width: 100%;
-    justify-content: center;
+  width: 100%;
+  justify-content: center;
 }
