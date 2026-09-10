@@ -86,18 +86,47 @@ private fun kotlinx.serialization.json.JsonArray.toFacetValues(
             }
 
     return when (facetField) {
-        "type" -> values.sortedBy { TYPE_VALUE_ORDER[it.name] ?: Int.MAX_VALUE }
         "area" -> values.sortedWith(compareBy(norwegianCollator) { it.label ?: it.name })
-        else -> values
+        else -> {
+            val order = FACET_VALUE_ORDER[facetField]
+            if (order != null) values.sortedBy { order[it.name] ?: Int.MAX_VALUE } else values
+        }
     }
 }
 
 private val norwegianCollator: Comparator<String> =
     Collator.getInstance(Locale.forLanguageTag("nb")).let { c -> Comparator { a, b -> c.compare(a, b) } }
 
-private val TYPE_VALUE_ORDER: Map<String, Int> =
-    listOf("dataset", "series", "service", "servicelayer", "software")
-        .withIndex().associate { (i, code) -> code to i }
+private fun orderOf(vararg codes: String): Map<String, Int> = codes.withIndex().associate { (i, code) -> code to i }
+
+private val FACET_VALUE_ORDER: Map<String, Map<String, Int>> =
+    mapOf(
+        "type" to orderOf("dataset", "service", "series", "servicelayer", "software"),
+        "theme" to
+            orderOf(
+                "Basis geodata", "Natur", "Flyfoto", "Høydedata", "Eiendom", "Landskap",
+                "Samferdsel", "Plan", "Geologi", "Friluftsliv", "Befolkning", "Landbruk",
+                "Annen", "Samfunnssikkerhet", "Kyst og fiskeri", "Vær og klima",
+                "Kulturminner", "Energi", "Forurensning",
+            ),
+        "dataaccess" to orderOf("Åpne data", "Norge digitalt begrenset", "Skjermede data"),
+        "DistributionProtocols" to
+            orderOf(
+                "WMS-tjeneste", "WFS-tjeneste", "Geonorge nedlastning", "OGC API-Features",
+                "REST-API", "Egen nedlastningsside", "WMTS-tjeneste", "OGC:OAPIF",
+                "Geonorge filnedlastning", "WCS-tjeneste", "Webside",
+                "OGC Catalogue Service for the Web", "OPeNDAP", "OGC API-Coverages",
+                "Webservice", "Atom Feed", "Ingen online tilgang",
+            ),
+        "nationalinitiative" to
+            orderOf(
+                "Det offentlige kartgrunnlaget", "Geodata", "High value dataset",
+                "Jordobservasjon og miljø", "Norge digitalt", "Norsk klimaservicesenter",
+                "arealplanerPBL", "Nautisk informasjon", "MarineGrunnkart", "arcticSDI",
+                "beredskapsbase", "Inspire", "dataNorgeNo", "geodataloven", "Mareano",
+                "modellbaserteVegprosjekter", "ØkologiskGrunnkart",
+            ),
+    )
 
 private val NATIONAL_INITIATIVE_OVERRIDES: Map<String, String> =
     mapOf("dataNorgeNo" to "Data.norge.no")
