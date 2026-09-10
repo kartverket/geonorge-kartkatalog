@@ -115,11 +115,8 @@
   align-items: center;
 }
 
-.buttonGroupContainer :global(.ds-button) {
-  justify-content: center;
-  position: relative;
+.buttonGroupContainer button {
   z-index: 1;
-  color: var(--ds-color-neutral-text-subtle);
   --dsc-button-padding: var(--ds-size-2) var(--ds-size-2);
   font-size: var(--ds-body-xs-font-size);
 }
@@ -177,13 +174,14 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 767px) {
-  .buttonGroupContainer {
-    flex-direction: column;
-    align-items: stretch;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 1.2rem;
+@media (max-width: 800px) {
+  .gridMode {
+    width: 100%;
+  }
+
+  .gridMode .productCard {
+    width: 100%;
+    min-width: 0;
   }
 
   .buttonGroupContainer > * {

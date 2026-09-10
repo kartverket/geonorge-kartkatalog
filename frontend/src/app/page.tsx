@@ -8,16 +8,14 @@ export default async function Home({
 }: {
   searchParams: Promise<{
     text?: string;
-    offset?: string;
-    limit?: string;
     orderby?: string;
   }>;
 }) {
-  const { text, offset, limit, orderby } = await searchParams;
+  const { text, orderby } = await searchParams;
   const searchResult = await getSearchResults({
     text,
-    offset: Number(offset) || 1,
-    limit: Number(limit) || 25,
+    offset: 1,
+    limit: 25,
     orderby: orderby || "score",
   });
   const results: Array<Omit<DatasetCardProps, "viewMode">> =
@@ -26,7 +24,13 @@ export default async function Home({
   return (
     <>
       <SearchHero initialValue={text ?? ""} />
-      <SearchResults results={results} />
+      <SearchResults
+        initialResults={results}
+        totalCount={searchResult.numFound}
+        searchText={text ?? ""}
+        orderby={orderby || "score"}
+        initialLimit={searchResult.limit}
+      />
     </>
   );
 }

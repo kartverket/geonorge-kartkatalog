@@ -12,35 +12,20 @@ const SearchFacetSchema = z.object({
   values: z.array(SearchFacetValueSchema),
 });
 
-const SearchResultItemSchema = z
-  .object({
-    uuid: z.string(),
-    title: z.string(),
-    organization: z.string().nullable(),
-    typeTranslated: z.string().nullable(),
-    thumbnailUrl: z.string().nullable(),
-    distributionUrl: z.string().nullable(),
-    distributionProtocol: z.string().nullable(),
-    getCapabilitiesUrl: z.string().nullable(),
-    showMapLink: z.boolean(),
-    mapCapabilitiesUrl: z.string().nullable(),
-    accessState: z.enum(accessState).nullable(),
-    hierarchyLevel: z.string().nullable(),
-  })
-  .transform((item) => ({
-    uuid: item.uuid,
-    title: item.title,
-    organization: item.organization ?? undefined,
-    typeTranslated: item.typeTranslated ?? undefined,
-    thumbnailUrl: item.thumbnailUrl ?? undefined,
-    distributionUrl: item.distributionUrl ?? undefined,
-    distributionProtocol: item.distributionProtocol ?? undefined,
-    getCapabilitiesUrl: item.getCapabilitiesUrl ?? undefined,
-    showMapLink: item.showMapLink,
-    mapCapabilitiesUrl: item.mapCapabilitiesUrl ?? undefined,
-    accessState: item.accessState,
-    hierarchyLevel: item.hierarchyLevel,
-  }));
+const SearchResultItemSchema = z.object({
+  uuid: z.string(),
+  title: z.string(),
+  organization: z.string().nullable(),
+  typeTranslated: z.string().nullable(),
+  thumbnailUrl: z.string().nullable(),
+  distributionUrl: z.string().nullable(),
+  distributionProtocol: z.string().nullable(),
+  getCapabilitiesUrl: z.string().nullable(),
+  showMapLink: z.boolean(),
+  mapCapabilitiesUrl: z.string().nullable(),
+  accessState: z.enum(accessState).nullable(),
+  hierarchyLevel: z.string().nullable(),
+});
 
 export const SearchResultSchema = z.object({
   numFound: z.number(),
@@ -52,7 +37,6 @@ export const SearchResultSchema = z.object({
 });
 
 export type SearchResult = z.infer<typeof SearchResultSchema>;
-export type SearchResultItem = SearchResult["results"][number];
 
 export function parseSearchResult(body: unknown): SearchResult {
   const res = SearchResultSchema.safeParse(body);
