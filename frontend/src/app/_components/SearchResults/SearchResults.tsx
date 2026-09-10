@@ -2,10 +2,9 @@
 
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
 import { useEffect, useState } from "react";
+import { hasPerformanceConsentInCookieString } from "@/components/PosthogConsent/consentCookie";
 import { basePath } from "@/lib/basePath";
 import { parseSearchResult } from "@/lib/schemas/search";
-import { useEffect, useState } from "react";
-import { hasPerformanceConsentInCookieString } from "@/components/PosthogConsent/consentCookie";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
 import styles from "./SearchResults.module.css";
 import { ViewToggle } from "./ViewToggle";
@@ -72,8 +71,8 @@ async function syncPersistedViewMode(viewMode: ViewMode) {
 }
 
 export function SearchResults({
-                                initialViewMode = "grid",
-                                initialResults,
+  initialViewMode = "grid",
+  initialResults,
   totalCount,
   searchText,
   orderby,
