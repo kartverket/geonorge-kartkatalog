@@ -13,7 +13,9 @@ function getInitialViewMode(initialViewMode: ViewMode): ViewMode {
     return initialViewMode;
   }
 
-  return getViewModeFromCookieString(document.cookie) ?? initialViewMode;
+  return hasPerformanceConsentInCookieString(document.cookie)
+    ? (getViewModeFromCookieString(document.cookie) ?? initialViewMode)
+    : initialViewMode;
 }
 
 async function persistViewMode(viewMode: ViewMode) {
