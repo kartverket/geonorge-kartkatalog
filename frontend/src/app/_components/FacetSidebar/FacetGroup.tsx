@@ -1,7 +1,9 @@
 "use client";
 
-import { Button, Checkbox } from "@kv-designsystem/react";
+import { Button, Checkbox, Heading } from "@kv-designsystem/react";
 import { useState } from "react";
+import { ChevronDownIcon } from "@navikt/aksel-icons";
+import styles from "./FacetGroup.module.css";
 
 export function FacetGroup({
   field,
@@ -25,23 +27,29 @@ export function FacetGroup({
     initialVisibleCount != null && values.length > initialVisibleCount;
 
   return (
-    <fieldset suppressHydrationWarning>
-      <legend suppressHydrationWarning>{label}</legend>
-      {visible.map((v) => (
-        <Checkbox
-          key={v.name}
-          label={`${v.label ?? v.name} (${v.count})`}
-          value={v.name}
-          checked={selected.includes(v.name)}
-          onChange={() => onToggle(field, v.name)}
-        />
-      ))}
+    <fieldset className={styles.fieldset} suppressHydrationWarning>
+      <legend className={styles.legend} suppressHydrationWarning>
+        <Heading data-size="md">{label}</Heading>
+      </legend>
+      <div className={styles.checkboxes}>
+        {visible.map((v) => (
+          <Checkbox
+            key={v.name}
+            label={`${v.label ?? v.name} (${v.count})`}
+            value={v.name}
+            checked={selected.includes(v.name)}
+            onChange={() => onToggle(field, v.name)}
+          />
+        ))}
+      </div>
       {hasMore && (
         <Button
-          variant="tertiary"
+          variant="secondary"
           data-size="sm"
+          className={styles.showMore}
           onClick={() => setExpanded((e) => !e)}
         >
+          <ChevronDownIcon aria-hidden />
           {expanded ? "Vis mindre" : "Vis flere"}
         </Button>
       )}

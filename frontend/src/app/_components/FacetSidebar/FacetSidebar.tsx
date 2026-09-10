@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FACET_VISIBLE_COUNT } from "@/lib/facets";
 import type { SearchResult } from "@/lib/schemas/search";
 import { FacetGroup } from "./FacetGroup";
+import styles from "./FacetSidebar.module.css";
 
 type SearchFacet = SearchResult["facets"][number];
 
@@ -27,19 +28,21 @@ export function FacetSidebar({ facets }: { facets: SearchFacet[] }) {
   };
 
   return (
-    <aside>
+    <aside className={styles.sidebar}>
       {facets
         .filter((facet) => facet.label != null && facet.values.length > 0)
-        .map((facet) => (
-          <FacetGroup
-            key={facet.facetField}
-            field={facet.facetField}
-            label={facet.label as string}
-            values={facet.values}
-            selected={searchParams.getAll(facet.facetField)}
-            initialVisibleCount={FACET_VISIBLE_COUNT[facet.facetField]}
-            onToggle={toggleFilter}
-          />
+        .map((facet, index) => (
+          <div key={facet.facetField} className={styles.groupWrapper}>
+            {index > 0 && <div className={styles.divider} />}
+            <FacetGroup
+              field={facet.facetField}
+              label={facet.label as string}
+              values={facet.values}
+              selected={searchParams.getAll(facet.facetField)}
+              initialVisibleCount={FACET_VISIBLE_COUNT[facet.facetField]}
+              onToggle={toggleFilter}
+            />
+          </div>
         ))}
     </aside>
   );
