@@ -1,5 +1,4 @@
 import type { Alerts } from "@/lib/schemas/alerts";
-import { isCopyableDistributionProtocol } from "./distributionProtocols";
 
 type NonEmptyValue<T> = Exclude<T, "" | null | undefined>;
 
@@ -50,8 +49,6 @@ export const getRelevantAlerts = (alerts: Alerts | null): Alerts => {
     }) ?? []
   );
 };
-
-export const showCopyLink = isCopyableDistributionProtocol;
 
 export function unwrapSettled<T>(
   result: PromiseSettledResult<T>,
