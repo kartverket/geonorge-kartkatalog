@@ -60,10 +60,13 @@ export function usePaginatedSearchResults({
     }
 
     try {
-      const response = await fetch(`${basePath}/api/search?${params.toString()}`, {
-        method: "GET",
-        cache: "no-store",
-      });
+      const response = await fetch(
+        `${basePath}/api/search?${params.toString()}`,
+        {
+          method: "GET",
+          cache: "no-store",
+        },
+      );
 
       if (!response.ok) {
         setLoadMoreError("Kunne ikke hente flere treff akkurat nå.");
@@ -95,4 +98,3 @@ export function usePaginatedSearchResults({
     handleLoadMore,
   };
 }
-

@@ -93,4 +93,3 @@ export function usePersistedViewMode(initialViewMode: ViewMode) {
 
   return [viewMode, setViewMode] as const;
 }
-
