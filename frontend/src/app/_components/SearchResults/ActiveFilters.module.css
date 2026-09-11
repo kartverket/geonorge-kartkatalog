@@ -1,0 +1,18 @@
+.activeFilters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.filterChip {
+  display: flex;
+  height: var(--ds-size-12);
+  padding: var(--ds-size-0) var(--ds-size-4);
+  justify-content: center;
+  align-items: center;
+  gap: var(--ds-size-2);
+  border-radius: var(--ds-border-radius-default);
+  background: var(--ds-color-surface-hover);
+}

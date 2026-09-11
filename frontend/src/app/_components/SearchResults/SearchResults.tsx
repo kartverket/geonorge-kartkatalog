@@ -3,9 +3,11 @@
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
 import { Suspense, useEffect, useState } from "react";
 import { basePath } from "@/lib/basePath";
+import type { SearchResult } from "@/lib/schemas/search";
 import { parseSearchResult } from "@/lib/schemas/search";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
 import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
+import { ActiveFilters } from "./ActiveFilters";
 import styles from "./SearchResults.module.css";
 import { SortDropdown } from "./SortDropdown";
 import { type ViewMode, ViewToggle } from "./ViewToggle";
@@ -18,11 +20,7 @@ type SearchResultsProps = {
   searchText: string;
   orderby: string;
   initialLimit: number;
-  facets: Array<{
-    facetField: string;
-    label: string | null;
-    values: Array<{ name: string; count: number }>;
-  }>;
+  facets: SearchResult["facets"];
 };
 
 export function SearchResults({
@@ -104,6 +102,9 @@ export function SearchResults({
             <FacetSidebar facets={facets} />
           </Suspense>
           <div className={styles.content}>
+            <Suspense fallback={null}>
+              <ActiveFilters facets={facets} />
+            </Suspense>
             <div className={styles.header}>
               <Heading data-size="sm">{totalCount} treff</Heading>
               <div className={styles.headerControls}>

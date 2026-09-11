@@ -1,3 +1,4 @@
+import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
 import type { DatasetCardProps } from "./_components/DatasetCard/DatasetCard";
 import { SearchHero } from "./_components/SearchHero/SearchHero";
 import { SearchResults } from "./_components/SearchResults/SearchResults";
@@ -14,10 +15,9 @@ export default async function Home({
   const limit = typeof sp.limit === "string" ? sp.limit : undefined;
   const orderby = typeof sp.orderby === "string" ? sp.orderby : undefined;
 
-  const RESERVED_PARAMS = new Set(["text", "offset", "limit", "orderby"]);
   const filters: Record<string, string[]> = {};
   for (const [key, value] of Object.entries(sp)) {
-    if (RESERVED_PARAMS.has(key) || value == null) continue;
+    if (RESERVED_SEARCH_PARAMS.has(key) || value == null) continue;
     filters[key] = Array.isArray(value) ? value : [value];
   }
   const searchResult = await getSearchResults({
