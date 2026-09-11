@@ -147,6 +147,7 @@ private fun isJunkFacetValue(
     when (facetField) {
         "theme" -> value.startsWith("http")
         "area" -> value != "Norge" && value != "Havområder" && !value.matches(Regex("^0/\\d+$"))
+        "DistributionProtocols" -> value !in FACET_VALUE_ORDER.getValue("DistributionProtocols")
         else -> false
     }
 
