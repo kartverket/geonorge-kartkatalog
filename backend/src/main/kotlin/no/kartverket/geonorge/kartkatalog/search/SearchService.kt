@@ -70,9 +70,7 @@ private fun kotlinx.serialization.json.JsonArray.toFacetValues(
                         when (facetField) {
                             "type" -> translateType(facetName)
                             "area" -> fylkeNames[facetName]
-                            "nationalinitiative" ->
-                                NATIONAL_INITIATIVE_OVERRIDES[facetName]
-                                    ?: camelCaseToReadable(facetName)
+                            "nationalinitiative" -> NATIONAL_INITIATIVE_LABELS[facetName]
                             else -> null
                         },
                     category =
@@ -99,6 +97,27 @@ private val norwegianCollator: Comparator<String> =
 
 private fun orderOf(vararg codes: String): Map<String, Int> = codes.withIndex().associate { (i, code) -> code to i }
 
+private val NATIONAL_INITIATIVE_LABELS: Map<String, String> =
+    linkedMapOf(
+        "Det offentlige kartgrunnlaget" to "Det offentlige kartgrunnlaget",
+        "Geodata" to "Geografiske data",
+        "High value dataset" to "High value dataset",
+        "Jordobservasjon og miljø" to "Jordobservasjon og miljø",
+        "Norge digitalt" to "Norge digitalt",
+        "Norsk klimaservicesenter" to "Norsk klimaservicesenter",
+        "arealplanerPBL" to "Arealplaner underlagt PBL",
+        "Nautisk informasjon" to "Nautisk informasjon",
+        "MarineGrunnkart" to "Marine grunnkart",
+        "arcticSDI" to "Arctic SDI",
+        "beredskapsbase" to "Beredskapsbase",
+        "Inspire" to "Inspire",
+        "dataNorgeNo" to "Data.norge.no",
+        "geodataloven" to "Geodataloven",
+        "Mareano" to "Mareano",
+        "modellbaserteVegprosjekter" to "Modellbaserte vegprosjekter",
+        "ØkologiskGrunnkart" to "Økologisk grunnkart",
+    )
+
 private val FACET_VALUE_ORDER: Map<String, Map<String, Int>> =
     mapOf(
         "type" to orderOf("dataset", "service", "series", "servicelayer", "software"),
@@ -118,27 +137,8 @@ private val FACET_VALUE_ORDER: Map<String, Map<String, Int>> =
                 "OGC Catalogue Service for the Web", "OPeNDAP", "OGC API-Coverages",
                 "Webservice", "Atom Feed", "Ingen online tilgang",
             ),
-        "nationalinitiative" to
-            orderOf(
-                "Det offentlige kartgrunnlaget", "Geodata", "High value dataset",
-                "Jordobservasjon og miljø", "Norge digitalt", "Norsk klimaservicesenter",
-                "arealplanerPBL", "Nautisk informasjon", "MarineGrunnkart", "arcticSDI",
-                "beredskapsbase", "Inspire", "dataNorgeNo", "geodataloven", "Mareano",
-                "modellbaserteVegprosjekter", "ØkologiskGrunnkart",
-            ),
+        "nationalinitiative" to orderOf(*NATIONAL_INITIATIVE_LABELS.keys.toTypedArray()),
     )
-
-private val NATIONAL_INITIATIVE_OVERRIDES: Map<String, String> =
-    mapOf("dataNorgeNo" to "Data.norge.no")
-
-private fun camelCaseToReadable(value: String): String =
-    value
-        .replace(Regex("(?<=[a-zæøå0-9])(?=[A-ZÆØÅ])"), " ")
-        .split(" ")
-        .joinToString(" ") { word -> if (isAcronym(word)) word else word.lowercase() }
-        .replaceFirstChar { it.uppercase() }
-
-private fun isAcronym(word: String): Boolean = word.length > 1 && word.all { it.isUpperCase() }
 
 private fun isJunkFacetValue(
     facetField: String,
