@@ -21,7 +21,9 @@ export function FacetSidebar({ facets }: { facets: SearchFacet[] }) {
       : [...current, value];
 
     params.delete(field);
-    next.forEach((v) => params.append(field, v));
+    next.forEach((v) => {
+      params.append(field, v);
+    });
     params.delete("offset");
 
     router.push(`${pathname}?${params.toString()}`, { scroll: false });

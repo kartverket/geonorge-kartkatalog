@@ -15,13 +15,13 @@ type FacetValue = {
 function ExpandableCheckbox({
   field,
   value,
-  children,
+  subValues,
   selected,
   onToggle,
 }: {
   field: string;
   value: FacetValue;
-  children: FacetValue[];
+  subValues: FacetValue[];
   selected: string[];
   onToggle: (field: string, value: string) => void;
 }) {
@@ -49,7 +49,7 @@ function ExpandableCheckbox({
       </div>
       {open && (
         <div className={styles.nestedCheckboxes}>
-          {children.map((child) => (
+          {subValues.map((child) => (
             <Checkbox
               key={child.name}
               label={`${child.label ?? child.name} (${child.count})`}
@@ -112,7 +112,7 @@ export function FacetGroup({
                 key={v.name}
                 field={field}
                 value={v}
-                children={children}
+                subValues={children}
                 selected={selected}
                 onToggle={onToggle}
               />
