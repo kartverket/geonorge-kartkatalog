@@ -3,6 +3,7 @@
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
 import { Suspense, useEffect, useState } from "react";
 import { basePath } from "@/lib/basePath";
+import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
 import type { SearchResult } from "@/lib/schemas/search";
 import { parseSearchResult } from "@/lib/schemas/search";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
@@ -63,6 +64,12 @@ export function SearchResults({
 
       if (searchText.trim()) {
         params.set("text", searchText.trim());
+      }
+
+      for (const [key, value] of new URLSearchParams(window.location.search)) {
+        if (!RESERVED_SEARCH_PARAMS.has(key)) {
+          params.append(key, value);
+        }
       }
 
       const response = await fetch(
