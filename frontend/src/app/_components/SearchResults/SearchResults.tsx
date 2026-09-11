@@ -7,6 +7,7 @@ import { parseSearchResult } from "@/lib/schemas/search";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
 import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
 import styles from "./SearchResults.module.css";
+import { SortDropdown } from "./SortDropdown";
 import { type ViewMode, ViewToggle } from "./ViewToggle";
 
 const PAGE_SIZE = 25;
@@ -105,7 +106,12 @@ export function SearchResults({
           <div className={styles.content}>
             <div className={styles.header}>
               <Heading data-size="sm">{totalCount} treff</Heading>
-              <ViewToggle value={viewMode} onChange={setViewMode} />
+              <div className={styles.headerControls}>
+                <ViewToggle value={viewMode} onChange={setViewMode} />
+                <Suspense fallback={null}>
+                  <SortDropdown value={orderby} />
+                </Suspense>
+              </div>
             </div>
             <div
               className={`${styles.results} ${
