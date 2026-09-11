@@ -1,3 +1,4 @@
+import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
 import type { DatasetCardProps } from "./_components/DatasetCard/DatasetCard";
 import { SearchHero } from "./_components/SearchHero/SearchHero";
 import { SearchResults } from "./_components/SearchResults/SearchResults";
@@ -6,17 +7,26 @@ import { getSearchResults } from "./api";
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{
-    text?: string;
-    orderby?: string;
-  }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { text, orderby } = await searchParams;
+  const sp = await searchParams;
+  const text = typeof sp.text === "string" ? sp.text : undefined;
+  const offset = typeof sp.offset === "string" ? sp.offset : undefined;
+  const limit = typeof sp.limit === "string" ? sp.limit : undefined;
+  const orderby = typeof sp.orderby === "string" ? sp.orderby : undefined;
+
+  const filters: Record<string, string[]> = {};
+  for (const [key, value] of Object.entries(sp)) {
+    if (RESERVED_SEARCH_PARAMS.has(key) || value == null) continue;
+    filters[key] = Array.isArray(value) ? value : [value];
+  }
+  const initialOffset = Number(offset) || 1;
   const searchResult = await getSearchResults({
     text,
-    offset: 1,
-    limit: 25,
+    offset: initialOffset,
+    limit: Number(limit) || 25,
     orderby: orderby || "score",
+    filters: filters,
   });
   const results: Array<Omit<DatasetCardProps, "viewMode">> =
     searchResult.results;
@@ -30,6 +40,8 @@ export default async function Home({
         searchText={text ?? ""}
         orderby={orderby || "score"}
         initialLimit={searchResult.limit}
+        initialOffset={initialOffset}
+        facets={searchResult.facets}
       />
     </>
   );

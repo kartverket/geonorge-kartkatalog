@@ -1,11 +1,16 @@
 "use client";
 
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { basePath } from "@/lib/basePath";
+import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
+import type { SearchResult } from "@/lib/schemas/search";
 import { parseSearchResult } from "@/lib/schemas/search";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
+import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
+import { ActiveFilters } from "./ActiveFilters";
 import styles from "./SearchResults.module.css";
+import { SortDropdown } from "./SortDropdown";
 import { type ViewMode, ViewToggle } from "./ViewToggle";
 
 const PAGE_SIZE = 25;
@@ -16,6 +21,8 @@ type SearchResultsProps = {
   searchText: string;
   orderby: string;
   initialLimit: number;
+  initialOffset: number;
+  facets: SearchResult["facets"];
 };
 
 export function SearchResults({
@@ -24,6 +31,8 @@ export function SearchResults({
   searchText,
   orderby,
   initialLimit,
+  initialOffset,
+  facets,
 }: SearchResultsProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [results, setResults] = useState(initialResults);
@@ -51,12 +60,18 @@ export function SearchResults({
     try {
       const params = new URLSearchParams({
         limit: String(initialLimit || PAGE_SIZE),
-        offset: String(results.length + 1),
+        offset: String(initialOffset + results.length),
         orderby,
       });
 
       if (searchText.trim()) {
         params.set("text", searchText.trim());
+      }
+
+      for (const [key, value] of new URLSearchParams(window.location.search)) {
+        if (!RESERVED_SEARCH_PARAMS.has(key)) {
+          params.append(key, value);
+        }
       }
 
       const response = await fetch(
@@ -92,14 +107,21 @@ export function SearchResults({
     <main className={styles.page} data-color="neutral">
       <div className={styles.pageInner}>
         <div className={styles.layout}>
-          {/* Midlertidig plassholder for filter - fjernes når filter er implementert */}
-          <aside className={styles.filterPlaceholder}>
-            Filter (kommer snart!)
-          </aside>
+          <Suspense fallback={null}>
+            <FacetSidebar facets={facets} />
+          </Suspense>
           <div className={styles.content}>
+            <Suspense fallback={null}>
+              <ActiveFilters facets={facets} />
+            </Suspense>
             <div className={styles.header}>
               <Heading data-size="sm">{totalCount} treff</Heading>
-              <ViewToggle value={viewMode} onChange={setViewMode} />
+              <div className={styles.headerControls}>
+                <ViewToggle value={viewMode} onChange={setViewMode} />
+                <Suspense fallback={null}>
+                  <SortDropdown value={orderby} />
+                </Suspense>
+              </div>
             </div>
             <div
               className={`${styles.results} ${

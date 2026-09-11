@@ -1,36 +1,54 @@
 package no.kartverket.geonorge.kartkatalog.search
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.JsonPrimitive
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrFacetCounts
+import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
+import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
+import java.text.Collator
+import java.util.Locale
 
 class SearchService(
     private val solrClient: SolrClient,
+    private val areaResolver: AreaResolver,
+    private val hvdResolver: HvdResolver,
 ) {
-    suspend fun search(request: SearchRequest): SearchResponse {
-        val normalized = request.normalized()
-        val query = SearchQueryBuilder.build(normalized)
-        val response = solrClient.searchMetadataAll(query)
+    suspend fun search(request: SearchRequest): SearchResponse =
+        coroutineScope {
+            val normalized = request.normalized()
+            val query = SearchQueryBuilder.build(normalized)
+            val response = solrClient.searchMetadataAll(query)
+            val fylkeNamesDeferred = async { areaResolver.getFylkeNames().orEmpty() }
+            val hvdCategoriesDeferred = async { hvdResolver.getCategories().orEmpty() }
+            val fylkeNames = fylkeNamesDeferred.await()
+            val hvdCategories = hvdCategoriesDeferred.await()
 
-        return SearchResponse(
-            numFound = response.response.numFound,
-            limit = normalized.limit,
-            offset = normalized.offset,
-            results = response.response.docs.map { it.toSearchResultItem() },
-            facets = response.facetCounts.toSearchFacets(),
-        )
-    }
+            SearchResponse(
+                numFound = response.response.numFound,
+                limit = normalized.limit,
+                offset = normalized.offset,
+                results = response.response.docs.map { it.toSearchResultItem() },
+                facets = response.facetCounts.toSearchFacets(fylkeNames, hvdCategories),
+            )
+        }
 }
 
-private fun SolrFacetCounts?.toSearchFacets(): List<SearchFacet> =
+private fun SolrFacetCounts?.toSearchFacets(
+    fylkeNames: Map<String, String>,
+    hvdCategories: Set<String>,
+): List<SearchFacet> =
     this?.facetFields.orEmpty().map { (facetField, values) ->
         SearchFacet(
             facetField = facetField,
-            values = values.toFacetValues(),
+            label = FACET_LABELS[facetField],
+            values = values.toFacetValues(facetField, fylkeNames, hvdCategories),
         )
     }
+        .sortedWith(compareBy(nullsLast()) { FACET_ORDER[it.facetField] })
 
 private fun List<JsonPrimitive>.pairs(): List<Pair<JsonPrimitive, JsonPrimitive>> =
     chunked(2).mapNotNull { chunk ->
@@ -39,14 +57,104 @@ private fun List<JsonPrimitive>.pairs(): List<Pair<JsonPrimitive, JsonPrimitive>
         name to count
     }
 
-private fun kotlinx.serialization.json.JsonArray.toFacetValues(): List<SearchFacetValue> =
-    mapNotNull { it as? JsonPrimitive }
-        .pairs()
-        .mapNotNull { (name, count) ->
-            val facetName = name.content
-            val facetCount = count.content.toIntOrNull() ?: return@mapNotNull null
-            SearchFacetValue(name = facetName, count = facetCount)
+private fun kotlinx.serialization.json.JsonArray.toFacetValues(
+    facetField: String,
+    fylkeNames: Map<String, String>,
+    hvdCategories: Set<String>,
+): List<SearchFacetValue> {
+    val values =
+        mapNotNull { it as? JsonPrimitive }
+            .pairs()
+            .mapNotNull { (name, count) ->
+                val facetName = name.content
+                if (isJunkFacetValue(facetField, facetName)) return@mapNotNull null
+                val facetCount = count.content.toIntOrNull() ?: return@mapNotNull null
+                SearchFacetValue(
+                    name = facetName,
+                    label =
+                        when (facetField) {
+                            "type" -> translateType(facetName)
+                            "area" -> fylkeNames[facetName]
+                            "nationalinitiative" -> NATIONAL_INITIATIVE_LABELS[facetName]
+                            else -> null
+                        },
+                    category =
+                        if (facetField == "nationalinitiative" && facetName in hvdCategories) {
+                            "High value dataset"
+                        } else {
+                            null
+                        },
+                    count = facetCount,
+                )
+            }
+
+    return when (facetField) {
+        "area" -> values.sortedWith(compareBy(norwegianCollator) { it.label ?: it.name })
+        else -> {
+            val order = FACET_VALUE_ORDER[facetField]
+            if (order != null) values.sortedBy { order[it.name] ?: Int.MAX_VALUE } else values
         }
+    }
+}
+
+private val norwegianCollator: Comparator<String> =
+    Collator.getInstance(Locale.forLanguageTag("nb")).let { c -> Comparator { a, b -> c.compare(a, b) } }
+
+private fun orderOf(vararg codes: String): Map<String, Int> = codes.withIndex().associate { (i, code) -> code to i }
+
+private val NATIONAL_INITIATIVE_LABELS: Map<String, String> =
+    linkedMapOf(
+        "Det offentlige kartgrunnlaget" to "Det offentlige kartgrunnlaget",
+        "Geodata" to "Geografiske data",
+        "High value dataset" to "High value dataset",
+        "Jordobservasjon og miljø" to "Jordobservasjon og miljø",
+        "Norge digitalt" to "Norge digitalt",
+        "Norsk klimaservicesenter" to "Norsk klimaservicesenter",
+        "arealplanerPBL" to "Arealplaner underlagt PBL",
+        "Nautisk informasjon" to "Nautisk informasjon",
+        "MarineGrunnkart" to "Marine grunnkart",
+        "arcticSDI" to "Arctic SDI",
+        "beredskapsbase" to "Beredskapsbase",
+        "Inspire" to "Inspire",
+        "dataNorgeNo" to "Data.norge.no",
+        "geodataloven" to "Geodataloven",
+        "Mareano" to "Mareano",
+        "modellbaserteVegprosjekter" to "Modellbaserte vegprosjekter",
+        "ØkologiskGrunnkart" to "Økologisk grunnkart",
+    )
+
+private val FACET_VALUE_ORDER: Map<String, Map<String, Int>> =
+    mapOf(
+        "type" to orderOf("dataset", "service", "series", "servicelayer", "software"),
+        "theme" to
+            orderOf(
+                "Basis geodata", "Natur", "Flyfoto", "Høydedata", "Eiendom", "Landskap",
+                "Samferdsel", "Plan", "Geologi", "Friluftsliv", "Befolkning", "Landbruk",
+                "Annen", "Samfunnssikkerhet", "Kyst og fiskeri", "Vær og klima",
+                "Kulturminner", "Energi", "Forurensning",
+            ),
+        "dataaccess" to orderOf("Åpne data", "Norge digitalt begrenset", "Skjermede data"),
+        "DistributionProtocols" to
+            orderOf(
+                "WMS-tjeneste", "WFS-tjeneste", "Geonorge nedlastning", "OGC API-Features",
+                "REST-API", "Egen nedlastningsside", "WMTS-tjeneste", "OGC:OAPIF",
+                "Geonorge filnedlastning", "WCS-tjeneste", "Webside",
+                "OGC Catalogue Service for the Web", "OPeNDAP", "OGC API-Coverages",
+                "Webservice", "Atom Feed", "Ingen online tilgang",
+            ),
+        "nationalinitiative" to orderOf(*NATIONAL_INITIATIVE_LABELS.keys.toTypedArray()),
+    )
+
+private fun isJunkFacetValue(
+    facetField: String,
+    value: String,
+): Boolean =
+    when (facetField) {
+        "theme" -> value.startsWith("http")
+        "area" -> value != "Norge" && value != "Havområder" && !value.matches(Regex("^0/\\d+$"))
+        "DistributionProtocols" -> value !in FACET_VALUE_ORDER.getValue("DistributionProtocols")
+        else -> false
+    }
 
 private fun SolrDocument.toSearchResultItem(): SearchResultItem {
     val datasetServices = parseDatasetServices(datasetservice)
