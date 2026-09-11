@@ -3,6 +3,7 @@
 import type { ButtonProps } from "@kv-designsystem/react";
 import { Button } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
+import type { MouseEvent } from "react";
 import {
   addItemsToCart,
   type DownloadItem,
@@ -19,6 +20,7 @@ export default function AddToCartButton({
   location,
   addLabel = "Legg til i handlekurv",
   removeLabel = "Fjern fra handlekurv",
+  preventAccordionToggle = false,
 }: {
   item: DownloadItem | null;
   className?: string;
@@ -27,12 +29,18 @@ export default function AddToCartButton({
   location: Location;
   addLabel?: string;
   removeLabel?: string;
+  preventAccordionToggle?: boolean;
 }) {
   const isInCart = useIsItemInCart(item?.uuid);
 
   if (!item?.uuid || !item.distributionUrl) return null;
 
-  const handleToggleCart = () => {
+  const handleToggleCart = (event: MouseEvent<HTMLButtonElement>) => {
+    if (preventAccordionToggle) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     trackClick(isInCart ? "remove-from-cart" : "add-to-cart", location, {
       itemName: item.name,
       itemUuid: item.uuid,
@@ -48,7 +56,7 @@ export default function AddToCartButton({
 
   return (
     <Button
-      data-color={"neutral"}
+      data-color="neutral"
       variant={variant}
       data-size={size}
       className={className}

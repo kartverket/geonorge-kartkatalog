@@ -5,23 +5,20 @@ import {
   getProduktspesifikasjon,
   getTegneregler,
 } from "@/app/api";
-import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
+import { DistributionDetailActionButton } from "@/app/metadata/[uuid]/_components/DistributionDetailActionButton";
 import {
   type DetailItem,
   ProductTabs,
 } from "@/app/metadata/[uuid]/_components/ProductTabs";
 import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
-import {
-  formatDate,
-  showCopyLink,
-  unwrapSettled,
-} from "@/app/metadata/[uuid]/_utils/utils";
+import { formatDate, unwrapSettled } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
   LinkedDistributions,
   ProductConstraints,
   ReferenceSystem,
 } from "@/lib/schemas/product";
+import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
 
 export async function ProductTabsSection({
   uuid,
@@ -83,6 +80,10 @@ export async function ProductTabsSection({
   });
 
   const distributionDetails = buildDistributionDetails({
+    uuid,
+    title: metadata.title,
+    hierarchyLevel: metadata.hierarchyLevel,
+    accessState: metadata.accessState,
     groups: metadata.distributionGroups,
     referenceSystems: metadata.referenceSystems,
     dateUpdated: metadata.dateUpdated,
@@ -226,11 +227,19 @@ function buildInfoDetails({
 }
 
 function buildDistributionDetails({
+  uuid,
+  title,
+  hierarchyLevel,
+  accessState,
   groups,
   referenceSystems,
   dateUpdated,
   maintenanceFrequency,
 }: {
+  uuid: string;
+  title: string;
+  hierarchyLevel: string | null;
+  accessState: "restricted" | "open" | "protected" | null;
   groups: DistributionGroup[];
   referenceSystems: ReferenceSystem[];
   dateUpdated: string | null;
@@ -239,21 +248,20 @@ function buildDistributionDetails({
   return groups.map((group) => {
     const urlRows = buildUrlRows(group.entries);
     const formatNames = getGroupFormatNames(group.entries);
+    const firstUrlRowLabel = urlRows[0]?.label ?? "Tilgangs-URL";
 
     return {
-      actionButton:
-        urlRows.length === 1 && showCopyLink(group.protocol) ? (
-          <CopyButton
-            url={urlRows[0].url}
-            eventName="copy-distribution-link-from-accordion-summary"
-            trackingProperties={{
-              protocol: group.protocol,
-              protocolName: group.protocolName,
-              format: formatNames.join(", "),
-              urlLabel: urlRows[0].label,
-            }}
-          />
-        ) : null,
+      actionButton: (
+        <DistributionDetailActionButton
+          uuid={uuid}
+          title={title}
+          hierarchyLevel={hierarchyLevel}
+          accessState={accessState}
+          group={group}
+          formatNames={formatNames}
+          urlLabel={firstUrlRowLabel}
+        />
+      ),
       title: group.protocolName ?? "Ukjent protokoll",
       content: (
         <FieldList
