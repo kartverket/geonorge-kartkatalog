@@ -21,7 +21,9 @@ export async function GET(request: NextRequest) {
     if (error instanceof HttpError) {
       const isProd = process.env.NODE_ENV === "production";
       return NextResponse.json(
-        isProd ? { error: error.message } : { error: error.message, body: error.body },
+        isProd
+          ? { error: error.message }
+          : { error: error.message, body: error.body },
         { status: error.status },
       );
     }

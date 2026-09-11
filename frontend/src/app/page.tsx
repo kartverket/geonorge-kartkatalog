@@ -1,6 +1,12 @@
+import { cookies } from "next/headers";
+import { hasPerformanceConsentInCookieString } from "@/components/PosthogConsent/consentCookie";
 import type { DatasetCardProps } from "./_components/DatasetCard/DatasetCard";
 import { SearchHero } from "./_components/SearchHero/SearchHero";
 import { SearchResults } from "./_components/SearchResults/SearchResults";
+import {
+  isViewMode,
+  VIEW_MODE_COOKIE_NAME,
+} from "./_components/SearchResults/viewMode";
 import { getSearchResults } from "./api";
 
 export default async function Home({
@@ -11,7 +17,13 @@ export default async function Home({
     orderby?: string;
   }>;
 }) {
+  const cookieStore = await cookies();
   const { text, orderby } = await searchParams;
+  const storedViewMode = hasPerformanceConsentInCookieString(
+    cookieStore.toString(),
+  )
+    ? cookieStore.get(VIEW_MODE_COOKIE_NAME)?.value
+    : undefined;
   const searchResult = await getSearchResults({
     text,
     offset: 1,
@@ -25,6 +37,7 @@ export default async function Home({
     <>
       <SearchHero initialValue={text ?? ""} />
       <SearchResults
+        initialViewMode={isViewMode(storedViewMode) ? storedViewMode : "grid"}
         initialResults={results}
         totalCount={searchResult.numFound}
         searchText={text ?? ""}

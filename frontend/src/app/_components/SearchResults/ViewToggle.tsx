@@ -1,11 +1,8 @@
-"use client";
-
 import { Button } from "@kv-designsystem/react";
 import { BulletListIcon, SquareGridIcon } from "@navikt/aksel-icons";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./ViewToggle.module.css";
-
-export type ViewMode = "grid" | "list";
+import type { ViewMode } from "./viewMode";
 
 type ViewToggleProps = {
   value: ViewMode;
