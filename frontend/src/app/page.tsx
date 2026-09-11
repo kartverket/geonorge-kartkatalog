@@ -20,9 +20,10 @@ export default async function Home({
     if (RESERVED_SEARCH_PARAMS.has(key) || value == null) continue;
     filters[key] = Array.isArray(value) ? value : [value];
   }
+  const initialOffset = Number(offset) || 1;
   const searchResult = await getSearchResults({
     text,
-    offset: Number(offset) || 1,
+    offset: initialOffset,
     limit: Number(limit) || 25,
     orderby: orderby || "score",
     filters: filters,
@@ -39,6 +40,7 @@ export default async function Home({
         searchText={text ?? ""}
         orderby={orderby || "score"}
         initialLimit={searchResult.limit}
+        initialOffset={initialOffset}
         facets={searchResult.facets}
       />
     </>

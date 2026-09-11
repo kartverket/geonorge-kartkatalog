@@ -21,6 +21,7 @@ type SearchResultsProps = {
   searchText: string;
   orderby: string;
   initialLimit: number;
+  initialOffset: number;
   facets: SearchResult["facets"];
 };
 
@@ -30,6 +31,7 @@ export function SearchResults({
   searchText,
   orderby,
   initialLimit,
+  initialOffset,
   facets,
 }: SearchResultsProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -58,7 +60,7 @@ export function SearchResults({
     try {
       const params = new URLSearchParams({
         limit: String(initialLimit || PAGE_SIZE),
-        offset: String(results.length + 1),
+        offset: String(initialOffset + results.length),
         orderby,
       });
 
