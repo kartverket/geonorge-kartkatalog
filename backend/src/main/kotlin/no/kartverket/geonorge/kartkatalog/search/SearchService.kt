@@ -1,5 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.search
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.JsonPrimitive
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
@@ -15,21 +17,24 @@ class SearchService(
     private val areaResolver: AreaResolver,
     private val hvdResolver: HvdResolver,
 ) {
-    suspend fun search(request: SearchRequest): SearchResponse {
-        val normalized = request.normalized()
-        val query = SearchQueryBuilder.build(normalized)
-        val response = solrClient.searchMetadataAll(query)
-        val fylkeNames = areaResolver.getFylkeNames().orEmpty()
-        val hvdCategories = hvdResolver.getCategories().orEmpty()
+    suspend fun search(request: SearchRequest): SearchResponse =
+        coroutineScope {
+            val normalized = request.normalized()
+            val query = SearchQueryBuilder.build(normalized)
+            val response = solrClient.searchMetadataAll(query)
+            val fylkeNamesDeferred = async { areaResolver.getFylkeNames().orEmpty() }
+            val hvdCategoriesDeferred = async { hvdResolver.getCategories().orEmpty() }
+            val fylkeNames = fylkeNamesDeferred.await()
+            val hvdCategories = hvdCategoriesDeferred.await()
 
-        return SearchResponse(
-            numFound = response.response.numFound,
-            limit = normalized.limit,
-            offset = normalized.offset,
-            results = response.response.docs.map { it.toSearchResultItem() },
-            facets = response.facetCounts.toSearchFacets(fylkeNames, hvdCategories),
-        )
-    }
+            SearchResponse(
+                numFound = response.response.numFound,
+                limit = normalized.limit,
+                offset = normalized.offset,
+                results = response.response.docs.map { it.toSearchResultItem() },
+                facets = response.facetCounts.toSearchFacets(fylkeNames, hvdCategories),
+            )
+        }
 }
 
 private fun SolrFacetCounts?.toSearchFacets(
