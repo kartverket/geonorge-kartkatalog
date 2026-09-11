@@ -21,6 +21,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
 import no.kartverket.geonorge.kartkatalog.search.SearchService
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -72,7 +73,7 @@ class SearchRoutesTest {
     @Test
     fun `returns frontend compatible search result`() =
         testApplication {
-            val requestedPaths = mutableListOf<String>()
+            val requestedPaths = CopyOnWriteArrayList<String>()
             application {
                 configureSerialization()
                 configureStatusPages()
