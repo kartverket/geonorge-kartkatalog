@@ -10,6 +10,12 @@
   background: var(--ds-color-surface-default);
 }
 
+@media (max-width: 800px) {
+  .sidebar {
+    display: none;
+  }
+}
+
 .groupWrapper {
   width: 100%;
 }
