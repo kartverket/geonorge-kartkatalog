@@ -11,7 +11,7 @@ class TimedCache<K, V>(
         val expiresAtMillis: Long,
     )
 
-    private val entries = mutableMapOf<K, Entry<V>>()
+private val entries = java.util.concurrent.ConcurrentHashMap<K, Entry<V>>()
     private val mutex = Mutex()
 
     suspend fun getOrFetch(
