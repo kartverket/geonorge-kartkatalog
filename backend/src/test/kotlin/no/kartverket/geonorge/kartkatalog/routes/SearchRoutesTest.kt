@@ -105,13 +105,13 @@ class SearchRoutesTest {
                     "wms.matrikkelkart?service=wms&request=getcapabilities\""
 
             assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals("/solr/metadata_all/select", requestedPaths.first())
             assertEquals(
-                listOf(
-                    "/solr/metadata_all/select",
+                setOf(
                     "/api/sosi-kodelister/inndelinger/inndelingsbase/fylkesnummer",
                     "/api/metadata-kodelister/hvd-kategorier",
                 ),
-                requestedPaths,
+                requestedPaths.drop(1).toSet(),
             )
             assertContains(body, "\"numFound\":1")
             assertContains(body, "\"typeTranslated\":\"Datasett\"")
