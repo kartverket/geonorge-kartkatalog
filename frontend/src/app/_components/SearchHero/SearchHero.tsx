@@ -40,10 +40,12 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
               aria-label="Søk i Kartkatalogen"
               placeholder="Naturvernområder, FKB-Bygning..."
               defaultValue={initialValue}
+              type="search"
             />
             <Search.Clear
               onClick={() => trackClick("clear-search", LOCATIONS.SearchHero)}
             />
+            <Search.Button data-color={"neutral"} />
           </Search>
         </form>
       </div>
