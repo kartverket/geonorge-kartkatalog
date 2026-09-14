@@ -15,9 +15,13 @@ import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
+import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
 import no.kartverket.geonorge.kartkatalog.search.SearchService
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -69,7 +73,7 @@ class SearchRoutesTest {
     @Test
     fun `returns frontend compatible search result`() =
         testApplication {
-            val requestedPaths = mutableListOf<String>()
+            val requestedPaths = CopyOnWriteArrayList<String>()
             application {
                 configureSerialization()
                 configureStatusPages()
@@ -86,7 +90,12 @@ class SearchRoutesTest {
                     ) {
                         install(ContentNegotiation) { json() }
                     }
-                val searchService = SearchService(SolrClient(client, "https://solr.example.test"))
+                val searchService =
+                    SearchService(
+                        SolrClient(client, "https://solr.example.test"),
+                        AreaResolver(RegisterClient(client, "https://register.example.test")),
+                        HvdResolver(RegisterClient(client, "https://register.example.test")),
+                    )
                 routing { searchRoutes(searchService) }
             }
 
@@ -97,7 +106,14 @@ class SearchRoutesTest {
                     "wms.matrikkelkart?service=wms&request=getcapabilities\""
 
             assertEquals(HttpStatusCode.OK, response.status)
-            assertEquals(listOf("/solr/metadata_all/select"), requestedPaths)
+            assertEquals("/solr/metadata_all/select", requestedPaths.first())
+            assertEquals(
+                setOf(
+                    "/api/sosi-kodelister/inndelinger/inndelingsbase/fylkesnummer",
+                    "/api/metadata-kodelister/hvd-kategorier",
+                ),
+                requestedPaths.drop(1).toSet(),
+            )
             assertContains(body, "\"numFound\":1")
             assertContains(body, "\"typeTranslated\":\"Datasett\"")
             assertContains(body, "\"showMapLink\":true")
@@ -127,7 +143,12 @@ class SearchRoutesTest {
                     ) {
                         install(ContentNegotiation) { json() }
                     }
-                val searchService = SearchService(SolrClient(client, "https://solr.example.test"))
+                val searchService =
+                    SearchService(
+                        SolrClient(client, "https://solr.example.test"),
+                        AreaResolver(RegisterClient(client, "https://register.example.test")),
+                        HvdResolver(RegisterClient(client, "https://register.example.test")),
+                    )
                 routing { searchRoutes(searchService) }
             }
 

@@ -70,6 +70,12 @@
   text-align: center;
 }
 
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 @media (max-width: 800px) {
   .filterPlaceholder {
     display: none;

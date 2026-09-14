@@ -226,17 +226,28 @@ export async function getSearchResults({
   limit = 25,
   offset = 1,
   orderby = "score",
+  filters = {},
 }: {
   text?: string;
   limit?: number;
   offset?: number;
   orderby?: string;
+  filters?: Record<string, string[]>;
 }): Promise<SearchResult> {
   const params = new URLSearchParams();
   if (text?.trim()) params.set("text", text.trim());
   params.set("limit", String(limit));
   params.set("offset", String(offset));
   params.set("orderby", orderby);
+
+  let i = 0;
+  for (const [field, values] of Object.entries(filters)) {
+    for (const value of values) {
+      params.set(`facets[${i}]name`, field);
+      params.set(`facets[${i}]value`, value);
+      i++;
+    }
+  }
 
   const url = `${API_BASE}/api/search?${params.toString()}`;
   const body = await fetchJson(url, { method: "GET" });
