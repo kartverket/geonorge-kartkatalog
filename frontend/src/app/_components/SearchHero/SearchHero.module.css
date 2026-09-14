@@ -79,7 +79,7 @@
   left: 0;
   list-style: none;
   margin: 0;
-  padding: var(--ds-size-2) 0;
+  padding: 0;
   overflow: hidden;
   border-radius: var(--ds-border-radius-md);
   background-color: var(--ds-color-background-default);
