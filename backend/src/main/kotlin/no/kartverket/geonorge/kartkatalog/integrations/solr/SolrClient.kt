@@ -34,6 +34,19 @@ class SolrClient(
         return querySolr(applicationPath, query)
     }
 
+    suspend fun getMetadataByUuids(uuids: List<String>): List<SolrDocument> {
+        val distinctUuids = uuids.distinct()
+        if (distinctUuids.isEmpty()) return emptyList()
+
+        val found = mutableMapOf<String, SolrDocument>()
+        for (path in listOf(metadataPath, servicesPath, applicationPath)) {
+            val remaining = distinctUuids.filterNot { it in found }
+            if (remaining.isEmpty()) break
+            querySolr(path, buildMetadataSolrQuery(remaining)).response.docs.forEach { found[it.uuid] = it }
+        }
+        return found.values.toList()
+    }
+
     suspend fun searchApplicationsForDataset(uuid: String): List<SolrDocument> {
         val query =
             MetadataSolrQuery(
@@ -77,6 +90,14 @@ class SolrClient(
             q = "uuid:$uuid",
             fl = METADATA_FL,
             rows = 1,
+            wt = "json",
+        )
+
+    private fun buildMetadataSolrQuery(uuids: List<String>): MetadataSolrQuery =
+        MetadataSolrQuery(
+            q = "uuid:(${uuids.joinToString(" OR ")})",
+            fl = METADATA_FL,
+            rows = uuids.size,
             wt = "json",
         )
 

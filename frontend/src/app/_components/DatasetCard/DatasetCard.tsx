@@ -31,12 +31,8 @@ export type DatasetCardProps = {
   getCapabilitiesUrl: string | null;
   showMapLink: boolean | null;
   mapCapabilitiesUrl: string | null;
-  protocolNames?: string[];
-  formats?: string[];
   accessState: "restricted" | "open" | "protected" | null;
   hierarchyLevel: string | null;
-  showThumbnail?: boolean;
-  compact?: boolean;
   viewMode?: "grid" | "list";
   analyticsLocation?: Location;
 };
@@ -48,11 +44,7 @@ const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
   Datasettserie: "datasettserie",
 };
 
-export function DatasetCard({
-  viewMode = "grid",
-  compact = false,
-  ...p
-}: DatasetCardProps) {
+export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const [copied, setCopied] = useState(false);
   const analyticsLocation = p.analyticsLocation ?? LOCATIONS.SearchPage;
 
@@ -103,7 +95,7 @@ export function DatasetCard({
   return (
     <div className={viewMode === "list" ? styles.listMode : styles.gridMode}>
       <Card data-color="neutral" className={styles.productCard}>
-        {viewMode !== "list" && p.showThumbnail !== false && renderThumbnail()}
+        {viewMode !== "list" && renderThumbnail()}
         <div className={styles.contentWrapper}>
           {p.typeTranslated && (
             <div className={styles.badgeRow}>
@@ -120,9 +112,7 @@ export function DatasetCard({
               </Tag>
             </div>
           )}
-          <span
-            className={`${styles.listItemTitle} ${compact ? styles.listItemTitleCompact : ""}`}
-          >
+          <span className={styles.listItemTitle}>
             <Link
               href={`/metadata/${p.uuid}`}
               onClick={() =>
@@ -135,30 +125,6 @@ export function DatasetCard({
               {p.title}
             </Link>
           </span>
-          {((!compact && !!p.protocolNames?.length) || !!p.formats?.length) && (
-            <div className={styles.metaGroup}>
-              {!compact && !!p.protocolNames?.length && (
-                <div className={styles.typeRow} data-color="neutral">
-                  <span>Type: </span>
-                  {p.protocolNames.map((name) => (
-                    <Tag key={name} data-size="sm">
-                      {name}
-                    </Tag>
-                  ))}
-                </div>
-              )}
-              {!!p.formats?.length && (
-                <div className={styles.formatList} data-color="info">
-                  <span>Formater:</span>
-                  {p.formats.map((f) => (
-                    <Tag key={f} data-size="sm">
-                      {f}
-                    </Tag>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
         </div>
         <div className={styles.buttonGroupContainer}>
           {applicationUrl && (
