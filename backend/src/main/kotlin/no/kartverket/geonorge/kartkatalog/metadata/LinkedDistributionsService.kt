@@ -6,7 +6,6 @@ import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
-import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.resolveMapCapability
@@ -16,7 +15,6 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
     private val geonetworkClient: GeonetworkClient,
-    private val codeListTranslator: CodeListTranslator,
 ) {
     suspend fun getLinkedDistributions(uuid: String): LinkedDistributions =
         coroutineScope {
@@ -209,16 +207,6 @@ class LinkedDistributionsService(
             getCapabilitiesUrl = if (protocol != null) url else null,
             showMapLink = (mapCapability?.showMapLink == true) || ownViewServiceResource != null,
             mapCapabilitiesUrl = mapCapability?.mapCapabilitiesUrl ?: ownViewServiceResource?.url,
-            formats =
-                distributionInfo?.formats.orEmpty()
-                    .mapNotNull { it.name.takeIf { name -> name.isNotBlank() } }
-                    .distinct(),
-            protocolNames =
-                distributionInfo?.formats.orEmpty()
-                    .flatMap { it.onlineResources }
-                    .mapNotNull { it.protocol }
-                    .distinct()
-                    .map { codeListTranslator.translate(CodeList.DISTRIBUTION_TYPES, it) ?: it },
             hierarchyLevel = hierarchyLevel,
             accessState = resolveAccessState(this),
         )
