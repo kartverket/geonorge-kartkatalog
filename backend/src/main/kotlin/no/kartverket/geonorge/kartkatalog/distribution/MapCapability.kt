@@ -1,5 +1,6 @@
-package no.kartverket.geonorge.kartkatalog.integrations.solr
+package no.kartverket.geonorge.kartkatalog.distribution
 
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
 
 internal data class DatasetServiceReference(

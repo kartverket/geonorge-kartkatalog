@@ -3,10 +3,10 @@ package no.kartverket.geonorge.kartkatalog.search
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.JsonPrimitive
+import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrFacetCounts
-import no.kartverket.geonorge.kartkatalog.integrations.solr.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
 import java.text.Collator
