@@ -87,10 +87,6 @@
   box-shadow: var(--ds-shadow-md);
 }
 
-.suggestions li + li {
-  border-top: 1px solid var(--ds-color-border-subtle);
-}
-
 .suggestions a {
   display: flex;
   align-items: center;
