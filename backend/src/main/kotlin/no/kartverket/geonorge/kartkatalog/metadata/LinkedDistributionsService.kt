@@ -62,38 +62,45 @@ class LinkedDistributionsService(
                 solrClient.parseDatasetServices(listOfNotNull(solrDoc.serie))
                     .filter { it.uuid != uuid }
 
+            val relatedUuids =
+                (
+                    applicationDocs.map { it.uuid } + viewRefs.map { it.uuid } + downloadRefs.map { it.uuid } +
+                        seriesMemberRefs.map { it.uuid } + parentSeriesRefs.map { it.uuid }
+                )
+            val solrDocsByUuid = solrClient.getMetadataByUuids(relatedUuids).associateBy { it.uuid }
+
             val applicationsDeferred =
                 applicationDocs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, protocol = null)
+                        fetchLinkedDistribution(it.uuid, null, solrDocsByUuid)
                     }
                 }
 
             val viewServicesDeferred =
                 viewRefs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, it.protocol)
+                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid)
                     }
                 }
 
             val downloadServicesDeferred =
                 downloadRefs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, it.protocol)
+                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid)
                     }
                 }
 
             val seriesMembersDeferred =
                 seriesMemberRefs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, it.protocol)
+                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid)
                     }
                 }
 
             val parentSeriesDeferred =
                 parentSeriesRefs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, it.protocol)
+                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid)
                     }
                 }
 
@@ -114,8 +121,13 @@ class LinkedDistributionsService(
             val datasetRefs = solrClient.parseDatasetServices(solrDoc.servicedataset).filter { it.uuid != uuid }
             val layerRefs = solrClient.parseDatasetServices(solrDoc.servicelayers).filter { it.uuid != uuid }
 
-            val relatedDatasetsDeferred = datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
-            val serviceLayersDeferred = layerRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
+            val relatedUuids = datasetRefs.map { it.uuid } + layerRefs.map { it.uuid }
+            val solrDocsByUuid = solrClient.getMetadataByUuids(relatedUuids).associateBy { it.uuid }
+
+            val relatedDatasetsDeferred =
+                datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid) } }
+            val serviceLayersDeferred =
+                layerRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid) } }
 
             LinkedDistributions(
                 relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull(),
@@ -132,16 +144,13 @@ class LinkedDistributionsService(
             val parentServiceRefs =
                 solrClient.parseDatasetServices(listOfNotNull(solrDoc.parentidentifier)).filter { it.uuid != uuid }
 
-            val relatedDatasetsDeferred = datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
+            val relatedUuids = datasetRefs.map { it.uuid } + parentServiceRefs.map { it.uuid }
+            val solrDocsByUuid = solrClient.getMetadataByUuids(relatedUuids).associateBy { it.uuid }
+
+            val relatedDatasetsDeferred =
+                datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid) } }
             val parentServiceDeferred =
-                parentServiceRefs.map {
-                    async {
-                        fetchLinkedDistribution(
-                            it.uuid,
-                            it.protocol,
-                        )
-                    }
-                }
+                parentServiceRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid) } }
 
             LinkedDistributions(
                 relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull(),
@@ -155,7 +164,10 @@ class LinkedDistributionsService(
     ): LinkedDistributions =
         coroutineScope {
             val datasetRefs = solrClient.parseDatasetServices(solrDoc.applicationdataset).filter { it.uuid != uuid }
-            val relatedDatasetsDeferred = datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
+            val solrDocsByUuid = solrClient.getMetadataByUuids(datasetRefs.map { it.uuid }).associateBy { it.uuid }
+
+            val relatedDatasetsDeferred =
+                datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid) } }
 
             LinkedDistributions(relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull())
         }
@@ -163,13 +175,11 @@ class LinkedDistributionsService(
     private suspend fun fetchLinkedDistribution(
         relatedUuid: String,
         protocol: String?,
-    ): LinkedDistribution? =
-        coroutineScope {
-            val recordDeferred = async { geonetworkClient.getRecordByUuid(relatedUuid) }
-            val solrDocDeferred = async { solrClient.getMetadataByUuid(relatedUuid).response.docs.firstOrNull() }
-            val record = recordDeferred.await() ?: return@coroutineScope null
-            record.toLinkedDistribution(relatedUuid, protocol, solrDocDeferred.await())
-        }
+        solrDocsByUuid: Map<String, SolrDocument>,
+    ): LinkedDistribution? {
+        val record = geonetworkClient.getRecordByUuid(relatedUuid) ?: return null
+        return record.toLinkedDistribution(relatedUuid, protocol, solrDocsByUuid[relatedUuid])
+    }
 
     private suspend fun MetadataRecord.toLinkedDistribution(
         uuid: String,
