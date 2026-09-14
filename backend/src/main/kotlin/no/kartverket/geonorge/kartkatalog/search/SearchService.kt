@@ -7,7 +7,6 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrFacetCounts
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
-import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
 import java.text.Collator
 import java.util.Locale
@@ -157,25 +156,8 @@ private fun isJunkFacetValue(
     }
 
 private fun SolrDocument.toSearchResultItem(): SearchResultItem {
-    val datasetServices = parseDatasetServices(datasetservice)
-    val viewServices =
-        datasetServices.filter {
-            DistributionProtocols.isViewService(it.distributionProtocol) &&
-                (it.type.equals("service", ignoreCase = true) || it.type.equals("servicelayer", ignoreCase = true))
-        }
-    val firstViewService =
-        viewServices.firstOrNull {
-            !it.getCapabilitiesUrl.isNullOrBlank()
-        }
     val access = resolveAccess(dataaccess, otherconstraintsaccess, accessconstraint)
-    val mapCapabilitiesUrl =
-        when {
-            !serviceDistributionUrlForDataset.isNullOrBlank() -> serviceDistributionUrlForDataset
-            firstViewService != null -> firstViewService.getCapabilitiesUrl
-            (type.equals("service", ignoreCase = true) || type.equals("servicelayer", ignoreCase = true)) &&
-                DistributionProtocols.isViewService(distributionProtocol) -> distributionUrl
-            else -> null
-        }
+    val mapCapability = resolveMapCapability()
 
     return SearchResultItem(
         uuid = uuid,
@@ -189,15 +171,8 @@ private fun SolrDocument.toSearchResultItem(): SearchResultItem {
         distributionUrl = distributionUrl,
         distributionProtocol = distributionProtocol,
         getCapabilitiesUrl = distributionUrl,
-        showMapLink =
-            canShowMap(
-                type,
-                distributionProtocol,
-                distributionUrl,
-                viewServices,
-                serviceDistributionUrlForDataset,
-            ),
-        mapCapabilitiesUrl = mapCapabilitiesUrl,
+        showMapLink = mapCapability.showMapLink,
+        mapCapabilitiesUrl = mapCapability.mapCapabilitiesUrl,
         accessState = access.asAccessState(),
         hierarchyLevel = type,
     )
