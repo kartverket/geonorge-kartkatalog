@@ -1,8 +1,13 @@
 "use client";
 
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
+import { Suspense } from "react";
+import type { SearchResult } from "@/lib/schemas/search";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
+import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
+import { ActiveFilters } from "./ActiveFilters";
 import styles from "./SearchResults.module.css";
+import { SortDropdown } from "./SortDropdown";
 import { usePaginatedSearchResults } from "./usePaginatedSearchResults";
 import { usePersistedViewMode } from "./usePersistedViewMode";
 import { ViewToggle } from "./ViewToggle";
@@ -15,6 +20,8 @@ type SearchResultsProps = {
   searchText: string;
   orderby: string;
   initialLimit: number;
+  initialOffset: number;
+  facets: SearchResult["facets"];
 };
 
 export function SearchResults({
@@ -24,6 +31,8 @@ export function SearchResults({
   searchText,
   orderby,
   initialLimit,
+  initialOffset,
+  facets,
 }: SearchResultsProps) {
   const [viewMode, setViewMode] = usePersistedViewMode(initialViewMode);
   const {
@@ -38,6 +47,7 @@ export function SearchResults({
     searchText,
     orderby,
     initialLimit,
+    initialOffset,
   });
 
   const resultsClassName = `${styles.results} ${
@@ -48,24 +58,25 @@ export function SearchResults({
     <main className={styles.page} data-color="neutral">
       <div className={styles.pageInner}>
         <div className={styles.layout}>
-          {/* Midlertidig plassholder for filter - fjernes når filter er implementert */}
-          <aside className={styles.filterPlaceholder}>
-            Filter (kommer snart!)
-          </aside>
-
+          <Suspense fallback={null}>
+            <FacetSidebar facets={facets} />
+          </Suspense>
           <div className={styles.content}>
+            <Suspense fallback={null}>
+              <ActiveFilters facets={facets} />
+            </Suspense>
             <div className={styles.header}>
               <Heading data-size="sm">{totalCount} treff</Heading>
-              <ViewToggle value={viewMode} onChange={setViewMode} />
+              <div className={styles.headerControls}>
+                <ViewToggle value={viewMode} onChange={setViewMode} />
+                <Suspense fallback={null}>
+                  <SortDropdown value={orderby} />
+                </Suspense>
+              </div>
             </div>
-
             <div className={resultsClassName}>
-              {results.map((result) => (
-                <DatasetCard
-                  key={result.uuid}
-                  viewMode={viewMode}
-                  {...result}
-                />
+              {results.map((r) => (
+                <DatasetCard key={r.uuid} viewMode={viewMode} {...r} />
               ))}
             </div>
 

@@ -4,11 +4,14 @@ const accessState = ["restricted", "open", "protected"] as const;
 
 const SearchFacetValueSchema = z.object({
   name: z.string(),
+  label: z.string().nullable(),
+  category: z.string().nullable(),
   count: z.number(),
 });
 
 const SearchFacetSchema = z.object({
   facetField: z.string(),
+  label: z.string().nullable(),
   values: z.array(SearchFacetValueSchema),
 });
 

@@ -41,6 +41,9 @@ class RegisterClient(
     suspend fun getCodeListByName(name: String): RegisterCodeListResponse =
         fetch("/api/metadata-kodelister/$name", RegisterCodeListResponse.serializer())
 
+    suspend fun getSosiCodeList(path: String): RegisterCodeListResponse =
+        fetch("/api/sosi-kodelister/$path", RegisterCodeListResponse.serializer())
+
     suspend fun getSubRegister(registerName: String): RegisterSubRegisterResponse =
         fetch("/api/subregister/$registerName", RegisterSubRegisterResponse.serializer())
 

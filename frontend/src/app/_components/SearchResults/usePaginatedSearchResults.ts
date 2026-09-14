@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { basePath } from "@/lib/basePath";
+import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
 import { parseSearchResult } from "@/lib/schemas/search";
 import type { DatasetCardProps } from "../DatasetCard/DatasetCard";
 
@@ -13,6 +14,7 @@ type UsePaginatedSearchResultsOptions = {
   searchText: string;
   orderby: string;
   initialLimit: number;
+  initialOffset: number;
 };
 
 const PAGE_SIZE = 25;
@@ -23,6 +25,7 @@ export function usePaginatedSearchResults({
   searchText,
   orderby,
   initialLimit,
+  initialOffset,
 }: UsePaginatedSearchResultsOptions) {
   const [results, setResults] = useState(initialResults);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -50,13 +53,19 @@ export function usePaginatedSearchResults({
 
     const params = new URLSearchParams({
       limit: String(initialLimit || PAGE_SIZE),
-      offset: String(results.length + 1),
+      offset: String(initialOffset + results.length),
       orderby,
     });
     const trimmedSearchText = searchText.trim();
 
     if (trimmedSearchText) {
       params.set("text", trimmedSearchText);
+    }
+
+    for (const [key, value] of new URLSearchParams(window.location.search)) {
+      if (!RESERVED_SEARCH_PARAMS.has(key)) {
+        params.append(key, value);
+      }
     }
 
     try {

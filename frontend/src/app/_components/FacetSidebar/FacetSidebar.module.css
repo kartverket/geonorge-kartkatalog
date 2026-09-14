@@ -1,0 +1,36 @@
+.sidebar {
+  display: flex;
+  min-width: 300px;
+  padding: var(--ds-size-4) 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ds-size-0);
+  align-self: flex-start;
+  border-radius: var(--ds-border-radius-lg);
+  background: var(--ds-color-surface-default);
+}
+
+@media (max-width: 800px) {
+  .sidebar {
+    display: none;
+  }
+}
+
+.groupWrapper {
+  width: 100%;
+}
+
+.divider {
+  width: 100%;
+  padding: var(--ds-size-5) 0;
+  display: flex;
+  align-items: center;
+}
+
+.divider::before {
+  content: "";
+  width: 100%;
+  margin-inline: var(--ds-size-6);
+  height: 1px;
+  background: var(--ds-color-border-subtle);
+}

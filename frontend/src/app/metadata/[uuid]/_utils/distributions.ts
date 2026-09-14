@@ -1,5 +1,10 @@
 import type { DownloadItem } from "@/app/_components/addToCart/cartStorage";
 import type { MapItem } from "@/app/_components/addToMap/mapStorage";
+import {
+  DISTRIBUTION_PROTOCOLS,
+  isGeonorgeDownloadProtocol,
+  isWmsDistributionProtocol,
+} from "@/app/metadata/[uuid]/_utils/distributionProtocols";
 import type {
   DistributionGroup,
   LinkedDistribution,
@@ -22,8 +27,8 @@ function getPrimaryGroupUrl(
 export function getGeonorgeDownloadUrl(
   distributionGroups: DistributionGroup[],
 ): string | null {
-  const group = distributionGroups.find(
-    (distributionGroup) => distributionGroup.protocol === "GEONORGE:DOWNLOAD",
+  const group = distributionGroups.find((distributionGroup) =>
+    isGeonorgeDownloadProtocol(distributionGroup.protocol),
   );
   const rawUrl = getPrimaryGroupUrl(group);
 
@@ -37,10 +42,11 @@ export function getGeonorgeDownloadUrl(
 export function toDownloadItem(
   distribution: LinkedDistribution,
 ): DownloadItem | null {
-  if (
-    distribution.distributionProtocol !== "GEONORGE:DOWNLOAD" ||
-    !distribution.distributionUrl
-  ) {
+  if (!isGeonorgeDownloadProtocol(distribution.distributionProtocol)) {
+    return null;
+  }
+
+  if (!distribution.distributionUrl) {
     return null;
   }
 
@@ -83,8 +89,8 @@ function getDirectWmsMapSource(
   uuid: string,
   title: string,
 ): MapSource | null {
-  const group = distributionGroups.find(
-    (distributionGroup) => distributionGroup.protocol === "OGC:WMS",
+  const group = distributionGroups.find((distributionGroup) =>
+    isWmsDistributionProtocol(distributionGroup.protocol),
   );
   const rawUrl = getPrimaryGroupUrl(group);
 
@@ -108,7 +114,7 @@ function getLinkedWmsMapSource(
 
   const firstMatch = candidates.find(
     (distribution) =>
-      distribution.distributionProtocol === "OGC:WMS" &&
+      isWmsDistributionProtocol(distribution.distributionProtocol) &&
       distribution.getCapabilitiesUrl,
   );
 
@@ -134,7 +140,7 @@ export function getMapItem(
 
   return {
     addLayers: [],
-    DistributionProtocol: "OGC:WMS",
+    DistributionProtocol: DISTRIBUTION_PROTOCOLS.wms,
     Uuid: mapSource.uuid,
     Title: mapSource.title,
     GetCapabilitiesUrl: mapSource.getCapabilitiesUrl,
