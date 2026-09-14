@@ -203,35 +203,6 @@ private fun SolrDocument.toSearchResultItem(): SearchResultItem {
     )
 }
 
-private fun parseDatasetServices(raw: List<String>?): List<DatasetServiceReference> =
-    raw.orEmpty().mapNotNull { value ->
-        val parts = value.split("|")
-        val uuid = parts.getOrNull(0)?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-        DatasetServiceReference(
-            uuid = uuid,
-            type = parts.getOrNull(3),
-            distributionProtocol = parts.getOrNull(6),
-            getCapabilitiesUrl = parts.getOrNull(7),
-        )
-    }
-
-private fun canShowMap(
-    type: String?,
-    distributionProtocol: String?,
-    distributionUrl: String?,
-    viewServices: List<DatasetServiceReference>,
-    serviceDistributionUrlForDataset: String?,
-): Boolean {
-    val hasMappedDatasetView = serviceDistributionUrlForDataset?.contains("service=wms", ignoreCase = true) == true
-    val hasDatasetViewServices = viewServices.isNotEmpty()
-    val isServiceView =
-        !distributionUrl.isNullOrBlank() &&
-            (type.equals("service", ignoreCase = true) || type.equals("servicelayer", ignoreCase = true)) &&
-            DistributionProtocols.isViewService(distributionProtocol)
-
-    return hasMappedDatasetView || hasDatasetViewServices || isServiceView
-}
-
 private data class AccessFlags(
     val isOpenData: Boolean,
     val isRestricted: Boolean,
@@ -291,10 +262,3 @@ private fun translateType(type: String?): String? =
         "dimensionGroup" -> "Datapakke"
         else -> type
     }
-
-private data class DatasetServiceReference(
-    val uuid: String,
-    val type: String? = null,
-    val distributionProtocol: String? = null,
-    val getCapabilitiesUrl: String? = null,
-)

@@ -11,6 +11,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
+import no.kartverket.geonorge.kartkatalog.search.resolveMapCapability
 
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
@@ -162,21 +163,26 @@ class LinkedDistributionsService(
     private suspend fun fetchLinkedDistribution(
         relatedUuid: String,
         protocol: String?,
-    ): LinkedDistribution? {
-        val record = geonetworkClient.getRecordByUuid(relatedUuid) ?: return null
-        return record.toLinkedDistribution(relatedUuid, protocol)
-    }
+    ): LinkedDistribution? =
+        coroutineScope {
+            val recordDeferred = async { geonetworkClient.getRecordByUuid(relatedUuid) }
+            val solrDocDeferred = async { solrClient.getMetadataByUuid(relatedUuid).response.docs.firstOrNull() }
+            val record = recordDeferred.await() ?: return@coroutineScope null
+            record.toLinkedDistribution(relatedUuid, protocol, solrDocDeferred.await())
+        }
 
     private suspend fun MetadataRecord.toLinkedDistribution(
         uuid: String,
         protocol: String?,
+        solrDoc: SolrDocument?,
     ): LinkedDistribution {
         val allResources =
             distributionInfo?.formats.orEmpty().flatMap {
                 it.onlineResources
             }
         val url = allResources.findUrlForProtocol(protocol)
-        val isViewService = DistributionProtocols.isViewService(protocol)
+        val ownViewServiceResource = allResources.firstOrNull { DistributionProtocols.isViewService(it.protocol) }
+        val mapCapability = solrDoc?.resolveMapCapability()
 
         return LinkedDistribution(
             uuid = uuid,
@@ -191,8 +197,8 @@ class LinkedDistributionsService(
             distributionUrl = url,
             distributionProtocol = protocol,
             getCapabilitiesUrl = if (protocol != null) url else null,
-            showMapLink = isViewService,
-            mapCapabilitiesUrl = if (isViewService) url else null,
+            showMapLink = (mapCapability?.showMapLink == true) || ownViewServiceResource != null,
+            mapCapabilitiesUrl = mapCapability?.mapCapabilitiesUrl ?: ownViewServiceResource?.url,
             formats =
                 distributionInfo?.formats.orEmpty()
                     .mapNotNull { it.name.takeIf { name -> name.isNotBlank() } }
