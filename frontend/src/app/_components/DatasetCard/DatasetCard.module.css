@@ -104,10 +104,6 @@
   outline: none;
 }
 
-.listItemTitleCompact a {
-  font-size: var(--ds-heading-2xs-font-size);
-}
-
 .buttonGroupContainer {
   display: flex;
   flex-wrap: nowrap;
