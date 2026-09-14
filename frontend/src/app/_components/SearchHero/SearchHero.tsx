@@ -3,72 +3,16 @@
 import { Heading, Search } from "@kv-designsystem/react";
 import { DiamondIcon, LocationPinFillIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { basePath, isBeta } from "@/lib/basePath";
-import { parseSearchResult, type SearchResult } from "@/lib/schemas/search";
+import { useState } from "react";
+import { isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./SearchHero.module.css";
-
-const MINIMUM_SEARCH_LENGTH = 2;
-const SEARCH_DELAY_MS = 300;
-const SUGGESTION_LIMIT = 9;
-
-type Suggestion = Pick<SearchResult["results"][number], "title" | "uuid">;
+import { useSearchAutocomplete } from "./useSearchAutocomplete";
 
 export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
   const [searchText, setSearchText] = useState(initialValue);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isFocused, setIsFocused] = useState(false);
-
-  useEffect(() => {
-    const text = searchText.trim();
-    if (text.length < MINIMUM_SEARCH_LENGTH) {
-      setSuggestions([]);
-      return;
-    }
-
-    const controller = new AbortController();
-    let isCurrentRequest = true;
-    const timeoutId = window.setTimeout(async () => {
-      try {
-        const params = new URLSearchParams({
-          text,
-          limit: String(SUGGESTION_LIMIT),
-          offset: "1",
-          orderby: "score",
-        });
-        const response = await fetch(`${basePath}/api/search?${params}`, {
-          signal: controller.signal,
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          if (isCurrentRequest) setSuggestions([]);
-          return;
-        }
-
-        const body: unknown = await response.json();
-        if (!isCurrentRequest) return;
-        setSuggestions(
-          parseSearchResult(body).results.slice(0, SUGGESTION_LIMIT),
-        );
-      } catch (error) {
-        if (
-          isCurrentRequest &&
-          (error as { name?: string }).name !== "AbortError"
-        ) {
-          setSuggestions([]);
-        }
-      }
-    }, SEARCH_DELAY_MS);
-
-    return () => {
-      isCurrentRequest = false;
-      controller.abort();
-      window.clearTimeout(timeoutId);
-    };
-  }, [searchText]);
-
+  const { suggestions } = useSearchAutocomplete(searchText);
   const showSuggestions = isFocused && suggestions.length > 0;
 
   return (
