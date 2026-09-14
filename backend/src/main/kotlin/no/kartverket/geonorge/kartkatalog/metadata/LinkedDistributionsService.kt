@@ -9,9 +9,9 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineRe
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.integrations.solr.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
-import no.kartverket.geonorge.kartkatalog.search.resolveMapCapability
 
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
