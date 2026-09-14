@@ -31,8 +31,6 @@ export type DatasetCardProps = {
   getCapabilitiesUrl: string | null;
   showMapLink: boolean | null;
   mapCapabilitiesUrl: string | null;
-  protocolNames?: string[];
-  formats?: string[];
   accessState: "restricted" | "open" | "protected" | null;
   hierarchyLevel: string | null;
   viewMode?: "grid" | "list";
@@ -127,30 +125,6 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               {p.title}
             </Link>
           </span>
-          {(!!p.protocolNames?.length || !!p.formats?.length) && (
-            <div className={styles.metaGroup}>
-              {!!p.protocolNames?.length && (
-                <div className={styles.typeRow} data-color="neutral">
-                  <span>Type: </span>
-                  {p.protocolNames.map((name) => (
-                    <Tag key={name} data-size="sm">
-                      {name}
-                    </Tag>
-                  ))}
-                </div>
-              )}
-              {!!p.formats?.length && (
-                <div className={styles.formatList} data-color="info">
-                  <span>Formater:</span>
-                  {p.formats.map((f) => (
-                    <Tag key={f} data-size="sm">
-                      {f}
-                    </Tag>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
         </div>
         <div className={styles.buttonGroupContainer}>
           {applicationUrl && (
