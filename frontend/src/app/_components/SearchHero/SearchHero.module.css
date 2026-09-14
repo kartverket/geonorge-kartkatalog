@@ -1,7 +1,8 @@
 .hero {
   width: 100%;
   position: relative;
-  overflow: hidden;
+  z-index: 10;
+  overflow: visible;
   background-color: var(--ds-color-info-text-default);
   color: var(--ds-color-background-default);
   padding-block: 60px;
@@ -10,6 +11,7 @@
 .background {
   position: absolute;
   inset: 0;
+  overflow: hidden;
   pointer-events: none;
   opacity: 0.18;
 }
@@ -58,6 +60,8 @@
 }
 
 .form {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: var(--ds-size-2);
 }
@@ -65,6 +69,50 @@
 .label {
   color: inherit;
   font-size: var(--ds-body-sm-font-size);
+}
+
+.suggestions {
+  position: absolute;
+  z-index: 2;
+  top: 100%;
+  right: 0;
+  left: 0;
+  list-style: none;
+  margin: 0;
+  padding: var(--ds-size-2) 0;
+  overflow: hidden;
+  border-radius: var(--ds-border-radius-md);
+  background-color: var(--ds-color-background-default);
+  color: var(--ds-color-text-default);
+  box-shadow: var(--ds-shadow-md);
+}
+
+.suggestions li + li {
+  border-top: 1px solid var(--ds-color-border-subtle);
+}
+
+.suggestions a {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  padding: var(--ds-size-3) var(--ds-size-4);
+  color: inherit;
+  text-decoration: none;
+}
+
+.suggestions a:hover {
+  background-color: var(--ds-color-surface-hover);
+}
+
+.suggestions a:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--ds-color-focus-outer);
+  outline-offset: -2px;
+}
+
+.suggestions svg {
+  flex: 0 0 auto;
 }
 
 @media (width > 800px) {
