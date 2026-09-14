@@ -1,7 +1,13 @@
+import { cookies } from "next/headers";
+import { hasPerformanceConsentInCookieString } from "@/components/PosthogConsent/consentCookie";
 import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
 import type { DatasetCardProps } from "./_components/DatasetCard/DatasetCard";
 import { SearchHero } from "./_components/SearchHero/SearchHero";
 import { SearchResults } from "./_components/SearchResults/SearchResults";
+import {
+  isViewMode,
+  VIEW_MODE_COOKIE_NAME,
+} from "./_components/SearchResults/viewMode";
 import { getSearchResults } from "./api";
 
 export default async function Home({
@@ -9,6 +15,13 @@ export default async function Home({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const cookieStore = await cookies();
+  const storedViewMode = hasPerformanceConsentInCookieString(
+    cookieStore.toString(),
+  )
+    ? cookieStore.get(VIEW_MODE_COOKIE_NAME)?.value
+    : undefined;
+  // TODO: kan man skrive noe sånt som dette? const { text, orderby } = await searchParams;
   const sp = await searchParams;
   const text = typeof sp.text === "string" ? sp.text : undefined;
   const offset = typeof sp.offset === "string" ? sp.offset : undefined;
@@ -35,6 +48,7 @@ export default async function Home({
     <>
       <SearchHero initialValue={text ?? ""} />
       <SearchResults
+        initialViewMode={isViewMode(storedViewMode) ? storedViewMode : "grid"}
         initialResults={results}
         totalCount={searchResult.numFound}
         searchText={text ?? ""}

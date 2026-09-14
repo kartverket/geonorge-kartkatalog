@@ -1,21 +1,20 @@
 "use client";
 
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
-import { Suspense, useEffect, useState } from "react";
-import { basePath } from "@/lib/basePath";
-import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
+import { Suspense } from "react";
 import type { SearchResult } from "@/lib/schemas/search";
-import { parseSearchResult } from "@/lib/schemas/search";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
 import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
 import { ActiveFilters } from "./ActiveFilters";
 import styles from "./SearchResults.module.css";
 import { SortDropdown } from "./SortDropdown";
-import { type ViewMode, ViewToggle } from "./ViewToggle";
-
-const PAGE_SIZE = 25;
+import { usePaginatedSearchResults } from "./usePaginatedSearchResults";
+import { usePersistedViewMode } from "./usePersistedViewMode";
+import { ViewToggle } from "./ViewToggle";
+import type { ViewMode } from "./viewMode";
 
 type SearchResultsProps = {
+  initialViewMode?: ViewMode;
   initialResults: Array<Omit<DatasetCardProps, "viewMode">>;
   totalCount: number;
   searchText: string;
@@ -26,6 +25,7 @@ type SearchResultsProps = {
 };
 
 export function SearchResults({
+  initialViewMode = "grid",
   initialResults,
   totalCount,
   searchText,
@@ -34,74 +34,25 @@ export function SearchResults({
   initialOffset,
   facets,
 }: SearchResultsProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [results, setResults] = useState(initialResults);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
-  const [hasReachedEnd, setHasReachedEnd] = useState(
-    initialResults.length >= totalCount,
-  );
+  const [viewMode, setViewMode] = usePersistedViewMode(initialViewMode);
+  const {
+    results,
+    isLoadingMore,
+    loadMoreError,
+    hasMoreResults,
+    handleLoadMore,
+  } = usePaginatedSearchResults({
+    initialResults,
+    totalCount,
+    searchText,
+    orderby,
+    initialLimit,
+    initialOffset,
+  });
 
-  useEffect(() => {
-    setResults(initialResults);
-    setIsLoadingMore(false);
-    setLoadMoreError(null);
-    setHasReachedEnd(initialResults.length >= totalCount);
-  }, [initialResults, totalCount]);
-
-  const hasMoreResults = !hasReachedEnd && results.length < totalCount;
-
-  async function handleLoadMore() {
-    if (isLoadingMore || !hasMoreResults) return;
-
-    setIsLoadingMore(true);
-    setLoadMoreError(null);
-
-    try {
-      const params = new URLSearchParams({
-        limit: String(initialLimit || PAGE_SIZE),
-        offset: String(initialOffset + results.length),
-        orderby,
-      });
-
-      if (searchText.trim()) {
-        params.set("text", searchText.trim());
-      }
-
-      for (const [key, value] of new URLSearchParams(window.location.search)) {
-        if (!RESERVED_SEARCH_PARAMS.has(key)) {
-          params.append(key, value);
-        }
-      }
-
-      const response = await fetch(
-        `${basePath}/api/search?${params.toString()}`,
-        {
-          method: "GET",
-          cache: "no-store",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Kunne ikke hente flere treff.");
-      }
-
-      const body: unknown = await response.json();
-      const nextPage = parseSearchResult(body);
-      const lastVisibleResultIndex =
-        nextPage.offset + nextPage.results.length - 1;
-
-      setResults((currentResults) => [...currentResults, ...nextPage.results]);
-      setHasReachedEnd(
-        nextPage.results.length === 0 ||
-          lastVisibleResultIndex >= nextPage.numFound,
-      );
-    } catch {
-      setLoadMoreError("Kunne ikke hente flere treff akkurat nå.");
-    } finally {
-      setIsLoadingMore(false);
-    }
-  }
+  const resultsClassName = `${styles.results} ${
+    viewMode === "list" ? styles.list : styles.grid
+  }`;
 
   return (
     <main className={styles.page} data-color="neutral">
@@ -123,15 +74,12 @@ export function SearchResults({
                 </Suspense>
               </div>
             </div>
-            <div
-              className={`${styles.results} ${
-                viewMode === "list" ? styles.list : styles.grid
-              }`}
-            >
+            <div className={resultsClassName}>
               {results.map((r) => (
                 <DatasetCard key={r.uuid} viewMode={viewMode} {...r} />
               ))}
             </div>
+
             <div className={styles.loadMoreSection}>
               {loadMoreError ? (
                 <Paragraph
@@ -141,6 +89,7 @@ export function SearchResults({
                   {loadMoreError}
                 </Paragraph>
               ) : null}
+
               {hasMoreResults ? (
                 <Button
                   variant="secondary"

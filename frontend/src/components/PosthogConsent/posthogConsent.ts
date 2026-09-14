@@ -1,18 +1,5 @@
 import posthog from "posthog-js";
-
-export type ConsentState = {
-  analytics: boolean;
-  functional: boolean;
-  performance: boolean;
-  advertisement: boolean;
-};
-
-export const DEFAULT_CONSENT: ConsentState = {
-  analytics: false,
-  functional: false,
-  performance: false,
-  advertisement: false,
-};
+import type { ConsentState } from "./consentCookie";
 
 const POSTHOG_OPT_IN_SETTINGS = {
   autocapture: true,
