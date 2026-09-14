@@ -2,6 +2,7 @@
 
 import { Button } from "@kv-designsystem/react";
 import { XMarkIcon } from "@navikt/aksel-icons";
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
 import type { SearchResult } from "@/lib/schemas/search";
@@ -30,7 +31,7 @@ export function ActiveFilters({ facets }: { facets: SearchFacet[] }) {
       params.append(field, v);
     }
     params.delete("offset");
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
   };
 
   return (

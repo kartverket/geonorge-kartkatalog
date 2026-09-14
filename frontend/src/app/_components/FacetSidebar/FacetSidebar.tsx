@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FACET_VISIBLE_COUNT } from "@/lib/facets";
 import type { SearchResult } from "@/lib/schemas/search";
@@ -26,7 +27,7 @@ export function FacetSidebar({ facets }: { facets: SearchFacet[] }) {
     });
     params.delete("offset");
 
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
   };
 
   return (

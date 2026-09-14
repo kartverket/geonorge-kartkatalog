@@ -1,6 +1,7 @@
 "use client";
 
 import { Select } from "@kv-designsystem/react";
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import styles from "./SortDropdown.module.css";
 
@@ -22,7 +23,7 @@ export function SortDropdown({ value }: { value: string }) {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("orderby", event.target.value);
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
   };
 
   return (
