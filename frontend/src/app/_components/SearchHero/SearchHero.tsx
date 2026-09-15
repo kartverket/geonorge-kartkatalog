@@ -1,7 +1,7 @@
 "use client";
 
-import { Heading, Search } from "@kv-designsystem/react";
-import { DiamondIcon, LocationPinFillIcon } from "@navikt/aksel-icons";
+import {Heading, Search, Tag} from "@kv-designsystem/react";
+import { LocationPinFillIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import { useState } from "react";
 import { isBeta } from "@/lib/basePath";
@@ -66,10 +66,10 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
           {showSuggestions ? (
             <ul className={styles.suggestions} aria-label="Søkeforslag">
               {suggestions.map((suggestion) => (
-                <li key={suggestion.uuid}>
+                <li key={suggestion.uuid} >
                   <Link href={`/metadata/${suggestion.uuid}`}>
-                    <DiamondIcon aria-hidden />
                     <span>{suggestion.title}</span>
+                    <Tag className={styles.hierarchyTag}> {suggestion.hierarchyLevel} </Tag>
                   </Link>
                 </li>
               ))}

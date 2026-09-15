@@ -88,7 +88,8 @@
 }
 
 .suggestions a {
-  display: flex;
+  display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--ds-size-3);
   padding: var(--ds-size-3) var(--ds-size-4);
@@ -97,7 +98,7 @@
 }
 
 .suggestions a:hover {
-  background-color: var(--ds-color-surface-hover);
+  background-color: var(--ds-color-info-background-tinted);
 }
 
 .suggestions a:focus-visible {
@@ -107,8 +108,9 @@
   outline-offset: -2px;
 }
 
-.suggestions svg {
-  flex: 0 0 auto;
+.hierarchyTag {
+    justify-self: end;
+    white-space: nowrap;
 }
 
 @media (width > 800px) {

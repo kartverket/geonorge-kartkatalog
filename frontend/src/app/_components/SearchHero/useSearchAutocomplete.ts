@@ -10,7 +10,7 @@ const SUGGESTION_LIMIT = 9;
 
 export type SearchSuggestion = Pick<
   SearchResult["results"][number],
-  "title" | "uuid"
+  "title" | "uuid" | "hierarchyLevel"
 >;
 
 export function useSearchAutocomplete(searchText: string) {
