@@ -2,7 +2,6 @@
 
 import { Heading, Paragraph } from "@kv-designsystem/react";
 import { useEffect, useState } from "react";
-import { readOrderItems } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import { basePath } from "@/lib/basePath";
 import { parseProductMetadata } from "@/lib/schemas/product";
@@ -14,24 +13,52 @@ import styles from "./DownloadCartList.module.css";
 
 type DownloadCard = DownloadCartCardProps;
 
-function toDownloadCard(uuid: string, metadata: unknown): DownloadCard | null {
-  const savedItem = readOrderItems().includes(uuid)
-    ? (() => {
-        try {
-          return JSON.parse(
-            localStorage.getItem(`${uuid}.metadata`) || "null",
-          ) as {
-            distributionUrl?: unknown;
-          } | null;
-        } catch {
-          return null;
-        }
-      })()
-    : null;
-  const distributionUrl =
-    typeof savedItem?.distributionUrl === "string"
-      ? savedItem.distributionUrl
+type StoredDownloadMetadata = {
+  accessIsOpendata?: unknown;
+  accessIsRestricted?: unknown;
+  distributionUrl?: unknown;
+  name?: unknown;
+  organizationName?: unknown;
+};
+
+type CompleteStoredDownloadMetadata = {
+  accessIsOpendata: boolean;
+  accessIsRestricted: boolean;
+  distributionUrl: string;
+  name: string;
+  organizationName: string | null;
+};
+
+function readStoredDownloadMetadata(uuid: string): StoredDownloadMetadata | null {
+  try {
+    const item: unknown = JSON.parse(
+      localStorage.getItem(`${uuid}.metadata`) || "null",
+    );
+    return item !== null && typeof item === "object"
+      ? (item as StoredDownloadMetadata)
       : null;
+  } catch {
+    return null;
+  }
+}
+
+function hasCardMetadata(
+  item: StoredDownloadMetadata | null,
+): item is CompleteStoredDownloadMetadata {
+  return (
+    typeof item?.name === "string" &&
+    typeof item.distributionUrl === "string" &&
+    typeof item.accessIsOpendata === "boolean" &&
+    typeof item.accessIsRestricted === "boolean" &&
+    (typeof item.organizationName === "string" || item.organizationName === null)
+  );
+}
+
+function toDownloadCard(
+  uuid: string,
+  metadata: unknown,
+  distributionUrl: string,
+): DownloadCard | null {
 
   if (!distributionUrl) return null;
 
@@ -43,6 +70,24 @@ function toDownloadCard(uuid: string, metadata: unknown): DownloadCard | null {
     typeTranslated: "Datasett",
     distributionUrl,
     accessState: product.accessState,
+  };
+}
+
+function toDownloadCardFromStored(
+  uuid: string,
+  item: CompleteStoredDownloadMetadata,
+): DownloadCard {
+  return {
+    uuid,
+    title: item.name,
+    organization: item.organizationName,
+    typeTranslated: "Datasett",
+    distributionUrl: item.distributionUrl,
+    accessState: item.accessIsOpendata
+      ? "open"
+      : item.accessIsRestricted
+        ? "restricted"
+        : null,
   };
 }
 
@@ -68,6 +113,14 @@ export function DownloadCartList() {
 
       const results = await Promise.all(
         orderItems.map(async (uuid) => {
+          const savedItem = readStoredDownloadMetadata(uuid);
+          if (hasCardMetadata(savedItem)) {
+            return {
+              card: toDownloadCardFromStored(uuid, savedItem),
+              failed: false,
+            };
+          }
+
           try {
             const response = await fetch(
               `${basePath}/api/metadata/${encodeURIComponent(uuid)}`,
@@ -76,7 +129,13 @@ export function DownloadCartList() {
             if (!response.ok) return { card: null, failed: true };
 
             return {
-              card: toDownloadCard(uuid, await response.json()),
+              card: toDownloadCard(
+                uuid,
+                await response.json(),
+                typeof savedItem?.distributionUrl === "string"
+                  ? savedItem.distributionUrl
+                  : "",
+              ),
               failed: false,
             };
           } catch {

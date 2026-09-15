@@ -14,7 +14,7 @@ export default function NedlastingPage() {
         <a href="/">Geonorge</a> {"›"} <Link href="/">Kartkatalogen</Link> {"›"}{" "}
         <span>Filnedlasting</span>
       </nav>
-      <DownloadCartList />;
+      <DownloadCartList />
     </main>
   );
 }

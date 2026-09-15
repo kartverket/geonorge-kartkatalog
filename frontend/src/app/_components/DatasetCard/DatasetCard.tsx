@@ -139,8 +139,11 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           {canDownload && isOpen && isDataset && p.distributionUrl && (
             <AddToCartButton
               item={{
+                accessIsOpendata: p.accessState === "open",
+                accessIsRestricted: p.accessState === "restricted",
                 uuid: p.uuid,
                 name: p.title,
+                organizationName: p.organization,
                 distributionUrl: p.distributionUrl,
               }}
               location={analyticsLocation}

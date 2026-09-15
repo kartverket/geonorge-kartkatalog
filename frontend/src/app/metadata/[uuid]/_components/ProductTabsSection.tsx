@@ -82,6 +82,7 @@ export async function ProductTabsSection({
   const distributionDetails = buildDistributionDetails({
     uuid,
     title: metadata.title,
+    organizationName: metadata.organization,
     hierarchyLevel: metadata.hierarchyLevel,
     accessState: metadata.accessState,
     groups: metadata.distributionGroups,
@@ -229,6 +230,7 @@ function buildInfoDetails({
 function buildDistributionDetails({
   uuid,
   title,
+  organizationName,
   hierarchyLevel,
   accessState,
   groups,
@@ -238,6 +240,7 @@ function buildDistributionDetails({
 }: {
   uuid: string;
   title: string;
+  organizationName: string | null;
   hierarchyLevel: string | null;
   accessState: "restricted" | "open" | "protected" | null;
   groups: DistributionGroup[];
@@ -255,6 +258,7 @@ function buildDistributionDetails({
         <DistributionDetailActionButton
           uuid={uuid}
           title={title}
+          organizationName={organizationName}
           hierarchyLevel={hierarchyLevel}
           accessState={accessState}
           group={group}

@@ -71,7 +71,14 @@ export function DownloadCartCard({
         </Button>
 
         <AddToCartButton
-          item={{ uuid, name: title, distributionUrl }}
+          item={{
+            accessIsOpendata: accessState === "open",
+            accessIsRestricted: accessState === "restricted",
+            uuid,
+            name: title,
+            organizationName: organization,
+            distributionUrl,
+          }}
           location={LOCATIONS.DownloadPage}
           variant="secondary"
           size="sm"
