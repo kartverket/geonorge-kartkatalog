@@ -34,13 +34,27 @@ function serializeJsonLd(value: object): string {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
+function getSchemaType(hierarchyLevel: string): string {
+  switch (hierarchyLevel.toLowerCase()) {
+    case "dataset":
+    case "series":
+      return "Dataset";
+    case "service":
+    case "servicelayer":
+      return "Service";
+    case "software":
+      return "SoftwareApplication";
+    default:
+      return "CreativeWork";
+  }
+}
+
 export function DatasetStructuredData({
   uuid,
   metadata,
 }: DatasetStructuredDataProps) {
-  if (metadata.hierarchyLevel.toLowerCase() !== "dataset") {
-    return null;
-  }
+  const schemaType = getSchemaType(metadata.hierarchyLevel);
+  const isDataset = schemaType === "Dataset";
 
   const siteUrl = getSiteUrl();
   const pageUrl = siteUrl
@@ -76,8 +90,10 @@ export function DatasetStructuredData({
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Dataset",
-    "@id": pageUrl ? `${pageUrl}#dataset` : undefined,
+    "@type": schemaType,
+    "@id": pageUrl
+      ? `${pageUrl}#${metadata.hierarchyLevel.toLowerCase()}`
+      : undefined,
     url: pageUrl,
     identifier: uuid,
     name: metadata.title,
@@ -86,6 +102,16 @@ export function DatasetStructuredData({
     dateModified: metadata.dateUpdated ?? undefined,
     license: licenseUrl,
     isAccessibleForFree: metadata.accessState === "open",
+    serviceType:
+      schemaType === "Service"
+        ? metadata.hierarchyLevel.toLowerCase() === "servicelayer"
+          ? "Geospatial service layer"
+          : "Geospatial service"
+        : undefined,
+    applicationCategory:
+      schemaType === "SoftwareApplication"
+        ? "Geospatial application"
+        : undefined,
     creator: metadata.organization
       ? { "@type": "Organization", name: metadata.organization }
       : undefined,
@@ -93,7 +119,8 @@ export function DatasetStructuredData({
       ? { "@type": "Organization", name: publisher }
       : undefined,
     image: thumbnailUrl,
-    distribution: distributions.length > 0 ? distributions : undefined,
+    distribution:
+      isDataset && distributions.length > 0 ? distributions : undefined,
   };
 
   return (
