@@ -159,7 +159,7 @@ export function HeaderMenu({
   userName?: string;
   mapCount: number;
   downloadCount: number;
-  findDataHref: string;
+  findDataHref: Route;
   mapHref: string;
   downloadHref: string;
   posthogClickAction: (clickItem: string) => void;
