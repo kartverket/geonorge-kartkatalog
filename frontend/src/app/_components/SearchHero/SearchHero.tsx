@@ -56,6 +56,7 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
               placeholder="Naturvernområder, FKB-Bygning..."
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}
+              type="search"
             />
             <Search.Clear
               onClick={() => {
@@ -63,6 +64,7 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
                 trackClick("clear-search", LOCATIONS.SearchHero);
               }}
             />
+            <Search.Button data-color={"neutral"} />
           </Search>
           {showSuggestions ? (
             <ul className={styles.suggestions} aria-label="Søkeforslag">
