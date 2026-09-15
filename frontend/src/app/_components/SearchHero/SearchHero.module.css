@@ -66,7 +66,6 @@
   min-width: 0;
 }
 
-
 .title {
   color: inherit;
   margin: 0;
@@ -112,10 +111,10 @@
 }
 
 .suggestions a > span {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .suggestions a:hover {
@@ -130,11 +129,11 @@
 }
 
 .hierarchyTag {
-    background-color: var(--ds-color-info-surface-tinted);
-    justify-self: end;
-    white-space: nowrap;
-    width: 118px;
-    justify-content: center;
+  background-color: var(--ds-color-info-surface-tinted);
+  justify-self: end;
+  white-space: nowrap;
+  width: 118px;
+  justify-content: center;
 }
 
 @media (width > 800px) {
