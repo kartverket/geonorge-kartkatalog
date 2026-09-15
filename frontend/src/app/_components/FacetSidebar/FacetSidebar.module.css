@@ -34,3 +34,10 @@
   height: 1px;
   background: var(--ds-color-border-subtle);
 }
+
+.mobilePanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-0);
+  width: 100%;
+}
