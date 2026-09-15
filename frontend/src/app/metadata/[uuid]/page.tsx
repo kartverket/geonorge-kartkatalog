@@ -14,6 +14,7 @@ import {
   unwrapSettled,
 } from "@/app/metadata/[uuid]/_utils/utils";
 import type { LinkedDistributions } from "@/lib/schemas/product";
+import { DatasetStructuredData } from "./_components/DatasetStructuredData";
 import { ProductActions } from "./_components/ProductActions";
 import { ProductHeader } from "./_components/ProductHeader";
 import { ProductMeta } from "./_components/ProductMeta";
@@ -77,6 +78,7 @@ export default async function ProductPage({
 
   return (
     <div className={styles.content}>
+      <DatasetStructuredData uuid={uuid} metadata={metadata} />
       <ProductHeader
         title={metadata.title}
         organization={metadata.organization}
