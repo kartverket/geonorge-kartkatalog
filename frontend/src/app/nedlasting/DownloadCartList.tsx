@@ -4,16 +4,15 @@ import { Heading, Paragraph } from "@kv-designsystem/react";
 import { useEffect, useState } from "react";
 import { readOrderItems } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
-import {
-  DatasetCard,
-  type DatasetCardProps,
-} from "@/app/_components/DatasetCard/DatasetCard";
 import { basePath } from "@/lib/basePath";
 import { parseProductMetadata } from "@/lib/schemas/product";
-import { LOCATIONS } from "@/posthog/posthog";
+import {
+  DownloadCartCard,
+  type DownloadCartCardProps,
+} from "./DownloadCartCard";
 import styles from "./DownloadCartList.module.css";
 
-type DownloadCard = Omit<DatasetCardProps, "viewMode">;
+type DownloadCard = DownloadCartCardProps;
 
 function toDownloadCard(uuid: string, metadata: unknown): DownloadCard | null {
   const savedItem = readOrderItems().includes(uuid)
@@ -42,15 +41,8 @@ function toDownloadCard(uuid: string, metadata: unknown): DownloadCard | null {
     title: product.title,
     organization: product.organization,
     typeTranslated: "Datasett",
-    thumbnailUrl: product.thumbnailUrl,
     distributionUrl,
-    distributionProtocol: "GEONORGE:DOWNLOAD",
-    getCapabilitiesUrl: null,
-    showMapLink: false,
-    mapCapabilitiesUrl: null,
     accessState: product.accessState,
-    hierarchyLevel: product.hierarchyLevel,
-    analyticsLocation: LOCATIONS.DownloadPage,
   };
 }
 
@@ -111,8 +103,12 @@ export function DownloadCartList() {
   return (
     <main className={styles.page} data-color="neutral">
       <div className={styles.pageInner}>
-        <Heading data-size={"lg"} level={1}>Filnedlastning - bestilling</Heading>
-        <Heading level={2} data-size={"sm"}>Dine valgte produkter ({orderItems.length})</Heading>
+        <Heading data-size={"lg"} level={1}>
+          Filnedlastning - bestilling
+        </Heading>
+        <Heading level={2} data-size={"sm"}>
+          Dine valgte produkter ({orderItems.length})
+        </Heading>
         {orderItems.length === 0 ? (
           <Paragraph>Ingen datasett lagt i handlekurv</Paragraph>
         ) : isLoading ? (
@@ -126,7 +122,7 @@ export function DownloadCartList() {
             ) : null}
             <div className={styles.results}>
               {cards.map((card) => (
-                <DatasetCard key={card.uuid} viewMode="list" {...card} />
+                <DownloadCartCard key={card.uuid} {...card} />
               ))}
             </div>
           </>
