@@ -9,7 +9,13 @@ import styles from "./FacetSidebar.module.css";
 
 type SearchFacet = SearchResult["facets"][number];
 
-export function FacetSidebar({ facets }: { facets: SearchFacet[] }) {
+export function FacetSidebar({
+  facets,
+  variant = "desktop",
+}: {
+  facets: SearchFacet[];
+  variant?: "desktop" | "mobile";
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -30,23 +36,25 @@ export function FacetSidebar({ facets }: { facets: SearchFacet[] }) {
     router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
   };
 
-  return (
-    <aside className={styles.sidebar}>
-      {facets
-        .filter((facet) => facet.label != null && facet.values.length > 0)
-        .map((facet, index) => (
-          <div key={facet.facetField} className={styles.groupWrapper}>
-            {index > 0 && <div className={styles.divider} />}
-            <FacetGroup
-              field={facet.facetField}
-              label={facet.label as string}
-              values={facet.values}
-              selected={searchParams.getAll(facet.facetField)}
-              initialVisibleCount={FACET_VISIBLE_COUNT[facet.facetField]}
-              onToggle={toggleFilter}
-            />
-          </div>
-        ))}
-    </aside>
-  );
+  const groups = facets
+    .filter((facet) => facet.label != null && facet.values.length > 0)
+    .map((facet, index) => (
+      <div key={facet.facetField} className={styles.groupWrapper}>
+        {index > 0 && <div className={styles.divider} />}
+        <FacetGroup
+          field={facet.facetField}
+          label={facet.label as string}
+          values={facet.values}
+          selected={searchParams.getAll(facet.facetField)}
+          initialVisibleCount={FACET_VISIBLE_COUNT[facet.facetField]}
+          onToggle={toggleFilter}
+        />
+      </div>
+    ));
+
+  if (variant === "mobile") {
+    return <div className={styles.mobilePanel}>{groups}</div>;
+  }
+
+  return <aside className={styles.sidebar}>{groups}</aside>;
 }
