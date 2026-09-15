@@ -5,6 +5,7 @@ import {
   getProduktspesifikasjon,
   getTegneregler,
 } from "@/app/api";
+import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
 import { DistributionDetailActionButton } from "@/app/metadata/[uuid]/_components/DistributionDetailActionButton";
 import {
   type DetailItem,
@@ -18,7 +19,6 @@ import type {
   ProductConstraints,
   ReferenceSystem,
 } from "@/lib/schemas/product";
-import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
 
 export async function ProductTabsSection({
   uuid,

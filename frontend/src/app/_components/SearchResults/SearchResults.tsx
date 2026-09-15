@@ -1,8 +1,8 @@
 "use client";
 
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
-import { Suspense, useState } from "react";
 import { FunnelIcon } from "@navikt/aksel-icons";
+import { Suspense, useState } from "react";
 import type { SearchResult } from "@/lib/schemas/search";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
 import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
@@ -73,9 +73,11 @@ export function SearchResults({
               <Heading data-size="sm">{totalCount} treff</Heading>
               <div className={styles.headerControls}>
                 <ViewToggle value={viewMode} onChange={setViewMode} />
-                <Suspense fallback={null}>
-                  <SortDropdown value={orderby} />
-                </Suspense>
+                <div className={styles.sortDropdown}>
+                  <Suspense fallback={null}>
+                    <SortDropdown value={orderby} />
+                  </Suspense>
+                </div>
                 <Button
                   variant="secondary"
                   data-icon
