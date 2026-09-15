@@ -2,7 +2,6 @@
 
 import {Button, Card, Heading, Tag} from "@kv-designsystem/react";
 import {ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon} from "@navikt/aksel-icons";
-import Link from "next/link";
 import { useId, useState } from "react";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import {

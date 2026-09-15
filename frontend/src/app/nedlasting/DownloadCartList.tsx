@@ -101,7 +101,6 @@ export function DownloadCartList() {
   }, [orderItems]);
 
   return (
-    <main className={styles.page} data-color="neutral">
       <div className={styles.pageInner}>
         <Heading data-size={"lg"} level={1}>
           Filnedlastning - bestilling
@@ -128,6 +127,5 @@ export function DownloadCartList() {
           </>
         )}
       </div>
-    </main>
   );
 }

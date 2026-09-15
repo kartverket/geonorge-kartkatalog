@@ -34,8 +34,9 @@
 .actions {
   display: flex;
   flex-shrink: 0;
+  align-self: flex-start;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--ds-size-3);
 }
 
 .productPageButton {
@@ -52,6 +53,7 @@
   }
 
   .actions {
+    align-self: stretch;
     flex-wrap: wrap;
   }
 }

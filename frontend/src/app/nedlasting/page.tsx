@@ -1,5 +1,20 @@
+import Link from "next/link";
+import { isBeta } from "@/lib/basePath";
 import { DownloadCartList } from "./DownloadCartList";
+import styles from "./page.module.css";
+
 
 export default function NedlastingPage() {
-  return <DownloadCartList />;
+  if (isBeta) {
+    return null;
+  }
+  return (
+    <main className={styles.page} data-color="neutral">
+      <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
+        <a href="/">Geonorge</a> {"›"} <Link href="/">Kartkatalogen</Link> {"›"}{" "}
+        <span>Filnedlasting</span>
+      </nav>
+      <DownloadCartList />;
+    </main>
+  );
 }
