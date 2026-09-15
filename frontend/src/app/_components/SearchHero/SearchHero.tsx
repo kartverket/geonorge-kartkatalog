@@ -8,6 +8,7 @@ import { isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./SearchHero.module.css";
 import { useSearchAutocomplete } from "./useSearchAutocomplete";
+import {getProductTypeString} from "@/lib/productType";
 
 export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
   const [searchText, setSearchText] = useState(initialValue);
@@ -69,7 +70,7 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
                 <li key={suggestion.uuid} >
                   <Link href={`/metadata/${suggestion.uuid}`}>
                     <span>{suggestion.title}</span>
-                    <Tag className={styles.hierarchyTag}> {suggestion.hierarchyLevel} </Tag>
+                    <Tag className={styles.hierarchyTag}> {getProductTypeString(suggestion.hierarchyLevel)} </Tag>
                   </Link>
                 </li>
               ))}

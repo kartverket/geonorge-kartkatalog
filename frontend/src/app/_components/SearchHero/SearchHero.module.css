@@ -109,6 +109,7 @@
 }
 
 .hierarchyTag {
+    background-color: var(--ds-color-info-surface-tinted);
     justify-self: end;
     white-space: nowrap;
 }
