@@ -111,7 +111,7 @@ export function DownloadCartList() {
   return (
     <main className={styles.page} data-color="neutral">
       <div className={styles.pageInner}>
-        <Heading level={1}>Filnedlastning - bestilling</Heading>
+        <Heading data-size={"lg"} level={1}>Filnedlastning - bestilling</Heading>
         <Heading level={2} data-size={"sm"}>Dine valgte produkter ({orderItems.length})</Heading>
         {orderItems.length === 0 ? (
           <Paragraph>Ingen datasett lagt i handlekurv</Paragraph>
