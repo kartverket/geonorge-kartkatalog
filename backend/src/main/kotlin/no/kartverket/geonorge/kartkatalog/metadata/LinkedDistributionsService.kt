@@ -3,10 +3,10 @@ package no.kartverket.geonorge.kartkatalog.metadata
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
-import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
@@ -15,7 +15,6 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
     private val geonetworkClient: GeonetworkClient,
-    private val codeListTranslator: CodeListTranslator,
 ) {
     suspend fun getLinkedDistributions(uuid: String): LinkedDistributions =
         coroutineScope {
@@ -61,38 +60,45 @@ class LinkedDistributionsService(
                 solrClient.parseDatasetServices(listOfNotNull(solrDoc.serie))
                     .filter { it.uuid != uuid }
 
+            val relatedUuids =
+                (
+                    applicationDocs.map { it.uuid } + viewRefs.map { it.uuid } + downloadRefs.map { it.uuid } +
+                        seriesMemberRefs.map { it.uuid } + parentSeriesRefs.map { it.uuid }
+                )
+            val solrDocsByUuid = solrClient.getMetadataByUuids(relatedUuids).associateBy { it.uuid }
+
             val applicationsDeferred =
                 applicationDocs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, protocol = null)
+                        fetchLinkedDistribution(it.uuid, null, solrDocsByUuid)
                     }
                 }
 
             val viewServicesDeferred =
                 viewRefs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, it.protocol)
+                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid)
                     }
                 }
 
             val downloadServicesDeferred =
                 downloadRefs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, it.protocol)
+                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid)
                     }
                 }
 
             val seriesMembersDeferred =
                 seriesMemberRefs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, it.protocol)
+                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid)
                     }
                 }
 
             val parentSeriesDeferred =
                 parentSeriesRefs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, it.protocol)
+                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid)
                     }
                 }
 
@@ -113,8 +119,13 @@ class LinkedDistributionsService(
             val datasetRefs = solrClient.parseDatasetServices(solrDoc.servicedataset).filter { it.uuid != uuid }
             val layerRefs = solrClient.parseDatasetServices(solrDoc.servicelayers).filter { it.uuid != uuid }
 
-            val relatedDatasetsDeferred = datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
-            val serviceLayersDeferred = layerRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
+            val relatedUuids = datasetRefs.map { it.uuid } + layerRefs.map { it.uuid }
+            val solrDocsByUuid = solrClient.getMetadataByUuids(relatedUuids).associateBy { it.uuid }
+
+            val relatedDatasetsDeferred =
+                datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid) } }
+            val serviceLayersDeferred =
+                layerRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid) } }
 
             LinkedDistributions(
                 relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull(),
@@ -131,16 +142,13 @@ class LinkedDistributionsService(
             val parentServiceRefs =
                 solrClient.parseDatasetServices(listOfNotNull(solrDoc.parentidentifier)).filter { it.uuid != uuid }
 
-            val relatedDatasetsDeferred = datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
+            val relatedUuids = datasetRefs.map { it.uuid } + parentServiceRefs.map { it.uuid }
+            val solrDocsByUuid = solrClient.getMetadataByUuids(relatedUuids).associateBy { it.uuid }
+
+            val relatedDatasetsDeferred =
+                datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid) } }
             val parentServiceDeferred =
-                parentServiceRefs.map {
-                    async {
-                        fetchLinkedDistribution(
-                            it.uuid,
-                            it.protocol,
-                        )
-                    }
-                }
+                parentServiceRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid) } }
 
             LinkedDistributions(
                 relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull(),
@@ -154,7 +162,10 @@ class LinkedDistributionsService(
     ): LinkedDistributions =
         coroutineScope {
             val datasetRefs = solrClient.parseDatasetServices(solrDoc.applicationdataset).filter { it.uuid != uuid }
-            val relatedDatasetsDeferred = datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol) } }
+            val solrDocsByUuid = solrClient.getMetadataByUuids(datasetRefs.map { it.uuid }).associateBy { it.uuid }
+
+            val relatedDatasetsDeferred =
+                datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid) } }
 
             LinkedDistributions(relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull())
         }
@@ -162,21 +173,24 @@ class LinkedDistributionsService(
     private suspend fun fetchLinkedDistribution(
         relatedUuid: String,
         protocol: String?,
+        solrDocsByUuid: Map<String, SolrDocument>,
     ): LinkedDistribution? {
         val record = geonetworkClient.getRecordByUuid(relatedUuid) ?: return null
-        return record.toLinkedDistribution(relatedUuid, protocol)
+        return record.toLinkedDistribution(relatedUuid, protocol, solrDocsByUuid[relatedUuid])
     }
 
     private suspend fun MetadataRecord.toLinkedDistribution(
         uuid: String,
         protocol: String?,
+        solrDoc: SolrDocument?,
     ): LinkedDistribution {
         val allResources =
             distributionInfo?.formats.orEmpty().flatMap {
                 it.onlineResources
             }
         val url = allResources.findUrlForProtocol(protocol)
-        val isViewService = DistributionProtocols.isViewService(protocol)
+        val ownViewServiceResource = allResources.firstOrNull { DistributionProtocols.isViewService(it.protocol) }
+        val mapCapability = solrDoc?.resolveMapCapability()
 
         return LinkedDistribution(
             uuid = uuid,
@@ -191,18 +205,8 @@ class LinkedDistributionsService(
             distributionUrl = url,
             distributionProtocol = protocol,
             getCapabilitiesUrl = if (protocol != null) url else null,
-            showMapLink = isViewService,
-            mapCapabilitiesUrl = if (isViewService) url else null,
-            formats =
-                distributionInfo?.formats.orEmpty()
-                    .mapNotNull { it.name.takeIf { name -> name.isNotBlank() } }
-                    .distinct(),
-            protocolNames =
-                distributionInfo?.formats.orEmpty()
-                    .flatMap { it.onlineResources }
-                    .mapNotNull { it.protocol }
-                    .distinct()
-                    .map { codeListTranslator.translate(CodeList.DISTRIBUTION_TYPES, it) ?: it },
+            showMapLink = (mapCapability?.showMapLink == true) || ownViewServiceResource != null,
+            mapCapabilitiesUrl = mapCapability?.mapCapabilitiesUrl ?: ownViewServiceResource?.url,
             hierarchyLevel = hierarchyLevel,
             accessState = resolveAccessState(this),
         )
@@ -210,10 +214,8 @@ class LinkedDistributionsService(
 
     private fun List<OnlineResource>.findUrlForProtocol(protocol: String?): String? {
         if (isEmpty()) return null
-        if (protocol.isNullOrBlank()) return firstOrNull()?.url
+        if (protocol.isNullOrBlank()) return singleOrNull()?.url
 
-        return firstOrNull {
-            it.protocol.equals(protocol, ignoreCase = true)
-        }?.url ?: firstOrNull()?.url
+        return firstOrNull { it.protocol.equals(protocol, ignoreCase = true) }?.url
     }
 }

@@ -204,6 +204,21 @@ class MetadataRoutesTest {
                             }
                         }
 
+                        request.url.encodedPath == "/solr/services/select" -> {
+                            respond(
+                                content =
+                                    """{"responseHeader": {"status": 0, "QTime": 1},
+                                    |"response": {"numFound": 0, "start": 0, "docs": []}}
+                                    """.trimMargin(),
+                                status = HttpStatusCode.OK,
+                                headers =
+                                    headersOf(
+                                        HttpHeaders.ContentType,
+                                        ContentType.Application.Json.toString(),
+                                    ),
+                            )
+                        }
+
                         request.url.encodedPath == "/solr/applications/select" -> {
                             respond(
                                 content =
@@ -244,7 +259,6 @@ class MetadataRoutesTest {
             LinkedDistributionsService(
                 SolrClient(client, "https://solr.example.test"),
                 GeonetworkClient(client, geonetworkBaseUrl),
-                codeListTranslator,
             )
 
         return metadataService to linkedDistributionsService

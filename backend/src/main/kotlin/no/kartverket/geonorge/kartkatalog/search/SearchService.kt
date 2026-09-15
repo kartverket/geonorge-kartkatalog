@@ -3,11 +3,11 @@ package no.kartverket.geonorge.kartkatalog.search
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.JsonPrimitive
+import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrFacetCounts
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
-import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
 import java.text.Collator
 import java.util.Locale
@@ -157,25 +157,8 @@ private fun isJunkFacetValue(
     }
 
 private fun SolrDocument.toSearchResultItem(): SearchResultItem {
-    val datasetServices = parseDatasetServices(datasetservice)
-    val viewServices =
-        datasetServices.filter {
-            DistributionProtocols.isViewService(it.distributionProtocol) &&
-                (it.type.equals("service", ignoreCase = true) || it.type.equals("servicelayer", ignoreCase = true))
-        }
-    val firstViewService =
-        viewServices.firstOrNull {
-            !it.getCapabilitiesUrl.isNullOrBlank()
-        }
     val access = resolveAccess(dataaccess, otherconstraintsaccess, accessconstraint)
-    val mapCapabilitiesUrl =
-        when {
-            !serviceDistributionUrlForDataset.isNullOrBlank() -> serviceDistributionUrlForDataset
-            firstViewService != null -> firstViewService.getCapabilitiesUrl
-            (type.equals("service", ignoreCase = true) || type.equals("servicelayer", ignoreCase = true)) &&
-                DistributionProtocols.isViewService(distributionProtocol) -> distributionUrl
-            else -> null
-        }
+    val mapCapability = resolveMapCapability()
 
     return SearchResultItem(
         uuid = uuid,
@@ -189,47 +172,11 @@ private fun SolrDocument.toSearchResultItem(): SearchResultItem {
         distributionUrl = distributionUrl,
         distributionProtocol = distributionProtocol,
         getCapabilitiesUrl = distributionUrl,
-        showMapLink =
-            canShowMap(
-                type,
-                distributionProtocol,
-                distributionUrl,
-                viewServices,
-                serviceDistributionUrlForDataset,
-            ),
-        mapCapabilitiesUrl = mapCapabilitiesUrl,
+        showMapLink = mapCapability.showMapLink,
+        mapCapabilitiesUrl = mapCapability.mapCapabilitiesUrl,
         accessState = access.asAccessState(),
         hierarchyLevel = type,
     )
-}
-
-private fun parseDatasetServices(raw: List<String>?): List<DatasetServiceReference> =
-    raw.orEmpty().mapNotNull { value ->
-        val parts = value.split("|")
-        val uuid = parts.getOrNull(0)?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-        DatasetServiceReference(
-            uuid = uuid,
-            type = parts.getOrNull(3),
-            distributionProtocol = parts.getOrNull(6),
-            getCapabilitiesUrl = parts.getOrNull(7),
-        )
-    }
-
-private fun canShowMap(
-    type: String?,
-    distributionProtocol: String?,
-    distributionUrl: String?,
-    viewServices: List<DatasetServiceReference>,
-    serviceDistributionUrlForDataset: String?,
-): Boolean {
-    val hasMappedDatasetView = serviceDistributionUrlForDataset?.contains("service=wms", ignoreCase = true) == true
-    val hasDatasetViewServices = viewServices.isNotEmpty()
-    val isServiceView =
-        !distributionUrl.isNullOrBlank() &&
-            (type.equals("service", ignoreCase = true) || type.equals("servicelayer", ignoreCase = true)) &&
-            DistributionProtocols.isViewService(distributionProtocol)
-
-    return hasMappedDatasetView || hasDatasetViewServices || isServiceView
 }
 
 private data class AccessFlags(
@@ -291,10 +238,3 @@ private fun translateType(type: String?): String? =
         "dimensionGroup" -> "Datapakke"
         else -> type
     }
-
-private data class DatasetServiceReference(
-    val uuid: String,
-    val type: String? = null,
-    val distributionProtocol: String? = null,
-    val getCapabilitiesUrl: String? = null,
-)

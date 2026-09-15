@@ -19,7 +19,9 @@ export const DISTRIBUTION_PROTOCOLS = {
   wms: "OGC:WMS",
 } as const;
 
-export function isCopyableDistributionProtocol(protocol: string | null): boolean {
+export function isCopyableDistributionProtocol(
+  protocol: string | null,
+): boolean {
   return protocol != null && COPYABLE_DISTRIBUTION_PROTOCOLS.has(protocol);
 }
 
@@ -34,4 +36,3 @@ export function isGeonorgeDownloadProtocol(protocol: string | null): boolean {
 export function isWmsDistributionProtocol(protocol: string | null): boolean {
   return protocol === DISTRIBUTION_PROTOCOLS.wms;
 }
-

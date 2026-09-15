@@ -1,6 +1,5 @@
 import { MetaField } from "@/app/metadata/[uuid]/_components/MetaField";
 import { ThemeTags } from "@/app/metadata/[uuid]/_components/ThemeTags";
-import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import styles from "./ProductMeta.module.css";
 
 export function ProductMeta({
@@ -8,7 +7,6 @@ export function ProductMeta({
   representation,
   maintenanceFrequency,
   resolutionScale,
-  dateUpdated,
   themes,
   formats,
   fairStatusPercent,
@@ -18,7 +16,6 @@ export function ProductMeta({
   representation: string | null;
   maintenanceFrequency: string | null;
   resolutionScale: string | null;
-  dateUpdated: string | null;
   themes: string[];
   formats: string[];
   fairStatusPercent: number | null;
@@ -40,14 +37,6 @@ export function ProductMeta({
           help="Hvor ofte datasettet oppdateres fra kilden"
         >
           {maintenanceFrequency}
-        </MetaField>
-      )}
-      {dateUpdated && (
-        <MetaField
-          label="Sist oppdatert"
-          help="Dato dataene sist ble hentet ut fra kilden"
-        >
-          {formatDate(dateUpdated)}
         </MetaField>
       )}
       {representation && (

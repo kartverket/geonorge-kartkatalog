@@ -192,8 +192,6 @@ export const LinkedDistributionSchema = z.object({
   getCapabilitiesUrl: z.string().nullable(),
   showMapLink: z.boolean(),
   mapCapabilitiesUrl: z.string().nullable(),
-  formats: z.array(z.string()),
-  protocolNames: z.array(z.string()),
   hierarchyLevel: z.string().nullable(),
   accessState: z.enum(accessState).nullable(),
 });
