@@ -181,7 +181,7 @@ export function HeaderMenu({
             data-color="neutral"
             className={styles.inMenuFromSm}
           >
-            <a
+            <Link
               href={findDataHref}
               onClick={() => {
                 onActionNavigate("finn-data");
@@ -189,7 +189,7 @@ export function HeaderMenu({
             >
               <MagnifyingGlassIcon aria-hidden />
               Finn data
-            </a>
+            </Link>
           </Button>
           <Button
             asChild
