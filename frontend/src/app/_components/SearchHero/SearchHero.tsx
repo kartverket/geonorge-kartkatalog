@@ -1,14 +1,14 @@
 "use client";
 
-import {Heading, Search, Tag} from "@kv-designsystem/react";
+import { Heading, Search, Tag } from "@kv-designsystem/react";
 import { LocationPinFillIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import { useState } from "react";
 import { isBeta } from "@/lib/basePath";
+import { getProductTypeString } from "@/lib/productType";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./SearchHero.module.css";
 import { useSearchAutocomplete } from "./useSearchAutocomplete";
-import {getProductTypeString} from "@/lib/productType";
 
 export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
   const [searchText, setSearchText] = useState(initialValue);
@@ -69,10 +69,13 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
           {showSuggestions ? (
             <ul className={styles.suggestions} aria-label="Søkeforslag">
               {suggestions.map((suggestion) => (
-                <li key={suggestion.uuid} >
+                <li key={suggestion.uuid}>
                   <Link href={`/metadata/${suggestion.uuid}`}>
                     <span>{suggestion.title}</span>
-                    <Tag className={styles.hierarchyTag}> {getProductTypeString(suggestion.hierarchyLevel)} </Tag>
+                    <Tag className={styles.hierarchyTag}>
+                      {" "}
+                      {getProductTypeString(suggestion.hierarchyLevel)}{" "}
+                    </Tag>
                   </Link>
                 </li>
               ))}
