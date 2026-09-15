@@ -1,7 +1,11 @@
 "use client";
 
-import {Button, Card, Heading, Tag} from "@kv-designsystem/react";
-import {ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon} from "@navikt/aksel-icons";
+import { Button, Card, Heading, Tag } from "@kv-designsystem/react";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ExternalLinkIcon,
+} from "@navikt/aksel-icons";
 import { useId, useState } from "react";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import {
@@ -51,7 +55,9 @@ export function DownloadCartCard({
             </Tag>
           </div>
         ) : null}
-        <Heading level={3} data-size={"xs"}>{title}</Heading>
+        <Heading level={3} data-size={"xs"}>
+          {title}
+        </Heading>
         {expanded ? (
           <p id={detailsId} className={styles.expandedContent}>
             ekspandert
@@ -60,11 +66,21 @@ export function DownloadCartCard({
       </div>
 
       <div className={styles.actions}>
-        <Button className={styles.productPageButton} asChild variant="secondary" data-size={"sm"}>
-          <a href={`/metadata/${uuid}`} onClick={()=>trackClick("open-dataset-card", LOCATIONS.DownloadPage, {
-            datasetTitle: title,
-            datasetUuid: uuid,
-          })}>
+        <Button
+          className={styles.productPageButton}
+          asChild
+          variant="secondary"
+          data-size={"sm"}
+        >
+          <a
+            href={`/metadata/${uuid}`}
+            onClick={() =>
+              trackClick("open-dataset-card", LOCATIONS.DownloadPage, {
+                datasetTitle: title,
+                datasetUuid: uuid,
+              })
+            }
+          >
             <ExternalLinkIcon aria-hidden={"true"} />
             <span>Vis produktsiden</span>
           </a>
@@ -97,7 +113,11 @@ export function DownloadCartCard({
           aria-label={expanded ? "Skjul detaljer" : "Vis detaljer"}
           onClick={() => setExpanded((isExpanded) => !isExpanded)}
         >
-          {expanded ? <ChevronUpIcon aria-hidden /> : <ChevronDownIcon aria-hidden />}
+          {expanded ? (
+            <ChevronUpIcon aria-hidden />
+          ) : (
+            <ChevronDownIcon aria-hidden />
+          )}
         </Button>
       </div>
     </Card>

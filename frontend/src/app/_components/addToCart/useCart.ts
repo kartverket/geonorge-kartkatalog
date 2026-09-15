@@ -43,7 +43,10 @@ export function useOrderItems(): string[] {
     getServerOrderItemsSnapshot,
   );
 
-  return useMemo(() => JSON.parse(serializedItems) as string[], [serializedItems]);
+  return useMemo(
+    () => JSON.parse(serializedItems) as string[],
+    [serializedItems],
+  );
 }
 
 export function useIsItemInCart(uuid: string | null | undefined): boolean {
@@ -61,5 +64,3 @@ export function useAreAnyItemsInCart(items: DownloadItem[]): boolean {
     getServerSnapshot,
   );
 }
-
-

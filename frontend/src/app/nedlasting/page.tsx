@@ -3,7 +3,6 @@ import { isBeta } from "@/lib/basePath";
 import { DownloadCartList } from "./DownloadCartList";
 import styles from "./page.module.css";
 
-
 export default function NedlastingPage() {
   if (isBeta) {
     return null;

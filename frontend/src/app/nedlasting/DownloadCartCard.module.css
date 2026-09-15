@@ -40,10 +40,9 @@
 }
 
 .productPageButton {
-    color: var(--ds-color-info-text-subtle);
-    border-color: var(--ds-color-info-text-subtle);
+  color: var(--ds-color-info-text-subtle);
+  border-color: var(--ds-color-info-text-subtle);
 }
-
 
 @media (max-width: 800px) {
   .card.card {

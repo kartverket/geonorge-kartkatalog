@@ -29,7 +29,9 @@ type CompleteStoredDownloadMetadata = {
   organizationName: string | null;
 };
 
-function readStoredDownloadMetadata(uuid: string): StoredDownloadMetadata | null {
+function readStoredDownloadMetadata(
+  uuid: string,
+): StoredDownloadMetadata | null {
   try {
     const item: unknown = JSON.parse(
       localStorage.getItem(`${uuid}.metadata`) || "null",
@@ -50,7 +52,8 @@ function hasCardMetadata(
     typeof item.distributionUrl === "string" &&
     typeof item.accessIsOpendata === "boolean" &&
     typeof item.accessIsRestricted === "boolean" &&
-    (typeof item.organizationName === "string" || item.organizationName === null)
+    (typeof item.organizationName === "string" ||
+      item.organizationName === null)
   );
 }
 
@@ -59,7 +62,6 @@ function toDownloadCard(
   metadata: unknown,
   distributionUrl: string,
 ): DownloadCard | null {
-
   if (!distributionUrl) return null;
 
   const product = parseProductMetadata(metadata);
@@ -160,31 +162,31 @@ export function DownloadCartList() {
   }, [orderItems]);
 
   return (
-      <div className={styles.pageInner}>
-        <Heading data-size={"lg"} level={1}>
-          Filnedlastning - bestilling
-        </Heading>
-        <Heading level={2} data-size={"sm"}>
-          Dine valgte produkter ({orderItems.length})
-        </Heading>
-        {orderItems.length === 0 ? (
-          <Paragraph>Ingen datasett lagt i handlekurv</Paragraph>
-        ) : isLoading ? (
-          <Paragraph aria-live="polite">Laster datasett...</Paragraph>
-        ) : (
-          <>
-            {hasLoadError ? (
-              <Paragraph aria-live="polite">
-                Kunne ikke hente alle datasettene i handlekurven.
-              </Paragraph>
-            ) : null}
-            <div className={styles.results}>
-              {cards.map((card) => (
-                <DownloadCartCard key={card.uuid} {...card} />
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+    <div className={styles.pageInner}>
+      <Heading data-size={"lg"} level={1}>
+        Filnedlastning - bestilling
+      </Heading>
+      <Heading level={2} data-size={"sm"}>
+        Dine valgte produkter ({orderItems.length})
+      </Heading>
+      {orderItems.length === 0 ? (
+        <Paragraph>Ingen datasett lagt i handlekurv</Paragraph>
+      ) : isLoading ? (
+        <Paragraph aria-live="polite">Laster datasett...</Paragraph>
+      ) : (
+        <>
+          {hasLoadError ? (
+            <Paragraph aria-live="polite">
+              Kunne ikke hente alle datasettene i handlekurven.
+            </Paragraph>
+          ) : null}
+          <div className={styles.results}>
+            {cards.map((card) => (
+              <DownloadCartCard key={card.uuid} {...card} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
