@@ -1,0 +1,28 @@
+.page {
+  width: 100%;
+  background: var(--ds-color-background-tinted);
+}
+
+.pageInner {
+  max-width: var(--page-content-max-width);
+  margin: 0 auto;
+  padding: 2rem var(--page-content-padding-inline);
+}
+
+.pageInner > :not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+@media (max-width: 800px) {
+  .pageInner {
+    padding-inline: var(--page-content-padding-inline-mobile);
+  }
+}
+

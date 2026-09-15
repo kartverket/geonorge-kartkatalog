@@ -9,6 +9,7 @@ export const LOCATIONS = {
   LegacyBanner: "legacy-banner",
   SearchHero: "search-hero",
   SearchPage: "search-page",
+  DownloadPage: "download-page",
   MetadataPage: "metadata-page",
   MetadataPageTabs: "metadata-page-tabs",
   MetadataPageLinkedDistributions: "metadata-page-linked-distributions",
