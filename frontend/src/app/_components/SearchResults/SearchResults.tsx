@@ -1,7 +1,8 @@
 "use client";
 
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
+import { FunnelIcon } from "@navikt/aksel-icons";
 import type { SearchResult } from "@/lib/schemas/search";
 import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
 import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
@@ -35,6 +36,7 @@ export function SearchResults({
   facets,
 }: SearchResultsProps) {
   const [viewMode, setViewMode] = usePersistedViewMode(initialViewMode);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const {
     results,
     isLoadingMore,
@@ -61,7 +63,9 @@ export function SearchResults({
           <Suspense fallback={null}>
             <FacetSidebar facets={facets} />
           </Suspense>
-          <div className={styles.content}>
+          <div
+            className={`${styles.content} ${isMobileFilterOpen ? styles.mobileFilterOpen : ""}`}
+          >
             <Suspense fallback={null}>
               <ActiveFilters facets={facets} />
             </Suspense>
@@ -72,7 +76,31 @@ export function SearchResults({
                 <Suspense fallback={null}>
                   <SortDropdown value={orderby} />
                 </Suspense>
+                <Button
+                  variant="secondary"
+                  data-icon
+                  aria-pressed={isMobileFilterOpen}
+                  aria-label={
+                    isMobileFilterOpen ? "Skjul filter" : "Vis filter"
+                  }
+                  className={styles.mobileFilterToggle}
+                  onClick={() => setIsMobileFilterOpen((open) => !open)}
+                >
+                  <FunnelIcon aria-hidden />
+                </Button>
               </div>
+            </div>
+            <div className={styles.mobileFilterPanel}>
+              <Suspense fallback={null}>
+                <FacetSidebar facets={facets} variant="mobile" />
+              </Suspense>
+              <Button
+                variant="primary"
+                className={styles.showResultsButton}
+                onClick={() => setIsMobileFilterOpen(false)}
+              >
+                Vis {totalCount} treff
+              </Button>
             </div>
             <div className={resultsClassName}>
               {results.map((r) => (

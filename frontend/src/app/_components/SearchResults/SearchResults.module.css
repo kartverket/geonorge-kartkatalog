@@ -76,6 +76,22 @@
   gap: 0.5rem;
 }
 
+.mobileFilterToggle {
+  display: none;
+}
+
+.mobileFilterPanel {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.showResultsButton {
+  position: sticky;
+  bottom: var(--ds-size-4);
+  align-self: center;
+}
+
 @media (max-width: 800px) {
   .filterPlaceholder {
     display: none;
@@ -87,5 +103,17 @@
   }
   .pageInner {
     padding-inline: var(--page-content-padding-inline-mobile);
+  }
+  .mobileFilterToggle {
+    display: inline-flex;
+  }
+
+  .content.mobileFilterOpen .results,
+  .content.mobileFilterOpen .loadMoreSection {
+    display: none;
+  }
+
+  .content.mobileFilterOpen .mobileFilterPanel {
+    display: flex;
   }
 }
