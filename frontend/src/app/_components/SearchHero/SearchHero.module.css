@@ -52,7 +52,20 @@
 
 .searchField {
   color: initial;
+  width: 100%;
 }
+
+.searchRow {
+  display: flex;
+  align-items: flex-start;
+}
+
+.searchInputWrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
 
 .title {
   color: inherit;
@@ -75,8 +88,9 @@
   position: absolute;
   z-index: 2;
   top: 100%;
-  right: 0;
   left: 0;
+  width: 100%;
+  box-sizing: border-box;
   list-style: none;
   margin: 0;
   padding: 0;
