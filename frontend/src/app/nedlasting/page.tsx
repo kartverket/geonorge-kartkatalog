@@ -10,11 +10,11 @@ export default function NedlastingPage() {
   return (
     <main className={styles.page} data-color="neutral">
       <div className={styles.content}>
-      <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
-        <a href="/">Geonorge</a> {"›"} <Link href="/">Kartkatalogen</Link> {"›"}{" "}
-        <span>Filnedlasting</span>
-      </nav>
-      <DownloadCartList />
+        <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
+          <a href="/">Geonorge</a> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
+          {"›"} <span>Filnedlasting</span>
+        </nav>
+        <DownloadCartList />
       </div>
     </main>
   );

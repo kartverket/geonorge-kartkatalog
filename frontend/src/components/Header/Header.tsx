@@ -13,6 +13,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useOrderItems } from "@/app/_components/addToCart/useCart";
+import { useMapItems } from "@/app/_components/addToMap/useMap";
 import { basePath, isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./Header.module.css";
@@ -37,9 +39,8 @@ export function Header() {
   const user = { name: "Frodo Baggins" };
   // const user = null; // test utlogget tilstand
 
-  // Midlertidig til nedlasting/kart-state kobles på (produktsiden)
-  const mapCount = 0;
-  const downloadCount = 0;
+  const mapCount = useMapItems().length;
+  const downloadCount = useOrderItems().length;
 
   const geonorgeHref = isBeta ? "https://www.geonorge.no/" : "/";
   const findDataHref = "/";
@@ -122,7 +123,7 @@ export function Header() {
                   className={styles.badge}
                 >
                   {mapCount > 0 && (
-                    <Badge count={mapCount} data-color="neutral" />
+                    <Badge count={mapCount} data-color="danger" />
                   )}
                   <LocationPinIcon aria-hidden />
                 </Badge.Position>
