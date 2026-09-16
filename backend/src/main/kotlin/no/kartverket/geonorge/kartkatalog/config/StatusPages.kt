@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.config
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
@@ -49,6 +50,10 @@ fun Application.configureStatusPages() {
         exception<NedlastingException> { call, cause ->
             log.warn("Nedlasting request failed", cause)
             call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream download error"))
+        }
+        exception<ContentTransformationException> { call, cause ->
+            log.warn("Invalid request body", cause)
+            call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid request"))
         }
     }
 }
