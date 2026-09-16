@@ -92,7 +92,7 @@ async function fetchJson(
  * Intended for server-side usage (Next.js server components / getServerSideProps, etc.).
  */
 export const getMetadata = cache(
-  async (uuid: string, notFoundOn404 = true ): Promise<ProductMetadata> => {
+  async (uuid: string, notFoundOn404 = true): Promise<ProductMetadata> => {
     if (!uuid) throw new Error("uuid is required");
     const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}`;
     // Fetch as unknown and validate the shape with Zod before returning typed data
