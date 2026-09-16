@@ -1,6 +1,9 @@
 export type DownloadItem = {
+  accessIsOpendata: boolean;
+  accessIsRestricted: boolean;
   distributionUrl: string | null;
   name: string;
+  organizationName: string | null;
   uuid: string;
 };
 
@@ -8,8 +11,11 @@ export const ORDER_ITEMS_KEY = "orderItems";
 export const DOWNLOAD_ITEMS_CHANGED_EVENT = "downloadItemsChanged";
 
 type StoredDownloadItem = {
+  accessIsOpendata: boolean;
+  accessIsRestricted: boolean;
   distributionUrl: string;
   name: string;
+  organizationName: string | null;
   uuid: string;
 };
 
@@ -20,8 +26,11 @@ function normalizeDownloadItems(items: DownloadItem[]): StoredDownloadItem[] {
     if (!item.uuid || !item.distributionUrl) continue;
 
     uniqueItems.set(item.uuid, {
+      accessIsOpendata: item.accessIsOpendata,
+      accessIsRestricted: item.accessIsRestricted,
       uuid: item.uuid,
       name: item.name,
+      organizationName: item.organizationName,
       distributionUrl: item.distributionUrl,
     });
   }

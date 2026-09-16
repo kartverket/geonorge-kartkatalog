@@ -14,6 +14,7 @@ import { LOCATIONS } from "@/posthog/posthog";
 export function DistributionDetailActionButton({
   uuid,
   title,
+  organizationName,
   hierarchyLevel,
   accessState,
   group,
@@ -22,6 +23,7 @@ export function DistributionDetailActionButton({
 }: {
   uuid: string;
   title: string;
+  organizationName: string | null;
   hierarchyLevel: string | null;
   accessState: AccessState | null;
   group: DistributionGroup;
@@ -47,8 +49,12 @@ export function DistributionDetailActionButton({
     return (
       <AddToCartButton
         item={{
+          // Foreløpig blir denne knappen kun vist om accessstate er open
+          accessIsOpendata: true,
+          accessIsRestricted: false,
           uuid,
           name: title,
+          organizationName,
           distributionUrl: getGeonorgeDownloadUrl([group]),
         }}
         size="sm"
