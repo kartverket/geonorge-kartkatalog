@@ -32,6 +32,7 @@
   width: 100%;
   flex-shrink: 0;
   overflow: hidden;
+  background: var(--ds-color-neutral-surface-default);
 }
 
 .thumbnail {
