@@ -164,7 +164,7 @@ export function DownloadCartList() {
   return (
     <div className={styles.pageInner}>
       <Heading data-size={"lg"} level={1}>
-        Filnedlastning - bestilling
+        Filnedlasting - bestilling
       </Heading>
       <Heading level={2} data-size={"sm"}>
         Dine valgte produkter ({orderItems.length})
