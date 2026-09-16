@@ -13,26 +13,34 @@ class DownloadException(
     message: String,
 ) : RuntimeException(message)
 
+private data class ResolvedOrderLine(
+    val orderUrl: String,
+    val supportsBundling: Boolean,
+    val line: NedlastingOrderLine,
+)
+
 class DownloadService(
     private val nedlastingClient: NedlastingClient,
 ) {
     suspend fun order(request: DownloadOrderRequest): DownloadOrderResult =
         coroutineScope {
-            val orderLinesByUrl =
+            val resolved =
                 request.items
                     .map { item -> async { resolveOrderLine(item) } }
                     .awaitAll()
-                    .groupBy({ (orderUrl, _) -> orderUrl }, { (_, line) -> line })
+
+            val (bundlable, individual) = resolved.partition { it.supportsBundling }
+            val groups = bundlable.groupBy { it.orderUrl }.values + individual.map { listOf(it) }
 
             val responses =
-                orderLinesByUrl.map { (orderUrl, lines) ->
+                groups.map { group ->
                     async {
                         nedlastingClient.order(
-                            orderUrl,
+                            group.first().orderUrl,
                             NedlastingOrderRequest(
                                 email = request.email,
                                 usageGroup = request.usageGroup,
-                                orderLines = lines,
+                                orderLines = group.map { it.line },
                             ),
                         )
                     }
@@ -41,21 +49,25 @@ class DownloadService(
             DownloadOrderResult(responses)
         }
 
-    private suspend fun resolveOrderLine(item: DownloadOrderItem): Pair<String, NedlastingOrderLine> {
+    private suspend fun resolveOrderLine(item: DownloadOrderItem): ResolvedOrderLine {
         val capabilities = nedlastingClient.getCapabilities(item.uuid)
         val orderUrl =
             capabilities.linkFor(ORDER_REL)
                 ?: throw DownloadException("Fant ingen bestillings-URL for datasett ${item.uuid}")
 
-        return orderUrl to
-            NedlastingOrderLine(
-                metadataUuid = item.uuid,
-                areas = item.areas,
-                projections = item.projections,
-                formats = item.formats,
-                usagePurpose = item.usagePurpose,
-                coordinates = item.coordinates,
-                clipperFile = item.clipperFile,
-            )
+        return ResolvedOrderLine(
+            orderUrl = orderUrl,
+            supportsBundling = capabilities.supportsDownloadBundling,
+            line =
+                NedlastingOrderLine(
+                    metadataUuid = item.uuid,
+                    areas = item.areas,
+                    projections = item.projections,
+                    formats = item.formats,
+                    usagePurpose = item.usagePurpose,
+                    coordinates = item.coordinates,
+                    clipperFile = item.clipperFile,
+                ),
+        )
     }
 }
