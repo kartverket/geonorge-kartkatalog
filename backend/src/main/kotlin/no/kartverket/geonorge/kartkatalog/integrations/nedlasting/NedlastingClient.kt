@@ -16,7 +16,11 @@ class NedlastingClient(
     private val httpClient: HttpClient,
     private val baseUrl: String,
 ) {
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
     private val log = LoggerFactory.getLogger(NedlastingClient::class.java)
 
     suspend fun getCapabilities(uuid: String): NedlastingCapabilities {
