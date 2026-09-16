@@ -3,7 +3,6 @@ package no.kartverket.geonorge.kartkatalog.config
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
-import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
@@ -40,10 +39,6 @@ fun Application.configureStatusPages() {
         exception<Throwable> { call, cause ->
             log.error("Unhandled exception", cause)
             call.respondText(text = "Internal server error", status = HttpStatusCode.InternalServerError)
-        }
-        exception<ContentTransformationException> { call, cause ->
-            log.warn("Invalid request body", cause)
-            call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid request"))
         }
     }
 }
