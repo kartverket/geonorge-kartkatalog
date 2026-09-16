@@ -5,6 +5,7 @@ import { LegacyBanner } from "@/components/LegacyBanner/LegacyBanner";
 import { CookieYesPosthogSync } from "@/components/PosthogConsent/CookieYesPosthogSync";
 import "./globals.css";
 import { isBeta } from "@/lib/basePath";
+import {CookieYesRoot} from "@/components/consent-manager";
 
 export const metadata: Metadata = {
   title: {
@@ -30,6 +31,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+      <CookieYesRoot />
         <CookieYesPosthogSync />
         <Header />
         {isBeta && <LegacyBanner />}
