@@ -1,5 +1,5 @@
 .pageInner {
-  margin: 0 auto;
+    margin: 0 auto 1.5rem;
 }
 
 .pageInner > :not(:last-child) {
@@ -11,10 +11,4 @@
   flex-direction: column;
   gap: 0.75rem;
   width: 100%;
-}
-
-@media (max-width: 800px) {
-  .pageInner {
-    padding-inline: var(--page-content-padding-inline-mobile);
-  }
 }
