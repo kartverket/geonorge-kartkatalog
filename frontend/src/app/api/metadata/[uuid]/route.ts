@@ -8,7 +8,7 @@ export async function GET(
   const { uuid } = await params;
 
   try {
-    const metadata = await getMetadata(uuid);
+    const metadata = await getMetadata(uuid, false);
     return NextResponse.json(metadata);
   } catch (error) {
     if (error instanceof HttpError) {
