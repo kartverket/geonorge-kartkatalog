@@ -107,8 +107,11 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 data-color="neutral"
                 data-size="sm"
                 className={styles.typeTag}
+                title={p.organization ?? p.typeTranslated ?? undefined}
               >
-                {p.organization ?? p.typeTranslated}
+                <span className={styles.typeTagText}>
+                  {p.organization ?? p.typeTranslated}
+                </span>
               </Tag>
             </div>
           )}
