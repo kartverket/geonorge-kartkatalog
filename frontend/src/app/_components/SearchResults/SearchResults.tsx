@@ -70,7 +70,7 @@ export function SearchResults({
               <ActiveFilters facets={facets} />
             </Suspense>
             <div className={styles.header}>
-              <Heading data-size="sm">{totalCount} treff</Heading>
+              <Heading level={2} data-size="sm">{totalCount} treff</Heading>
               <div className={styles.headerControls}>
                 <ViewToggle value={viewMode} onChange={setViewMode} />
                 <div className={styles.sortDropdown}>
