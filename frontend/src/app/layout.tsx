@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Footer } from "@/components/Footer/Footer";
 import { Header } from "@/components/Header/Header";
 import { LegacyBanner } from "@/components/LegacyBanner/LegacyBanner";
-import { CookieYesPosthogSync } from "@/components/PosthogConsent/CookieYesPosthogSync";
 import "./globals.css";
 import { CookieYesProvider } from "@cookieyes/nextjs";
 import { getServerConsent } from "@cookieyes/nextjs/server";
@@ -38,7 +37,6 @@ export default async function RootLayout({
         <CookieYesProvider regulation="GDPR" initialConsent={initialConsent}>
           <CookieYesRoot />
         </CookieYesProvider>
-        <CookieYesPosthogSync />
         <Header />
         {isBeta && <LegacyBanner />}
         {children}
