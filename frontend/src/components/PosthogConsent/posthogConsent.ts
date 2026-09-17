@@ -1,5 +1,4 @@
 import posthog from "posthog-js";
-import type { ConsentState } from "./consentCookie";
 
 const POSTHOG_OPT_IN_SETTINGS = {
   autocapture: true,
@@ -49,14 +48,12 @@ export function canTrackAnalytics(): boolean {
   return analyticsConsent;
 }
 
-export function syncAnalyticsConsent(consent: ConsentState): ConsentState {
-  analyticsConsent = consent.analytics;
+export function syncAnalyticsConsent(hasAnalyticsConsent: boolean): void {
+  analyticsConsent = hasAnalyticsConsent;
 
   if (hasInitializedPosthog) {
-    setPosthogTrackingEnabled(consent.analytics);
+    setPosthogTrackingEnabled(hasAnalyticsConsent);
   }
-
-  return consent;
 }
 
 export function markPosthogInitialized(): void {
