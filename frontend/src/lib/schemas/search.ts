@@ -28,7 +28,7 @@ const SearchResultItemSchema = z.object({
   mapCapabilitiesUrl: z.string().nullable(),
   accessState: z.enum(accessState).nullable(),
   hierarchyLevel: z.string().nullable(),
-  seriesHasDownloads: z.boolean().nullable(),
+  downloadableSeriesMembers: z.array(z.string()).nullable(),
 });
 
 export const SearchResultSchema = z.object({

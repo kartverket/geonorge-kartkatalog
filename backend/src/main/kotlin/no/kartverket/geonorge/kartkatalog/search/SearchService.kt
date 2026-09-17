@@ -3,7 +3,6 @@ package no.kartverket.geonorge.kartkatalog.search
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.JsonPrimitive
-import no.kartverket.geonorge.kartkatalog.distribution.resolveSeriesHasDownloads
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
@@ -32,11 +31,20 @@ class SearchService(
                 numFound = response.response.numFound,
                 limit = normalized.limit,
                 offset = normalized.offset,
-                results = response.response.docs.map { it.toSearchResultItem() },
+                results =
+                    response.response.docs.map { doc ->
+                        doc.toSearchResultItem()
+                    },
                 facets = response.facetCounts.toSearchFacets(fylkeNames, hvdCategories),
             )
         }
-}
+
+    private fun getSeriesMemberUuids(doc: SolrDocument): List<String> {
+        val seriesMemberRefs =
+            solrClient.parseDatasetServices(doc.seriedatasets)
+
+        return seriesMemberRefs.filter { it.protocol == "GEONORGE:DOWNLOAD" }.map { it.uuid }
+    }
 
 private fun SolrFacetCounts?.toSearchFacets(
     fylkeNames: Map<String, String>,
@@ -159,7 +167,7 @@ private fun isJunkFacetValue(
 
 private fun SolrDocument.toSearchResultItem(): SearchResultItem {
     val access = resolveAccess(dataaccess, otherconstraintsaccess, accessconstraint)
-    val seriesHasDownloads = resolveSeriesHasDownloads()
+
     val mapCapability = resolveMapCapability()
 
     return SearchResultItem(
@@ -171,7 +179,7 @@ private fun SolrDocument.toSearchResultItem(): SearchResultItem {
             thumbnailUrl?.takeUnless {
                 it.equals("https://editor.geonorge.no/thumbnails/undefined", ignoreCase = true)
             },
-        seriesHasDownloads = seriesHasDownloads,
+            downloadableSeriesMembers = getSeriesMemberUuids(this),
         distributionUrl = distributionUrl,
         distributionProtocol = distributionProtocol,
         getCapabilitiesUrl = distributionUrl,
@@ -241,3 +249,4 @@ private fun translateType(type: String?): String? =
         "dimensionGroup" -> "Datapakke"
         else -> type
     }
+}
