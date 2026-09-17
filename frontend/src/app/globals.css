@@ -34,3 +34,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.ds-button[data-variant="primary"] {
+    --dsc-button-background: var(--ds-color-accent-base-active);
+}
+
+.ds-button[data-variant="secondary"] {
+    --dsc-button-color: var(--ds-color-accent-base-active);
+    --dsc-button-border-color: var(--ds-color-accent-base-active);
+}

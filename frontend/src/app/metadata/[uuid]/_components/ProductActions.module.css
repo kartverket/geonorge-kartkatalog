@@ -9,15 +9,6 @@
   height: var(--ds-size-12);
 }
 
-.actions :global(.ds-button[data-variant="primary"]) {
-  --dsc-button-background: var(--ds-color-info-text-default);
-}
-
-.actions :global(.ds-button[data-variant="secondary"]) {
-  --dsc-button-border-color: var(--ds-color-info-text-default);
-  --dsc-button-color: var(--ds-color-info-text-default);
-}
-
 @media (max-width: 800px) {
   .actions {
     flex-direction: column;

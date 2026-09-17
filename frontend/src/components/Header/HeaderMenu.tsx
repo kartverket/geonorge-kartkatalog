@@ -178,7 +178,6 @@ export function HeaderMenu({
           <Button
             asChild
             variant="tertiary"
-            data-color="neutral"
             className={styles.inMenuFromSm}
           >
             <Link
@@ -194,7 +193,6 @@ export function HeaderMenu({
           <Button
             asChild
             variant="tertiary"
-            data-color="neutral"
             className={styles.inMenuFromXl}
           >
             <a href={mapHref} onClick={() => onActionNavigate("kart")}>
@@ -204,7 +202,7 @@ export function HeaderMenu({
                 className={styles.badge}
               >
                 {mapCount > 0 && (
-                  <Badge count={mapCount} data-color="neutral" />
+                  <Badge count={mapCount} />
                 )}
                 <LocationPinIcon aria-hidden />
               </Badge.Position>
@@ -214,7 +212,6 @@ export function HeaderMenu({
           <Button
             asChild
             variant="tertiary"
-            data-color="neutral"
             className={styles.inMenuFromXl}
           >
             <a
@@ -237,7 +234,6 @@ export function HeaderMenu({
           {!isBeta && (
             <Button
               variant="tertiary"
-              data-color="neutral"
               onClick={() => posthogClickAction("change-language")}
             >
               <LanguageIcon aria-hidden />
@@ -248,7 +244,6 @@ export function HeaderMenu({
             (userName ? (
               <Button
                 variant="tertiary"
-                data-color="neutral"
                 className={styles.inMenuFromSm}
                 aria-expanded={view === "profile"}
                 onClick={() => {
@@ -262,7 +257,6 @@ export function HeaderMenu({
             ) : (
               <Button
                 variant="tertiary"
-                data-color="neutral"
                 className={styles.inMenuFromSm}
                 onClick={() => posthogClickAction("login")}
               >

@@ -96,7 +96,6 @@ function DocumentationCardBody({ card }: { card: DocumentationCard }) {
             key={action.label}
             asChild
             variant={index === 0 ? "primary" : "secondary"}
-            data-color="neutral"
             className={styles.cardButton}
           >
             <a
