@@ -134,6 +134,7 @@ export function DownloadCartList() {
       const response = await fetch(`${basePath}/api/download/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: selectedItems }),
       });
 
       if (!response.ok) {
