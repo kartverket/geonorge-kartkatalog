@@ -16,3 +16,8 @@
   border-radius: var(--ds-border-radius-default);
   background: var(--ds-color-surface-hover);
 }
+
+.filterChip:hover {
+    background: var(--ds-color-border-subtle);
+
+}
