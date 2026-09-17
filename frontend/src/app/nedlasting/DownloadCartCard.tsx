@@ -45,7 +45,7 @@ export function DownloadCartCard({
     TYPE_TO_ACCESS_CONTEXT[typeTranslated ?? ""] ?? "datasett";
 
   return (
-    <Card data-color="neutral" className={styles.card}>
+    <Card className={styles.card}>
       <div className={styles.content}>
         {typeTranslated ? (
           <div className={styles.badgeRow}>

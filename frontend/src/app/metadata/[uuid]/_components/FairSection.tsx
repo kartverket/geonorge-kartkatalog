@@ -61,7 +61,7 @@ export function FairSection({ fairStatus }: { fairStatus: ProductFairStatus }) {
         <Heading data-size="sm">Resultater for dette datasettet</Heading>
         <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
       </div>
-      <div className={styles.accordionGroup} data-color="neutral">
+      <div className={styles.accordionGroup}>
         {fairStatus.principles.map((principle) => (
           <Details key={principle.Code}>
             <Details.Summary

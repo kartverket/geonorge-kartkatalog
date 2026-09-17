@@ -73,7 +73,7 @@ export function ProductDocumentation({
 
 function DocumentationCard({ card }: { card: DocumentationCard }) {
   return (
-    <Card data-color="neutral" className={styles.card}>
+    <Card className={styles.card}>
       <div className={styles.cardBody}>
         <DocumentationCardBody card={card} />
       </div>
