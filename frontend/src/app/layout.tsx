@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Footer } from "@/components/Footer/Footer";
 import { Header } from "@/components/Header/Header";
 import { LegacyBanner } from "@/components/LegacyBanner/LegacyBanner";
-import { CookieYesPosthogSync } from "@/components/PosthogConsent/CookieYesPosthogSync";
 import "./globals.css";
+import { CookieYesProvider } from "@cookieyes/nextjs";
+import { getServerConsent } from "@cookieyes/nextjs/server";
+import { CookieYesRoot } from "@/components/consent-manager";
 import { isBeta } from "@/lib/basePath";
 
 export const metadata: Metadata = {
@@ -14,11 +16,13 @@ export const metadata: Metadata = {
   description: "Kartkatalogen | Geonorge",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialConsent = await getServerConsent({ regulation: "GDPR" });
+
   return (
     <html lang="no">
       <head>
@@ -30,7 +34,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <CookieYesPosthogSync />
+        <CookieYesProvider regulation="GDPR" initialConsent={initialConsent}>
+          <CookieYesRoot />
+        </CookieYesProvider>
         <Header />
         {isBeta && <LegacyBanner />}
         {children}

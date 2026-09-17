@@ -1,5 +1,5 @@
+import { getServerConsent } from "@cookieyes/nextjs/server";
 import { cookies } from "next/headers";
-import { hasPerformanceConsentInCookieString } from "@/components/PosthogConsent/consentCookie";
 import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
 import type { DatasetCardProps } from "./_components/DatasetCard/DatasetCard";
 import { SearchHero } from "./_components/SearchHero/SearchHero";
@@ -15,10 +15,11 @@ export default async function Home({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const cookieStore = await cookies();
-  const storedViewMode = hasPerformanceConsentInCookieString(
-    cookieStore.toString(),
-  )
+  const [cookieStore, consent] = await Promise.all([
+    cookies(),
+    getServerConsent({ regulation: "GDPR" }),
+  ]);
+  const storedViewMode = consent?.categories.performance
     ? cookieStore.get(VIEW_MODE_COOKIE_NAME)?.value
     : undefined;
   // TODO: kan man skrive noe sånt som dette? const { text, orderby } = await searchParams;

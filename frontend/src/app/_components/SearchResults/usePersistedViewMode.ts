@@ -1,22 +1,8 @@
 "use client";
 
+import { useConsentCategory } from "@cookieyes/nextjs";
 import { useEffect, useState } from "react";
-import { hasPerformanceConsentInCookieString } from "@/components/PosthogConsent/consentCookie";
-import {
-  getViewModeFromCookieString,
-  VIEW_MODE_COOKIE_NAME,
-  type ViewMode,
-} from "./viewMode";
-
-function getInitialViewMode(initialViewMode: ViewMode): ViewMode {
-  if (typeof document === "undefined") {
-    return initialViewMode;
-  }
-
-  return hasPerformanceConsentInCookieString(document.cookie)
-    ? (getViewModeFromCookieString(document.cookie) ?? initialViewMode)
-    : initialViewMode;
-}
+import { VIEW_MODE_COOKIE_NAME, type ViewMode } from "./viewMode";
 
 async function persistViewMode(viewMode: ViewMode) {
   const cookieStore = "cookieStore" in window ? window.cookieStore : null;
@@ -50,8 +36,11 @@ async function clearPersistedViewMode() {
   document.cookie = `${VIEW_MODE_COOKIE_NAME}=; path=/; SameSite=Lax; Max-Age=0`;
 }
 
-async function syncPersistedViewMode(viewMode: ViewMode) {
-  if (!hasPerformanceConsentInCookieString(document.cookie)) {
+async function syncPersistedViewMode(
+  viewMode: ViewMode,
+  hasPerformanceConsent: boolean,
+) {
+  if (!hasPerformanceConsent) {
     await clearPersistedViewMode();
     return;
   }
@@ -60,38 +49,12 @@ async function syncPersistedViewMode(viewMode: ViewMode) {
 }
 
 export function usePersistedViewMode(initialViewMode: ViewMode) {
-  const [viewMode, setViewMode] = useState<ViewMode>(() =>
-    getInitialViewMode(initialViewMode),
-  );
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
+  const hasPerformanceConsent = useConsentCategory("performance");
 
   useEffect(() => {
-    const sync = () => {
-      void syncPersistedViewMode(viewMode);
-    };
-
-    sync();
-
-    document.addEventListener("cookieyes_banner_load", sync as EventListener);
-    document.addEventListener(
-      "cookieyes_consent_update",
-      sync as EventListener,
-    );
-    window.addEventListener("pageshow", sync);
-    window.addEventListener("focus", sync);
-
-    return () => {
-      document.removeEventListener(
-        "cookieyes_banner_load",
-        sync as EventListener,
-      );
-      document.removeEventListener(
-        "cookieyes_consent_update",
-        sync as EventListener,
-      );
-      window.removeEventListener("pageshow", sync);
-      window.removeEventListener("focus", sync);
-    };
-  }, [viewMode]);
+    void syncPersistedViewMode(viewMode, hasPerformanceConsent);
+  }, [hasPerformanceConsent, viewMode]);
 
   return [viewMode, setViewMode] as const;
 }
