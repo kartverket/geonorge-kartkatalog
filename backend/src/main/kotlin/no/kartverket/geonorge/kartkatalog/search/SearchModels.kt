@@ -92,7 +92,7 @@ data class SearchResultItem(
     val distributionUrl: String? = null,
     val distributionProtocol: String? = null,
     val getCapabilitiesUrl: String? = null,
-    val seriesHasDownloads: Boolean = false,
+    val downloadableSeriesMembers: List<String>? = null,
     val showMapLink: Boolean = false,
     val mapCapabilitiesUrl: String? = null,
     val accessState: String? = null,
