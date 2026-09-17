@@ -35,6 +35,7 @@ export type DatasetCardProps = {
   hierarchyLevel: string | null;
   viewMode?: "grid" | "list";
   analyticsLocation?: Location;
+  seriesHasDownloads: boolean | null
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -47,10 +48,12 @@ const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
 export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const [copied, setCopied] = useState(false);
   const analyticsLocation = p.analyticsLocation ?? LOCATIONS.SearchPage;
+  
 
   const isService = p.typeTranslated === "Tjeneste";
   const isOpen = p.accessState === "open";
   const isDataset = p.hierarchyLevel === "dataset";
+  const isSeries = p.hierarchyLevel === "series";
   const canDownload = p.distributionProtocol === "GEONORGE:DOWNLOAD";
   const canShowMap = !!p.showMapLink && !!p.mapCapabilitiesUrl;
   const canCopy = isService && !!p.getCapabilitiesUrl;
@@ -59,7 +62,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const thumbnailUrl = isAllowedThumbnailUrl(p.thumbnailUrl)
     ? p.thumbnailUrl
     : null;
-
+  
   const accessContext =
     TYPE_TO_ACCESS_CONTEXT[p.typeTranslated ?? ""] ?? "datasett";
 
@@ -75,6 +78,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
+
 
   const renderThumbnail = () => (
     <div className={styles.thumbnailContainer}>
@@ -130,6 +134,14 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           </Heading>
         </div>
         <div className={styles.buttonGroupContainer}>
+          {
+p.seriesHasDownloads &&
+            (<CardActionButton onClick={() => {
+              console.log("Series has downloads: ", p.seriesHasDownloads);
+            } } label={"Last ned serie"} icon={undefined}>
+
+          </CardActionButton>)
+          }
           {applicationUrl && (
             <CardActionButton
               onClick={() => {

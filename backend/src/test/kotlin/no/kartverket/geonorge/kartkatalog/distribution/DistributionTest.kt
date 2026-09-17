@@ -26,7 +26,7 @@ class DistributionTest {
                         ).joinToString(),
                     ),
             )
-        val result = solrDocument.resolveLinkedDatasetExistence()
+        val result = solrDocument.resolveSeriesHasDownloads()
         assertFalse(result)
     }
 
@@ -52,7 +52,7 @@ class DistributionTest {
                 serie = "456",
                 seriedatasets = emptyList(),
             )
-        val result = solrDocument.resolveLinkedDatasetExistence()
+        val result = solrDocument.resolveSeriesHasDownloads()
         assertFalse(result)
     }
 
@@ -78,7 +78,7 @@ class DistributionTest {
                 serie = "456",
                 seriedatasets = listOf("789"),
             )
-        val result = solrDocument.resolveLinkedDatasetExistence()
+        val result = solrDocument.resolveSeriesHasDownloads()
         assertFalse(result)
     }
 }
