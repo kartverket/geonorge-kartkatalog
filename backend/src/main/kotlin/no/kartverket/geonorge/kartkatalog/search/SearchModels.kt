@@ -1,6 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.search
 
 import kotlinx.serialization.Serializable
+import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 
 data class SearchRequest(
     val text: String? = null,
@@ -92,12 +93,35 @@ data class SearchResultItem(
     val distributionUrl: String? = null,
     val distributionProtocol: String? = null,
     val getCapabilitiesUrl: String? = null,
-    val downloadableSeriesMembers: List<String>? = null,
+    val downloadableSeriesMembers: List<DownloadItem>? = null,
     val showMapLink: Boolean = false,
     val mapCapabilitiesUrl: String? = null,
     val accessState: String? = null,
     val hierarchyLevel: String? = null,
 )
+
+@Serializable
+data class DownloadItem(
+    val accessIsOpendata: Boolean,
+    val accessIsRestricted: Boolean,
+    val distributionUrl: String? = null,
+    val name: String? = null,
+    val organizationName: String? = null,
+    val uuid: String,
+){
+    companion object{
+        fun fromRelatedServiceReference(ref: RelatedServiceReference): DownloadItem =
+            DownloadItem(
+                accessIsOpendata = ref.accessIsOpendata,
+                accessIsRestricted = ref.accessIsRestricted,
+                distributionUrl = ref.distributionUrl,
+                name = ref.name,
+                organizationName = ref.organizationName,
+                uuid = ref.uuid,
+            )
+    }
+
+}
 
 internal fun canonicalFacetName(name: String): String? =
     when (name.lowercase()) {
