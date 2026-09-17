@@ -50,11 +50,13 @@ export function ProductActions({
         className={styles.actionButton}
         item={cartItem}
         location={LOCATIONS.MetadataPage}
+        variant="primary"
       />
       <AddToMapButton
         className={styles.actionButton}
         item={mapItem}
         location={LOCATIONS.MetadataPage}
+        variant="primary"
       />
       {metadata.coverageUrl && (
         <TrackedActionLinkButton
