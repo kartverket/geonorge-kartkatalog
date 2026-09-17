@@ -10,6 +10,8 @@ import {
 } from "./_components/SearchResults/viewMode";
 import { getSearchResults } from "./api";
 
+export const instant = false;
+
 export default async function Home({
   searchParams,
 }: {

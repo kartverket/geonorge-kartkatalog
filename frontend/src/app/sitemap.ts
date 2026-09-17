@@ -1,17 +1,20 @@
 import type { MetadataRoute } from "next";
+import { cacheLife } from "next/cache";
 import { getSearchResults } from "@/app/api";
-import { basePath, isBeta } from "@/lib/basePath";
+import { basePath } from "@/lib/basePath";
 
 const SITE_ORIGIN = "https://kartkatalog.geonorge.no";
 const PAGE_SIZE = 1000;
-
-export const dynamic = "force-dynamic";
 
 function siteUrl(path = "/"): string {
   return new URL(`${basePath}${path}`, SITE_ORIGIN).toString();
 }
 
 async function getMetadataUrls(): Promise<MetadataRoute.Sitemap> {
+  "use cache";
+
+  cacheLife("days");
+
   const firstPage = await getSearchResults({
     limit: PAGE_SIZE,
     orderby: "title",
@@ -35,10 +38,6 @@ async function getMetadataUrls(): Promise<MetadataRoute.Sitemap> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticUrls: MetadataRoute.Sitemap = [{ url: siteUrl() }];
-
-  if (!isBeta) {
-    staticUrls.push({ url: siteUrl("/nedlasting") });
-  }
 
   return [...staticUrls, ...(await getMetadataUrls())];
 }

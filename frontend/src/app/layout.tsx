@@ -4,8 +4,8 @@ import { Header } from "@/components/Header/Header";
 import { LegacyBanner } from "@/components/LegacyBanner/LegacyBanner";
 import { CookieYesPosthogSync } from "@/components/PosthogConsent/CookieYesPosthogSync";
 import "./globals.css";
+import { Suspense } from "react";
 import { isBeta } from "@/lib/basePath";
-
 export const metadata: Metadata = {
   title: {
     template: "%s | Kartkatalogen",
@@ -31,7 +31,9 @@ export default function RootLayout({
       </head>
       <body>
         <CookieYesPosthogSync />
-        <Header />
+        <Suspense fallback={null}>
+          <Header />
+        </Suspense>
         {isBeta && <LegacyBanner />}
         {children}
         <Footer />
