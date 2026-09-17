@@ -3,7 +3,7 @@ import { cacheLife } from "next/cache";
 import { getSearchResults } from "@/app/api";
 import { basePath } from "@/lib/basePath";
 
-const SITE_ORIGIN = "https://kartkatalog.geonorge.no";
+const SITE_ORIGIN = "https://kartkatalog.geonorge.no/beta";
 const PAGE_SIZE = 1000;
 
 function siteUrl(path = "/"): string {
@@ -31,7 +31,9 @@ async function getMetadataUrls(): Promise<MetadataRoute.Sitemap> {
 
   return [firstPage, ...remainingPages].flatMap((page) =>
     page.results.map(({ uuid }) => ({
-      url: siteUrl(`/metadata/${encodeURIComponent(uuid)}`),
+      url: siteUrl(
+        `/metadata/${encodeURIComponent(uuid).replaceAll("%3A", ":")}`,
+      ),
     })),
   );
 }
