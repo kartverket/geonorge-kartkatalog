@@ -3,10 +3,13 @@ package no.kartverket.geonorge.kartkatalog.config
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
+import no.kartverket.geonorge.kartkatalog.download.DownloadException
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeoNetworkException
+import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingException
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataRecordNotFoundException
@@ -39,6 +42,18 @@ fun Application.configureStatusPages() {
         exception<Throwable> { call, cause ->
             log.error("Unhandled exception", cause)
             call.respondText(text = "Internal server error", status = HttpStatusCode.InternalServerError)
+        }
+        exception<DownloadException> { call, cause ->
+            log.warn("Download order failed", cause)
+            call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream download error"))
+        }
+        exception<NedlastingException> { call, cause ->
+            log.warn("Nedlasting request failed", cause)
+            call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream download error"))
+        }
+        exception<ContentTransformationException> { call, cause ->
+            log.warn("Invalid request body", cause)
+            call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid request"))
         }
     }
 }
