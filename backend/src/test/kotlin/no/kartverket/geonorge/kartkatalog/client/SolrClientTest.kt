@@ -11,6 +11,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
+import no.kartverket.geonorge.kartkatalog.distribution.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrResponse
@@ -212,4 +213,33 @@ class SolrClientTest {
                 }
             }
         }
+
+
+    @Test
+    fun `parse related service good`() {
+        val engine = MockEngine { respond(content = "", status = HttpStatusCode.InternalServerError) }
+        val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
+        val solrClient = SolrClient(httpClient, solrBaseUrl)
+        val rightUuid = UUID.randomUUID().toString()
+        val serviceName = "Administrative enheter - historiske data 1997"
+        val protocol = "GEONORGE:DOWNLOAD"
+        val distUri = "https://nedlasting.geonorge.no/api/capabilities/"
+        val isOpen = true
+        val isClose = false
+
+
+
+        val datasetSerivceString = "${rightUuid}|${serviceName}|9bc064e3-6c34-4c3a-8421-00290052e9c0|dataset|Kartverket||${protocol}|${distUri}|Basis geodata|https://register.dev.geonorge.no/data/organizations/971040238_Kartverket_liten.png|https://editor.geonorge.no/thumbnails/08ca6168-1054-4f1d-90b9-83a99aabc4a8_20200710123750_medium_adm1het.png|no restrictions|http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations||${isOpen}|${isClose}"
+        val parsedServiceDetails = solrClient.parseDatasetServices(listOf(datasetSerivceString))
+
+        assertEquals(1, parsedServiceDetails.size)
+        val parsedService = parsedServiceDetails[0]
+        assertEquals(rightUuid, parsedService.uuid)
+        assertEquals(serviceName, parsedService.name)
+        assertEquals(protocol, parsedService.protocol)
+        assertEquals(distUri, parsedService.distributionUrl)
+        assertEquals(isOpen, parsedService.accessIsOpendata)
+        assertEquals(isClose, parsedService.accessIsRestricted)
+
+    }
 }
