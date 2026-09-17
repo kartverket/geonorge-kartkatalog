@@ -1,9 +1,11 @@
 "use client";
 
-import { Heading, Paragraph } from "@kv-designsystem/react";
-import { useEffect, useState } from "react";
+import { Button, Heading, Paragraph } from "@kv-designsystem/react";
+import { useCallback, useEffect, useState } from "react";
+import type { DownloadOrderItemInput } from "@/app/api";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import { basePath } from "@/lib/basePath";
+import type { DownloadOrderResult } from "@/lib/schemas/download";
 import { parseProductMetadata } from "@/lib/schemas/product";
 import {
   DownloadCartCard,
@@ -99,6 +101,54 @@ export function DownloadCartList() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasLoadError, setHasLoadError] = useState(false);
 
+  const [selections, setSelections] = useState<
+    Record<string, DownloadOrderItemInput | null>
+  >({});
+
+  const [isOrdering, setIsOrdering] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+  const [orderResult, setOrderResult] = useState<DownloadOrderResult | null>(
+    null,
+  );
+
+  const handleSelectionChange = useCallback(
+    (uuid: string, item: DownloadOrderItemInput | null) => {
+      setSelections((current) => ({ ...current, [uuid]: item }));
+    },
+    [],
+  );
+
+  const selectedItems = Object.values(selections).filter(
+    (item): item is DownloadOrderItemInput => item !== null,
+  );
+  const canOrder = selectedItems.length > 0 && !isOrdering;
+
+  async function handleOrder() {
+    if (!canOrder) return;
+
+    setIsOrdering(true);
+    setOrderError(null);
+    setOrderResult(null);
+
+    try {
+      const response = await fetch(`${basePath}/api/download/order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error("Bestillingen feilet.");
+      }
+
+      const result: DownloadOrderResult = await response.json();
+      setOrderResult(result);
+    } catch {
+      setOrderError("Kunne ikke fullføre bestillingen. Prøv igjen.");
+    } finally {
+      setIsOrdering(false);
+    }
+  }
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -182,8 +232,42 @@ export function DownloadCartList() {
           ) : null}
           <div className={styles.results}>
             {cards.map((card) => (
-              <DownloadCartCard key={card.uuid} {...card} />
+              <DownloadCartCard
+                key={card.uuid}
+                {...card}
+                onSelectionChange={handleSelectionChange}
+              />
             ))}
+          </div>
+
+          <div className={styles.orderSection}>
+            <Button onClick={handleOrder} disabled={!canOrder}>
+              {isOrdering ? "Bestiller..." : "Bestill nedlasting"}
+            </Button>
+            {orderError ? (
+              <Paragraph aria-live="polite">{orderError}</Paragraph>
+            ) : null}
+            {orderResult ? (
+              <div>
+                {orderResult.orders
+                  .flatMap((order) => order.files)
+                  .map((file, index) => (
+                    <Paragraph key={`${file.metadataUuid}-${index}`}>
+                      {file.status === "ReadyForDownload" &&
+                      file.downloadUrl ? (
+                        <a href={file.downloadUrl}>
+                          Last ned {file.name ?? file.metadataName}
+                        </a>
+                      ) : (
+                        <>
+                          {file.name ?? file.metadataName} er under behandling.
+                          Du får beskjed når den er klar.
+                        </>
+                      )}
+                    </Paragraph>
+                  ))}
+              </div>
+            ) : null}
           </div>
         </>
       )}
