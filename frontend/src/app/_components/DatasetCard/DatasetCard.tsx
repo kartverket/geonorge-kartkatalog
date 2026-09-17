@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Tag } from "@kv-designsystem/react";
+import {Button, Card, Heading, Tag} from "@kv-designsystem/react";
 import {
   CheckmarkIcon,
   ExternalLinkIcon,
@@ -115,7 +115,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               </Tag>
             </div>
           )}
-          <span className={styles.listItemTitle}>
+          <Heading level={2} data-size={"sm"}>
             <Link
               href={`/metadata/${p.uuid}`}
               onClick={() =>
@@ -127,7 +127,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
             >
               {p.title}
             </Link>
-          </span>
+          </Heading>
         </div>
         <div className={styles.buttonGroupContainer}>
           {applicationUrl && (
