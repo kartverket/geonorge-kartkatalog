@@ -115,7 +115,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               </Tag>
             </div>
           )}
-          <Heading level={2} data-size={"sm"}>
+          <Heading level={3} data-size={"sm"}>
             <Link
               href={`/metadata/${p.uuid}`}
               onClick={() =>
