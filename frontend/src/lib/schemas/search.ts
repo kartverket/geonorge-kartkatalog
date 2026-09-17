@@ -15,6 +15,15 @@ const SearchFacetSchema = z.object({
   values: z.array(SearchFacetValueSchema),
 });
 
+const DownloadItemSchema = z.object({
+  accessIsOpendata: z.boolean(),
+  accessIsRestricted: z.boolean(),
+  distributionUrl: z.string().nullable(),
+  name: z.string(),
+  organizationName: z.string().nullable(),
+  uuid: z.string(),
+});
+
 const SearchResultItemSchema = z.object({
   uuid: z.string(),
   title: z.string(),
@@ -28,7 +37,7 @@ const SearchResultItemSchema = z.object({
   mapCapabilitiesUrl: z.string().nullable(),
   accessState: z.enum(accessState).nullable(),
   hierarchyLevel: z.string().nullable(),
-  downloadableSeriesMembers: z.array(z.string()).nullable(),
+  downloadableSeriesMembers: z.array(DownloadItemSchema).nullable(),
 });
 
 export const SearchResultSchema = z.object({
@@ -41,6 +50,7 @@ export const SearchResultSchema = z.object({
 });
 
 export type SearchResult = z.infer<typeof SearchResultSchema>;
+export type DownloadItem = z.infer<typeof DownloadItemSchema>;
 
 export function parseSearchResult(body: unknown): SearchResult {
   const res = SearchResultSchema.safeParse(body);

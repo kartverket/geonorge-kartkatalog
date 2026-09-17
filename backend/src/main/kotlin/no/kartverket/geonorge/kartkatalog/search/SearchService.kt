@@ -4,6 +4,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.JsonPrimitive
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
+import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrFacetCounts
@@ -39,11 +40,10 @@ class SearchService(
             )
         }
 
-    private fun getSeriesMemberUuids(doc: SolrDocument): List<String> {
+    private fun getSeriesMemberDetails(doc: SolrDocument): List<RelatedServiceReference> {
         val seriesMemberRefs =
             solrClient.parseDatasetServices(doc.seriedatasets)
-
-        return seriesMemberRefs.filter { it.protocol == "GEONORGE:DOWNLOAD" }.map { it.uuid }
+        return seriesMemberRefs.filter { it.protocol == "GEONORGE:DOWNLOAD" }
     }
 
 private fun SolrFacetCounts?.toSearchFacets(
@@ -179,7 +179,7 @@ private fun SolrDocument.toSearchResultItem(): SearchResultItem {
             thumbnailUrl?.takeUnless {
                 it.equals("https://editor.geonorge.no/thumbnails/undefined", ignoreCase = true)
             },
-            downloadableSeriesMembers = getSeriesMemberUuids(this),
+        downloadableSeriesMembers = getSeriesMemberDetails(this).map { DownloadItem.fromRelatedServiceReference(it) },
         distributionUrl = distributionUrl,
         distributionProtocol = distributionProtocol,
         getCapabilitiesUrl = distributionUrl,
