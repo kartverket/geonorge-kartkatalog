@@ -31,7 +31,7 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
         </div>
       </div>
       <div className={styles.inner}>
-        <Heading data-size="lg" className={styles.title}>
+        <Heading data-size="lg" level={1} className={styles.title}>
           Finn data
         </Heading>
         <form
