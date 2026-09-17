@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -63,6 +64,22 @@ class DownloadRoutesTest {
             {"href": "https://nedlasting.geonorge.no/api/order", "rel": "http://rel.geonorge.no/download/order"}
           ]
         }
+        """.trimIndent()
+
+    private val formatsJson =
+        """
+        [
+          {"name": "GML", "projections": [{"code": "25832", "name": "EUREF89 UTM sone 32, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25832"}]},
+          {"name": "SOSI", "projections": [{"code": "25833", "name": "EUREF89 UTM sone 33, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25833"}]}
+        ]
+        """.trimIndent()
+
+    private val areasJson =
+        """
+        [
+          {"type": "fylke", "name": "Agder", "code": "42"},
+          {"type": "fylke", "name": "Akershus", "code": "32"}
+        ]
         """.trimIndent()
 
     @Test
@@ -275,5 +292,43 @@ class DownloadRoutesTest {
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals(2, orderRequestBodies.size)
             assertEquals(0, orderRequestBodies.count { it.contains("uuid-c") && it.contains("uuid-d") })
+        }
+
+    @Test
+    fun `returns formats and defaults for a dataset`() =
+        testApplication {
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(
+                        MockEngine { request ->
+                            val content =
+                                when {
+                                    request.url.encodedPath.startsWith("/api/codelists/format") -> formatsJson
+                                    request.url.encodedPath.startsWith("/api/codelists/area") -> areasJson
+                                    else -> "[]"
+                                }
+                            respond(
+                                content = content,
+                                status = HttpStatusCode.OK,
+                                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                            )
+                        },
+                    ) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val downloadService = DownloadService(nedlastingClient)
+                routing { downloadRoutes(downloadService) }
+            }
+
+            val response = client.get("/api/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val body = response.bodyAsText()
+            assertContains(body, "\"formats\":[\"GML\",\"SOSI\"]")
+            assertContains(body, "\"defaultArea\":{\"code\":\"42\",\"name\":\"Agder\",\"type\":\"fylke\"}")
+            assertContains(body, "\"defaultProjection\":{\"code\":\"25832\"")
         }
 }
