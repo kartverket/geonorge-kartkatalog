@@ -9,8 +9,8 @@ import {
   removeItemsFromCart,
 } from "@/app/_components/addToCart/cartStorage";
 import { useAreAnyItemsInCart } from "@/app/_components/addToCart/useCart";
-import type { ProductMetadata } from "@/lib/schemas/product";
 import { type Location, trackClick } from "@/posthog/posthog";
+import type { DatasetCardProps } from "../DatasetCard/DatasetCard";
 
 export default function AddSeriesToCartButton({
   item,
@@ -20,9 +20,7 @@ export default function AddSeriesToCartButton({
   size,
   location,
 }: {
-  item: ProductMetadata & {
-    uuid: string;
-  };
+  item: Omit<DatasetCardProps, "viewMode">;
   downloadableItems: DownloadItem[];
   className?: string;
   variant?: ButtonProps["variant"];
