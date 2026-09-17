@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.search
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.JsonPrimitive
+import no.kartverket.geonorge.kartkatalog.distribution.resolveLinkedDatasetExistence
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
@@ -158,6 +159,7 @@ private fun isJunkFacetValue(
 
 private fun SolrDocument.toSearchResultItem(): SearchResultItem {
     val access = resolveAccess(dataaccess, otherconstraintsaccess, accessconstraint)
+    val hasDataSetsLinked = resolveLinkedDatasetExistence()
     val mapCapability = resolveMapCapability()
 
     return SearchResultItem(
