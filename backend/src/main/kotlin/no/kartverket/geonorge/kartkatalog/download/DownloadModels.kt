@@ -24,3 +24,9 @@ data class DownloadOrderRequest(
 data class DownloadOrderResult(
     val responses: List<NedlastingOrderResponse>,
 )
+
+data class DownloadOptions(
+    val formats: List<String>,
+    val defaultArea: NedlastingArea?,
+    val defaultProjection: NedlastingProjection?,
+)

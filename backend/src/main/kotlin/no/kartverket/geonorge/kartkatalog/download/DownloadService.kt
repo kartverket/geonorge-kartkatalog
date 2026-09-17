@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.download
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingArea
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderLine
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderRequest
@@ -47,6 +48,24 @@ class DownloadService(
                 }.awaitAll()
 
             DownloadOrderResult(responses)
+        }
+
+    suspend fun getOptions(uuid: String): DownloadOptions =
+        coroutineScope {
+            val formatsDeferred = async { nedlastingClient.getFormats(uuid) }
+            val areasDeferred = async { nedlastingClient.getAreas(uuid) }
+
+            val formats = formatsDeferred.await()
+            val areas = areasDeferred.await()
+
+            DownloadOptions(
+                formats = formats.map { it.name },
+                defaultArea =
+                    areas.firstOrNull()?.let {
+                        NedlastingArea(code = it.code, name = it.name, type = it.type)
+                    },
+                defaultProjection = formats.firstOrNull()?.projections?.firstOrNull(),
+            )
         }
 
     private suspend fun resolveOrderLine(item: DownloadOrderItem): ResolvedOrderLine {

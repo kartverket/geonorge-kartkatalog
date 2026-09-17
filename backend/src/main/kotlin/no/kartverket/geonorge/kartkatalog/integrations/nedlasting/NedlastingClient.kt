@@ -9,6 +9,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 
@@ -37,6 +39,31 @@ class NedlastingClient(
         } catch (e: Exception) {
             log.error("Failed to parse Nedlasting capabilities response from {}", path, e)
             throw NedlastingException("Failed to parse Nedlasting capabilities response from $path", e)
+        }
+    }
+
+    suspend fun getFormats(uuid: String): List<NedlastingFormatCodelistEntry> =
+        fetchList("/api/codelists/format/$uuid", NedlastingFormatCodelistEntry.serializer())
+
+    suspend fun getAreas(uuid: String): List<NedlastingAreaCodelistEntry> =
+        fetchList("/api/codelists/area/$uuid", NedlastingAreaCodelistEntry.serializer())
+
+    private suspend fun <T> fetchList(
+        path: String,
+        serializer: KSerializer<T>,
+    ): List<T> {
+        val response = getResponse(path)
+
+        if (!response.status.isSuccess()) {
+            log.warn("Nedlasting request to {} failed with status: {}", path, response.status)
+            throw NedlastingException("Nedlasting request to $path failed with status ${response.status}")
+        }
+
+        return try {
+            json.decodeFromString(ListSerializer(serializer), response.bodyAsText())
+        } catch (e: Exception) {
+            log.error("Failed to parse Nedlasting response from {}", path, e)
+            throw NedlastingException("Failed to parse Nedlasting response from $path", e)
         }
     }
 
