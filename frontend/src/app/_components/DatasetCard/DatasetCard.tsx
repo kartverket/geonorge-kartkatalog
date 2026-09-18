@@ -37,7 +37,7 @@ export type DatasetCardProps = {
   hierarchyLevel: string | null;
   viewMode?: "grid" | "list";
   analyticsLocation?: Location;
-  downloadableSeriesMembers: DownloadItem [] | null;
+  downloadableSeriesMembers: DownloadItem[] | null;
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -135,23 +135,11 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         <div className={styles.buttonGroupContainer}>
           {p.downloadableSeriesMembers &&
             p.downloadableSeriesMembers.length > 0 && (
-              <>
-                <AddSeriesToCartButton
-                  item={p}
-                  downloadableItems={p.downloadableSeriesMembers}
-                  location={"header"}
-                />
-                <CardActionButton
-                  onClick={() => {
-                    console.log(
-                      "Series has downloads: ",
-                      p.downloadableSeriesMembers,
-                    );
-                  }}
-                  label={"Last ned serie"}
-                  icon={undefined}
-                ></CardActionButton>
-              </>
+              <AddSeriesToCartButton
+                item={p}
+                downloadableItems={p.downloadableSeriesMembers}
+                location={"header"}
+              />
             )}
           {applicationUrl && (
             <CardActionButton
