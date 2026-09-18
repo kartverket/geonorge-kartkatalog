@@ -3,9 +3,9 @@ import { Footer } from "@/components/Footer/Footer";
 import { Header } from "@/components/Header/Header";
 import { LegacyBanner } from "@/components/LegacyBanner/LegacyBanner";
 import "./globals.css";
-import { Suspense } from "react";
 import { CookieYesProvider } from "@cookieyes/nextjs";
 import { getServerConsent } from "@cookieyes/nextjs/server";
+import { Suspense } from "react";
 import { CookieYesRoot } from "@/components/consent-manager";
 import { isBeta } from "@/lib/basePath";
 export const metadata: Metadata = {
