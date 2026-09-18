@@ -65,6 +65,7 @@ export function DownloadCartCard({
         setOptions(data);
         setSelectedFormat(data.formats[0] ?? null);
       })
+      .catch(() => undefined)
       .finally(() => {
         if (!cancelled) setIsLoadingOptions(false);
       });
