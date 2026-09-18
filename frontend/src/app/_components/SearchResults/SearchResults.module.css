@@ -76,6 +76,17 @@
   gap: 0.5rem;
 }
 
+.toTopButton {
+  align-self: center;
+  display: none;
+}
+
+@media (max-width: 799px) {
+  .toTopButton {
+    display: block;
+  }
+}
+
 .mobileFilterToggle {
   display: none;
 }
