@@ -29,7 +29,7 @@ export default function AddSeriesToCartButton({
   location: Location;
 }) {
   const addableItems = downloadableItems.filter(
-    (i) => i.accessIsOpendata && !i.accessIsRestricted,
+    (i) => i.accessType === "OPEN_DATA",
   );
   const areItemsInCart = useAreAllItemsInCart(addableItems);
 

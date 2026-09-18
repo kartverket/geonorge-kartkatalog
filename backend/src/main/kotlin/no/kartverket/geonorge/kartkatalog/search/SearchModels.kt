@@ -100,10 +100,15 @@ data class SearchResultItem(
     val hierarchyLevel: String? = null,
 )
 
+enum class AccessType {
+    OPEN_DATA,
+    RESTRICTED,
+    OTHER,
+}
+
 @Serializable
 data class DownloadItem(
-    val accessIsOpendata: Boolean,
-    val accessIsRestricted: Boolean,
+    val accessType: AccessType,
     val distributionUrl: String? = null,
     val name: String? = null,
     val organizationName: String? = null,
@@ -112,8 +117,12 @@ data class DownloadItem(
     companion object {
         fun fromRelatedServiceReference(ref: RelatedServiceReference): DownloadItem =
             DownloadItem(
-                accessIsOpendata = ref.accessIsOpendata,
-                accessIsRestricted = ref.accessIsRestricted,
+                accessType =
+                    when {
+                        ref.accessIsOpendata -> AccessType.OPEN_DATA
+                        ref.accessIsRestricted -> AccessType.RESTRICTED
+                        else -> AccessType.OTHER
+                    },
                 distributionUrl = ref.distributionUrl,
                 name = ref.name,
                 organizationName = ref.organizationName,
