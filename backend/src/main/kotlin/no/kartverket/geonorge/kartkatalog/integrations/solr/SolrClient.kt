@@ -109,8 +109,13 @@ class SolrClient(
                     ?: return@mapNotNull null
             RelatedServiceReference(
                 uuid = uuid,
+                name = parts.getOrNull(1),
+                organizationName = parts.getOrNull(4),
                 protocol =
                     parts.getOrNull(6),
+                distributionUrl = parts.getOrNull(7),
+                accessIsOpendata = parts.getOrNull(14)?.lowercase()?.toBooleanStrictOrNull() ?: false,
+                accessIsRestricted = parts.getOrNull(15)?.lowercase()?.toBooleanStrictOrNull() ?: false,
             )
         }
 }
