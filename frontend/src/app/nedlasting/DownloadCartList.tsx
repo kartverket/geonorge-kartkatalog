@@ -31,7 +31,10 @@ export function DownloadCartList() {
     .filter(([uuid]) => cardUuids.has(uuid))
     .map(([, item]) => item)
     .filter((item): item is DownloadOrderItemInput => item !== null);
-  const canOrder = selectedItems.length > 0 && !isOrdering;
+  const canOrder =
+    cards.length === orderItems.length &&
+    selectedItems.length === cards.length &&
+    !isOrdering;
 
   return (
     <div className={styles.pageInner}>
