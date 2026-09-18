@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { cacheLife } from "next/cache";
+import {connection} from "next/server";
 import { getSearchResults } from "@/app/api";
 import { basePath } from "@/lib/basePath";
 
@@ -40,6 +41,7 @@ async function getMetadataUrls(): Promise<MetadataRoute.Sitemap> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  await connection();
   const staticUrls: MetadataRoute.Sitemap = [{ url: siteUrl() }];
 
   return [...staticUrls, ...(await getMetadataUrls())];
