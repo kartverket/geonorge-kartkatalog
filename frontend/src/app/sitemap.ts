@@ -32,6 +32,7 @@ async function getMetadataUrls(): Promise<MetadataRoute.Sitemap> {
   return [firstPage, ...remainingPages].flatMap((page) =>
     page.results.map(({ uuid }) => ({
       url: siteUrl(
+        // litt ekstra logikk for å få med oss riktig presentasjon av met.inst-id-er
         `/metadata/${encodeURIComponent(uuid).replaceAll("%3A", ":")}`,
       ),
     })),
