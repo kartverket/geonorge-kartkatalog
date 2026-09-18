@@ -9,3 +9,11 @@
 .toTopButton {
   align-self: center;
 }
+
+
+@media (max-width: 799px) {
+  .toTopButton {
+    display: none;
+  }
+  
+}
