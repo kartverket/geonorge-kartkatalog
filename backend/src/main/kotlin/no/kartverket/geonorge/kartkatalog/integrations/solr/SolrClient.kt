@@ -114,8 +114,8 @@ class SolrClient(
                 protocol =
                     parts.getOrNull(6),
                 distributionUrl = parts.getOrNull(7),
-                accessIsOpendata = parts.getOrNull(14)?.toBooleanStrictOrNull() ?: false,
-                accessIsRestricted = parts.getOrNull(15)?.toBooleanStrictOrNull() ?: false,
+                accessIsOpendata = parts.getOrNull(14)?.lowercase()?.toBooleanStrictOrNull() ?: false,
+                accessIsRestricted = parts.getOrNull(15)?.lowercase()?.toBooleanStrictOrNull() ?: false,
             )
         }
 }
