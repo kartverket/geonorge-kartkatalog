@@ -64,3 +64,11 @@ export function useAreAnyItemsInCart(items: DownloadItem[]): boolean {
     getServerSnapshot,
   );
 }
+
+export function useAreAllItemsInCart(items: DownloadItem[]): boolean {
+  return useSyncExternalStore(
+    subscribeToCart,
+    () => items.every((item) => isItemInCart(item.uuid)),
+    getServerSnapshot,
+  );
+}
