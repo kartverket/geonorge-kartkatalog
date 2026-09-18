@@ -9,16 +9,6 @@
   --dsc-card-content-margin-block: 0;
 }
 
-.productCard:hover:not(:has(:global(.ds-button):hover)) {
-  background: var(--ds-color-neutral-surface-hover);
-  transform: translateY(-0.25rem) scale(1.02);
-  cursor: pointer;
-}
-
-.productCard:has(.listItemTitle a:focus-visible) {
-  box-shadow: 0 0 0 0.1875rem var(--ds-color-accent-border-strong);
-}
-
 .contentWrapper {
   width: 100%;
   padding: var(--ds-size-4) var(--ds-size-4) 0;
@@ -74,25 +64,6 @@
   white-space: nowrap;
 }
 
-.listItemTitle a {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.listItemTitle a::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  z-index: 0;
-}
-
-.listItemTitle a:focus-visible {
-  outline: none;
-}
-
 .buttonGroupContainer {
   display: flex;
   flex-wrap: nowrap;
@@ -119,10 +90,6 @@
 
 .gridMode .thumbnailContainer {
   height: 9rem;
-}
-
-.gridMode .listItemTitle {
-  display: block;
 }
 
 .gridMode .buttonGroupContainer {
@@ -174,13 +141,6 @@
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
-  }
-
-  .listMode .listItemTitle {
-    display: block;
-    font-size: 1rem;
-    margin-bottom: 0.3125rem;
-    min-height: 3.2em;
   }
 
   .listMode .contentWrapper {
