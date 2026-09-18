@@ -1,6 +1,6 @@
 "use client";
 
-import {Button, Card, Heading, Tag} from "@kv-designsystem/react";
+import { Button, Card, Heading, Tag } from "@kv-designsystem/react";
 import {
   CheckmarkIcon,
   ExternalLinkIcon,

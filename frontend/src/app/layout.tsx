@@ -5,9 +5,9 @@ import { LegacyBanner } from "@/components/LegacyBanner/LegacyBanner";
 import "./globals.css";
 import { CookieYesProvider } from "@cookieyes/nextjs";
 import { getServerConsent } from "@cookieyes/nextjs/server";
+import { Suspense } from "react";
 import { CookieYesRoot } from "@/components/consent-manager";
 import { isBeta } from "@/lib/basePath";
-
 export const metadata: Metadata = {
   title: {
     template: "%s | Kartkatalogen",
@@ -37,7 +37,9 @@ export default async function RootLayout({
         <CookieYesProvider regulation="GDPR" initialConsent={initialConsent}>
           <CookieYesRoot />
         </CookieYesProvider>
-        <Header />
+        <Suspense fallback={null}>
+          <Header />
+        </Suspense>
         {isBeta && <LegacyBanner />}
         {children}
         <Footer />
