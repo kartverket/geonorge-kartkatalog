@@ -84,7 +84,7 @@ class SearchService(
                             when (facetField) {
                                 "type" -> translateType(facetName)
                                 "area" -> fylkeNames[facetName]
-                                "nationalinitiative" -> NATIONAL_INITIATIVE_LABELS[facetName]
+                                "nationalinitiative" -> nationalInitiativeLabels[facetName]
                                 else -> null
                             },
                         category =
@@ -100,7 +100,7 @@ class SearchService(
         return when (facetField) {
             "area" -> values.sortedWith(compareBy(norwegianCollator) { it.label ?: it.name })
             else -> {
-                val order = FACET_VALUE_ORDER[facetField]
+                val order = facetValueOrder[facetField]
                 if (order != null) values.sortedBy { order[it.name] ?: Int.MAX_VALUE } else values
             }
         }
@@ -111,7 +111,7 @@ class SearchService(
 
     private fun orderOf(vararg codes: String): Map<String, Int> = codes.withIndex().associate { (i, code) -> code to i }
 
-    private val NATIONAL_INITIATIVE_LABELS: Map<String, String> =
+    private val nationalInitiativeLabels: Map<String, String> =
         linkedMapOf(
             "Det offentlige kartgrunnlaget" to "Det offentlige kartgrunnlaget",
             "Geodata" to "Geografiske data",
@@ -132,7 +132,7 @@ class SearchService(
             "ØkologiskGrunnkart" to "Økologisk grunnkart",
         )
 
-    private val FACET_VALUE_ORDER: Map<String, Map<String, Int>> =
+    private val facetValueOrder: Map<String, Map<String, Int>> =
         mapOf(
             "type" to orderOf("dataset", "service", "series", "servicelayer", "software"),
             "theme" to
@@ -151,7 +151,7 @@ class SearchService(
                     "OGC Catalogue Service for the Web", "OPeNDAP", "OGC API-Coverages",
                     "Webservice", "Atom Feed", "Ingen online tilgang",
                 ),
-            "nationalinitiative" to orderOf(*NATIONAL_INITIATIVE_LABELS.keys.toTypedArray()),
+            "nationalinitiative" to orderOf(*nationalInitiativeLabels.keys.toTypedArray()),
         )
 
     private fun isJunkFacetValue(
@@ -161,7 +161,7 @@ class SearchService(
         when (facetField) {
             "theme" -> value.startsWith("http")
             "area" -> value != "Norge" && value != "Havområder" && !value.matches(Regex("^0/\\d+$"))
-            "DistributionProtocols" -> value !in FACET_VALUE_ORDER.getValue("DistributionProtocols")
+            "DistributionProtocols" -> value !in facetValueOrder.getValue("DistributionProtocols")
             else -> false
         }
 
