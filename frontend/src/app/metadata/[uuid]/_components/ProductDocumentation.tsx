@@ -141,7 +141,7 @@ function StatusTag({ status }: { status?: string | null }) {
       data-color={
         status.toLocaleLowerCase() === "gyldig" ||
         status.toLocaleLowerCase() === "sosi godkjent"
-          ? "accent"
+          ? "success"
           : "warning"
       }
       data-size="sm"
