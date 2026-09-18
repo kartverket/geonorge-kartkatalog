@@ -8,12 +8,11 @@
 
 .toTopButton {
   align-self: center;
+  display: block;
 }
-
 
 @media (max-width: 799px) {
   .toTopButton {
     display: none;
   }
-  
 }

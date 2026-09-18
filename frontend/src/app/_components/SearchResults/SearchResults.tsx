@@ -14,6 +14,7 @@ import { usePersistedViewMode } from "./usePersistedViewMode";
 import { ViewToggle } from "./ViewToggle";
 import type { ViewMode } from "./viewMode";
 import { Sidebar } from "./Sidebar";
+import { ToTopButton } from "./ToTopButton";
 
 type SearchResultsProps = {
   initialViewMode?: ViewMode;
@@ -138,6 +139,9 @@ export function SearchResults({
                   Alle treff er vist.
                 </Paragraph>
               ) : null}
+              <div className={styles.toTopButton}>
+                <ToTopButton />
+              </div>
             </div>
           </div>
         </div>
