@@ -118,9 +118,11 @@ export function DownloadCartList() {
     [],
   );
 
-  const selectedItems = Object.values(selections).filter(
-    (item): item is DownloadOrderItemInput => item !== null,
-  );
+  const cardUuids = new Set(cards.map((card) => card.uuid));
+  const selectedItems = Object.entries(selections)
+    .filter(([uuid]) => cardUuids.has(uuid))
+    .map(([, item]) => item)
+    .filter((item): item is DownloadOrderItemInput => item !== null);
   const canOrder = selectedItems.length > 0 && !isOrdering;
 
   async function handleOrder() {
