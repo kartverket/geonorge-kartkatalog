@@ -16,8 +16,7 @@ const SearchFacetSchema = z.object({
 });
 
 const DownloadItemSchema = z.object({
-  accessIsOpendata: z.boolean(),
-  accessIsRestricted: z.boolean(),
+  accessType: z.string(),
   distributionUrl: z.string().nullable(),
   name: z.string(),
   organizationName: z.string().nullable(),
