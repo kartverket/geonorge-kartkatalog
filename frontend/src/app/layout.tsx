@@ -16,6 +16,8 @@ export const metadata: Metadata = {
   description: "Kartkatalogen | Geonorge",
 };
 
+export const instant = false;
+
 export default async function RootLayout({
   children,
 }: Readonly<{
