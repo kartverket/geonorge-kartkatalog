@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import {
-  type DownloadOrderItemInput,
-  HttpError,
-  orderDownload,
-} from "@/app/api";
+import { HttpError, orderDownload } from "@/app/api";
+import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 
 export async function POST(request: Request) {
   const body: { email: string; items: DownloadOrderItemInput[] } =

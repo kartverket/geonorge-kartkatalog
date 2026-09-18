@@ -60,3 +60,14 @@ export function parseDownloadOrderResult(body: unknown): DownloadOrderResult {
   }
   return res.data;
 }
+
+export type DownloadOrderItemInput = {
+  uuid: string;
+  areas?: Array<{ code: string; name: string; type?: string | null }>;
+  projections?: Array<{
+    code: string;
+    name: string;
+    codespace?: string | null;
+  }>;
+  formats?: Array<{ name: string }>;
+};

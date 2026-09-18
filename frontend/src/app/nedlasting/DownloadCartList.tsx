@@ -2,7 +2,7 @@
 
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
 import { useCallback, useEffect, useState } from "react";
-import type { DownloadOrderItemInput } from "@/app/api";
+import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import { basePath } from "@/lib/basePath";
 import type { DownloadOrderResult } from "@/lib/schemas/download";

@@ -7,7 +7,7 @@ import {
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
 import { useEffect, useId, useState } from "react";
-import type { DownloadOrderItemInput } from "@/app/api";
+import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import {
   AccessStateTag,

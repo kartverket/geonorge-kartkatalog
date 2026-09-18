@@ -28,6 +28,7 @@ import {
   parseDownloadOptions,
   parseDownloadOrderResult,
 } from "@/lib/schemas/download";
+import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
@@ -268,17 +269,6 @@ export async function getDownloadOptions(
   const body = await fetchJson(url, { method: "GET" });
   return parseDownloadOptions(body);
 }
-
-export type DownloadOrderItemInput = {
-  uuid: string;
-  areas?: Array<{ code: string; name: string; type?: string | null }>;
-  projections?: Array<{
-    code: string;
-    name: string;
-    codespace?: string | null;
-  }>;
-  formats?: Array<{ name: string }>;
-};
 
 export async function orderDownload({
   email,
