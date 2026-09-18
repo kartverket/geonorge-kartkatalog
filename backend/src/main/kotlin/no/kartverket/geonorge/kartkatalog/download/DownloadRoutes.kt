@@ -1,8 +1,10 @@
 package no.kartverket.geonorge.kartkatalog.download
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
@@ -34,6 +36,13 @@ data class DownloadOrderResponseDto(
     val orders: List<NedlastingOrderResponse>,
 )
 
+@Serializable
+data class DownloadOptionsDto(
+    val formats: List<String>,
+    val defaultArea: NedlastingArea?,
+    val defaultProjection: NedlastingProjection?,
+)
+
 fun Route.downloadRoutes(downloadService: DownloadService) {
     route("/api/download") {
         post("/order") {
@@ -59,6 +68,23 @@ fun Route.downloadRoutes(downloadService: DownloadService) {
 
             val result = downloadService.order(request)
             call.respond(DownloadOrderResponseDto(result.responses))
+        }
+
+        get("/options/{uuid}") {
+            val uuid =
+                call.parameters["uuid"]?.takeIf {
+                    it.isNotBlank()
+                }
+                    ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
+
+            val options = downloadService.getOptions(uuid)
+            call.respond(
+                DownloadOptionsDto(
+                    formats = options.formats,
+                    defaultArea = options.defaultArea,
+                    defaultProjection = options.defaultProjection,
+                ),
+            )
         }
     }
 }

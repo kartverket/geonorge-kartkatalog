@@ -84,3 +84,16 @@ data class NedlastingOrderFile(
     val metadataUuid: String? = null,
     val metadataName: String? = null,
 )
+
+@Serializable
+data class NedlastingFormatCodelistEntry(
+    val name: String,
+    val projections: List<NedlastingProjection> = emptyList(),
+)
+
+@Serializable
+data class NedlastingAreaCodelistEntry(
+    val type: String? = null,
+    val name: String,
+    val code: String,
+)

@@ -22,6 +22,13 @@ import {
   parseTegnereglerItem,
   type TegnereglerItem,
 } from "@/lib/schemas/tegneregler";
+import {
+  type DownloadOptions,
+  type DownloadOrderResult,
+  parseDownloadOptions,
+  parseDownloadOrderResult,
+} from "@/lib/schemas/download";
+import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
@@ -252,4 +259,29 @@ export async function getSearchResults({
   const url = `${API_BASE}/api/search?${params.toString()}`;
   const body = await fetchJson(url, { method: "GET" });
   return parseSearchResult(body);
+}
+
+export async function getDownloadOptions(
+  uuid: string,
+): Promise<DownloadOptions> {
+  if (!uuid) throw new Error("uuid is required");
+  const url = `${API_BASE}/api/download/options/${encodeURIComponent(uuid)}`;
+  const body = await fetchJson(url, { method: "GET" });
+  return parseDownloadOptions(body);
+}
+
+export async function orderDownload({
+  email,
+  items,
+}: {
+  email: string;
+  items: DownloadOrderItemInput[];
+}): Promise<DownloadOrderResult> {
+  const url = `${API_BASE}/api/download/order`;
+  const body = await fetchJson(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, items }),
+  });
+  return parseDownloadOrderResult(body);
 }
