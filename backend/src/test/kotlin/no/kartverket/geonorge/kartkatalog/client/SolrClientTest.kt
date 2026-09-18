@@ -214,7 +214,6 @@ class SolrClientTest {
             }
         }
 
-
     @Test
     fun `parse related service good`() {
         val engine = MockEngine { respond(content = "", status = HttpStatusCode.InternalServerError) }
@@ -227,9 +226,7 @@ class SolrClientTest {
         val isOpen = true
         val isClose = false
 
-
-
-        val datasetSerivceString = "${rightUuid}|${serviceName}|9bc064e3-6c34-4c3a-8421-00290052e9c0|dataset|Kartverket||${protocol}|${distUri}|Basis geodata|https://register.dev.geonorge.no/data/organizations/971040238_Kartverket_liten.png|https://editor.geonorge.no/thumbnails/08ca6168-1054-4f1d-90b9-83a99aabc4a8_20200710123750_medium_adm1het.png|no restrictions|http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations||${isOpen}|${isClose}"
+        val datasetSerivceString = "$rightUuid|$serviceName|9bc064e3-6c34-4c3a-8421-00290052e9c0|dataset|Kartverket||$protocol|$distUri|Basis geodata|https://register.dev.geonorge.no/data/organizations/971040238_Kartverket_liten.png|https://editor.geonorge.no/thumbnails/08ca6168-1054-4f1d-90b9-83a99aabc4a8_20200710123750_medium_adm1het.png|no restrictions|http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations||$isOpen|$isClose"
         val parsedServiceDetails = solrClient.parseDatasetServices(listOf(datasetSerivceString))
 
         assertEquals(1, parsedServiceDetails.size)
@@ -240,6 +237,5 @@ class SolrClientTest {
         assertEquals(distUri, parsedService.distributionUrl)
         assertEquals(isOpen, parsedService.accessIsOpendata)
         assertEquals(isClose, parsedService.accessIsRestricted)
-
     }
 }

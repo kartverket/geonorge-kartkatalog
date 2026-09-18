@@ -108,8 +108,8 @@ data class DownloadItem(
     val name: String? = null,
     val organizationName: String? = null,
     val uuid: String,
-){
-    companion object{
+) {
+    companion object {
         fun fromRelatedServiceReference(ref: RelatedServiceReference): DownloadItem =
             DownloadItem(
                 accessIsOpendata = ref.accessIsOpendata,
@@ -120,7 +120,6 @@ data class DownloadItem(
                 uuid = ref.uuid,
             )
     }
-
 }
 
 internal fun canonicalFacetName(name: String): String? =
