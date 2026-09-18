@@ -8,7 +8,7 @@ import {
   type DownloadItem,
   removeItemsFromCart,
 } from "@/app/_components/addToCart/cartStorage";
-import { useAreAnyItemsInCart } from "@/app/_components/addToCart/useCart";
+import { useAreAllItemsInCart } from "@/app/_components/addToCart/useCart";
 import { type Location, trackClick } from "@/posthog/posthog";
 import type { DatasetCardProps } from "../DatasetCard/DatasetCard";
 
@@ -31,7 +31,7 @@ export default function AddSeriesToCartButton({
   const addableItems = downloadableItems.filter(
     (i) => i.accessIsOpendata && !i.accessIsRestricted,
   );
-  const areItemsInCart = useAreAnyItemsInCart(addableItems);
+  const areItemsInCart = useAreAllItemsInCart(addableItems);
 
   const hasDownloadableItems = addableItems.some(
     (item) => item.uuid && item.distributionUrl,
