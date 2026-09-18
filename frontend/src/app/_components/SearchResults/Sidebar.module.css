@@ -1,0 +1,11 @@
+.sidebarWrapper {
+  height: auto;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.toTopButton {
+  align-self: center;
+}
