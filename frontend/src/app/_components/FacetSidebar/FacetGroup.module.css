@@ -18,9 +18,9 @@
   gap: var(--ds-size-2);
 }
 
-.checkboxes input[type=checkbox]:checked {
-    background-color: var(--ds-color-accent-base-active);
-    border-color: var(--ds-color-accent-base-active);
+.checkboxes input[type="checkbox"]:checked {
+  background-color: var(--ds-color-accent-base-active);
+  border-color: var(--ds-color-accent-base-active);
 }
 
 .expandableRow {
