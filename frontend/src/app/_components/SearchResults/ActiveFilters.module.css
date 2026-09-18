@@ -18,6 +18,5 @@
 }
 
 .filterChip:hover {
-    background: var(--ds-color-border-subtle);
-
+  background: var(--ds-color-border-subtle);
 }

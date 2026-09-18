@@ -1,17 +1,20 @@
 "use client";
 
-import { Button, Card, Heading, Tag } from "@kv-designsystem/react";
+import { Button, Card, Heading, Select, Tag } from "@kv-designsystem/react";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
+import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import {
   AccessStateTag,
   type AccessTagContext,
 } from "@/components/AccessStateTag/AccessStateTag";
+import { basePath } from "@/lib/basePath";
+import type { DownloadOptions } from "@/lib/schemas/download";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadCartCard.module.css";
 
@@ -22,6 +25,10 @@ export type DownloadCartCardProps = {
   typeTranslated: string | null;
   accessState: "restricted" | "open" | "protected" | null;
   distributionUrl: string;
+  onSelectionChange?: (
+    uuid: string,
+    item: DownloadOrderItemInput | null,
+  ) => void;
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -38,8 +45,50 @@ export function DownloadCartCard({
   typeTranslated,
   accessState,
   distributionUrl,
+  onSelectionChange,
 }: DownloadCartCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [options, setOptions] = useState<DownloadOptions | null>(null);
+  const [selectedFormat, setSelectedFormat] = useState<string | null>(null);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+
+  useEffect(() => {
+    if (!expanded || options || isLoadingOptions) return;
+
+    let cancelled = false;
+    setIsLoadingOptions(true);
+
+    fetch(`${basePath}/api/download/options/${encodeURIComponent(uuid)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: DownloadOptions | null) => {
+        if (cancelled || !data) return;
+        setOptions(data);
+        setSelectedFormat(data.formats[0] ?? null);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (!cancelled) setIsLoadingOptions(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [expanded, options, uuid]);
+
+  useEffect(() => {
+    if (!options || !selectedFormat) {
+      onSelectionChange?.(uuid, null);
+      return;
+    }
+
+    onSelectionChange?.(uuid, {
+      uuid,
+      formats: [{ name: selectedFormat }],
+      areas: options.defaultArea ? [options.defaultArea] : [],
+      projections: options.defaultProjection ? [options.defaultProjection] : [],
+    });
+  }, [uuid, options, selectedFormat, onSelectionChange]);
+
   const detailsId = useId();
   const accessContext =
     TYPE_TO_ACCESS_CONTEXT[typeTranslated ?? ""] ?? "datasett";
@@ -59,9 +108,26 @@ export function DownloadCartCard({
           {title}
         </Heading>
         {expanded ? (
-          <p id={detailsId} className={styles.expandedContent}>
-            ekspandert
-          </p>
+          <div id={detailsId} className={styles.expandedContent}>
+            {isLoadingOptions ? (
+              <p>Henter formater...</p>
+            ) : options ? (
+              <Select
+                aria-label="Velg format"
+                width="auto"
+                value={selectedFormat ?? ""}
+                onChange={(e) => setSelectedFormat(e.target.value)}
+              >
+                {options.formats.map((format) => (
+                  <Select.Option key={format} value={format}>
+                    {format}
+                  </Select.Option>
+                ))}
+              </Select>
+            ) : (
+              <p>Kunne ikke hente formater for dette datasettet.</p>
+            )}
+          </div>
         ) : null}
       </div>
 
