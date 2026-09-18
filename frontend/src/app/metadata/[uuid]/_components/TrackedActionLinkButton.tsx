@@ -18,11 +18,10 @@ export function TrackedActionLinkButton({
   return (
     <a
       data-variant="secondary"
-      data-color="neutral"
       target="_blank"
       rel="noreferrer"
       href={href}
-      className={`ds-button ${styles.actionButton}`}
+      className={styles.actionButton}
       onClick={() => trackClick(eventName, LOCATIONS.MetadataPage, { title })}
     >
       {icon}

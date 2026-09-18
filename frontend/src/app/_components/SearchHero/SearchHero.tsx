@@ -83,7 +83,7 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
                 </ul>
               ) : null}
             </div>
-            <Search.Button data-color={"neutral"} />
+            <Search.Button variant="primary" />
           </div>
         </form>
       </div>

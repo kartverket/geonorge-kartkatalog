@@ -56,7 +56,6 @@ export default function AddToCartButton({
 
   return (
     <Button
-      data-color="neutral"
       variant={variant}
       data-size={size}
       className={className}
