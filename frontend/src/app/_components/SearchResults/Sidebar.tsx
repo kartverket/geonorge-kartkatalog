@@ -18,7 +18,7 @@ export const Sidebar = ({ facets }: { facets: SearchResult["facets"] }) => {
         <FacetSidebar facets={facets} />
         <Button
           variant="tertiary"
-          color="secondary"
+          data-color="info"
           className={styles.toTopButton}
           onClick={onUpButtonClick}
         >
