@@ -7,14 +7,16 @@ import {
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
 import { useEffect, useId, useState } from "react";
-import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import {
   AccessStateTag,
   type AccessTagContext,
 } from "@/components/AccessStateTag/AccessStateTag";
 import { basePath } from "@/lib/basePath";
-import type { DownloadOptions } from "@/lib/schemas/download";
+import type {
+  DownloadOptions,
+  DownloadOrderItemInput,
+} from "@/lib/schemas/download";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadCartCard.module.css";
 
@@ -73,7 +75,7 @@ export function DownloadCartCard({
     return () => {
       cancelled = true;
     };
-  }, [expanded, options, uuid]);
+  }, [expanded, options, isLoadingOptions, uuid]);
 
   useEffect(() => {
     if (!options || !selectedFormat) {
@@ -95,77 +97,8 @@ export function DownloadCartCard({
 
   return (
     <Card data-color="neutral" className={styles.card}>
-      <div className={styles.content}>
-        {typeTranslated ? (
-          <div className={styles.badgeRow}>
-            <AccessStateTag accessState={accessState} context={accessContext} />
-            <Tag data-color="neutral" data-size="sm" className={styles.typeTag}>
-              {organization ?? typeTranslated}
-            </Tag>
-          </div>
-        ) : null}
-        <Heading level={3} data-size={"xs"}>
-          {title}
-        </Heading>
-        {expanded ? (
-          <div id={detailsId} className={styles.expandedContent}>
-            {isLoadingOptions ? (
-              <p>Henter formater...</p>
-            ) : options ? (
-              <Select
-                aria-label="Velg format"
-                width="auto"
-                value={selectedFormat ?? ""}
-                onChange={(e) => setSelectedFormat(e.target.value)}
-              >
-                {options.formats.map((format) => (
-                  <Select.Option key={format} value={format}>
-                    {format}
-                  </Select.Option>
-                ))}
-              </Select>
-            ) : (
-              <p>Kunne ikke hente formater for dette datasettet.</p>
-            )}
-          </div>
-        ) : null}
-      </div>
-
-      <div className={styles.actions}>
-        <Button
-          className={styles.productPageButton}
-          asChild
-          variant="secondary"
-          data-size={"sm"}
-        >
-          <a
-            href={`/metadata/${uuid}`}
-            onClick={() =>
-              trackClick("open-dataset-card", LOCATIONS.DownloadPage, {
-                datasetTitle: title,
-                datasetUuid: uuid,
-              })
-            }
-          >
-            <ExternalLinkIcon aria-hidden={"true"} />
-            <span>Vis produktsiden</span>
-          </a>
-        </Button>
-
-        <AddToCartButton
-          item={{
-            accessIsOpendata: accessState === "open",
-            accessIsRestricted: accessState === "restricted",
-            uuid,
-            name: title,
-            organizationName: organization,
-            distributionUrl,
-          }}
-          location={LOCATIONS.DownloadPage}
-          variant="secondary"
-          size="sm"
-          removeLabel="Fjern fra handlekurv"
-        />
+      <div className={styles.infoRow}>
+        <div className={styles.info}>
         <Button
           variant="tertiary"
           data-size="sm"
@@ -185,7 +118,78 @@ export function DownloadCartCard({
             <ChevronDownIcon aria-hidden />
           )}
         </Button>
+        <div className={styles.titleAndTags}>
+        {typeTranslated ? (
+          <div className={styles.badgeRow}>
+            <AccessStateTag accessState={accessState} context={accessContext} />
+            <Tag data-color="neutral" data-size="sm" className={styles.typeTag}>
+              {organization ?? typeTranslated}
+            </Tag>
+          </div>
+        ) : null}
+        <Heading level={3} data-size={"xs"}>
+          {title}
+        </Heading>
       </div>
+        </div>
+        <div className={styles.actions}>
+        <Button
+          className={styles.productPageButton}
+          asChild
+          variant="secondary"
+          data-size={"sm"}
+        >
+          <a
+            href={`/metadata/${uuid}`}
+            onClick={() =>
+              trackClick("open-dataset-card", LOCATIONS.DownloadPage, {
+                datasetTitle: title,
+                datasetUuid: uuid,
+              })
+            }
+          >
+            <ExternalLinkIcon aria-hidden={"true"} />
+            <span>Vis produktsiden</span>
+          </a>
+        </Button>
+        <AddToCartButton
+          item={{
+            accessIsOpendata: accessState === "open",
+            accessIsRestricted: accessState === "restricted",
+            uuid,
+            name: title,
+            organizationName: organization,
+            distributionUrl,
+          }}
+          location={LOCATIONS.DownloadPage}
+          variant="secondary"
+          size="sm"
+          removeLabel="Fjern fra handlekurv"
+        />
+        </div>
+      </div>
+      {expanded ? (
+        <div id={detailsId} className={styles.expandedContent}>
+          {isLoadingOptions ? (
+            <p>Henter formater...</p>
+          ) : options ? (
+            <Select
+              aria-label="Velg format"
+              width="auto"
+              value={selectedFormat ?? ""}
+              onChange={(e) => setSelectedFormat(e.target.value)}
+            >
+              {options.formats.map((format) => (
+                <Select.Option key={format} value={format}>
+                  {format}
+                </Select.Option>
+              ))}
+            </Select>
+          ) : (
+            <p>Kunne ikke hente formater for dette datasettet.</p>
+          )}
+        </div>
+      ) : null}
     </Card>
   );
 }
