@@ -49,14 +49,14 @@ export function DownloadOptionsForm({
     <div className={styles.selectionFields}>
       <div className={styles.selectionField}>
         <label className={styles.fieldLabel} htmlFor={areaId}>
-          Område
+          Geografisk område
         </label>
         <Select
           id={areaId}
           value={selectedAreaCode}
           onChange={(event) => onAreaChangeAction(event.target.value)}
         >
-          <Select.Option value="">Velg område</Select.Option>
+          <Select.Option value="">Velg geografisk område</Select.Option>
           {options.areas.map((area) => (
             <Select.Option key={area.code} value={area.code}>
               {area.name}
