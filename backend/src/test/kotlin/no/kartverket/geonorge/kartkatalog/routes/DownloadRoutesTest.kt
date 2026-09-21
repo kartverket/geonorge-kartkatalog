@@ -327,7 +327,13 @@ class DownloadRoutesTest {
 
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()
-            assertContains(body, "\"areas\":[{\"code\":\"42\",\"name\":\"Agder\",\"type\":\"fylke\"},{\"code\":\"32\",\"name\":\"Akershus\",\"type\":\"fylke\"}]")
+            assertContains(
+                body,
+                listOf(
+                    "\"areas\":[{\"code\":\"42\",\"name\":\"Agder\",\"type\":\"fylke\"},",
+                    "{\"code\":\"32\",\"name\":\"Akershus\",\"type\":\"fylke\"}]",
+                ).joinToString(separator = ""),
+            )
             assertContains(body, "\"formats\":[{\"name\":\"GML\",\"projections\":[{\"code\":\"25832\"")
             assertContains(body, "{\"name\":\"SOSI\",\"projections\":[{\"code\":\"25833\"")
         }
