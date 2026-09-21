@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Heading,
-  Select,
-  Tag,
-} from "@kv-designsystem/react";
+import { Button, Card, Heading, Tag } from "@kv-designsystem/react";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -22,11 +15,8 @@ import {
 import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadCartCard.module.css";
-import {
-  createDownloadOrderItem,
-  getAvailableFormats,
-  getAvailableProjections,
-} from "./downloadUtils";
+import { DownloadOptionsForm } from "./DownloadOptionsForm";
+import { createDownloadOrderItem } from "./downloadUtils";
 import { useDownloadOptions } from "./useDownloadOptions";
 
 export type DownloadCartCardProps = {
@@ -87,12 +77,8 @@ export function DownloadCartCard({
   ]);
 
   const detailsId = useId();
-  const areaId = useId();
-  const projectionId = useId();
   const accessContext =
     TYPE_TO_ACCESS_CONTEXT[typeTranslated ?? ""] ?? "datasett";
-  const projections = getAvailableProjections(options);
-  const availableFormats = getAvailableFormats(options, selectedProjectionCode);
 
   function toggleFormat(formatName: string) {
     setSelectedFormatNames((current) =>
@@ -100,6 +86,11 @@ export function DownloadCartCard({
         ? current.filter((name) => name !== formatName)
         : [...current, formatName],
     );
+  }
+
+  function changeProjection(projectionCode: string) {
+    setSelectedProjectionCode(projectionCode);
+    setSelectedFormatNames([]);
   }
 
   return (
@@ -184,73 +175,17 @@ export function DownloadCartCard({
       </div>
       {expanded ? (
         <div id={detailsId} className={styles.expandedContent}>
-          {isLoadingOptions ? (
-            <p>Henter nedlastingsvalg...</p>
-          ) : options ? (
-            <div className={styles.selectionFields}>
-              <div className={styles.selectionField}>
-                <label className={styles.fieldLabel} htmlFor={areaId}>
-                  Område
-                </label>
-                <Select
-                  id={areaId}
-                  value={selectedAreaCode}
-                  onChange={(event) => setSelectedAreaCode(event.target.value)}
-                >
-                  <Select.Option value="">Velg område</Select.Option>
-                  {options.areas.map((area) => (
-                    <Select.Option key={area.code} value={area.code}>
-                      {area.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </div>
-              <div className={styles.selectionField}>
-                <label className={styles.fieldLabel} htmlFor={projectionId}>
-                  Projeksjon
-                </label>
-                <Select
-                  id={projectionId}
-                  value={selectedProjectionCode}
-                  onChange={(event) => {
-                    setSelectedProjectionCode(event.target.value);
-                    setSelectedFormatNames([]);
-                  }}
-                >
-                  <Select.Option value="">Velg projeksjon</Select.Option>
-                  {projections.map((projection) => (
-                    <Select.Option
-                      key={projection.code}
-                      value={projection.code}
-                    >
-                      {projection.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </div>
-              {selectedProjectionCode ? (
-                <fieldset className={styles.formatField}>
-                  <legend className={styles.fieldLabel}>Format</legend>
-                  <div className={styles.formatOptions}>
-                    {availableFormats.map((format) => (
-                      <Checkbox
-                        key={format.name}
-                        label={format.name}
-                        value={format.name}
-                        checked={selectedFormatNames.includes(format.name)}
-                        onChange={() => toggleFormat(format.name)}
-                      />
-                    ))}
-                  </div>
-                </fieldset>
-              ) : null}
-            </div>
-          ) : (
-            <p>
-              Kunne ikke hente nedlastingsvalg for dette datasettet.
-              {optionsError ? ` ${optionsError}` : null}
-            </p>
-          )}
+          <DownloadOptionsForm
+            error={optionsError}
+            isLoading={isLoadingOptions}
+            onAreaChangeAction={setSelectedAreaCode}
+            onFormatToggleAction={toggleFormat}
+            onProjectionChangeAction={changeProjection}
+            options={options}
+            selectedAreaCode={selectedAreaCode}
+            selectedFormatNames={selectedFormatNames}
+            selectedProjectionCode={selectedProjectionCode}
+          />
         </div>
       ) : null}
     </Card>
