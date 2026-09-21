@@ -295,7 +295,7 @@ class DownloadRoutesTest {
         }
 
     @Test
-    fun `returns formats and defaults for a dataset`() =
+    fun `returns all areas and formats with their projections for a dataset`() =
         testApplication {
             application {
                 configureSerialization()
@@ -327,8 +327,8 @@ class DownloadRoutesTest {
 
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()
-            assertContains(body, "\"formats\":[\"GML\",\"SOSI\"]")
-            assertContains(body, "\"defaultArea\":{\"code\":\"42\",\"name\":\"Agder\",\"type\":\"fylke\"}")
-            assertContains(body, "\"defaultProjection\":{\"code\":\"25832\"")
+            assertContains(body, "\"areas\":[{\"code\":\"42\",\"name\":\"Agder\",\"type\":\"fylke\"},{\"code\":\"32\",\"name\":\"Akershus\",\"type\":\"fylke\"}]")
+            assertContains(body, "\"formats\":[{\"name\":\"GML\",\"projections\":[{\"code\":\"25832\"")
+            assertContains(body, "{\"name\":\"SOSI\",\"projections\":[{\"code\":\"25833\"")
         }
 }

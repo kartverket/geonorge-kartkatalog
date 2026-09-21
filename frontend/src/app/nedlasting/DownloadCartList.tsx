@@ -60,7 +60,7 @@ export function DownloadCartList() {
               <DownloadCartCard
                 key={card.uuid}
                 {...card}
-                onSelectionChange={handleSelectionChange}
+                onSelectionChangeAction={handleSelectionChange}
               />
             ))}
           </div>

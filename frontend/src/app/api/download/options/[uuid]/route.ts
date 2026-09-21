@@ -19,8 +19,8 @@ export async function GET(
     }
 
     return NextResponse.json(
-      { error: "Could not fetch download options." },
-      { status: 500 },
+      { error: "Invalid download options response from backend." },
+      { status: 502 },
     );
   }
 }

@@ -4,28 +4,28 @@
   --dsc-card-content-margin-block: 0;
 }
 
-.infoRow{
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.infoRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .info {
-    display: flex;
-    align-items: center;
-    gap: var(--ds-size-4);
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-4);
 }
 
-.titleAndTags{
-    display: flex;
-    flex-direction: column;
-    gap: var(--ds-size-2);
+.titleAndTags {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
 }
 
-.actions{
-    display: flex;
-    align-items: center;
-    gap: var(--ds-size-3);
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
 }
 
 .badgeRow {
@@ -40,8 +40,37 @@
 }
 
 .expandedContent {
-    padding: var(--ds-size-6) 0;
+  padding: var(--ds-size-6) 0;
   margin: 0;
+}
+
+.selectionFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-5);
+}
+
+.selectionField,
+.formatField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+}
+
+.formatField {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.fieldLabel {
+  font-weight: 600;
+}
+
+.formatOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
 }
 
 .productPageButton {
