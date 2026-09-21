@@ -19,12 +19,14 @@ import {
   AccessStateTag,
   type AccessTagContext,
 } from "@/components/AccessStateTag/AccessStateTag";
-import type {
-  DownloadOptions,
-  DownloadOrderItemInput,
-} from "@/lib/schemas/download";
+import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadCartCard.module.css";
+import {
+  createDownloadOrderItem,
+  getAvailableFormats,
+  getAvailableProjections,
+} from "./downloadUtils";
 import { useDownloadOptions } from "./useDownloadOptions";
 
 export type DownloadCartCardProps = {
@@ -46,54 +48,6 @@ const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
   Applikasjon: "applikasjon",
   Datasettserie: "datasettserie",
 };
-
-function getAvailableProjections(options: DownloadOptions | null) {
-  if (!options) return [];
-
-  return Array.from(
-    new Map(
-      options.formats
-        .flatMap((format) => format.projections)
-        .map((projection) => [projection.code, projection]),
-    ).values(),
-  );
-}
-
-function getAvailableFormats(
-  options: DownloadOptions | null,
-  projectionCode: string,
-) {
-  if (!options || !projectionCode) return [];
-
-  return options.formats.filter((format) =>
-    format.projections.some((projection) => projection.code === projectionCode),
-  );
-}
-
-function createDownloadOrderItem(
-  uuid: string,
-  options: DownloadOptions | null,
-  areaCode: string,
-  projectionCode: string,
-  formatNames: string[],
-): DownloadOrderItemInput | null {
-  const area = options?.areas.find((candidate) => candidate.code === areaCode);
-  const projection = getAvailableProjections(options).find(
-    (candidate) => candidate.code === projectionCode,
-  );
-  const formats = getAvailableFormats(options, projectionCode).filter(
-    (format) => formatNames.includes(format.name),
-  );
-
-  if (!area || !projection || formats.length === 0) return null;
-
-  return {
-    uuid,
-    areas: [area],
-    projections: [projection],
-    formats: formats.map((format) => ({ name: format.name })),
-  };
-}
 
 export function DownloadCartCard({
   uuid,
@@ -117,13 +71,11 @@ export function DownloadCartCard({
   useEffect(() => {
     onSelectionChangeAction?.(
       uuid,
-      createDownloadOrderItem(
-        uuid,
-        options,
-        selectedAreaCode,
-        selectedProjectionCode,
-        selectedFormatNames,
-      ),
+      createDownloadOrderItem(uuid, options, {
+        areaCode: selectedAreaCode,
+        formatNames: selectedFormatNames,
+        projectionCode: selectedProjectionCode,
+      }),
     );
   }, [
     uuid,
