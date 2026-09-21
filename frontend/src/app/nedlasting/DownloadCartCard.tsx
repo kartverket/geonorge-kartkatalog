@@ -75,7 +75,7 @@ export function DownloadCartCard({
     return () => {
       cancelled = true;
     };
-  }, [expanded, options, isLoadingOptions, uuid]);
+  }, [expanded, options, uuid]);
 
   useEffect(() => {
     if (!options || !selectedFormat) {
