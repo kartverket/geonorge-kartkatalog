@@ -13,6 +13,8 @@ import { usePaginatedSearchResults } from "./usePaginatedSearchResults";
 import { usePersistedViewMode } from "./usePersistedViewMode";
 import { ViewToggle } from "./ViewToggle";
 import type { ViewMode } from "./viewMode";
+import { Sidebar } from "./Sidebar";
+import { ToTopButton } from "./ToTopButton";
 
 type SearchResultsProps = {
   initialViewMode?: ViewMode;
@@ -60,9 +62,7 @@ export function SearchResults({
     <main className={styles.page} data-color="neutral">
       <div className={styles.pageInner}>
         <div className={styles.layout}>
-          <Suspense fallback={null}>
-            <FacetSidebar facets={facets} />
-          </Suspense>
+          <Sidebar facets={facets} />
           <div
             className={`${styles.content} ${isMobileFilterOpen ? styles.mobileFilterOpen : ""}`}
           >
@@ -139,6 +139,9 @@ export function SearchResults({
                   Alle treff er vist.
                 </Paragraph>
               ) : null}
+              <div className={styles.toTopButton}>
+                <ToTopButton />
+              </div>
             </div>
           </div>
         </div>

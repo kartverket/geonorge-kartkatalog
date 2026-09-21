@@ -56,5 +56,5 @@ export function FacetSidebar({
     return <div className={styles.mobilePanel}>{groups}</div>;
   }
 
-  return <aside className={styles.sidebar}>{groups}</aside>;
+  return <aside className={styles.sidebar}>{groups} </aside>;
 }
