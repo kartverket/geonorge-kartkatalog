@@ -23,7 +23,7 @@ private data class ResolvedOrderLine(
 
 class DownloadService(
     private val nedlastingClient: NedlastingClient,
-    private val downloadTargetGroupResolver: DownloadTargetGroupResolver,
+    private val downloadInsightGroupsResolver: DownloadInsightGroupsResolver,
 ) {
     suspend fun order(request: DownloadOrderRequest): DownloadOrderResult =
         coroutineScope {
@@ -92,8 +92,8 @@ class DownloadService(
         )
     }
     suspend fun getInsightGroups(): NedlastingInsightGroups {
-        val formal = downloadTargetGroupResolver.getFormal()
-        val brukergrupper = downloadTargetGroupResolver.getBrukergrupper()
+        val formal = downloadInsightGroupsResolver.getValues("formal")
+        val brukergrupper = downloadInsightGroupsResolver.getValues("brukergrupper")
 
         return NedlastingInsightGroups(
             formal = formal?.toList() ?: emptyList(),

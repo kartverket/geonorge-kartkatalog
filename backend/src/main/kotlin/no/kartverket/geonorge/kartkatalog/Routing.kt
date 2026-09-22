@@ -9,7 +9,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
-import no.kartverket.geonorge.kartkatalog.download.DownloadTargetGroupResolver
+import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
@@ -38,8 +38,8 @@ fun Application.configureRouting(appConfig: AppConfig) {
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)
     val searchService = SearchService(solrClient, areaResolver, hvdResolver)
     val nedlastingClient = NedlastingClient(httpClient, appConfig.nedlastingBaseUrl)
-    val downloadTargetGroupResolver = DownloadTargetGroupResolver(registerClient)
-    val downloadService = DownloadService(nedlastingClient, downloadTargetGroupResolver)
+    val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
+    val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
 
     monitor.subscribe(ApplicationStopping) { httpClient.close() }
 
