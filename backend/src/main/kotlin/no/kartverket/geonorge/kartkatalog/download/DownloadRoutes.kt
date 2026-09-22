@@ -86,5 +86,8 @@ fun Route.downloadRoutes(downloadService: DownloadService) {
                 ),
             )
         }
+        get("/insightGroups") {
+            call.respond(downloadService.getInsightGroups())
+        }
     }
 }
