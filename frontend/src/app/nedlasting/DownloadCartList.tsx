@@ -3,9 +3,15 @@
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
 import { useCallback, useState } from "react";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
+import { MissingInputSummary } from "@/app/nedlasting/MissingInputSummary";
 import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 import { DownloadCartCard } from "./DownloadCartCard";
 import styles from "./DownloadCartList.module.css";
+import {
+  type DownloadSelection,
+  getMissingDownloadSelectionFields,
+  type MissingDownloadSelectionField,
+} from "./downloadUtils";
 import { useDownloadCartCards } from "./useDownloadCartCards";
 import { useDownloadOrder } from "./useDownloadOrder";
 
@@ -18,10 +24,18 @@ export function DownloadCartList() {
   const [selections, setSelections] = useState<
     Record<string, DownloadOrderItemInput | null>
   >({});
+  const [selectionInputs, setSelectionInputs] = useState<
+    Record<string, DownloadSelection>
+  >({});
 
   const handleSelectionChange = useCallback(
-    (uuid: string, item: DownloadOrderItemInput | null) => {
+    (
+      uuid: string,
+      item: DownloadOrderItemInput | null,
+      selection: DownloadSelection,
+    ) => {
       setSelections((current) => ({ ...current, [uuid]: item }));
+      setSelectionInputs((current) => ({ ...current, [uuid]: selection }));
     },
     [],
   );
@@ -31,6 +45,14 @@ export function DownloadCartList() {
     .filter(([uuid]) => cardUuids.has(uuid))
     .map(([, item]) => item)
     .filter((item): item is DownloadOrderItemInput => item !== null);
+  const productsWithMissingFields = cards.flatMap((card) => {
+    const selection = selectionInputs[card.uuid];
+    const missingFields: MissingDownloadSelectionField[] = selection
+      ? getMissingDownloadSelectionFields(selection)
+      : ["area", "projection", "format"];
+
+    return missingFields.length > 0 ? [{ ...card, missingFields }] : [];
+  });
   const canOrder =
     cards.length === orderItems.length &&
     selectedItems.length === cards.length &&
@@ -64,6 +86,11 @@ export function DownloadCartList() {
               />
             ))}
           </div>
+          {productsWithMissingFields.length > 0 ? (
+            <MissingInputSummary
+              productsWithMissingFields={productsWithMissingFields}
+            />
+          ) : null}
 
           <div className={styles.orderSection}>
             <Button

@@ -49,13 +49,7 @@ export function DownloadOptionsForm({
     <div className={styles.selectionFields}>
       <div className={styles.selectionField}>
         <label className={styles.fieldLabel} htmlFor={areaId}>
-          Geografisk område
-          <Tag
-            data-color="warning"
-            style={{ marginInlineStart: "var(--ds-size-2)" }}
-          >
-            Påkrevd
-          </Tag>
+          Geografisk område <Tag data-color="warning">Påkrevd</Tag>
         </label>
         <Select
           id={areaId}
@@ -72,13 +66,7 @@ export function DownloadOptionsForm({
       </div>
       <div className={styles.selectionField}>
         <label className={styles.fieldLabel} htmlFor={projectionId}>
-          Projeksjon
-          <Tag
-            data-color="warning"
-            style={{ marginInlineStart: "var(--ds-size-2)" }}
-          >
-            Påkrevd
-          </Tag>
+          Projeksjon <Tag data-color="warning">Påkrevd</Tag>
         </label>
         <Select
           id={projectionId}
@@ -96,13 +84,7 @@ export function DownloadOptionsForm({
       {selectedProjectionCode ? (
         <fieldset className={styles.formatField}>
           <legend className={styles.fieldLabel}>
-            Format
-            <Tag
-              data-color="warning"
-              style={{ marginInlineStart: "var(--ds-size-2)" }}
-            >
-              Påkrevd
-            </Tag>
+            Format <Tag data-color="warning">Påkrevd</Tag>
           </legend>
           <div className={styles.formatOptions}>
             {availableFormats.map((format) => (

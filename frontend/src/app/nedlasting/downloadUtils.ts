@@ -9,6 +9,20 @@ export type DownloadSelection = {
   projectionCode: string;
 };
 
+export type MissingDownloadSelectionField = "area" | "projection" | "format";
+
+export function getMissingDownloadSelectionFields(
+  selection: DownloadSelection,
+): MissingDownloadSelectionField[] {
+  const missingFields: MissingDownloadSelectionField[] = [];
+
+  if (!selection.areaCode) missingFields.push("area");
+  if (!selection.projectionCode) missingFields.push("projection");
+  if (selection.formatNames.length === 0) missingFields.push("format");
+
+  return missingFields;
+}
+
 export function getAvailableProjections(options: DownloadOptions | null) {
   if (!options) return [];
 

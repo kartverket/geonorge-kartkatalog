@@ -16,7 +16,10 @@ import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadCartCard.module.css";
 import { DownloadOptionsForm } from "./DownloadOptionsForm";
-import { createDownloadOrderItem } from "./downloadUtils";
+import {
+  createDownloadOrderItem,
+  type DownloadSelection,
+} from "./downloadUtils";
 import { useDownloadOptions } from "./useDownloadOptions";
 
 export type DownloadCartCardProps = {
@@ -29,6 +32,7 @@ export type DownloadCartCardProps = {
   onSelectionChangeAction?: (
     uuid: string,
     item: DownloadOrderItemInput | null,
+    selection: DownloadSelection,
   ) => void;
 };
 
@@ -59,13 +63,16 @@ export function DownloadCartCard({
   } = useDownloadOptions(uuid, expanded);
 
   useEffect(() => {
+    const selection = {
+      areaCode: selectedAreaCode,
+      formatNames: selectedFormatNames,
+      projectionCode: selectedProjectionCode,
+    };
+
     onSelectionChangeAction?.(
       uuid,
-      createDownloadOrderItem(uuid, options, {
-        areaCode: selectedAreaCode,
-        formatNames: selectedFormatNames,
-        projectionCode: selectedProjectionCode,
-      }),
+      createDownloadOrderItem(uuid, options, selection),
+      selection,
     );
   }, [
     uuid,
