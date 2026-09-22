@@ -4,10 +4,11 @@ import { Button, Heading, Paragraph } from "@kv-designsystem/react";
 import { useCallback, useState } from "react";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import { MissingInputSummary } from "@/app/nedlasting/MissingInputSummary";
-import type { DownloadOrderItemInput } from "@/lib/schemas/download";
+import type { DownloadOptions } from "@/lib/schemas/download";
 import { DownloadCartCard } from "./DownloadCartCard";
 import styles from "./DownloadCartList.module.css";
 import {
+  createDownloadOrderItem,
   type DownloadSelection,
   getMissingDownloadSelectionFields,
   type MissingDownloadSelectionField,
@@ -15,48 +16,60 @@ import {
 import { useDownloadCartCards } from "./useDownloadCartCards";
 import { useDownloadOrder } from "./useDownloadOrder";
 
+type ProductSelection = {
+  options: DownloadOptions | null;
+  selection: DownloadSelection;
+};
+
 export function DownloadCartList() {
   const orderItems = useOrderItems();
   const { cards, isLoading, hasLoadError } = useDownloadCartCards(orderItems);
   const { isOrdering, orderError, orderResult, submitOrder } =
     useDownloadOrder();
-
-  const [selections, setSelections] = useState<
-    Record<string, DownloadOrderItemInput | null>
-  >({});
   const [selectionInputs, setSelectionInputs] = useState<
-    Record<string, DownloadSelection>
+    Record<string, ProductSelection>
   >({});
 
   const handleSelectionChange = useCallback(
     (
       uuid: string,
-      item: DownloadOrderItemInput | null,
+      options: DownloadOptions | null,
       selection: DownloadSelection,
     ) => {
-      setSelections((current) => ({ ...current, [uuid]: item }));
-      setSelectionInputs((current) => ({ ...current, [uuid]: selection }));
+      setSelectionInputs((current) => ({
+        ...current,
+        [uuid]: { options, selection },
+      }));
     },
     [],
   );
 
-  const cardUuids = new Set(cards.map((card) => card.uuid));
-  const selectedItems = Object.entries(selections)
-    .filter(([uuid]) => cardUuids.has(uuid))
-    .map(([, item]) => item)
-    .filter((item): item is DownloadOrderItemInput => item !== null);
+  const downloadableProducts = cards.flatMap((card) => {
+    const productSelection = selectionInputs[card.uuid];
+
+    if (!productSelection) return [];
+
+    const item = createDownloadOrderItem(
+      card.uuid,
+      productSelection.options,
+      productSelection.selection,
+    );
+
+    return item ? [item] : [];
+  });
   const productsWithMissingFields = cards.flatMap((card) => {
-    const selection = selectionInputs[card.uuid];
-    const missingFields: MissingDownloadSelectionField[] = selection
-      ? getMissingDownloadSelectionFields(selection)
+    const productSelection = selectionInputs[card.uuid];
+    const missingFields: MissingDownloadSelectionField[] = productSelection
+      ? getMissingDownloadSelectionFields(productSelection.selection)
       : ["area", "projection", "format"];
 
     return missingFields.length > 0 ? [{ ...card, missingFields }] : [];
   });
   const canOrder =
     cards.length === orderItems.length &&
-    selectedItems.length === cards.length &&
-    !isOrdering;
+    downloadableProducts.length === cards.length &&
+    !isOrdering &&
+    !orderResult;
 
   return (
     <div className={styles.pageInner}>
@@ -94,7 +107,7 @@ export function DownloadCartList() {
 
           <div className={styles.orderSection}>
             <Button
-              onClick={() => submitOrder(selectedItems)}
+              onClick={() => submitOrder(downloadableProducts)}
               disabled={!canOrder}
             >
               {isOrdering ? "Bestiller..." : "Bestill nedlasting"}

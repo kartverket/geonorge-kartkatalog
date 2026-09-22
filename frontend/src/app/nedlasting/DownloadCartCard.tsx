@@ -12,14 +12,11 @@ import {
   AccessStateTag,
   type AccessTagContext,
 } from "@/components/AccessStateTag/AccessStateTag";
-import type { DownloadOrderItemInput } from "@/lib/schemas/download";
+import type { DownloadOptions } from "@/lib/schemas/download";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadCartCard.module.css";
 import { DownloadOptionsForm } from "./DownloadOptionsForm";
-import {
-  createDownloadOrderItem,
-  type DownloadSelection,
-} from "./downloadUtils";
+import type { DownloadSelection } from "./downloadUtils";
 import { useDownloadOptions } from "./useDownloadOptions";
 
 export type DownloadCartCardProps = {
@@ -31,7 +28,7 @@ export type DownloadCartCardProps = {
   distributionUrl: string;
   onSelectionChangeAction?: (
     uuid: string,
-    item: DownloadOrderItemInput | null,
+    options: DownloadOptions | null,
     selection: DownloadSelection,
   ) => void;
 };
@@ -69,11 +66,7 @@ export function DownloadCartCard({
       projectionCode: selectedProjectionCode,
     };
 
-    onSelectionChangeAction?.(
-      uuid,
-      createDownloadOrderItem(uuid, options, selection),
-      selection,
-    );
+    onSelectionChangeAction?.(uuid, options, selection);
   }, [
     uuid,
     options,
