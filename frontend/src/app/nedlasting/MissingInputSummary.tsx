@@ -31,9 +31,7 @@ export function MissingInputSummary({
       <ErrorSummary.List>
         {productsWithMissingFields.map(({ uuid, title, missingFields }) => (
           <ErrorSummary.Item key={uuid}>
-            <ErrorSummary.Link href="#">
-              {title} mangler {formatMissingFields(missingFields)}.
-            </ErrorSummary.Link>
+            {title} mangler {formatMissingFields(missingFields)}.
           </ErrorSummary.Item>
         ))}
       </ErrorSummary.List>
