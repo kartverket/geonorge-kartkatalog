@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox, Select } from "@kv-designsystem/react";
+import { Checkbox, Select, Tag } from "@kv-designsystem/react";
 import { useId } from "react";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
@@ -50,6 +50,12 @@ export function DownloadOptionsForm({
       <div className={styles.selectionField}>
         <label className={styles.fieldLabel} htmlFor={areaId}>
           Geografisk område
+          <Tag
+            data-color="warning"
+            style={{ marginInlineStart: "var(--ds-size-2)" }}
+          >
+            Påkrevd
+          </Tag>
         </label>
         <Select
           id={areaId}
@@ -67,6 +73,12 @@ export function DownloadOptionsForm({
       <div className={styles.selectionField}>
         <label className={styles.fieldLabel} htmlFor={projectionId}>
           Projeksjon
+          <Tag
+            data-color="warning"
+            style={{ marginInlineStart: "var(--ds-size-2)" }}
+          >
+            Påkrevd
+          </Tag>
         </label>
         <Select
           id={projectionId}
@@ -83,7 +95,15 @@ export function DownloadOptionsForm({
       </div>
       {selectedProjectionCode ? (
         <fieldset className={styles.formatField}>
-          <legend className={styles.fieldLabel}>Format</legend>
+          <legend className={styles.fieldLabel}>
+            Format
+            <Tag
+              data-color="warning"
+              style={{ marginInlineStart: "var(--ds-size-2)" }}
+            >
+              Påkrevd
+            </Tag>
+          </legend>
           <div className={styles.formatOptions}>
             {availableFormats.map((format) => (
               <Checkbox
