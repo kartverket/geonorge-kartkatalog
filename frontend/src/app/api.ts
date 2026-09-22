@@ -1,5 +1,14 @@
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import {
+  type DownloadInsightGroups,
+  type DownloadOptions,
+  type DownloadOrderResult,
+  parseDownloadInsightGroups,
+  parseDownloadOptions,
+  parseDownloadOrderResult,
+} from "@/lib/schemas/download";
+import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
   type LinkedDistributions,
@@ -22,13 +31,6 @@ import {
   parseTegnereglerItem,
   type TegnereglerItem,
 } from "@/lib/schemas/tegneregler";
-import {
-  type DownloadOptions,
-  type DownloadOrderResult,
-  parseDownloadOptions,
-  parseDownloadOrderResult,
-} from "@/lib/schemas/download";
-import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
@@ -284,4 +286,13 @@ export async function orderDownload({
     body: JSON.stringify({ email, items }),
   });
   return parseDownloadOrderResult(body);
+}
+
+export async function getDownloadInsightGroups(): Promise<DownloadInsightGroups> {
+  "use cache";
+  const url = `${API_BASE}/api/download/insight-groups`;
+  const body = await fetchJson(url, {
+    method: "GET",
+  });
+  return parseDownloadInsightGroups(body);
 }

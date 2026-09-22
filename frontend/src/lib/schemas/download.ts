@@ -71,3 +71,22 @@ export type DownloadOrderItemInput = {
   }>;
   formats?: Array<{ name: string }>;
 };
+
+export const DownloadInsightGroupsSchema = z.object({
+  formal: z.array(z.string()),
+  brukergrupper: z.array(z.string()),
+});
+
+export type DownloadInsightGroups = z.infer<typeof DownloadInsightGroupsSchema>;
+
+export function parseDownloadInsightGroups(
+  body: unknown,
+): DownloadInsightGroups {
+  const res = DownloadInsightGroupsSchema.safeParse(body);
+  if (!res.success) {
+    throw new Error("Invalid download insight groups from server", {
+      cause: res.error,
+    });
+  }
+  return res.data;
+}
