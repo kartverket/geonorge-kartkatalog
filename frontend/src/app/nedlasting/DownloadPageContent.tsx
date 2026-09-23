@@ -4,16 +4,26 @@ import {Button, Input, Label, Paragraph, Select} from "@kv-designsystem/react";
 import {SubmitEventHandler, useCallback, useMemo, useState} from "react";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import type {
-  DownloadInsightGroups,
+  DownloadInsightGroups, DownloadOptions,
   DownloadOrderItemInput,
 } from "@/lib/schemas/download";
 import { DownloadCartList } from "./DownloadCartList";
 import styles from "./DownloadPageContent.module.css";
 import { useDownloadCartCards } from "./useDownloadCartCards";
 import { useDownloadOrder } from "./useDownloadOrder";
+import {
+  createDownloadOrderItem,
+  DownloadSelection,
+  getMissingDownloadSelectionFields, MissingDownloadSelectionField
+} from "@/app/nedlasting/downloadUtils";
+import {MissingInputSummary} from "@/app/nedlasting/MissingInputSummary";
 
 type DownloadPageContentProps = {
   insightGroups: DownloadInsightGroups;
+};
+type ProductSelection = {
+  options: DownloadOptions | null;
+  selection: DownloadSelection;
 };
 
 export function DownloadPageContent({
@@ -24,36 +34,48 @@ export function DownloadPageContent({
   const { isOrdering, orderError, orderResult, submitOrder } =
     useDownloadOrder();
 
-  const [selections, setSelections] = useState<
-    Record<string, DownloadOrderItemInput | null>
+  const [selectionInputs, setSelectionInputs] = useState<
+    Record<string, ProductSelection>
   >({});
   const [email, setEmail] = useState("");
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState("");
 
   const handleSelectionChange = useCallback(
-    (uuid: string, item: DownloadOrderItemInput | null) => {
-      setSelections((current) => ({ ...current, [uuid]: item }));
+    (
+      uuid: string,
+      options: DownloadOptions | null,
+      selection: DownloadSelection,
+    ) => {
+      setSelectionInputs((current) => ({
+        ...current,
+        [uuid]: { options, selection },
+      }));
     },
     [],
   );
 
-  const selectedItems = useMemo(() => {
-    const cardUuids = new Set(cards.map((card) => card.uuid));
+  const downloadableProducts = cards.flatMap((card) => {
+    const productSelection = selectionInputs[card.uuid];
 
-    return Object.entries(selections)
-      .filter(([uuid]) => cardUuids.has(uuid))
-      .map(([, item]) => item)
-      .filter((item): item is DownloadOrderItemInput => item !== null);
-  }, [cards, selections]);
+    if (!productSelection) return [];
+
+    const item = createDownloadOrderItem(
+      card.uuid,
+      productSelection.options,
+      productSelection.selection,
+    );
+
+    return item ? [item] : [];
+  });
 
   const canOrder =
     cards.length === orderItems.length &&
-    selectedItems.length === cards.length &&
+    downloadableProducts.length === cards.length &&
     email.trim() !== "" &&
     usageGroup !== "" &&
     usagePurpose !== "" &&
-    !isOrdering;
+    !isOrdering && !orderResult;
 
   const hasInsightGroupOptions =
     insightGroups.brukergrupper.length > 0 && insightGroups.formal.length > 0;
@@ -68,14 +90,23 @@ export function DownloadPageContent({
       void submitOrder({
         email: email.trim(),
         usageGroup,
-        items: selectedItems.map((item) => ({
+        items: downloadableProducts.map((item) => ({
           ...item,
           usagePurpose: [usagePurpose],
         })),
       });
     },
-    [canOrder, email, selectedItems, submitOrder, usageGroup, usagePurpose],
+    [canOrder, email, downloadableProducts, submitOrder, usageGroup, usagePurpose],
   );
+
+  const productsWithMissingFields = cards.flatMap((card) => {
+    const productSelection = selectionInputs[card.uuid];
+    const missingFields: MissingDownloadSelectionField[] = productSelection
+      ? getMissingDownloadSelectionFields(productSelection.selection)
+      : ["area", "projection", "format"];
+
+    return missingFields.length > 0 ? [{ ...card, missingFields }] : [];
+  });
 
   return (
     <>
@@ -86,7 +117,11 @@ export function DownloadPageContent({
         hasLoadError={hasLoadError}
         onSelectionChange={handleSelectionChange}
       />
-
+      {productsWithMissingFields.length > 0 ? (
+        <MissingInputSummary
+          productsWithMissingFields={productsWithMissingFields}
+        />
+      ) : null}
       {orderItems.length > 0 ? (
         <section>
           <form onSubmit={handleSubmit}>

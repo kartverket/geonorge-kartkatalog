@@ -108,5 +108,10 @@ data class SolrDocument(
 
 data class RelatedServiceReference(
     val uuid: String,
+    val name: String?,
+    val accessIsOpendata: Boolean,
+    val accessIsRestricted: Boolean,
+    val distributionUrl: String?,
+    val organizationName: String?,
     val protocol: String?,
 )

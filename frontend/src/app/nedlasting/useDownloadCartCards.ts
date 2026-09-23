@@ -121,15 +121,17 @@ export function useDownloadCartCards(orderItems: string[]) {
             );
             if (!response.ok) return { card: null, failed: true };
 
+            const card = toDownloadCard(
+              uuid,
+              await response.json(),
+              typeof savedItem?.distributionUrl === "string"
+                ? savedItem.distributionUrl
+                : "",
+            );
+
             return {
-              card: toDownloadCard(
-                uuid,
-                await response.json(),
-                typeof savedItem?.distributionUrl === "string"
-                  ? savedItem.distributionUrl
-                  : "",
-              ),
-              failed: false,
+              card,
+              failed: card === null,
             };
           } catch {
             return { card: null, failed: !controller.signal.aborted };

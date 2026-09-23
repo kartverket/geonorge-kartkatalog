@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { basePath } from "@/lib/basePath";
-import type {
-  DownloadOrderItemInput,
-  DownloadOrderResult,
+import {
+  type DownloadOrderItemInput,
+  type DownloadOrderResult,
+  parseDownloadOrderResult,
 } from "@/lib/schemas/download";
 
 type DownloadOrderSubmission = {
@@ -40,7 +41,9 @@ export function useDownloadOrder() {
         throw new Error("Bestillingen feilet.");
       }
 
-      const result: DownloadOrderResult = await response.json();
+      const result: DownloadOrderResult = parseDownloadOrderResult(
+        await response.json(),
+      );
       setOrderResult(result);
     } catch {
       setOrderError("Kunne ikke fullføre bestillingen. Prøv igjen.");

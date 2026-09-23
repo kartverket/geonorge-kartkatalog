@@ -19,6 +19,8 @@ import {
 import { isAllowedThumbnailUrl } from "@/lib/isAllowedThumbnailUrl";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
 import styles from "./DatasetCard.module.css";
+import AddSeriesToCartButton from "../addToCart/AddSeriesToCartButton";
+import type { DownloadItem } from "../addToCart/cartStorage";
 
 export type DatasetCardProps = {
   uuid: string;
@@ -35,6 +37,7 @@ export type DatasetCardProps = {
   hierarchyLevel: string | null;
   viewMode?: "grid" | "list";
   analyticsLocation?: Location;
+  downloadableSeriesMembers: DownloadItem[] | null;
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -130,6 +133,14 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           </Heading>
         </div>
         <div className={styles.buttonGroupContainer}>
+          {p.downloadableSeriesMembers &&
+            p.downloadableSeriesMembers.length > 0 && (
+              <AddSeriesToCartButton
+                item={p}
+                downloadableItems={p.downloadableSeriesMembers}
+                location={"header"}
+              />
+            )}
           {applicationUrl && (
             <CardActionButton
               onClick={() => {

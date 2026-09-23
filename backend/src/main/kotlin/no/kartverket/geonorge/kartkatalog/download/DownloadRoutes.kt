@@ -38,9 +38,8 @@ data class DownloadOrderResponseDto(
 
 @Serializable
 data class DownloadOptionsDto(
-    val formats: List<String>,
-    val defaultArea: NedlastingArea?,
-    val defaultProjection: NedlastingProjection?,
+    val areas: List<NedlastingArea>,
+    val formats: List<DownloadFormatOption>,
 )
 
 fun Route.downloadRoutes(downloadService: DownloadService) {
@@ -80,9 +79,8 @@ fun Route.downloadRoutes(downloadService: DownloadService) {
             val options = downloadService.getOptions(uuid)
             call.respond(
                 DownloadOptionsDto(
+                    areas = options.areas,
                     formats = options.formats,
-                    defaultArea = options.defaultArea,
-                    defaultProjection = options.defaultProjection,
                 ),
             )
         }
