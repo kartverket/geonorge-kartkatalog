@@ -5,11 +5,23 @@
 }
 
 .userInputs {
-
     display: flex;
     gap: 0.5rem;
     margin-top: var(--ds-size-8);
     margin-bottom: var(--ds-size-8);
+}
+
+.userInputs > :nth-child(1) {
+    flex: 0.5;
+}
+
+.userInputs > :nth-child(2) {
+    flex: 0.5;
+    margin-right: var(--ds-size-8);
+}
+
+.userInputs > :nth-child(3) {
+    flex: 1;
 }
 
 .buttonContainer {
