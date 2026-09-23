@@ -1,19 +1,12 @@
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
   type DownloadInsightGroups,
   type DownloadOptions,
+  type DownloadOrderItemInput,
   type DownloadOrderResult,
   parseDownloadInsightGroups,
-  parseDownloadOptions,
-  parseDownloadOrderResult,
-} from "@/lib/schemas/download";
-import type { DownloadOrderItemInput } from "@/lib/schemas/download";
-import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
-import type { DownloadOrderItemInput } from "@/lib/schemas/download";
-import {
-  type DownloadOptions,
-  type DownloadOrderResult,
   parseDownloadOptions,
   parseDownloadOrderResult,
 } from "@/lib/schemas/download";

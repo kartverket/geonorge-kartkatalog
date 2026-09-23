@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {getDownloadInsightGroups} from "@/app/api";
+import { getDownloadInsightGroups } from "@/app/api";
 import { isBeta } from "@/lib/basePath";
 import { DownloadPageContent } from "./DownloadPageContent";
 import styles from "./page.module.css";

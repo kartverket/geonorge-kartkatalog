@@ -1,13 +1,13 @@
 "use client";
 
 import { Heading, Paragraph } from "@kv-designsystem/react";
-import type {DownloadOptions, DownloadOrderItemInput} from "@/lib/schemas/download";
+import type { DownloadSelection } from "@/app/nedlasting/downloadUtils";
+import type { DownloadOptions } from "@/lib/schemas/download";
 import {
   DownloadCartCard,
   type DownloadCartCardProps,
 } from "./DownloadCartCard";
 import styles from "./DownloadCartList.module.css";
-import {DownloadSelection} from "@/app/nedlasting/downloadUtils";
 
 type DownloadCartListProps = {
   orderItemsCount: number;
@@ -17,7 +17,7 @@ type DownloadCartListProps = {
   onSelectionChange: (
     uuid: string,
     options: DownloadOptions | null,
-    selection: DownloadSelection
+    selection: DownloadSelection,
   ) => void;
 };
 
