@@ -49,9 +49,7 @@ export function DistributionDetailActionButton({
     return (
       <AddToCartButton
         item={{
-          // Foreløpig blir denne knappen kun vist om accessstate er open
-          accessIsOpendata: true,
-          accessIsRestricted: false,
+          accessType: accessState,
           uuid,
           name: title,
           organizationName,

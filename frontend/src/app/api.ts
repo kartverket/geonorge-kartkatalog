@@ -10,6 +10,13 @@ import {
 } from "@/lib/schemas/download";
 import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
+import type { DownloadOrderItemInput } from "@/lib/schemas/download";
+import {
+  type DownloadOptions,
+  type DownloadOrderResult,
+  parseDownloadOptions,
+  parseDownloadOrderResult,
+} from "@/lib/schemas/download";
 import {
   type LinkedDistributions,
   type ProductFairStatus,
