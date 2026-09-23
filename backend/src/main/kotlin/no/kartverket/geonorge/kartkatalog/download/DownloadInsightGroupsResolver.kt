@@ -11,10 +11,10 @@ class DownloadInsightGroupsResolver (
     private val log = LoggerFactory.getLogger(DownloadInsightGroupsResolver::class.java)
     private val cache = TimedCache<String, Set<String>>(ttlMillis = 24 * 60 * 60 * 1000)
 
-    suspend fun getValues(term: String): Set<String>? =        cache.getOrFetch("formal") {
+    suspend fun getValues(term: String): Set<String>? =        cache.getOrFetch(term) {
         try {
             registerClient
-                .getCodeListByName("formal")
+                .getCodeListByName(term)
                 .containedItems
                 .filter { it.status == "Gyldig" }
                 .map { it.label }
@@ -22,7 +22,7 @@ class DownloadInsightGroupsResolver (
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            log.warn("Failed to fetch formal code list", e)
+            log.warn("Failed to fetch code list for term: $term", e)
             null
         }
     }
