@@ -8,6 +8,8 @@
 
     display: flex;
     gap: 0.5rem;
+    margin-top: var(--ds-size-8);
+    margin-bottom: var(--ds-size-8);
 }
 
 .buttonContainer {
