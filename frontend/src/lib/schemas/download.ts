@@ -1,21 +1,25 @@
 import { z } from "zod";
 
-const NedlastingAreaSchema = z.object({
+export const NedlastingAreaSchema = z.object({
   code: z.string(),
   name: z.string(),
   type: z.string().nullable(),
 });
 
-const NedlastingProjectionSchema = z.object({
+export const NedlastingProjectionSchema = z.object({
   code: z.string(),
   name: z.string(),
   codespace: z.string().nullable(),
 });
 
+export const DownloadFormatOptionSchema = z.object({
+  name: z.string(),
+  projections: z.array(NedlastingProjectionSchema),
+});
+
 export const DownloadOptionsSchema = z.object({
-  formats: z.array(z.string()),
-  defaultArea: NedlastingAreaSchema.nullable(),
-  defaultProjection: NedlastingProjectionSchema.nullable(),
+  areas: z.array(NedlastingAreaSchema),
+  formats: z.array(DownloadFormatOptionSchema),
 });
 
 export type DownloadOptions = z.infer<typeof DownloadOptionsSchema>;

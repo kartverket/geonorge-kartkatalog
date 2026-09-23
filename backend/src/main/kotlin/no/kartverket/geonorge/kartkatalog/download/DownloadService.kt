@@ -59,12 +59,8 @@ class DownloadService(
             val areas = areasDeferred.await()
 
             DownloadOptions(
-                formats = formats.map { it.name },
-                defaultArea =
-                    areas.firstOrNull()?.let {
-                        NedlastingArea(code = it.code, name = it.name, type = it.type)
-                    },
-                defaultProjection = formats.firstOrNull()?.projections?.firstOrNull(),
+                areas = areas.map { NedlastingArea(code = it.code, name = it.name, type = it.type) },
+                formats = formats.map { DownloadFormatOption(name = it.name, projections = it.projections) },
             )
         }
 

@@ -1,5 +1,6 @@
 package no.kartverket.geonorge.kartkatalog.download
 
+import kotlinx.serialization.Serializable
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingArea
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingFormat
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderResponse
@@ -26,7 +27,12 @@ data class DownloadOrderResult(
 )
 
 data class DownloadOptions(
-    val formats: List<String>,
-    val defaultArea: NedlastingArea?,
-    val defaultProjection: NedlastingProjection?,
+    val areas: List<NedlastingArea>,
+    val formats: List<DownloadFormatOption>,
+)
+
+@Serializable
+data class DownloadFormatOption(
+    val name: String,
+    val projections: List<NedlastingProjection>,
 )
