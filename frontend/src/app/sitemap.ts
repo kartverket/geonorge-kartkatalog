@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { cacheLife } from "next/cache";
-import {connection} from "next/server";
+import { connection } from "next/server";
 import { getSearchResults } from "@/app/api";
 import { basePath } from "@/lib/basePath";
 
