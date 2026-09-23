@@ -3,8 +3,11 @@ import { HttpError, orderDownload } from "@/app/api";
 import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 
 export async function POST(request: Request) {
-  const body: { email: string; items: DownloadOrderItemInput[] } =
-    await request.json();
+  const body: {
+    email: string;
+    usageGroup: string;
+    items: DownloadOrderItemInput[];
+  } = await request.json();
 
   try {
     const result = await orderDownload(body);

@@ -274,16 +274,18 @@ export async function getDownloadOptions(
 
 export async function orderDownload({
   email,
+  usageGroup,
   items,
 }: {
   email: string;
+  usageGroup: string;
   items: DownloadOrderItemInput[];
 }): Promise<DownloadOrderResult> {
   const url = `${API_BASE}/api/download/order`;
   const body = await fetchJson(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, items }),
+    body: JSON.stringify({ email, usageGroup, items }),
   });
   return parseDownloadOrderResult(body);
 }
