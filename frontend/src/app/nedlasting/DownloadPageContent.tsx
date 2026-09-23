@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Button,
+  Button, Field, Heading,
   Input,
   Label,
   Paragraph,
@@ -138,9 +138,12 @@ export function DownloadPageContent({
         />
       ) : null}
       {orderItems.length > 0 ? (
-        <section>
+        <section className={styles.orderSectionWrapper}>
+        <section className={styles.orderSection}>
+          <Heading level={2} data-size={"sm"}>Vennligst fyll ut</Heading>
           <form onSubmit={handleSubmit}>
-            <div>
+            <div className={styles.userInputs}>
+              <Field>
               <Label>Brukergruppe</Label>
               <Select
                 value={usageGroup}
@@ -155,6 +158,8 @@ export function DownloadPageContent({
                   </Select.Option>
                 ))}
               </Select>
+              </Field>
+              <Field>
 
               <Label>Formål</Label>
               <Select
@@ -170,7 +175,8 @@ export function DownloadPageContent({
                   </Select.Option>
                 ))}
               </Select>
-
+              </Field>
+              <Field>
               <Label>E-post</Label>
               <Input
                 type="email"
@@ -181,6 +187,7 @@ export function DownloadPageContent({
                 disabled={isOrdering}
                 required
               />
+              </Field>
             </div>
 
             {!hasInsightGroupOptions ? (
@@ -217,6 +224,7 @@ export function DownloadPageContent({
                 ))}
             </div>
           ) : null}
+        </section>
         </section>
       ) : null}
     </>
