@@ -1,5 +1,6 @@
 package no.kartverket.geonorge.kartkatalog.search
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 
@@ -100,11 +101,18 @@ data class SearchResultItem(
     val hierarchyLevel: String? = null,
 )
 
+@Serializable
 enum class AccessType {
-    OPEN_DATA,
+    @SerialName("restricted")
     RESTRICTED,
-    OTHER,
+
+    @SerialName("open")
+    OPEN,
+
+    @SerialName("protected")
+    PROTECTED,
 }
+
 
 @Serializable
 data class DownloadItem(
@@ -119,9 +127,9 @@ data class DownloadItem(
             DownloadItem(
                 accessType =
                     when {
-                        ref.accessIsOpendata -> AccessType.OPEN_DATA
+                        ref.accessIsOpendata -> AccessType.OPEN
                         ref.accessIsRestricted -> AccessType.RESTRICTED
-                        else -> AccessType.OTHER
+                        else -> AccessType.PROTECTED
                     },
                 distributionUrl = ref.distributionUrl,
                 name = ref.name,

@@ -21,16 +21,21 @@ export default function AddSeriesToCartButton({
   size,
   location,
 }: {
-  item: Omit<DatasetCardProps, "viewMode">;
+  item: Omit<
+    DatasetCardProps,
+    | "viewMode"
+    | "typeTranslated"
+    | "distributionUrl"
+    | "distributionProtocol"
+    | "getCapabilitiesUrl"
+  >;
   downloadableItems: DownloadItem[];
   className?: string;
   variant?: ButtonProps["variant"];
   size?: "sm" | "md" | "lg";
   location: Location;
 }) {
-  const addableItems = downloadableItems.filter(
-    (i) => i.accessType === "OPEN_DATA",
-  );
+  const addableItems = downloadableItems.filter((i) => i.accessType === "open");
   const areItemsInCart = useAreAllItemsInCart(addableItems);
 
   const hasDownloadableItems = addableItems.some(

@@ -8,13 +8,13 @@ import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
 import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
 import { ActiveFilters } from "./ActiveFilters";
 import styles from "./SearchResults.module.css";
+import { Sidebar } from "./Sidebar";
 import { SortDropdown } from "./SortDropdown";
+import { ToTopButton } from "./ToTopButton";
 import { usePaginatedSearchResults } from "./usePaginatedSearchResults";
 import { usePersistedViewMode } from "./usePersistedViewMode";
 import { ViewToggle } from "./ViewToggle";
 import type { ViewMode } from "./viewMode";
-import { Sidebar } from "./Sidebar";
-import { ToTopButton } from "./ToTopButton";
 
 type SearchResultsProps = {
   initialViewMode?: ViewMode;

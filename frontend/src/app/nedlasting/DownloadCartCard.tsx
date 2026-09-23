@@ -159,8 +159,7 @@ export function DownloadCartCard({
           </Button>
           <AddToCartButton
             item={{
-              accessIsOpendata: accessState === "open",
-              accessIsRestricted: accessState === "restricted",
+              accessType: accessState,
               uuid,
               name: title,
               organizationName: organization,

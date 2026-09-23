@@ -18,9 +18,9 @@ import {
 } from "@/components/AccessStateTag/AccessStateTag";
 import { isAllowedThumbnailUrl } from "@/lib/isAllowedThumbnailUrl";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
-import styles from "./DatasetCard.module.css";
 import AddSeriesToCartButton from "../addToCart/AddSeriesToCartButton";
 import type { DownloadItem } from "../addToCart/cartStorage";
+import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = {
   uuid: string;
@@ -153,8 +153,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           {canDownload && isOpen && isDataset && p.distributionUrl && (
             <AddToCartButton
               item={{
-                accessIsOpendata: p.accessState === "open",
-                accessIsRestricted: p.accessState === "restricted",
+                accessType: p.accessState,
                 uuid: p.uuid,
                 name: p.title,
                 organizationName: p.organization,
