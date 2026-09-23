@@ -18,8 +18,17 @@ frontend:
 install:
 	cd frontend && npm install
 
-fmt:
+ci-frontend:
+	cd frontend && npm ci
+
+fmt-frontend:
 	cd frontend && npm run format
+	
+lint-frontend:
+	cd frontend && npm run lint
+
+build-frontend:
+	cd frontend && npm run build
 
 fmt-backend:
 	cd backend && ./gradlew ktlintFormat
