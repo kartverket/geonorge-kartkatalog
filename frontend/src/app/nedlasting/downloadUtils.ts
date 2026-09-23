@@ -4,7 +4,7 @@ import type {
 } from "@/lib/schemas/download";
 
 export type DownloadSelection = {
-  areaCode: string;
+  areaCode: string[];
   formatNames: string[];
   projectionCode: string;
 };
@@ -16,7 +16,7 @@ export function getMissingDownloadSelectionFields(
 ): MissingDownloadSelectionField[] {
   const missingFields: MissingDownloadSelectionField[] = [];
 
-  if (!selection.areaCode) missingFields.push("area");
+  if (!selection.areaCode || selection.areaCode.length === 0) missingFields.push("area");
   if (!selection.projectionCode) missingFields.push("projection");
   if (selection.formatNames.length === 0) missingFields.push("format");
 
@@ -51,9 +51,9 @@ export function createDownloadOrderItem(
   options: DownloadOptions | null,
   selection: DownloadSelection,
 ): DownloadOrderItemInput | null {
-  const area = options?.areas.find(
-    (candidate) => candidate.code === selection.areaCode,
-  );
+  const areas = options?.areas.filter(
+    (candidate) => selection.areaCode.includes(candidate.code),
+  ) ?? [];
   const projection = getAvailableProjections(options).find(
     (candidate) => candidate.code === selection.projectionCode,
   );
@@ -61,11 +61,11 @@ export function createDownloadOrderItem(
     (format) => selection.formatNames.includes(format.name),
   );
 
-  if (!area || !projection || formats.length === 0) return null;
+  if (areas.length === 0 || !projection || formats.length === 0) return null;
 
   return {
     uuid,
-    areas: [area],
+    areas: areas,
     projections: [projection],
     formats: formats.map((format) => ({ name: format.name })),
   };

@@ -5,15 +5,16 @@ import { useId } from "react";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
 import { getAvailableFormats, getAvailableProjections } from "./downloadUtils";
+import { MultiSelectDropdown } from "./MultiSelectDropdown";
 
 type DownloadOptionsFormProps = {
   error: string | null;
   isLoading: boolean;
-  onAreaChangeAction: (areaCode: string) => void;
+  onAreaChangeAction: (areaCodes: string[]) => void;
   onFormatToggleAction: (formatName: string) => void;
   onProjectionChangeAction: (projectionCode: string) => void;
   options: DownloadOptions | null;
-  selectedAreaCode: string;
+  selectedAreaCode: string[];
   selectedFormatNames: string[];
   selectedProjectionCode: string;
 };
@@ -48,21 +49,15 @@ export function DownloadOptionsForm({
   return (
     <div className={styles.selectionFields}>
       <div className={styles.selectionField}>
-        <label className={styles.fieldLabel} htmlFor={areaId}>
-          Geografisk område <Tag data-color="warning">Påkrevd</Tag>
-        </label>
-        <Select
+        <MultiSelectDropdown
           id={areaId}
-          value={selectedAreaCode}
-          onChange={(event) => onAreaChangeAction(event.target.value)}
-        >
-          <Select.Option value="">Velg geografisk område</Select.Option>
-          {options.areas.map((area) => (
-            <Select.Option key={area.code} value={area.code}>
-              {area.name}
-            </Select.Option>
-          ))}
-        </Select>
+          label="Geografisk område"
+          selectedValues={selectedAreaCode}
+          onChangeAction={onAreaChangeAction}
+          options={options.areas}
+          placeholder="Velg geografisk område"
+          required
+        />
       </div>
       <div className={styles.selectionField}>
         <label className={styles.fieldLabel} htmlFor={projectionId}>
