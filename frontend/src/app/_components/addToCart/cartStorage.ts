@@ -109,3 +109,15 @@ export function removeItemsFromCart(items: DownloadItem[]) {
   safeSetItem(ORDER_ITEMS_KEY, JSON.stringify(remainingItems));
   dispatchDownloadItemsChanged();
 }
+
+export function clearCart() {
+  const currentItems = readOrderItems();
+
+  for (const uuid of currentItems) {
+    safeRemoveItem(`${uuid}.metadata`);
+  }
+
+  safeRemoveItem(ORDER_ITEMS_KEY);
+  dispatchDownloadItemsChanged();
+}
+

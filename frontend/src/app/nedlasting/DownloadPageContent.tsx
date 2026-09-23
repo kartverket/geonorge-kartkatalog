@@ -15,6 +15,7 @@ import {
   getMissingDownloadSelectionFields,
   type MissingDownloadSelectionField,
 } from "@/app/nedlasting/downloadUtils";
+import { clearCart } from "@/app/_components/addToCart/cartStorage";
 import { MissingInputSummary } from "@/app/nedlasting/MissingInputSummary";
 import type {
   DownloadInsightGroups,
@@ -24,6 +25,7 @@ import { DownloadCartList } from "./DownloadCartList";
 import styles from "./DownloadPageContent.module.css";
 import { useDownloadCartCards } from "./useDownloadCartCards";
 import { useDownloadOrder } from "./useDownloadOrder";
+import {DownloadIcon, TrashFillIcon, TrashIcon} from "@navikt/aksel-icons";
 
 type DownloadPageContentProps = {
   insightGroups: DownloadInsightGroups;
@@ -196,9 +198,22 @@ export function DownloadPageContent({
               </Paragraph>
             ) : null}
 
-            <Button type="submit" disabled={!canOrder}>
-              {isOrdering ? "Bestiller..." : "Bestill nedlasting"}
-            </Button>
+            <div className={styles.buttonContainer}>
+              <Button type="submit" disabled={!canOrder}>
+                {!isOrdering && <DownloadIcon aria-hidden/>}
+                {isOrdering ? "Bestiller..." : "Last ned produkter"}
+              </Button>
+              <Button
+                type="button"
+                data-color="danger"
+                variant="secondary"
+                onClick={clearCart}
+                disabled={isOrdering || orderItems.length === 0}
+              >
+                <TrashIcon aria-hidden />
+                Fjern alt fra handlekurv
+              </Button>
+            </div>
           </form>
 
           {orderError ? (

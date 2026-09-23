@@ -10,6 +10,13 @@
     gap: 0.5rem;
 }
 
+.buttonContainer {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
 .orderSectionWrapper {
     width: 100vw;
     margin-left: calc(50% - 50vw);
