@@ -105,19 +105,33 @@ class SolrClient(
         datasetService.orEmpty().mapNotNull { entry ->
             val parts = entry.split("|")
             val uuid =
-                parts.getOrNull(0)?.takeIf { it.isNotBlank() }
+                parts.getOrNull(DatasetServiceProperties.UUID.index)?.takeIf { it.isNotBlank() }
                     ?: return@mapNotNull null
             RelatedServiceReference(
                 uuid = uuid,
-                name = parts.getOrNull(1),
-                organizationName = parts.getOrNull(4),
+                name = parts.getOrNull(DatasetServiceProperties.NAME.index),
+                organizationName = parts.getOrNull(DatasetServiceProperties.ORGANIZATION_NAME.index),
                 protocol =
-                    parts.getOrNull(6),
-                distributionUrl = parts.getOrNull(7),
-                accessIsOpendata = parts.getOrNull(14)?.lowercase()?.toBooleanStrictOrNull() ?: false,
-                accessIsRestricted = parts.getOrNull(15)?.lowercase()?.toBooleanStrictOrNull() ?: false,
+                    parts.getOrNull(DatasetServiceProperties.PROTOCOL.index),
+                distributionUrl = parts.getOrNull(DatasetServiceProperties.DISTRIBUTION_URL.index),
+                accessIsOpendata =
+                    parts.getOrNull(DatasetServiceProperties.ACCESS_IS_OPENDATA.index)
+                        ?.lowercase()?.toBooleanStrictOrNull() ?: false,
+                accessIsRestricted =
+                    parts.getOrNull(DatasetServiceProperties.ACCESS_IS_RESTRICTED.index)
+                        ?.lowercase()?.toBooleanStrictOrNull() ?: false,
             )
         }
+}
+
+private enum class DatasetServiceProperties(val index: Int) {
+    UUID(0),
+    NAME(1),
+    ORGANIZATION_NAME(4),
+    PROTOCOL(6),
+    DISTRIBUTION_URL(7),
+    ACCESS_IS_OPENDATA(14),
+    ACCESS_IS_RESTRICTED(15),
 }
 
 data class MetadataSolrQuery(
