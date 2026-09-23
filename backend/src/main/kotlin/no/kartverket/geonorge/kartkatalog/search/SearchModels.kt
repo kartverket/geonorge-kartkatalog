@@ -113,7 +113,6 @@ enum class AccessType {
     PROTECTED,
 }
 
-
 @Serializable
 data class DownloadItem(
     val accessType: AccessType,
