@@ -1,5 +1,5 @@
 export type DownloadItem = {
-  accessType: string;
+  accessType: string | null;
   distributionUrl: string | null;
   name: string;
   organizationName: string | null;
@@ -25,8 +25,8 @@ function normalizeDownloadItems(items: DownloadItem[]): StoredDownloadItem[] {
     if (!item.uuid || !item.distributionUrl) continue;
 
     uniqueItems.set(item.uuid, {
-      accessIsOpendata: item.accessType.toLocaleLowerCase() === "OPEN_DATA",
-      accessIsRestricted: item.accessType.toLocaleLowerCase() === "RESTRICTED",
+      accessIsOpendata: item.accessType?.toLocaleLowerCase() === "open",
+      accessIsRestricted: item.accessType?.toLocaleLowerCase() === "restricted",
       uuid: item.uuid,
       name: item.name,
       organizationName: item.organizationName,

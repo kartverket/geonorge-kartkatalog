@@ -40,7 +40,7 @@ export function ProductActions({
   return (
     <div className={styles.actions}>
       <AddSeriesToCartButton
-        item={{ ...metadata, uuid }}
+        item={{ ...metadata, uuid, downloadableSeriesMembers: downloadableSeriesMembers,  typeTranslated: null, distributionUrl:null, distributionProtocol: null, getCapabilitiesUrl:null, showMapLink: null, mapCapabilitiesUrl: null }}
         className={`ds-button ${styles.actionButton}`}
         downloadableItems={downloadableSeriesMembers}
         location={LOCATIONS.MetadataPage}

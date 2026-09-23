@@ -1,6 +1,13 @@
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
+import type { DownloadOrderItemInput } from "@/lib/schemas/download";
+import {
+  type DownloadOptions,
+  type DownloadOrderResult,
+  parseDownloadOptions,
+  parseDownloadOrderResult,
+} from "@/lib/schemas/download";
 import {
   type LinkedDistributions,
   type ProductFairStatus,
@@ -22,13 +29,6 @@ import {
   parseTegnereglerItem,
   type TegnereglerItem,
 } from "@/lib/schemas/tegneregler";
-import {
-  type DownloadOptions,
-  type DownloadOrderResult,
-  parseDownloadOptions,
-  parseDownloadOrderResult,
-} from "@/lib/schemas/download";
-import type { DownloadOrderItemInput } from "@/lib/schemas/download";
 
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
