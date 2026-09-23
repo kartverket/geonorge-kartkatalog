@@ -22,12 +22,7 @@ export default function AddSeriesToCartButton({
   location,
 }: {
   item: Omit<
-    DatasetCardProps,
-    | "viewMode"
-    | "typeTranslated"
-    | "distributionUrl"
-    | "distributionProtocol"
-    | "getCapabilitiesUrl"
+    DatasetCardProps, "viewMode"
   >;
   downloadableItems: DownloadItem[];
   className?: string;
