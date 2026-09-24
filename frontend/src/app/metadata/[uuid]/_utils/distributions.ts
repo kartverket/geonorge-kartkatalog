@@ -51,8 +51,7 @@ export function toDownloadItem(
   }
 
   return {
-    accessIsOpendata: distribution.accessState === "open",
-    accessIsRestricted: distribution.accessState === "restricted",
+    accessType: distribution.accessState,
     uuid: distribution.uuid,
     name: distribution.title ?? "-",
     organizationName: distribution.organization,
@@ -81,8 +80,7 @@ export function getCartItem(
   }
 
   return {
-    accessIsOpendata: true,
-    accessIsRestricted: false,
+    accessType: metadata.accessState,
     uuid,
     name: metadata.title,
     organizationName: metadata.organization,

@@ -8,10 +8,11 @@ import {
   type DownloadItem,
   removeItemsFromCart,
 } from "@/app/_components/addToCart/cartStorage";
-import { useAreAnyItemsInCart } from "@/app/_components/addToCart/useCart";
-import type { ProductMetadata } from "@/lib/schemas/product";
+import { useAreAllItemsInCart } from "@/app/_components/addToCart/useCart";
 import { type Location, trackClick } from "@/posthog/posthog";
+import type { DatasetCardProps } from "../DatasetCard/DatasetCard";
 
+//Note, can only add open data here. In future, handle closed datasets when login is ok.
 export default function AddSeriesToCartButton({
   item,
   downloadableItems,
@@ -20,18 +21,19 @@ export default function AddSeriesToCartButton({
   size,
   location,
 }: {
-  item: ProductMetadata & {
-    uuid: string;
-  };
+  item: Omit<
+    DatasetCardProps, "viewMode"
+  >;
   downloadableItems: DownloadItem[];
   className?: string;
   variant?: ButtonProps["variant"];
   size?: "sm" | "md" | "lg";
   location: Location;
 }) {
-  const areItemsInCart = useAreAnyItemsInCart(downloadableItems);
+  const addableItems = downloadableItems.filter((i) => i.accessType === "open");
+  const areItemsInCart = useAreAllItemsInCart(addableItems);
 
-  const hasDownloadableItems = downloadableItems.some(
+  const hasDownloadableItems = addableItems.some(
     (item) => item.uuid && item.distributionUrl,
   );
 
@@ -44,16 +46,16 @@ export default function AddSeriesToCartButton({
       {
         itemName: item.title,
         itemUuid: item.uuid,
-        numberOfItems: downloadableItems.length,
+        numberOfItems: addableItems.length,
       },
     );
 
     if (areItemsInCart) {
-      removeItemsFromCart(downloadableItems);
+      removeItemsFromCart(addableItems);
       return;
     }
 
-    addItemsToCart(downloadableItems);
+    addItemsToCart(addableItems);
   };
 
   return (

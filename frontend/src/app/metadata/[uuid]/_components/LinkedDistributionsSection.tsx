@@ -2,7 +2,7 @@
 
 import { Button, Heading } from "@kv-designsystem/react";
 import { useState } from "react";
-import { DatasetCard } from "@/app/_components/DatasetCard/DatasetCard";
+import {DatasetCard, DatasetCardProps} from "@/app/_components/DatasetCard/DatasetCard";
 import { getProductTypeString } from "@/lib/productType";
 import type {
   LinkedDistribution,
@@ -13,7 +13,7 @@ import styles from "./LinkedDistributionsSection.module.css";
 
 const PAGE_SIZE = 4;
 
-function toDatasetCardProps(d: LinkedDistribution) {
+function toDatasetCardProps(d: LinkedDistribution): DatasetCardProps {
   return {
     uuid: d.uuid,
     title: d.title ?? "-",
@@ -28,6 +28,7 @@ function toDatasetCardProps(d: LinkedDistribution) {
     analyticsLocation: LOCATIONS.MetadataPageLinkedDistributions,
     accessState: d.accessState,
     hierarchyLevel: d.hierarchyLevel,
+    downloadableSeriesMembers: null,
   };
 }
 

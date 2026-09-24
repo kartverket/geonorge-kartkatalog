@@ -18,6 +18,8 @@ import {
 } from "@/components/AccessStateTag/AccessStateTag";
 import { isAllowedThumbnailUrl } from "@/lib/isAllowedThumbnailUrl";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
+import AddSeriesToCartButton from "../addToCart/AddSeriesToCartButton";
+import type { DownloadItem } from "../addToCart/cartStorage";
 import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = {
@@ -35,6 +37,7 @@ export type DatasetCardProps = {
   hierarchyLevel: string | null;
   viewMode?: "grid" | "list";
   analyticsLocation?: Location;
+  downloadableSeriesMembers: DownloadItem[] | null;
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -130,6 +133,14 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           </Heading>
         </div>
         <div className={styles.buttonGroupContainer}>
+          {p.downloadableSeriesMembers &&
+            p.downloadableSeriesMembers.length > 0 && (
+              <AddSeriesToCartButton
+                item={p}
+                downloadableItems={p.downloadableSeriesMembers}
+                location={"header"}
+              />
+            )}
           {applicationUrl && (
             <CardActionButton
               onClick={() => {
@@ -142,8 +153,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           {canDownload && isOpen && isDataset && p.distributionUrl && (
             <AddToCartButton
               item={{
-                accessIsOpendata: p.accessState === "open",
-                accessIsRestricted: p.accessState === "restricted",
+                accessType: p.accessState,
                 uuid: p.uuid,
                 name: p.title,
                 organizationName: p.organization,
