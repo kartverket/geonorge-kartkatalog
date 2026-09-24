@@ -21,9 +21,7 @@ export default function AddSeriesToCartButton({
   size,
   location,
 }: {
-  item: Omit<
-    DatasetCardProps, "viewMode"
-  >;
+  item: Omit<DatasetCardProps, "viewMode">;
   downloadableItems: DownloadItem[];
   className?: string;
   variant?: ButtonProps["variant"];

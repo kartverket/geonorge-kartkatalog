@@ -97,3 +97,9 @@ data class NedlastingAreaCodelistEntry(
     val name: String,
     val code: String,
 )
+
+@Serializable
+data class NedlastingInsightGroups(
+    val formal: List<String> = emptyList(),
+    val brukergrupper: List<String> = emptyList(),
+)

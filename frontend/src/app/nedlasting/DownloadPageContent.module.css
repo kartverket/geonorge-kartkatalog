@@ -1,0 +1,47 @@
+.resultList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.userInputs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: var(--ds-size-8);
+  margin-bottom: var(--ds-size-8);
+}
+
+.userInputs > :nth-child(1) {
+  flex: 0.5;
+}
+
+.userInputs > :nth-child(2) {
+  flex: 0.5;
+  margin-right: var(--ds-size-8);
+}
+
+.userInputs > :nth-child(3) {
+  flex: 1;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.orderSectionWrapper {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  background-color: var(--ds-color-neutral-surface-tinted);
+}
+
+.orderSection {
+  max-width: var(--page-content-max-width);
+  margin: var(--ds-size-10) 0;
+  padding: var(--ds-size-8) 0;
+  margin-inline: auto;
+  padding-inline: var(--page-content-padding-inline);
+}

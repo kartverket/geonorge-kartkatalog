@@ -2,7 +2,6 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 import {
-  areAnyItemsInCart,
   DOWNLOAD_ITEMS_CHANGED_EVENT,
   type DownloadItem,
   isItemInCart,
@@ -53,14 +52,6 @@ export function useIsItemInCart(uuid: string | null | undefined): boolean {
   return useSyncExternalStore(
     subscribeToCart,
     () => (uuid ? isItemInCart(uuid) : false),
-    getServerSnapshot,
-  );
-}
-
-export function useAreAnyItemsInCart(items: DownloadItem[]): boolean {
-  return useSyncExternalStore(
-    subscribeToCart,
-    () => areAnyItemsInCart(items),
     getServerSnapshot,
   );
 }
