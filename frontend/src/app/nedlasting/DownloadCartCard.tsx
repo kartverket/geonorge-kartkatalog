@@ -6,7 +6,7 @@ import {
   ChevronUpIcon,
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import {
   AccessStateTag,
@@ -28,11 +28,8 @@ export type DownloadCartCardProps = {
   options: DownloadOptions | null;
   isLoadingOptions: boolean;
   optionsError: string | null;
-  onSelectionChangeAction?: (
-    uuid: string,
-    options: DownloadOptions | null,
-    selection: DownloadSelection,
-  ) => void;
+  selection: DownloadSelection;
+  onSelectionChangeAction: (uuid: string, selection: DownloadSelection) => void;
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -52,45 +49,32 @@ export function DownloadCartCard({
   options,
   isLoadingOptions,
   optionsError,
+  selection,
   onSelectionChangeAction,
 }: DownloadCartCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const [selectedAreaCode, setSelectedAreaCode] = useState("");
-  const [selectedProjectionCode, setSelectedProjectionCode] = useState("");
-  const [selectedFormatNames, setSelectedFormatNames] = useState<string[]>([]);
-
-  useEffect(() => {
-    const selection = {
-      areaCode: selectedAreaCode,
-      formatNames: selectedFormatNames,
-      projectionCode: selectedProjectionCode,
-    };
-
-    onSelectionChangeAction?.(uuid, options, selection);
-  }, [
-    uuid,
-    options,
-    selectedAreaCode,
-    selectedProjectionCode,
-    selectedFormatNames,
-    onSelectionChangeAction,
-  ]);
 
   const detailsId = useId();
   const accessContext =
     TYPE_TO_ACCESS_CONTEXT[typeTranslated ?? ""] ?? "datasett";
 
-  function toggleFormat(formatName: string) {
-    setSelectedFormatNames((current) =>
-      current.includes(formatName)
-        ? current.filter((name) => name !== formatName)
-        : [...current, formatName],
-    );
+  function changeArea(areaCode: string) {
+    onSelectionChangeAction(uuid, { ...selection, areaCode });
   }
 
   function changeProjection(projectionCode: string) {
-    setSelectedProjectionCode(projectionCode);
-    setSelectedFormatNames([]);
+    onSelectionChangeAction(uuid, {
+      ...selection,
+      projectionCode,
+      formatNames: [],
+    });
+  }
+
+  function toggleFormat(formatName: string) {
+    const formatNames = selection.formatNames.includes(formatName)
+      ? selection.formatNames.filter((name) => name !== formatName)
+      : [...selection.formatNames, formatName];
+    onSelectionChangeAction(uuid, { ...selection, formatNames });
   }
 
   return (
@@ -177,13 +161,13 @@ export function DownloadCartCard({
           <DownloadOptionsForm
             error={optionsError}
             isLoading={isLoadingOptions}
-            onAreaChangeAction={setSelectedAreaCode}
+            onAreaChangeAction={changeArea}
             onFormatToggleAction={toggleFormat}
             onProjectionChangeAction={changeProjection}
             options={options}
-            selectedAreaCode={selectedAreaCode}
-            selectedFormatNames={selectedFormatNames}
-            selectedProjectionCode={selectedProjectionCode}
+            selectedAreaCode={selection.areaCode}
+            selectedFormatNames={selection.formatNames}
+            selectedProjectionCode={selection.projectionCode}
           />
         </div>
       ) : null}

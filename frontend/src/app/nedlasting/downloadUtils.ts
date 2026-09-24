@@ -9,6 +9,12 @@ export type DownloadSelection = {
   projectionCode: string;
 };
 
+export const EMPTY_DOWNLOAD_SELECTION: DownloadSelection = {
+  areaCode: "",
+  formatNames: [],
+  projectionCode: "",
+};
+
 export type MissingDownloadSelectionField = "area" | "projection" | "format";
 
 export function getMissingDownloadSelectionFields(
