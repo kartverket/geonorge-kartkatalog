@@ -105,7 +105,12 @@ export function Header() {
               <Link
                 href={findDataHref}
                 aria-current={isHome ? "page" : undefined}
-                onClick={() => trackHeaderClick("finn-data")}
+                onClick={() => {
+                  trackHeaderClick("finn-data");
+                  if (isHome) {
+                    document.getElementById("hero-search")?.focus();
+                  }
+                }}
               >
                 <MagnifyingGlassIcon aria-hidden />
                 Finn data

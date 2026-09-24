@@ -3,7 +3,7 @@
 import { Heading, Search, Tag } from "@kv-designsystem/react";
 import { LocationPinFillIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { isBeta } from "@/lib/basePath";
 import { getProductTypeString } from "@/lib/productType";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
@@ -15,6 +15,12 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
   const [isFocused, setIsFocused] = useState(false);
   const { suggestions } = useSearchAutocomplete(searchText);
   const showSuggestions = isFocused && suggestions.length > 0;
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    if (inputRef) {
+      inputRef.current?.focus();
+    }
+  }, []);
 
   return (
     <section className={styles.hero}>
@@ -52,6 +58,7 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
             <div className={styles.searchInputWrapper}>
               <Search className={styles.searchField}>
                 <Search.Input
+                  ref={inputRef}
                   id="hero-search"
                   name="text"
                   aria-label="Søk i Kartkatalogen"
@@ -89,4 +96,7 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
       </div>
     </section>
   );
+}
+function useEffet(arg0: () => void) {
+  throw new Error("Function not implemented.");
 }
