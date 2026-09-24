@@ -8,7 +8,7 @@ export default function NedlastingPage() {
     return null;
   }
   return (
-    <main className={styles.page} data-color="neutral">
+    <main className={styles.page}>
       <div className={styles.content}>
         <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
           <a href="/">Geonorge</a> {"›"} <Link href="/">Kartkatalogen</Link>{" "}

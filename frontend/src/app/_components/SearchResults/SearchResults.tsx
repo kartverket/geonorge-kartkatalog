@@ -59,7 +59,7 @@ export function SearchResults({
   }`;
 
   return (
-    <main className={styles.page} data-color="neutral">
+    <main className={styles.page} >
       <div className={styles.pageInner}>
         <div className={styles.layout}>
           <Sidebar facets={facets} />

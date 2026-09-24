@@ -60,7 +60,6 @@ export default function AddSeriesToCartButton({
 
   return (
     <Button
-      data-color="neutral"
       variant={variant}
       data-size={size}
       className={className}

@@ -41,18 +41,20 @@ export function ProductActions({
     <div className={styles.actions}>
       <AddSeriesToCartButton
         item={{ ...metadata, uuid, downloadableSeriesMembers: downloadableSeriesMembers,  typeTranslated: null, distributionUrl:null, distributionProtocol: null, getCapabilitiesUrl:null, showMapLink: null, mapCapabilitiesUrl: null }}
-        className={`ds-button ${styles.actionButton}`}
+        className={styles.actionButton}
         downloadableItems={downloadableSeriesMembers}
         location={LOCATIONS.MetadataPage}
         variant="secondary"
       />
       <AddToCartButton
-        className={`ds-button ${styles.actionButton}`}
+        className={styles.actionButton}
         item={cartItem}
         location={LOCATIONS.MetadataPage}
+        variant="primary"
       />
       <AddToMapButton
-        className={`ds-button ${styles.actionButton}`}
+        variant="primary"
+        className={styles.actionButton}
         item={mapItem}
         location={LOCATIONS.MetadataPage}
       />

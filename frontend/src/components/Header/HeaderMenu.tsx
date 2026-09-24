@@ -178,7 +178,6 @@ export function HeaderMenu({
           <Button
             asChild
             variant="tertiary"
-            data-color="neutral"
             className={styles.inMenuFromSm}
           >
             <Link
@@ -194,7 +193,6 @@ export function HeaderMenu({
           <Button
             asChild
             variant="tertiary"
-            data-color="neutral"
             className={styles.inMenuFromXl}
           >
             <a href={mapHref} onClick={() => onActionNavigate("kart")}>
@@ -204,7 +202,7 @@ export function HeaderMenu({
                 className={styles.badge}
               >
                 {mapCount > 0 && (
-                  <Badge count={mapCount} data-color="neutral" />
+                  <Badge count={mapCount} data-color="danger"  />
                 )}
                 <LocationPinIcon aria-hidden />
               </Badge.Position>
@@ -214,7 +212,6 @@ export function HeaderMenu({
           <Button
             asChild
             variant="tertiary"
-            data-color="neutral"
             className={styles.inMenuFromXl}
           >
             <a
@@ -225,9 +222,10 @@ export function HeaderMenu({
                 overlap="circle"
                 placement="top-left"
                 className={styles.badge}
+                data-color="danger"
               >
                 {downloadCount > 0 && (
-                  <Badge count={downloadCount} data-color="danger" />
+                  <Badge count={downloadCount} />
                 )}
                 <DownloadIcon aria-hidden />
               </Badge.Position>
@@ -237,7 +235,6 @@ export function HeaderMenu({
           {!isBeta && (
             <Button
               variant="tertiary"
-              data-color="neutral"
               onClick={() => posthogClickAction("change-language")}
             >
               <LanguageIcon aria-hidden />
@@ -248,7 +245,6 @@ export function HeaderMenu({
             (userName ? (
               <Button
                 variant="tertiary"
-                data-color="neutral"
                 className={styles.inMenuFromSm}
                 aria-expanded={view === "profile"}
                 onClick={() => {
@@ -262,7 +258,6 @@ export function HeaderMenu({
             ) : (
               <Button
                 variant="tertiary"
-                data-color="neutral"
                 className={styles.inMenuFromSm}
                 onClick={() => posthogClickAction("login")}
               >
@@ -275,7 +270,7 @@ export function HeaderMenu({
         {view === "profile" ? (
           <ProfileContent location={LOCATIONS.HeaderMenu} />
         ) : (
-          <nav aria-label="Hovedmeny" data-color="info">
+          <nav aria-label="Hovedmeny">
             <ul className={styles.section}>
               {MENU_SECTIONS.map((section) => (
                 <li key={section.title}>
