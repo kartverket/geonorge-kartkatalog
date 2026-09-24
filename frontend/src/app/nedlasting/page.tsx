@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { getDownloadInsightGroups } from "@/app/api";
 import { DownloadPageContent } from "./DownloadPageContent";
