@@ -1,9 +1,10 @@
 "use client";
 
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import { MissingInputSummary } from "@/app/nedlasting/MissingInputSummary";
+import { BulkDownloadSelectionForm } from "./BulkDownloadSelectionForm";
 import { DownloadCartCard } from "./DownloadCartCard";
 import styles from "./DownloadCartList.module.css";
 import {
@@ -26,12 +27,58 @@ export function DownloadCartList() {
   const [selections, setSelections] = useState<
     Record<string, DownloadSelection>
   >({});
+  const [bulkSelection, setBulkSelection] = useState<DownloadSelection>(
+    EMPTY_DOWNLOAD_SELECTION,
+  );
 
-  const handleSelectionChange = useCallback(
-    (uuid: string, selection: DownloadSelection) => {
-      setSelections((current) => ({ ...current, [uuid]: selection }));
-    },
-    [],
+  function handleSelectionChange(uuid: string, selection: DownloadSelection) {
+    setSelections((current) => ({ ...current, [uuid]: selection }));
+  }
+
+  function applyToAllProducts(
+    update: (selection: DownloadSelection) => DownloadSelection,
+  ) {
+    setSelections((current) => {
+      const next = { ...current };
+      for (const card of cards) {
+        next[card.uuid] = update(next[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION);
+      }
+      return next;
+    });
+  }
+
+  function handleBulkAreaChange(areaCode: string) {
+    setBulkSelection((current) => ({ ...current, areaCode }));
+    applyToAllProducts((selection) => ({ ...selection, areaCode }));
+  }
+
+  function handleBulkProjectionChange(projectionCode: string) {
+    setBulkSelection((current) => ({
+      ...current,
+      projectionCode,
+      formatNames: [],
+    }));
+    applyToAllProducts((selection) => ({
+      ...selection,
+      projectionCode,
+      formatNames: [],
+    }));
+  }
+
+  function handleBulkFormatToggle(formatName: string) {
+    const formatNames = bulkSelection.formatNames.includes(formatName)
+      ? bulkSelection.formatNames.filter((name) => name !== formatName)
+      : [...bulkSelection.formatNames, formatName];
+
+    setBulkSelection((current) => ({ ...current, formatNames }));
+    applyToAllProducts((selection) => ({ ...selection, formatNames }));
+  }
+
+  const optionsList = cards.map(
+    (card) => optionsByUuid[card.uuid]?.options ?? null,
+  );
+  const isLoadingBulkOptions = cards.some(
+    (card) => optionsByUuid[card.uuid]?.isLoading ?? true,
   );
 
   const downloadableProducts = cards.flatMap((card) => {
@@ -72,6 +119,27 @@ export function DownloadCartList() {
               Kunne ikke hente alle datasettene i handlekurven.
             </Paragraph>
           ) : null}
+
+          <BulkDownloadSelectionForm
+            optionsList={optionsList}
+            isLoading={isLoadingBulkOptions}
+            onAreaChangeAction={handleBulkAreaChange}
+            onFormatToggleAction={handleBulkFormatToggle}
+            onProjectionChangeAction={handleBulkProjectionChange}
+            selectedAreaCode={bulkSelection.areaCode}
+            selectedFormatNames={bulkSelection.formatNames}
+            selectedProjectionCode={bulkSelection.projectionCode}
+          />
+
+          {productsWithMissingFields.length > 0 ? (
+            <MissingInputSummary
+              productsWithMissingFields={productsWithMissingFields}
+            />
+          ) : null}
+
+          <Heading level={2} data-size={"sm"}>
+            Velg pr produkt
+          </Heading>
           <div className={styles.results}>
             {cards.map((card) => (
               <DownloadCartCard
@@ -85,11 +153,6 @@ export function DownloadCartList() {
               />
             ))}
           </div>
-          {productsWithMissingFields.length > 0 ? (
-            <MissingInputSummary
-              productsWithMissingFields={productsWithMissingFields}
-            />
-          ) : null}
 
           <div className={styles.orderSection}>
             <Button

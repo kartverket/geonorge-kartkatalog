@@ -76,3 +76,62 @@ export function createDownloadOrderItem(
     formats: formats.map((format) => ({ name: format.name })),
   };
 }
+
+type DownloadArea = DownloadOptions["areas"][number];
+type DownloadFormat = DownloadOptions["formats"][number];
+type DownloadProjection = ReturnType<typeof getAvailableProjections>[number];
+
+function intersectByKey<T>(lists: T[][], key: (item: T) => string): T[] {
+  if (lists.length === 0) return [];
+
+  const [first, ...rest] = lists;
+  return first.filter((item) =>
+    rest.every((list) =>
+      list.some((candidate) => key(candidate) === key(item)),
+    ),
+  );
+}
+
+export function getCommonAreas(
+  optionsList: (DownloadOptions | null)[],
+): DownloadArea[] {
+  if (optionsList.length === 0 || optionsList.some((options) => !options)) {
+    return [];
+  }
+
+  return intersectByKey(
+    optionsList.map((options) => options?.areas ?? []),
+    (area) => area.code,
+  );
+}
+
+export function getCommonProjections(
+  optionsList: (DownloadOptions | null)[],
+): DownloadProjection[] {
+  if (optionsList.length === 0 || optionsList.some((options) => !options)) {
+    return [];
+  }
+
+  return intersectByKey(
+    optionsList.map((options) => getAvailableProjections(options)),
+    (projection) => projection.code,
+  );
+}
+
+export function getCommonFormats(
+  optionsList: (DownloadOptions | null)[],
+  projectionCode: string,
+): DownloadFormat[] {
+  if (
+    !projectionCode ||
+    optionsList.length === 0 ||
+    optionsList.some((options) => !options)
+  ) {
+    return [];
+  }
+
+  return intersectByKey(
+    optionsList.map((options) => getAvailableFormats(options, projectionCode)),
+    (format) => format.name,
+  );
+}
