@@ -202,7 +202,7 @@ export function DownloadPageContent({
               ) : null}
 
               <div className={styles.buttonContainer}>
-                <Button type="submit" disabled={!canOrder}>
+                <Button type="submit" variant="primary" disabled={!canOrder}>
                   {!isOrdering && <DownloadIcon aria-hidden />}
                   {isOrdering ? "Bestiller..." : "Last ned produkter"}
                 </Button>
