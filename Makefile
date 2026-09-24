@@ -27,6 +27,9 @@ fmt-frontend:
 lint-frontend:
 	cd frontend && npm run lint
 
+verify-frontend:
+	cd frontend && npm run ts-check && npm run next-compile
+
 build-frontend:
 	cd frontend && npm run build
 
