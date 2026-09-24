@@ -17,7 +17,6 @@ export function ProfileDropdown({
     <>
       <Button
         variant="tertiary"
-        data-color="neutral"
         className={className}
         popovertarget="profile-dropdown"
         onClick={posthogClick}
@@ -25,7 +24,7 @@ export function ProfileDropdown({
         <Avatar aria-hidden data-size="xs" />
         {userName}
       </Button>
-      <Dropdown id="profile-dropdown" data-color="neutral">
+      <Dropdown id="profile-dropdown">
         <Dropdown.Heading>Velg profil</Dropdown.Heading>
         <Dropdown.List>
           <Dropdown.Item>

@@ -17,7 +17,3 @@
   display: flex;
   justify-content: space-between;
 }
-
-.actions :global(.ds-button[data-color="neutral"]) {
-  --dsc-button-color: var(--ds-color-neutral-text-default);
-}

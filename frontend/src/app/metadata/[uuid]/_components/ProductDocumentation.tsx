@@ -73,7 +73,7 @@ export function ProductDocumentation({
 
 function DocumentationCard({ card }: { card: DocumentationCard }) {
   return (
-    <Card data-color="neutral" className={styles.card}>
+    <Card className={styles.card}>
       <div className={styles.cardBody}>
         <DocumentationCardBody card={card} />
       </div>
@@ -96,7 +96,6 @@ function DocumentationCardBody({ card }: { card: DocumentationCard }) {
             key={action.label}
             asChild
             variant={index === 0 ? "primary" : "secondary"}
-            data-color="neutral"
             className={styles.cardButton}
           >
             <a

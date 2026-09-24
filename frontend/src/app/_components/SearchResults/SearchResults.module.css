@@ -1,6 +1,6 @@
 .page {
   width: 100%;
-  background: var(--ds-color-background-tinted);
+  background: var(--ds-color-neutral-background-tinted);
 }
 
 .pageInner {

@@ -102,17 +102,12 @@ export function DownloadCartCard({
   }
 
   return (
-    <Card data-color="neutral" className={styles.card}>
+    <Card className={styles.card}>
       <div className={styles.infoRow}>
         <div className={styles.info}>
           <Button
             variant="tertiary"
             data-size="sm"
-            className={
-              expanded
-                ? `${styles.expandButton} ${styles.expanded}`
-                : styles.expandButton
-            }
             aria-expanded={expanded}
             aria-controls={detailsId}
             aria-label={expanded ? "Skjul detaljer" : "Vis detaljer"}

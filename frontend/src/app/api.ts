@@ -290,11 +290,12 @@ export async function orderDownload({
   return parseDownloadOrderResult(body);
 }
 
-export async function getDownloadInsightGroups(): Promise<DownloadInsightGroups> {
-  "use cache";
-  const url = `${API_BASE}/api/download/insight-groups`;
-  const body = await fetchJson(url, {
-    method: "GET",
-  });
-  return parseDownloadInsightGroups(body);
-}
+export const getDownloadInsightGroups = cache(
+  async (): Promise<DownloadInsightGroups> => {
+    const url = `${API_BASE}/api/download/insight-groups`;
+    const body = await fetchJson(url, {
+      method: "GET",
+    });
+    return parseDownloadInsightGroups(body);
+  },
+);
