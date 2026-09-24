@@ -50,7 +50,7 @@ export function DownloadCartCard({
   onSelectionChangeAction,
 }: DownloadCartCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const [selectedAreaCode, setSelectedAreaCode] = useState("");
+  const [selectedAreaCode, setSelectedAreaCode] = useState<string[]>([]);
   const [selectedProjectionCode, setSelectedProjectionCode] = useState("");
   const [selectedFormatNames, setSelectedFormatNames] = useState<string[]>([]);
   const {

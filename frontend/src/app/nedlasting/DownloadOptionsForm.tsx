@@ -2,10 +2,10 @@
 
 import { Checkbox, Select, Tag } from "@kv-designsystem/react";
 import { useId } from "react";
+import { AreaChipSelect } from "@/app/nedlasting/AreaChipSelect";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
 import { getAvailableFormats, getAvailableProjections } from "./downloadUtils";
-import { MultiSelectDropdown } from "./MultiSelectDropdown";
 
 type DownloadOptionsFormProps = {
   error: string | null;
@@ -49,7 +49,7 @@ export function DownloadOptionsForm({
   return (
     <div className={styles.selectionFields}>
       <div className={styles.selectionField}>
-        <MultiSelectDropdown
+        <AreaChipSelect
           id={areaId}
           label="Geografisk område"
           selectedValues={selectedAreaCode}
