@@ -18,7 +18,6 @@ export function TrackedActionLinkButton({
   return (
     <a
       data-variant="secondary"
-      data-color="neutral"
       target="_blank"
       rel="noreferrer"
       href={href}

@@ -311,7 +311,7 @@ function buildDistributionDetails({
                   {
                     label: "Geografisk distribusjonsinndeling",
                     content: (
-                      <span className={styles.tags} data-color="neutral">
+                      <span className={styles.tags}>
                         {group.unitsOfDistribution.split(",").map((unit) => (
                           <span className="ds-tag" key={unit}>
                             {unit.trim()}
@@ -325,7 +325,7 @@ function buildDistributionDetails({
             {
               label: "Referansesystem",
               content: (
-                <span className={styles.tags} data-color="neutral">
+                <span className={styles.tags}>
                   {referenceSystems.map((rs) => (
                     <span className="ds-tag" key={rs.codeSpace}>
                       {rs.code}

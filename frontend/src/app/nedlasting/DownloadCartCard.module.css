@@ -43,8 +43,3 @@
   padding: var(--ds-size-6) 0;
   margin: 0;
 }
-
-.productPageButton {
-  color: var(--ds-color-info-text-subtle);
-  border-color: var(--ds-color-info-text-subtle);
-}

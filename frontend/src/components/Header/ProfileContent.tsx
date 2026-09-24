@@ -16,7 +16,6 @@ export function ProfileContent({ location }: { location: Location }) {
         <Heading data-size="2xs">Velg profil</Heading>
         <Button
           variant="tertiary"
-          data-color="neutral"
           onClick={() => trackClick("personal-profile", location)}
         >
           <Avatar aria-hidden data-size="xs" />
@@ -24,7 +23,6 @@ export function ProfileContent({ location }: { location: Location }) {
         </Button>
         <Button
           variant="tertiary"
-          data-color="neutral"
           onClick={() => trackClick("organization-profile", location)}
         >
           <Avatar aria-hidden data-size="xs" variant="square">
@@ -37,7 +35,6 @@ export function ProfileContent({ location }: { location: Location }) {
       <div className={styles.actions}>
         <Button
           variant="tertiary"
-          data-color="neutral"
           onClick={() => trackClick("my-page", location)}
         >
           <PersonCircleIcon aria-hidden />
