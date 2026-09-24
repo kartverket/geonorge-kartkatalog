@@ -3,7 +3,7 @@
 import { Heading, Search, Tag } from "@kv-designsystem/react";
 import { LocationPinFillIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isBeta } from "@/lib/basePath";
 import { getProductTypeString } from "@/lib/productType";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
@@ -96,7 +96,4 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
       </div>
     </section>
   );
-}
-function useEffet(arg0: () => void) {
-  throw new Error("Function not implemented.");
 }
