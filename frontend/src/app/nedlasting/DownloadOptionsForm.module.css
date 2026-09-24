@@ -26,3 +26,8 @@
   flex-direction: column;
   gap: var(--ds-size-2);
 }
+
+.emptyMessage {
+  color: var(--ds-color-text-subtle);
+  font-size: 0.875rem;
+}

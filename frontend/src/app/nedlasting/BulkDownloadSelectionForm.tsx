@@ -62,6 +62,11 @@ export function BulkDownloadSelectionForm({
                 </Select.Option>
               ))}
             </Select>
+            {commonAreas.length === 0 ? (
+              <p className={styles.emptyMessage}>
+                Ingen felles geografiske områder for alle valgte produkter.
+              </p>
+            ) : null}
           </div>
           <div className={styles.selectionField}>
             <label className={styles.fieldLabel} htmlFor={projectionId}>
@@ -79,21 +84,33 @@ export function BulkDownloadSelectionForm({
                 </Select.Option>
               ))}
             </Select>
+            {commonProjections.length === 0 ? (
+              <p className={styles.emptyMessage}>
+                Ingen felles projeksjoner for alle valgte produkter.
+              </p>
+            ) : null}
           </div>
           {selectedProjectionCode ? (
             <fieldset className={styles.formatField}>
               <legend className={styles.fieldLabel}>Format</legend>
-              <div className={styles.formatOptions}>
-                {commonFormats.map((format) => (
-                  <Checkbox
-                    key={format.name}
-                    label={format.name}
-                    value={format.name}
-                    checked={selectedFormatNames.includes(format.name)}
-                    onChange={() => onFormatToggleAction(format.name)}
-                  />
-                ))}
-              </div>
+              {commonFormats.length === 0 ? (
+                <p className={styles.emptyMessage}>
+                  Ingen felles formater for alle valgte produkter med denne
+                  projeksjonen.
+                </p>
+              ) : (
+                <div className={styles.formatOptions}>
+                  {commonFormats.map((format) => (
+                    <Checkbox
+                      key={format.name}
+                      label={format.name}
+                      value={format.name}
+                      checked={selectedFormatNames.includes(format.name)}
+                      onChange={() => onFormatToggleAction(format.name)}
+                    />
+                  ))}
+                </div>
+              )}
             </fieldset>
           ) : null}
         </div>
