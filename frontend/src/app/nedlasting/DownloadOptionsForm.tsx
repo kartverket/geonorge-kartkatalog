@@ -49,14 +49,15 @@ export function DownloadOptionsForm({
   return (
     <div className={styles.selectionFields}>
       <div className={styles.selectionField}>
+        <label className={styles.fieldLabel} htmlFor={areaId}>
+          Geografisk område <Tag data-color="warning">Påkrevd</Tag>
+        </label>
         <AreaChipSelect
           id={areaId}
-          label="Geografisk område"
           selectedValues={selectedAreaCode}
           onChangeAction={onAreaChangeAction}
           options={options.areas}
           placeholder="Velg geografisk område"
-          required
         />
       </div>
       <div className={styles.selectionField}>

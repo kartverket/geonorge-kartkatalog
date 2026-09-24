@@ -1,6 +1,7 @@
 "use client";
 
 import { Chip, Select, Tag } from "@kv-designsystem/react";
+import styles from "./AreaChipSelect.module.css";
 
 type AreaOption = {
   code: string;
@@ -9,59 +10,50 @@ type AreaOption = {
 
 type AreaChipSelectProps = {
   id: string;
-  label: string;
   options: AreaOption[];
   selectedValues: string[];
   onChangeAction: (values: string[]) => void;
   placeholder?: string;
-  required?: boolean;
 };
 
 export function AreaChipSelect({
   id,
-  label,
   options,
   selectedValues,
   onChangeAction,
   placeholder = "Velg geografisk område",
-  required,
 }: AreaChipSelectProps) {
+  const selectedSet = new Set(selectedValues);
+  const optionByCode = new Map(options.map((option) => [option.code, option]));
+
   const selectedOptions = selectedValues
-    .map((value) => options.find((option) => option.code === value))
+    .map((value) => optionByCode.get(value))
     .filter((option): option is AreaOption => Boolean(option));
 
-  const availableOptions = options.filter(
-    (option) => !selectedValues.includes(option.code),
-  );
+  const availableOptions = options.filter((option) => !selectedSet.has(option.code));
 
   function handleSelectChange(nextValue: string) {
     if (!nextValue || selectedValues.includes(nextValue)) return;
     onChangeAction([...selectedValues, nextValue]);
   }
 
-  function handleRemove(code: string) {
-    onChangeAction(selectedValues.filter((value) => value !== code));
+  function handleRemoveClick(event: React.MouseEvent<HTMLButtonElement>) {
+    const code = event.currentTarget.dataset.code;
+    if (code) onChangeAction(selectedValues.filter((value) => value !== code));
   }
 
-  return (
-    <div>
-      <label htmlFor={id}>
-        {label} {required ? <Tag data-color="warning">Påkrevd</Tag> : null}
-      </label>
 
+
+  return (
+    <>
       {selectedOptions.length > 0 ? (
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "0.5rem",
-            margin: "0.5rem 0",
-          }}
+        <div className={styles.selectedChipsContainer}
         >
           {selectedOptions.map((option) => (
             <Chip.Removable
               key={option.code}
-              onClick={() => handleRemove(option.code)}
+              onClick={handleRemoveClick}
+              data-code={option.code}
             >
               {option.name}
             </Chip.Removable>
@@ -87,6 +79,6 @@ export function AreaChipSelect({
           </Select.Option>
         ))}
       </Select>
-    </div>
+    </>
   );
 }
