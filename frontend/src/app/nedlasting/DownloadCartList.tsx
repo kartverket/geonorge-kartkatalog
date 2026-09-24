@@ -1,85 +1,42 @@
 "use client";
 
-import { Button, Heading, Paragraph } from "@kv-designsystem/react";
-import { useCallback, useState } from "react";
-import { useOrderItems } from "@/app/_components/addToCart/useCart";
-import { MissingInputSummary } from "@/app/nedlasting/MissingInputSummary";
+import { Heading, Paragraph } from "@kv-designsystem/react";
+import type { DownloadSelection } from "@/app/nedlasting/downloadUtils";
 import type { DownloadOptions } from "@/lib/schemas/download";
-import { DownloadCartCard } from "./DownloadCartCard";
-import styles from "./DownloadCartList.module.css";
 import {
-  createDownloadOrderItem,
-  type DownloadSelection,
-  getMissingDownloadSelectionFields,
-  type MissingDownloadSelectionField,
-} from "./downloadUtils";
-import { useDownloadCartCards } from "./useDownloadCartCards";
-import { useDownloadOrder } from "./useDownloadOrder";
+  DownloadCartCard,
+  type DownloadCartCardProps,
+} from "./DownloadCartCard";
+import styles from "./DownloadCartList.module.css";
 
-type ProductSelection = {
-  options: DownloadOptions | null;
-  selection: DownloadSelection;
+type DownloadCartListProps = {
+  orderItemsCount: number;
+  cards: DownloadCartCardProps[];
+  isLoading: boolean;
+  hasLoadError: boolean;
+  onSelectionChange: (
+    uuid: string,
+    options: DownloadOptions | null,
+    selection: DownloadSelection,
+  ) => void;
 };
 
-export function DownloadCartList() {
-  const orderItems = useOrderItems();
-  const { cards, isLoading, hasLoadError } = useDownloadCartCards(orderItems);
-  const { isOrdering, orderError, orderResult, submitOrder } =
-    useDownloadOrder();
-  const [selectionInputs, setSelectionInputs] = useState<
-    Record<string, ProductSelection>
-  >({});
-
-  const handleSelectionChange = useCallback(
-    (
-      uuid: string,
-      options: DownloadOptions | null,
-      selection: DownloadSelection,
-    ) => {
-      setSelectionInputs((current) => ({
-        ...current,
-        [uuid]: { options, selection },
-      }));
-    },
-    [],
-  );
-
-  const downloadableProducts = cards.flatMap((card) => {
-    const productSelection = selectionInputs[card.uuid];
-
-    if (!productSelection) return [];
-
-    const item = createDownloadOrderItem(
-      card.uuid,
-      productSelection.options,
-      productSelection.selection,
-    );
-
-    return item ? [item] : [];
-  });
-  const productsWithMissingFields = cards.flatMap((card) => {
-    const productSelection = selectionInputs[card.uuid];
-    const missingFields: MissingDownloadSelectionField[] = productSelection
-      ? getMissingDownloadSelectionFields(productSelection.selection)
-      : ["area", "projection", "format"];
-
-    return missingFields.length > 0 ? [{ ...card, missingFields }] : [];
-  });
-  const canOrder =
-    cards.length === orderItems.length &&
-    downloadableProducts.length === cards.length &&
-    !isOrdering &&
-    !orderResult;
-
+export function DownloadCartList({
+  orderItemsCount,
+  cards,
+  isLoading,
+  hasLoadError,
+  onSelectionChange,
+}: DownloadCartListProps) {
   return (
     <div className={styles.pageInner}>
       <Heading data-size={"lg"} level={1}>
         Filnedlasting - bestilling
       </Heading>
       <Heading level={2} data-size={"sm"}>
-        Dine valgte produkter ({orderItems.length})
+        Dine valgte produkter ({orderItemsCount})
       </Heading>
-      {orderItems.length === 0 ? (
+      {orderItemsCount === 0 ? (
         <Paragraph>Ingen datasett lagt i handlekurv</Paragraph>
       ) : isLoading ? (
         <Paragraph aria-live="polite">Laster datasett...</Paragraph>
@@ -95,47 +52,9 @@ export function DownloadCartList() {
               <DownloadCartCard
                 key={card.uuid}
                 {...card}
-                onSelectionChangeAction={handleSelectionChange}
+                onSelectionChangeAction={onSelectionChange}
               />
             ))}
-          </div>
-          {productsWithMissingFields.length > 0 ? (
-            <MissingInputSummary
-              productsWithMissingFields={productsWithMissingFields}
-            />
-          ) : null}
-
-          <div className={styles.orderSection}>
-            <Button
-              onClick={() => submitOrder(downloadableProducts)}
-              disabled={!canOrder}
-            >
-              {isOrdering ? "Bestiller..." : "Bestill nedlasting"}
-            </Button>
-            {orderError ? (
-              <Paragraph aria-live="polite">{orderError}</Paragraph>
-            ) : null}
-            {orderResult ? (
-              <div>
-                {orderResult.orders
-                  .flatMap((order) => order.files)
-                  .map((file, index) => (
-                    <Paragraph key={`${file.metadataUuid}-${index}`}>
-                      {file.status === "ReadyForDownload" &&
-                      file.downloadUrl ? (
-                        <a href={file.downloadUrl}>
-                          Last ned {file.name ?? file.metadataName}
-                        </a>
-                      ) : (
-                        <>
-                          {file.name ?? file.metadataName} er under behandling.
-                          Du får beskjed når den er klar.
-                        </>
-                      )}
-                    </Paragraph>
-                  ))}
-              </div>
-            ) : null}
           </div>
         </>
       )}

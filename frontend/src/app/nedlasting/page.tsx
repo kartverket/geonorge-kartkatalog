@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { isBeta } from "@/lib/basePath";
-import { DownloadCartList } from "./DownloadCartList";
+import { getDownloadInsightGroups } from "@/app/api";
+import { DownloadPageContent } from "./DownloadPageContent";
 import styles from "./page.module.css";
 
-export default function NedlastingPage() {
-  if (isBeta) {
-    return null;
-  }
+export default async function NedlastingPage() {
+  const insightGroups = await getDownloadInsightGroups();
+
   return (
     <main className={styles.page} data-color="neutral">
       <div className={styles.content}>
@@ -14,7 +13,7 @@ export default function NedlastingPage() {
           <a href="/">Geonorge</a> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
           {"›"} <span>Filnedlasting</span>
         </nav>
-        <DownloadCartList />
+        <DownloadPageContent insightGroups={insightGroups} />
       </div>
     </main>
   );

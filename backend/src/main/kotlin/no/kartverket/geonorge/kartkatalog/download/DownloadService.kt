@@ -5,6 +5,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingArea
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
+import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingInsightGroups
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderLine
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderRequest
 
@@ -22,6 +23,7 @@ private data class ResolvedOrderLine(
 
 class DownloadService(
     private val nedlastingClient: NedlastingClient,
+    private val downloadInsightGroupsResolver: DownloadInsightGroupsResolver,
 ) {
     suspend fun order(request: DownloadOrderRequest): DownloadOrderResult =
         coroutineScope {
@@ -83,6 +85,16 @@ class DownloadService(
                     coordinates = item.coordinates,
                     clipperFile = item.clipperFile,
                 ),
+        )
+    }
+
+    suspend fun getInsightGroups(): NedlastingInsightGroups {
+        val formal = downloadInsightGroupsResolver.getValues("formal")
+        val brukergrupper = downloadInsightGroupsResolver.getValues("brukergrupper")
+
+        return NedlastingInsightGroups(
+            formal = formal?.toList() ?: emptyList(),
+            brukergrupper = brukergrupper?.toList() ?: emptyList(),
         )
     }
 }
