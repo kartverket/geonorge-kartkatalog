@@ -17,7 +17,6 @@ import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadCartCard.module.css";
 import { DownloadOptionsForm } from "./DownloadOptionsForm";
 import type { DownloadSelection } from "./downloadUtils";
-import { useDownloadOptions } from "./useDownloadOptions";
 
 export type DownloadCartCardProps = {
   uuid: string;
@@ -26,6 +25,9 @@ export type DownloadCartCardProps = {
   typeTranslated: string | null;
   accessState: "restricted" | "open" | "protected" | null;
   distributionUrl: string;
+  options: DownloadOptions | null;
+  isLoadingOptions: boolean;
+  optionsError: string | null;
   onSelectionChangeAction?: (
     uuid: string,
     options: DownloadOptions | null,
@@ -47,17 +49,15 @@ export function DownloadCartCard({
   typeTranslated,
   accessState,
   distributionUrl,
+  options,
+  isLoadingOptions,
+  optionsError,
   onSelectionChangeAction,
 }: DownloadCartCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [selectedAreaCode, setSelectedAreaCode] = useState("");
   const [selectedProjectionCode, setSelectedProjectionCode] = useState("");
   const [selectedFormatNames, setSelectedFormatNames] = useState<string[]>([]);
-  const {
-    error: optionsError,
-    isLoading: isLoadingOptions,
-    options,
-  } = useDownloadOptions(uuid, expanded);
 
   useEffect(() => {
     const selection = {

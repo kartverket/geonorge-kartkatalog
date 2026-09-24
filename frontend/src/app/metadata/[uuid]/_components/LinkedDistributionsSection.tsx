@@ -2,7 +2,10 @@
 
 import { Button, Heading } from "@kv-designsystem/react";
 import { useState } from "react";
-import {DatasetCard, DatasetCardProps} from "@/app/_components/DatasetCard/DatasetCard";
+import {
+  DatasetCard,
+  type DatasetCardProps,
+} from "@/app/_components/DatasetCard/DatasetCard";
 import { getProductTypeString } from "@/lib/productType";
 import type {
   LinkedDistribution,

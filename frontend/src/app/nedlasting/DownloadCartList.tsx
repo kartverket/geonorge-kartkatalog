@@ -14,6 +14,7 @@ import {
   type MissingDownloadSelectionField,
 } from "./downloadUtils";
 import { useDownloadCartCards } from "./useDownloadCartCards";
+import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
 
 type ProductSelection = {
@@ -24,6 +25,8 @@ type ProductSelection = {
 export function DownloadCartList() {
   const orderItems = useOrderItems();
   const { cards, isLoading, hasLoadError } = useDownloadCartCards(orderItems);
+  const cardUuids = cards.map((card) => card.uuid);
+  const optionsByUuid = useDownloadOptionsForCards(cardUuids);
   const { isOrdering, orderError, orderResult, submitOrder } =
     useDownloadOrder();
   const [selectionInputs, setSelectionInputs] = useState<
@@ -95,6 +98,9 @@ export function DownloadCartList() {
               <DownloadCartCard
                 key={card.uuid}
                 {...card}
+                options={optionsByUuid[card.uuid]?.options ?? null}
+                isLoadingOptions={optionsByUuid[card.uuid]?.isLoading ?? true}
+                optionsError={optionsByUuid[card.uuid]?.error ?? null}
                 onSelectionChangeAction={handleSelectionChange}
               />
             ))}
