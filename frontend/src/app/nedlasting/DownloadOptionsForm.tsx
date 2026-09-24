@@ -1,7 +1,11 @@
 "use client";
 
-import { Checkbox, Select, Tag } from "@kv-designsystem/react";
+import { Tag } from "@kv-designsystem/react";
 import { useId } from "react";
+import {
+  ChipMultiSelect,
+  type ChipSelectOption,
+} from "@/app/nedlasting/ChipMultiSelect";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
 import { getAvailableFormats, getAvailableProjections } from "./downloadUtils";
@@ -9,30 +13,34 @@ import { getAvailableFormats, getAvailableProjections } from "./downloadUtils";
 type DownloadOptionsFormProps = {
   error: string | null;
   isLoading: boolean;
-  onAreaChangeAction: (areaCode: string) => void;
-  onFormatToggleAction: (formatName: string) => void;
-  onProjectionChangeAction: (projectionCode: string) => void;
+  onAreaChangeAction: (areaCodes: string[]) => void;
+  onFormatChangeAction: (formatNames: string[]) => void;
+  onProjectionChangeAction: (projectionCodes: string[]) => void;
   options: DownloadOptions | null;
-  selectedAreaCode: string;
+  selectedAreaCode: string[];
   selectedFormatNames: string[];
-  selectedProjectionCode: string;
+  selectedProjectionCodes: string[];
 };
 
 export function DownloadOptionsForm({
   error,
   isLoading,
   onAreaChangeAction,
-  onFormatToggleAction,
+  onFormatChangeAction,
   onProjectionChangeAction,
   options,
   selectedAreaCode,
   selectedFormatNames,
-  selectedProjectionCode,
+  selectedProjectionCodes,
 }: DownloadOptionsFormProps) {
   const areaId = useId();
   const projectionId = useId();
+  const formatId = useId();
   const projections = getAvailableProjections(options);
-  const availableFormats = getAvailableFormats(options, selectedProjectionCode);
+  const availableFormats = getAvailableFormats(
+    options,
+    selectedProjectionCodes,
+  );
 
   if (isLoading) return <p>Henter nedlastingsvalg...</p>;
 
@@ -45,59 +53,61 @@ export function DownloadOptionsForm({
     );
   }
 
+  const areaOptions: ChipSelectOption[] = options.areas.map((area) => ({
+    label: area.name,
+    value: area.code,
+  }));
+  const projectionOptions: ChipSelectOption[] = projections.map(
+    (projection) => ({
+      label: projection.name,
+      value: projection.code,
+    }),
+  );
+  const formatOptions: ChipSelectOption[] = availableFormats.map((format) => ({
+    label: format.name,
+    value: format.name,
+  }));
+
   return (
     <div className={styles.selectionFields}>
       <div className={styles.selectionField}>
         <label className={styles.fieldLabel} htmlFor={areaId}>
           Geografisk område <Tag data-color="warning">Påkrevd</Tag>
         </label>
-        <Select
+        <ChipMultiSelect
           id={areaId}
-          value={selectedAreaCode}
-          onChange={(event) => onAreaChangeAction(event.target.value)}
-        >
-          <Select.Option value="">Velg geografisk område</Select.Option>
-          {options.areas.map((area) => (
-            <Select.Option key={area.code} value={area.code}>
-              {area.name}
-            </Select.Option>
-          ))}
-        </Select>
+          selectedValues={selectedAreaCode}
+          onChangeAction={onAreaChangeAction}
+          options={areaOptions}
+          placeholder="Velg geografisk område"
+        />
       </div>
       <div className={styles.selectionField}>
         <label className={styles.fieldLabel} htmlFor={projectionId}>
           Projeksjon <Tag data-color="warning">Påkrevd</Tag>
         </label>
-        <Select
+        <ChipMultiSelect
           id={projectionId}
-          value={selectedProjectionCode}
-          onChange={(event) => onProjectionChangeAction(event.target.value)}
-        >
-          <Select.Option value="">Velg projeksjon</Select.Option>
-          {projections.map((projection) => (
-            <Select.Option key={projection.code} value={projection.code}>
-              {projection.name}
-            </Select.Option>
-          ))}
-        </Select>
+          selectedValues={selectedProjectionCodes}
+          onChangeAction={onProjectionChangeAction}
+          options={projectionOptions}
+          placeholder="Velg projeksjon"
+        />
       </div>
-      {selectedProjectionCode ? (
-        <fieldset className={styles.formatField}>
-          <legend className={styles.fieldLabel}>
+      {selectedProjectionCodes.length > 0 ? (
+        <div className={styles.selectionField}>
+          <label className={styles.fieldLabel} htmlFor={formatId}>
             Format <Tag data-color="warning">Påkrevd</Tag>
-          </legend>
-          <div className={styles.formatOptions}>
-            {availableFormats.map((format) => (
-              <Checkbox
-                key={format.name}
-                label={format.name}
-                value={format.name}
-                checked={selectedFormatNames.includes(format.name)}
-                onChange={() => onFormatToggleAction(format.name)}
-              />
-            ))}
-          </div>
-        </fieldset>
+          </label>
+          <ChipMultiSelect
+            id={formatId}
+            selectedValues={selectedFormatNames}
+            onChangeAction={onFormatChangeAction}
+            options={formatOptions}
+            placeholder="Velg format"
+            noOptionsLabel="Ingen formater tilgjengelige for valgt projeksjon"
+          />
+        </div>
       ) : null}
     </div>
   );
