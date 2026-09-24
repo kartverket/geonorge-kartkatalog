@@ -1,7 +1,9 @@
 "use client";
 
 import {
-  Button, Field, Heading,
+  Button,
+  Field,
+  Heading,
   Input,
   Label,
   Paragraph,
@@ -25,7 +27,7 @@ import { DownloadCartList } from "./DownloadCartList";
 import styles from "./DownloadPageContent.module.css";
 import { useDownloadCartCards } from "./useDownloadCartCards";
 import { useDownloadOrder } from "./useDownloadOrder";
-import {DownloadIcon, TrashFillIcon, TrashIcon} from "@navikt/aksel-icons";
+import { DownloadIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 
 type DownloadPageContentProps = {
   insightGroups: DownloadInsightGroups;
@@ -141,105 +143,107 @@ export function DownloadPageContent({
       ) : null}
       {orderItems.length > 0 ? (
         <section className={styles.orderSectionWrapper}>
-        <section className={styles.orderSection}>
-          <Heading level={2} data-size={"sm"}>Vennligst fyll ut</Heading>
-          <form onSubmit={handleSubmit}>
-            <div className={styles.userInputs}>
-              <Field>
-              <Label>Brukergruppe</Label>
-              <Select
-                value={usageGroup}
-                onChange={(event) => setUsageGroup(event.target.value)}
-                disabled={!hasInsightGroupOptions || isOrdering}
-                required
-              >
-                <Select.Option value="">Velg brukergruppe</Select.Option>
-                {insightGroups.brukergrupper.map((group) => (
-                  <Select.Option key={group} value={group}>
-                    {group}
-                  </Select.Option>
-                ))}
-              </Select>
-              </Field>
-              <Field>
+          <section className={styles.orderSection}>
+            <Heading level={2} data-size={"sm"}>
+              Vennligst fyll ut
+            </Heading>
+            <form onSubmit={handleSubmit}>
+              <div className={styles.userInputs}>
+                <Field>
+                  <Label>Brukergruppe</Label>
+                  <Select
+                    value={usageGroup}
+                    onChange={(event) => setUsageGroup(event.target.value)}
+                    disabled={!hasInsightGroupOptions || isOrdering}
+                    required
+                  >
+                    <Select.Option value="">Velg brukergruppe</Select.Option>
+                    {insightGroups.brukergrupper.map((group) => (
+                      <Select.Option key={group} value={group}>
+                        {group}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field>
+                  <Label>Formål</Label>
+                  <Select
+                    value={usagePurpose}
+                    onChange={(event) => setUsagePurpose(event.target.value)}
+                    disabled={!hasInsightGroupOptions || isOrdering}
+                    required
+                  >
+                    <Select.Option value="">Velg formål</Select.Option>
+                    {insightGroups.formal.map((purpose) => (
+                      <Select.Option key={purpose} value={purpose}>
+                        {purpose}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field>
+                  <Label>E-post</Label>
+                  <Input
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    disabled={isOrdering}
+                    required
+                  />
+                </Field>
+              </div>
 
-              <Label>Formål</Label>
-              <Select
-                value={usagePurpose}
-                onChange={(event) => setUsagePurpose(event.target.value)}
-                disabled={!hasInsightGroupOptions || isOrdering}
-                required
-              >
-                <Select.Option value="">Velg formål</Select.Option>
-                {insightGroups.formal.map((purpose) => (
-                  <Select.Option key={purpose} value={purpose}>
-                    {purpose}
-                  </Select.Option>
-                ))}
-              </Select>
-              </Field>
-              <Field>
-              <Label>E-post</Label>
-              <Input
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                disabled={isOrdering}
-                required
-              />
-              </Field>
-            </div>
+              {!hasInsightGroupOptions ? (
+                <Paragraph aria-live="polite">
+                  Kunne ikke hente brukergrupper og formål for bestilling.
+                </Paragraph>
+              ) : null}
 
-            {!hasInsightGroupOptions ? (
-              <Paragraph aria-live="polite">
-                Kunne ikke hente brukergrupper og formål for bestilling.
-              </Paragraph>
+              <div className={styles.buttonContainer}>
+                <Button type="submit" disabled={!canOrder}>
+                  {!isOrdering && <DownloadIcon aria-hidden />}
+                  {isOrdering ? "Bestiller..." : "Last ned produkter"}
+                </Button>
+                <Button
+                  type="button"
+                  data-color="danger"
+                  variant="secondary"
+                  onClick={clearCart}
+                  disabled={isOrdering || orderItems.length === 0}
+                >
+                  <TrashIcon aria-hidden />
+                  Fjern alt fra handlekurv
+                </Button>
+              </div>
+            </form>
+
+            {orderError ? (
+              <Paragraph aria-live="polite">{orderError}</Paragraph>
             ) : null}
-
-            <div className={styles.buttonContainer}>
-              <Button type="submit" disabled={!canOrder}>
-                {!isOrdering && <DownloadIcon aria-hidden/>}
-                {isOrdering ? "Bestiller..." : "Last ned produkter"}
-              </Button>
-              <Button
-                type="button"
-                data-color="danger"
-                variant="secondary"
-                onClick={clearCart}
-                disabled={isOrdering || orderItems.length === 0}
-              >
-                <TrashIcon aria-hidden />
-                Fjern alt fra handlekurv
-              </Button>
-            </div>
-          </form>
-
-          {orderError ? (
-            <Paragraph aria-live="polite">{orderError}</Paragraph>
-          ) : null}
-          {orderResult ? (
-            <div className={styles.resultList}>
-              {orderResult.orders
-                .flatMap((order) => order.files)
-                .map((file, index) => (
-                  <Paragraph key={`${file.metadataUuid}-${index}`}>
-                    {file.status === "ReadyForDownload" && file.downloadUrl ? (
-                      <a href={file.downloadUrl}>
-                        Last ned {file.name ?? file.metadataName}
-                      </a>
-                    ) : (
-                      <>
-                        {file.name ?? file.metadataName} er under behandling. Du
-                        får beskjed når den er klar.
-                      </>
-                    )}
-                  </Paragraph>
-                ))}
-            </div>
-          ) : null}
-        </section>
+            {orderResult ? (
+              <div className={styles.resultList}>
+                {orderResult.orders
+                  .flatMap((order) => order.files)
+                  .map((file, index) => (
+                    <Paragraph key={`${file.metadataUuid}-${index}`}>
+                      {file.status === "ReadyForDownload" &&
+                      file.downloadUrl ? (
+                        <a href={file.downloadUrl}>
+                          Last ned {file.name ?? file.metadataName}
+                        </a>
+                      ) : (
+                        <>
+                          {file.name ?? file.metadataName} er under behandling.
+                          Du får beskjed når den er klar.
+                        </>
+                      )}
+                    </Paragraph>
+                  ))}
+              </div>
+            ) : null}
+          </section>
         </section>
       ) : null}
     </>

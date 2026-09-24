@@ -120,4 +120,3 @@ export function clearCart() {
   safeRemoveItem(ORDER_ITEMS_KEY);
   dispatchDownloadItemsChanged();
 }
-
