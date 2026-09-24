@@ -83,7 +83,7 @@ export function ProductTabs({
 
         <Tabs.Panel value="distribution" className={styles.panel}>
           <Heading data-size="xs">Tilganger til {productTypeDefinite}</Heading>
-          <div className={styles.accordionGroup} data-color="neutral">
+          <div className={styles.accordionGroup}>
             <DetailAccordion items={distributionDetails} />
           </div>
           <LinkedDistributionsSection
@@ -95,7 +95,7 @@ export function ProductTabs({
             <Heading data-size="xs">Om {productTypeDefinite}</Heading>
             <p className={styles.abstract}>{abstract ?? "-"}</p>
           </div>
-          <div className={styles.accordionGroup} data-color="neutral">
+          <div className={styles.accordionGroup}>
             <DetailAccordion items={infoDetails} />
           </div>
         </Tabs.Panel>

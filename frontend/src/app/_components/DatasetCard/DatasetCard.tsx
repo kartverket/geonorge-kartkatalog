@@ -97,7 +97,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
 
   return (
     <div className={viewMode === "list" ? styles.listMode : styles.gridMode}>
-      <Card data-color="neutral" className={styles.productCard}>
+      <Card className={styles.productCard}>
         {viewMode !== "list" && renderThumbnail()}
         <div className={styles.contentWrapper}>
           {p.typeTranslated && (

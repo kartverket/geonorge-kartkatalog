@@ -100,7 +100,6 @@ export function Header() {
             <Button
               asChild
               variant="tertiary"
-              data-color="neutral"
               className={`${styles.showFromSm} ${isHome ? styles.navActive : ""}`}
             >
               <Link
@@ -112,12 +111,7 @@ export function Header() {
                 Finn data
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="tertiary"
-              data-color="neutral"
-              className={styles.showFromXl}
-            >
+            <Button asChild variant="tertiary" className={styles.showFromXl}>
               <Link href={mapHref} onClick={() => trackHeaderClick("kart")}>
                 <Badge.Position
                   overlap="circle"
@@ -132,12 +126,7 @@ export function Header() {
                 Kart
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="tertiary"
-              data-color="neutral"
-              className={styles.showFromXl}
-            >
+            <Button asChild variant="tertiary" className={styles.showFromXl}>
               <Link
                 href={downloadHref}
                 onClick={() => trackHeaderClick("nedlastingskurv")}
@@ -166,7 +155,6 @@ export function Header() {
                   <Button
                     ref={profileButtonRef}
                     variant="tertiary"
-                    data-color="neutral"
                     className={styles.tabletOnly}
                     aria-expanded={openPanel === "profile"}
                     aria-controls="header-profile-panel"
@@ -179,7 +167,6 @@ export function Header() {
               ) : (
                 <Button
                   variant="tertiary"
-                  data-color="neutral"
                   className={styles.showFromSm}
                   onClick={() => trackHeaderClick("login")}
                 >
@@ -190,7 +177,6 @@ export function Header() {
             <Button
               ref={menuButtonRef}
               variant="tertiary"
-              data-color="neutral"
               aria-label="Meny"
               aria-expanded={openPanel === "menu"}
               aria-controls="header-menu-panel"

@@ -7,7 +7,7 @@ export default async function NedlastingPage() {
   const insightGroups = await getDownloadInsightGroups();
 
   return (
-    <main className={styles.page} data-color="neutral">
+    <main className={styles.page}>
       <div className={styles.content}>
         <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
           <a href="/">Geonorge</a> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
