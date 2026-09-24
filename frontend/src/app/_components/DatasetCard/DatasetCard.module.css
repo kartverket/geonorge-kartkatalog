@@ -77,6 +77,10 @@
   font-size: var(--ds-body-xs-font-size);
 }
 
+.datasetLink {
+  text-decoration: none;
+}
+
 /* grid */
 
 .gridMode {
