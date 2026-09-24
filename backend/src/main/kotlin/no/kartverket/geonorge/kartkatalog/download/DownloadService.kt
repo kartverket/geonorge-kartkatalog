@@ -87,6 +87,7 @@ class DownloadService(
                 ),
         )
     }
+
     suspend fun getInsightGroups(): NedlastingInsightGroups {
         val formal = downloadInsightGroupsResolver.getValues("formal")
         val brukergrupper = downloadInsightGroupsResolver.getValues("brukergrupper")
