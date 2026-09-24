@@ -202,7 +202,7 @@ export function HeaderMenu({
           <Button asChild variant="tertiary" className={styles.inMenuFromXl}>
             <a
               href={downloadHref}
-              onClick={() => onActionNavigate("nedlastingskurv")}
+              onClick={() => onActionNavigate("nedlasting")}
             >
               <Badge.Position
                 overlap="circle"
@@ -213,7 +213,7 @@ export function HeaderMenu({
                 {downloadCount > 0 && <Badge count={downloadCount} />}
                 <DownloadIcon aria-hidden />
               </Badge.Position>
-              Nedlastingskurv
+              Nedlasting
             </a>
           </Button>
           {!isBeta && (

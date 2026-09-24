@@ -163,7 +163,7 @@ export function DownloadCartCard({
             location={LOCATIONS.DownloadPage}
             variant="secondary"
             size="sm"
-            removeLabel="Fjern fra handlekurv"
+            removeLabel="Fjern fra nedlasting"
           />
         </div>
       </div>
