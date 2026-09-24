@@ -4,7 +4,6 @@ import { DownloadPageContent } from "./DownloadPageContent";
 import styles from "./page.module.css";
 
 export default async function NedlastingPage() {
-
   const insightGroups = await getDownloadInsightGroups();
 
   return (
