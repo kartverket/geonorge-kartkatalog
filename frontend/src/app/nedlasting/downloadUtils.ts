@@ -6,7 +6,7 @@ import type {
 export type DownloadSelection = {
   areaCode: string[];
   formatNames: string[];
-  projectionCode: string;
+  projectionCodes: string[];
 };
 
 export type MissingDownloadSelectionField = "area" | "projection" | "format";
@@ -18,7 +18,8 @@ export function getMissingDownloadSelectionFields(
 
   if (!selection.areaCode || selection.areaCode.length === 0)
     missingFields.push("area");
-  if (!selection.projectionCode) missingFields.push("projection");
+  if (!selection.projectionCodes || selection.projectionCodes.length === 0)
+    missingFields.push("projection");
   if (selection.formatNames.length === 0) missingFields.push("format");
 
   return missingFields;
@@ -38,12 +39,14 @@ export function getAvailableProjections(options: DownloadOptions | null) {
 
 export function getAvailableFormats(
   options: DownloadOptions | null,
-  projectionCode: string,
+  projectionCodes: string[],
 ) {
-  if (!options || !projectionCode) return [];
+  if (!options || projectionCodes.length === 0) return [];
 
   return options.formats.filter((format) =>
-    format.projections.some((projection) => projection.code === projectionCode),
+    projectionCodes.every((projectionCode) =>
+      format.projections.some((projection) => projection.code === projectionCode),
+    ),
   );
 }
 
@@ -56,19 +59,21 @@ export function createDownloadOrderItem(
     options?.areas.filter((candidate) =>
       selection.areaCode.includes(candidate.code),
     ) ?? [];
-  const projection = getAvailableProjections(options).find(
-    (candidate) => candidate.code === selection.projectionCode,
+  const selectedProjectionSet = new Set(selection.projectionCodes);
+  const projections = getAvailableProjections(options).filter((candidate) =>
+    selectedProjectionSet.has(candidate.code),
   );
-  const formats = getAvailableFormats(options, selection.projectionCode).filter(
+  const formats = getAvailableFormats(options, selection.projectionCodes).filter(
     (format) => selection.formatNames.includes(format.name),
   );
 
-  if (areas.length === 0 || !projection || formats.length === 0) return null;
+  if (areas.length === 0 || projections.length === 0 || formats.length === 0)
+    return null;
 
   return {
     uuid,
     areas: areas,
-    projections: [projection],
+    projections,
     formats: formats.map((format) => ({ name: format.name })),
   };
 }

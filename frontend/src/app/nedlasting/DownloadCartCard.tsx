@@ -16,7 +16,10 @@ import type { DownloadOptions } from "@/lib/schemas/download";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadCartCard.module.css";
 import { DownloadOptionsForm } from "./DownloadOptionsForm";
-import type { DownloadSelection } from "./downloadUtils";
+import {
+  type DownloadSelection,
+  getAvailableFormats,
+} from "./downloadUtils";
 import { useDownloadOptions } from "./useDownloadOptions";
 
 export type DownloadCartCardProps = {
@@ -51,7 +54,7 @@ export function DownloadCartCard({
 }: DownloadCartCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [selectedAreaCode, setSelectedAreaCode] = useState<string[]>([]);
-  const [selectedProjectionCode, setSelectedProjectionCode] = useState("");
+  const [selectedProjectionCodes, setSelectedProjectionCodes] = useState<string[]>([]);
   const [selectedFormatNames, setSelectedFormatNames] = useState<string[]>([]);
   const {
     error: optionsError,
@@ -63,7 +66,7 @@ export function DownloadCartCard({
     const selection = {
       areaCode: selectedAreaCode,
       formatNames: selectedFormatNames,
-      projectionCode: selectedProjectionCode,
+      projectionCodes: selectedProjectionCodes,
     };
 
     onSelectionChangeAction?.(uuid, options, selection);
@@ -71,7 +74,7 @@ export function DownloadCartCard({
     uuid,
     options,
     selectedAreaCode,
-    selectedProjectionCode,
+    selectedProjectionCodes,
     selectedFormatNames,
     onSelectionChangeAction,
   ]);
@@ -80,17 +83,19 @@ export function DownloadCartCard({
   const accessContext =
     TYPE_TO_ACCESS_CONTEXT[typeTranslated ?? ""] ?? "datasett";
 
-  function toggleFormat(formatName: string) {
-    setSelectedFormatNames((current) =>
-      current.includes(formatName)
-        ? current.filter((name) => name !== formatName)
-        : [...current, formatName],
-    );
+  function changeFormat(formatNames: string[]) {
+    setSelectedFormatNames(formatNames);
   }
 
-  function changeProjection(projectionCode: string) {
-    setSelectedProjectionCode(projectionCode);
-    setSelectedFormatNames([]);
+  function changeProjection(projectionCodes: string[]) {
+    setSelectedProjectionCodes(projectionCodes);
+    setSelectedFormatNames((current) => {
+      const availableFormatNames = new Set(
+        getAvailableFormats(options, projectionCodes).map((format) => format.name),
+      );
+
+      return current.filter((formatName) => availableFormatNames.has(formatName));
+    });
   }
 
   return (
@@ -178,12 +183,12 @@ export function DownloadCartCard({
             error={optionsError}
             isLoading={isLoadingOptions}
             onAreaChangeAction={setSelectedAreaCode}
-            onFormatToggleAction={toggleFormat}
+            onFormatChangeAction={changeFormat}
             onProjectionChangeAction={changeProjection}
             options={options}
             selectedAreaCode={selectedAreaCode}
             selectedFormatNames={selectedFormatNames}
-            selectedProjectionCode={selectedProjectionCode}
+            selectedProjectionCodes={selectedProjectionCodes}
           />
         </div>
       ) : null}
