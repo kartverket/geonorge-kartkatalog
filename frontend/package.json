@@ -7,7 +7,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "ts-check": "tsc --noEmit",
+    "next-compile": "next build --experimental-build-mode compile",
     "lint": "biome check",
+    "lint-fix": "biome check --write ./src",
     "format": "biome format --write"
   },
   "dependencies": {
