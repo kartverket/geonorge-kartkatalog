@@ -31,5 +31,9 @@ jobs:
               run: make lint-frontend
               
             - name: Run build
+              env:
+                  API_BASE: http://dummmyApi.no
+                  REGISTER_BASE_URL: http://dummyRegister.no
+                  KATALOG_BASE_URL: http://dummyKatalog.no
               run: make build-frontend
               
