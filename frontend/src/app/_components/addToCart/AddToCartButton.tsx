@@ -18,8 +18,8 @@ export default function AddToCartButton({
   variant,
   size,
   location,
-  addLabel = "Legg til i handlekurv",
-  removeLabel = "Fjern fra handlekurv",
+  addLabel = "Legg til nedlasting",
+  removeLabel = "Fjern fra nedlasting",
   preventAccordionToggle = false,
 }: {
   item: DownloadItem | null;
@@ -56,7 +56,6 @@ export default function AddToCartButton({
 
   return (
     <Button
-      data-color="neutral"
       variant={variant}
       data-size={size}
       className={className}

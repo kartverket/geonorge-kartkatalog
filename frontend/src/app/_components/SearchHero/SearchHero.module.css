@@ -66,6 +66,12 @@
   min-width: 0;
 }
 
+.searchButton.searchButton {
+  --dsc-button-background: var(--ds-color-accent-base-contrast-default);
+  --dsc-button-color: var(--ds-color-accent-base-active);
+  --dsc-button-background--hover: var(--ds-color-accent-surface-hover);
+}
+
 .title {
   color: inherit;
   margin: 0;

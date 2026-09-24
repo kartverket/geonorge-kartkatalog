@@ -175,12 +175,7 @@ export function HeaderMenu({
     <div className={styles.panel}>
       <div className={styles.panelInner}>
         <div className={styles.menuActions}>
-          <Button
-            asChild
-            variant="tertiary"
-            data-color="neutral"
-            className={styles.inMenuFromSm}
-          >
+          <Button asChild variant="tertiary" className={styles.inMenuFromSm}>
             <Link
               href={findDataHref}
               onClick={() => {
@@ -191,53 +186,39 @@ export function HeaderMenu({
               Finn data
             </Link>
           </Button>
-          <Button
-            asChild
-            variant="tertiary"
-            data-color="neutral"
-            className={styles.inMenuFromXl}
-          >
+          <Button asChild variant="tertiary" className={styles.inMenuFromXl}>
             <a href={mapHref} onClick={() => onActionNavigate("kart")}>
               <Badge.Position
                 overlap="circle"
                 placement="top-left"
                 className={styles.badge}
               >
-                {mapCount > 0 && (
-                  <Badge count={mapCount} data-color="neutral" />
-                )}
+                {mapCount > 0 && <Badge count={mapCount} data-color="danger" />}
                 <LocationPinIcon aria-hidden />
               </Badge.Position>
               Kart
             </a>
           </Button>
-          <Button
-            asChild
-            variant="tertiary"
-            data-color="neutral"
-            className={styles.inMenuFromXl}
-          >
+          <Button asChild variant="tertiary" className={styles.inMenuFromXl}>
             <a
               href={downloadHref}
-              onClick={() => onActionNavigate("nedlastingskurv")}
+              onClick={() => onActionNavigate("nedlasting")}
             >
               <Badge.Position
                 overlap="circle"
                 placement="top-left"
                 className={styles.badge}
+                data-color="danger"
               >
-                {downloadCount > 0 && (
-                  <Badge count={downloadCount} data-color="danger" />
-                )}
+                {downloadCount > 0 && <Badge count={downloadCount} />}
                 <DownloadIcon aria-hidden />
               </Badge.Position>
-              Nedlastingskurv
+              Nedlasting
             </a>
           </Button>
           {!isBeta && (
             <Button
               variant="tertiary"
-              data-color="neutral"
               onClick={() => posthogClickAction("change-language")}
             >
               <LanguageIcon aria-hidden />
@@ -248,7 +229,6 @@ export function HeaderMenu({
             (userName ? (
               <Button
                 variant="tertiary"
-                data-color="neutral"
                 className={styles.inMenuFromSm}
                 aria-expanded={view === "profile"}
                 onClick={() => {
@@ -262,7 +242,6 @@ export function HeaderMenu({
             ) : (
               <Button
                 variant="tertiary"
-                data-color="neutral"
                 className={styles.inMenuFromSm}
                 onClick={() => posthogClickAction("login")}
               >
@@ -275,7 +254,7 @@ export function HeaderMenu({
         {view === "profile" ? (
           <ProfileContent location={LOCATIONS.HeaderMenu} />
         ) : (
-          <nav aria-label="Hovedmeny" data-color="info">
+          <nav aria-label="Hovedmeny">
             <ul className={styles.section}>
               {MENU_SECTIONS.map((section) => (
                 <li key={section.title}>

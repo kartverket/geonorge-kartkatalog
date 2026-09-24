@@ -1,0 +1,34 @@
+name: Frontend Build PR
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - ".github/agents/**"
+      - "backend/**"
+
+permissions:
+    contents: read
+
+jobs:
+    verify-frontend:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: '26'
+
+            - name: Install dependencies
+              run: make ci-frontend
+
+            - name: Check formatting and linting
+              run: make lint-frontend
+              
+            - name: Build most of the frontend                  
+              run: make verify-frontend
+              

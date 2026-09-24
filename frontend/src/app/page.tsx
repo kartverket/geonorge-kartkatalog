@@ -40,7 +40,7 @@ export default async function Home({
   const searchResult = await getSearchResults({
     text,
     offset: initialOffset,
-    limit: Number(limit) || 25,
+    limit: Number(limit) || 12,
     orderby: orderby || "score",
     filters: filters,
   });

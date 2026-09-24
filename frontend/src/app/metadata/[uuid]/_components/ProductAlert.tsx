@@ -1,5 +1,6 @@
 "use client";
 
+import Markdown from "react-markdown";
 import type { Alert } from "@/lib/schemas/alerts";
 
 export default function ProductAlert({ alert }: { alert: Alert }) {
@@ -15,7 +16,7 @@ export default function ProductAlert({ alert }: { alert: Alert }) {
         <h3 className="ds-heading" data-size="xs">
           {alert.alertType}
         </h3>
-        <p className="ds-paragraph">{alertNoteText}</p>
+        <Markdown>{alertNoteText}</Markdown>
       </div>
     </div>
   );

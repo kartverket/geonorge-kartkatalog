@@ -16,7 +16,6 @@
 
 a {
   color: inherit;
-  text-decoration: none;
 }
 
 html {
@@ -33,4 +32,14 @@ body {
   font-feature-settings: "cv05" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.ds-button[data-variant="primary"] {
+  --dsc-button-background: var(--ds-color-accent-base-active);
+  --dsc-button-background--hover: var(--ds-color-accent-text-default);
+}
+
+.ds-button[data-variant="secondary"] {
+  --dsc-button-color: var(--ds-color-accent-base-active);
+  --dsc-button-border-color: var(--ds-color-accent-base-active);
 }

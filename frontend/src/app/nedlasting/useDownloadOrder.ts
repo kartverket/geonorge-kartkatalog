@@ -8,6 +8,12 @@ import {
   parseDownloadOrderResult,
 } from "@/lib/schemas/download";
 
+type DownloadOrderSubmission = {
+  email: string;
+  usageGroup: string;
+  items: DownloadOrderItemInput[];
+};
+
 export function useDownloadOrder() {
   const [isOrdering, setIsOrdering] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
@@ -15,7 +21,11 @@ export function useDownloadOrder() {
     null,
   );
 
-  async function submitOrder(items: DownloadOrderItemInput[]) {
+  async function submitOrder({
+    email,
+    usageGroup,
+    items,
+  }: DownloadOrderSubmission) {
     setIsOrdering(true);
     setOrderError(null);
     setOrderResult(null);
@@ -24,7 +34,7 @@ export function useDownloadOrder() {
       const response = await fetch(`${basePath}/api/download/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ email, usageGroup, items }),
       });
 
       if (!response.ok) {

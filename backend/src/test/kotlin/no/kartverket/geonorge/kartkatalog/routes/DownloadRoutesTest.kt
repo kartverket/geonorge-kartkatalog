@@ -19,9 +19,11 @@ import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
+import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -109,7 +111,9 @@ class DownloadRoutesTest {
                         install(ContentNegotiation) { json() }
                     }
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
-                val downloadService = DownloadService(nedlastingClient)
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -156,7 +160,9 @@ class DownloadRoutesTest {
                         install(ContentNegotiation) { json() }
                     }
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
-                val downloadService = DownloadService(nedlastingClient)
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -207,7 +213,9 @@ class DownloadRoutesTest {
                         install(ContentNegotiation) { json() }
                     }
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
-                val downloadService = DownloadService(nedlastingClient)
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -270,7 +278,9 @@ class DownloadRoutesTest {
                         install(ContentNegotiation) { json() }
                     }
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
-                val downloadService = DownloadService(nedlastingClient)
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -319,7 +329,9 @@ class DownloadRoutesTest {
                         install(ContentNegotiation) { json() }
                     }
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
-                val downloadService = DownloadService(nedlastingClient)
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 

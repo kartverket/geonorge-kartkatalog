@@ -31,7 +31,6 @@ export default function ErrorPage({
       <div className={styles.actions}>
         <Button
           variant="primary"
-          data-color="neutral"
           onClick={() => {
             trackClick("reload-page", LOCATIONS.MetadataPageError);
             retry();

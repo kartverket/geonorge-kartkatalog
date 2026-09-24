@@ -97,7 +97,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
 
   return (
     <div className={viewMode === "list" ? styles.listMode : styles.gridMode}>
-      <Card data-color="neutral" className={styles.productCard}>
+      <Card className={styles.productCard}>
         {viewMode !== "list" && renderThumbnail()}
         <div className={styles.contentWrapper}>
           {p.typeTranslated && (
@@ -120,6 +120,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           )}
           <Heading level={3} data-size={"sm"}>
             <Link
+              className={styles.datasetLink}
               href={`/metadata/${p.uuid}`}
               onClick={() =>
                 trackClick("open-dataset-card", analyticsLocation, {

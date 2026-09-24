@@ -6,6 +6,27 @@ import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
 import { getAvailableFormats, getAvailableProjections } from "./downloadUtils";
 
+type AreaOption = DownloadOptions["areas"][number];
+
+type AreaOptionGroup = {
+  label: string;
+  areas: AreaOption[];
+};
+
+const AREA_GROUPS = [
+  { type: "landsdekkende", label: "Hele landet" },
+  { type: "fylke", label: "Fylke" },
+  { type: "kommune", label: "Kommune" },
+] as const;
+
+function getAreaOptionGroups(areas: AreaOption[]): AreaOptionGroup[] {
+  return AREA_GROUPS.flatMap(({ type, label }) => {
+    const groupedAreas = areas.filter((area) => area.type === type);
+
+    return groupedAreas.length > 0 ? [{ label, areas: groupedAreas }] : [];
+  });
+}
+
 type DownloadOptionsFormProps = {
   error: string | null;
   isLoading: boolean;
@@ -31,6 +52,7 @@ export function DownloadOptionsForm({
 }: DownloadOptionsFormProps) {
   const areaId = useId();
   const projectionId = useId();
+  const areaGroups = options ? getAreaOptionGroups(options.areas) : [];
   const projections = getAvailableProjections(options);
   const availableFormats = getAvailableFormats(options, selectedProjectionCode);
 
@@ -57,11 +79,21 @@ export function DownloadOptionsForm({
           onChange={(event) => onAreaChangeAction(event.target.value)}
         >
           <Select.Option value="">Velg geografisk område</Select.Option>
-          {options.areas.map((area) => (
-            <Select.Option key={area.code} value={area.code}>
-              {area.name}
-            </Select.Option>
-          ))}
+          {areaGroups.length > 0
+            ? areaGroups.map((group) => (
+                <Select.Optgroup key={group.label} label={group.label}>
+                  {group.areas.map((area) => (
+                    <Select.Option key={area.code} value={area.code}>
+                      {area.name}
+                    </Select.Option>
+                  ))}
+                </Select.Optgroup>
+              ))
+            : options.areas.map((area) => (
+                <Select.Option key={area.code} value={area.code}>
+                  {area.name}
+                </Select.Option>
+              ))}
         </Select>
       </div>
       <div className={styles.selectionField}>
