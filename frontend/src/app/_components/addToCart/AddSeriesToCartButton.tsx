@@ -66,12 +66,12 @@ export default function AddSeriesToCartButton({
       {areItemsInCart ? (
         <>
           <TrashIcon aria-hidden />
-          Fjern alle fra handlekurv
+          Fjern alle fra nedlasting
         </>
       ) : (
         <>
           <DownloadIcon aria-hidden />
-          Legg alle i handlekurv
+          Legg alle til nedlasting
         </>
       )}
     </Button>

@@ -214,7 +214,7 @@ export function DownloadPageContent({
                   disabled={isOrdering || orderItems.length === 0}
                 >
                   <TrashIcon aria-hidden />
-                  Fjern alt fra handlekurv
+                  Fjern alt fra nedlasting
                 </Button>
               </div>
             </form>

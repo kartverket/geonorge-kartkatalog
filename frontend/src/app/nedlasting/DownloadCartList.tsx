@@ -37,14 +37,14 @@ export function DownloadCartList({
         Dine valgte produkter ({orderItemsCount})
       </Heading>
       {orderItemsCount === 0 ? (
-        <Paragraph>Ingen datasett lagt i handlekurv</Paragraph>
+        <Paragraph>Ingen datasett lagt til nedlasting</Paragraph>
       ) : isLoading ? (
         <Paragraph aria-live="polite">Laster datasett...</Paragraph>
       ) : (
         <>
           {hasLoadError ? (
             <Paragraph aria-live="polite">
-              Kunne ikke hente alle datasettene i handlekurven.
+              Kunne ikke hente alle datasettene lagt til nedlasting.
             </Paragraph>
           ) : null}
           <div className={styles.results}>
