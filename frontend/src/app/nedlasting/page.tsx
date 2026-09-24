@@ -1,13 +1,9 @@
 import Link from "next/link";
 import { getDownloadInsightGroups } from "@/app/api";
-import { isBeta } from "@/lib/basePath";
 import { DownloadPageContent } from "./DownloadPageContent";
 import styles from "./page.module.css";
 
 export default async function NedlastingPage() {
-  if (isBeta) {
-    return null;
-  }
 
   const insightGroups = await getDownloadInsightGroups();
 
