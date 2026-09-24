@@ -1,11 +1,11 @@
-export const dynamic = "force-dynamic";
-
 import Link from "next/link";
 import { getDownloadInsightGroups } from "@/app/api";
 import { DownloadPageContent } from "./DownloadPageContent";
 import styles from "./page.module.css";
+import {connection} from "next/server";
 
 export default async function NedlastingPage() {
+  await connection();
   const insightGroups = await getDownloadInsightGroups();
 
   return (
