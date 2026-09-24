@@ -15,9 +15,9 @@ import { clearCart } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import {
   createDownloadOrderItem,
+  type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
   getMissingDownloadSelectionFields,
-  type DownloadSelection,
 } from "@/app/nedlasting/downloadUtils";
 import type { DownloadInsightGroups } from "@/lib/schemas/download";
 import { DownloadCartList } from "./DownloadCartList";

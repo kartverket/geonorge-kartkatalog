@@ -5,8 +5,8 @@ import { BulkDownloadSelectionForm } from "./BulkDownloadSelectionForm";
 import { DownloadCartCard } from "./DownloadCartCard";
 import styles from "./DownloadCartList.module.css";
 import {
-  EMPTY_DOWNLOAD_SELECTION,
   type DownloadSelection,
+  EMPTY_DOWNLOAD_SELECTION,
   type MissingDownloadSelectionField,
 } from "./downloadUtils";
 import { MissingInputSummary } from "./MissingInputSummary";
