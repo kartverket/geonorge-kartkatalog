@@ -37,7 +37,10 @@ export function DownloadOptionsForm({
   const projectionId = useId();
   const formatId = useId();
   const projections = getAvailableProjections(options);
-  const availableFormats = getAvailableFormats(options, selectedProjectionCodes);
+  const availableFormats = getAvailableFormats(
+    options,
+    selectedProjectionCodes,
+  );
 
   if (isLoading) return <p>Henter nedlastingsvalg...</p>;
 
@@ -54,10 +57,12 @@ export function DownloadOptionsForm({
     label: area.name,
     value: area.code,
   }));
-  const projectionOptions: ChipSelectOption[] = projections.map((projection) => ({
-    label: projection.name,
-    value: projection.code,
-  }));
+  const projectionOptions: ChipSelectOption[] = projections.map(
+    (projection) => ({
+      label: projection.name,
+      value: projection.code,
+    }),
+  );
   const formatOptions: ChipSelectOption[] = availableFormats.map((format) => ({
     label: format.name,
     value: format.name,

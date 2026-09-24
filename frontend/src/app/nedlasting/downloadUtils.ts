@@ -45,7 +45,9 @@ export function getAvailableFormats(
 
   return options.formats.filter((format) =>
     projectionCodes.every((projectionCode) =>
-      format.projections.some((projection) => projection.code === projectionCode),
+      format.projections.some(
+        (projection) => projection.code === projectionCode,
+      ),
     ),
   );
 }
@@ -63,9 +65,10 @@ export function createDownloadOrderItem(
   const projections = getAvailableProjections(options).filter((candidate) =>
     selectedProjectionSet.has(candidate.code),
   );
-  const formats = getAvailableFormats(options, selection.projectionCodes).filter(
-    (format) => selection.formatNames.includes(format.name),
-  );
+  const formats = getAvailableFormats(
+    options,
+    selection.projectionCodes,
+  ).filter((format) => selection.formatNames.includes(format.name));
 
   if (areas.length === 0 || projections.length === 0 || formats.length === 0)
     return null;

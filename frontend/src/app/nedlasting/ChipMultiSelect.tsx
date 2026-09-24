@@ -29,7 +29,9 @@ export function ChipMultiSelect({
   selectedValues,
 }: ChipSelectProps) {
   const selectedSet = new Set(selectedValues);
-  const optionByValue = new Map(options.map((option) => [option.value, option]));
+  const optionByValue = new Map(
+    options.map((option) => [option.value, option]),
+  );
 
   const selectedOptions = selectedValues
     .map((value) => optionByValue.get(value))
@@ -92,4 +94,3 @@ export function ChipMultiSelect({
     </>
   );
 }
-

@@ -16,10 +16,7 @@ import type { DownloadOptions } from "@/lib/schemas/download";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadCartCard.module.css";
 import { DownloadOptionsForm } from "./DownloadOptionsForm";
-import {
-  type DownloadSelection,
-  getAvailableFormats,
-} from "./downloadUtils";
+import { type DownloadSelection, getAvailableFormats } from "./downloadUtils";
 import { useDownloadOptions } from "./useDownloadOptions";
 
 export type DownloadCartCardProps = {
@@ -54,7 +51,9 @@ export function DownloadCartCard({
 }: DownloadCartCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [selectedAreaCode, setSelectedAreaCode] = useState<string[]>([]);
-  const [selectedProjectionCodes, setSelectedProjectionCodes] = useState<string[]>([]);
+  const [selectedProjectionCodes, setSelectedProjectionCodes] = useState<
+    string[]
+  >([]);
   const [selectedFormatNames, setSelectedFormatNames] = useState<string[]>([]);
   const {
     error: optionsError,
@@ -91,10 +90,14 @@ export function DownloadCartCard({
     setSelectedProjectionCodes(projectionCodes);
     setSelectedFormatNames((current) => {
       const availableFormatNames = new Set(
-        getAvailableFormats(options, projectionCodes).map((format) => format.name),
+        getAvailableFormats(options, projectionCodes).map(
+          (format) => format.name,
+        ),
       );
 
-      return current.filter((formatName) => availableFormatNames.has(formatName));
+      return current.filter((formatName) =>
+        availableFormatNames.has(formatName),
+      );
     });
   }
 
