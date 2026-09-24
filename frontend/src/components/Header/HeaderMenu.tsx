@@ -175,11 +175,7 @@ export function HeaderMenu({
     <div className={styles.panel}>
       <div className={styles.panelInner}>
         <div className={styles.menuActions}>
-          <Button
-            asChild
-            variant="tertiary"
-            className={styles.inMenuFromSm}
-          >
+          <Button asChild variant="tertiary" className={styles.inMenuFromSm}>
             <Link
               href={findDataHref}
               onClick={() => {
@@ -190,30 +186,20 @@ export function HeaderMenu({
               Finn data
             </Link>
           </Button>
-          <Button
-            asChild
-            variant="tertiary"
-            className={styles.inMenuFromXl}
-          >
+          <Button asChild variant="tertiary" className={styles.inMenuFromXl}>
             <a href={mapHref} onClick={() => onActionNavigate("kart")}>
               <Badge.Position
                 overlap="circle"
                 placement="top-left"
                 className={styles.badge}
               >
-                {mapCount > 0 && (
-                  <Badge count={mapCount} data-color="danger"  />
-                )}
+                {mapCount > 0 && <Badge count={mapCount} data-color="danger" />}
                 <LocationPinIcon aria-hidden />
               </Badge.Position>
               Kart
             </a>
           </Button>
-          <Button
-            asChild
-            variant="tertiary"
-            className={styles.inMenuFromXl}
-          >
+          <Button asChild variant="tertiary" className={styles.inMenuFromXl}>
             <a
               href={downloadHref}
               onClick={() => onActionNavigate("nedlastingskurv")}
@@ -224,9 +210,7 @@ export function HeaderMenu({
                 className={styles.badge}
                 data-color="danger"
               >
-                {downloadCount > 0 && (
-                  <Badge count={downloadCount} />
-                )}
+                {downloadCount > 0 && <Badge count={downloadCount} />}
                 <DownloadIcon aria-hidden />
               </Badge.Position>
               Nedlastingskurv

@@ -111,11 +111,7 @@ export function Header() {
                 Finn data
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="tertiary"
-              className={styles.showFromXl}
-            >
+            <Button asChild variant="tertiary" className={styles.showFromXl}>
               <Link href={mapHref} onClick={() => trackHeaderClick("kart")}>
                 <Badge.Position
                   overlap="circle"
@@ -130,11 +126,7 @@ export function Header() {
                 Kart
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="tertiary"
-              className={styles.showFromXl}
-            >
+            <Button asChild variant="tertiary" className={styles.showFromXl}>
               <Link
                 href={downloadHref}
                 onClick={() => trackHeaderClick("nedlastingskurv")}
