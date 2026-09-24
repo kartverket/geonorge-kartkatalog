@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
+    "lint-fix": "biome check --write ./src",
     "format": "biome format --write"
   },
   "dependencies": {

@@ -9,7 +9,9 @@ import {
   Paragraph,
   Select,
 } from "@kv-designsystem/react";
+import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
 import { type SubmitEventHandler, useCallback, useState } from "react";
+import { clearCart } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import {
   createDownloadOrderItem,
@@ -17,7 +19,6 @@ import {
   getMissingDownloadSelectionFields,
   type MissingDownloadSelectionField,
 } from "@/app/nedlasting/downloadUtils";
-import { clearCart } from "@/app/_components/addToCart/cartStorage";
 import { MissingInputSummary } from "@/app/nedlasting/MissingInputSummary";
 import type {
   DownloadInsightGroups,
@@ -27,7 +28,6 @@ import { DownloadCartList } from "./DownloadCartList";
 import styles from "./DownloadPageContent.module.css";
 import { useDownloadCartCards } from "./useDownloadCartCards";
 import { useDownloadOrder } from "./useDownloadOrder";
-import { DownloadIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 
 type DownloadPageContentProps = {
   insightGroups: DownloadInsightGroups;
