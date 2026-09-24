@@ -16,7 +16,8 @@ export function getMissingDownloadSelectionFields(
 ): MissingDownloadSelectionField[] {
   const missingFields: MissingDownloadSelectionField[] = [];
 
-  if (!selection.areaCode || selection.areaCode.length === 0) missingFields.push("area");
+  if (!selection.areaCode || selection.areaCode.length === 0)
+    missingFields.push("area");
   if (!selection.projectionCode) missingFields.push("projection");
   if (selection.formatNames.length === 0) missingFields.push("format");
 
@@ -51,9 +52,10 @@ export function createDownloadOrderItem(
   options: DownloadOptions | null,
   selection: DownloadSelection,
 ): DownloadOrderItemInput | null {
-  const areas = options?.areas.filter(
-    (candidate) => selection.areaCode.includes(candidate.code),
-  ) ?? [];
+  const areas =
+    options?.areas.filter((candidate) =>
+      selection.areaCode.includes(candidate.code),
+    ) ?? [];
   const projection = getAvailableProjections(options).find(
     (candidate) => candidate.code === selection.projectionCode,
   );
