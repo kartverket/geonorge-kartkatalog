@@ -15,26 +15,19 @@ import { clearCart } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import {
   createDownloadOrderItem,
-  type DownloadSelection,
+  EMPTY_DOWNLOAD_SELECTION,
   getMissingDownloadSelectionFields,
-  type MissingDownloadSelectionField,
+  type DownloadSelection,
 } from "@/app/nedlasting/downloadUtils";
-import { MissingInputSummary } from "@/app/nedlasting/MissingInputSummary";
-import type {
-  DownloadInsightGroups,
-  DownloadOptions,
-} from "@/lib/schemas/download";
+import type { DownloadInsightGroups } from "@/lib/schemas/download";
 import { DownloadCartList } from "./DownloadCartList";
 import styles from "./DownloadPageContent.module.css";
 import { useDownloadCartCards } from "./useDownloadCartCards";
+import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
 
 type DownloadPageContentProps = {
   insightGroups: DownloadInsightGroups;
-};
-type ProductSelection = {
-  options: DownloadOptions | null;
-  selection: DownloadSelection;
 };
 
 export function DownloadPageContent({
@@ -42,42 +35,77 @@ export function DownloadPageContent({
 }: DownloadPageContentProps) {
   const orderItems = useOrderItems();
   const { cards, isLoading, hasLoadError } = useDownloadCartCards(orderItems);
+  const cardUuids = cards.map((card) => card.uuid);
+  const optionsByUuid = useDownloadOptionsForCards(cardUuids);
   const { isOrdering, orderError, orderResult, submitOrder } =
     useDownloadOrder();
 
-  const [selectionInputs, setSelectionInputs] = useState<
-    Record<string, ProductSelection>
+  const [selections, setSelections] = useState<
+    Record<string, DownloadSelection>
   >({});
+  const [bulkSelection, setBulkSelection] = useState<DownloadSelection>(
+    EMPTY_DOWNLOAD_SELECTION,
+  );
   const [email, setEmail] = useState("");
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState("");
 
-  const handleSelectionChange = useCallback(
-    (
-      uuid: string,
-      options: DownloadOptions | null,
-      selection: DownloadSelection,
-    ) => {
-      setSelectionInputs((current) => ({
-        ...current,
-        [uuid]: { options, selection },
-      }));
-    },
-    [],
-  );
+  function handleSelectionChange(uuid: string, selection: DownloadSelection) {
+    setSelections((current) => ({ ...current, [uuid]: selection }));
+  }
+
+  function applyToAllProducts(
+    update: (selection: DownloadSelection) => DownloadSelection,
+  ) {
+    setSelections((current) => {
+      const next = { ...current };
+      for (const card of cards) {
+        next[card.uuid] = update(next[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION);
+      }
+      return next;
+    });
+  }
+
+  function handleBulkAreaChange(areaCode: string) {
+    setBulkSelection((current) => ({ ...current, areaCode }));
+    applyToAllProducts((selection) => ({ ...selection, areaCode }));
+  }
+
+  function handleBulkProjectionChange(projectionCode: string) {
+    setBulkSelection((current) => ({
+      ...current,
+      projectionCode,
+      formatNames: [],
+    }));
+    applyToAllProducts((selection) => ({
+      ...selection,
+      projectionCode,
+      formatNames: [],
+    }));
+  }
+
+  function handleBulkFormatToggle(formatName: string) {
+    const formatNames = bulkSelection.formatNames.includes(formatName)
+      ? bulkSelection.formatNames.filter((name) => name !== formatName)
+      : [...bulkSelection.formatNames, formatName];
+
+    setBulkSelection((current) => ({ ...current, formatNames }));
+    applyToAllProducts((selection) => ({ ...selection, formatNames }));
+  }
 
   const downloadableProducts = cards.flatMap((card) => {
-    const productSelection = selectionInputs[card.uuid];
-
-    if (!productSelection) return [];
-
-    const item = createDownloadOrderItem(
-      card.uuid,
-      productSelection.options,
-      productSelection.selection,
-    );
+    const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
+    const options = optionsByUuid[card.uuid]?.options ?? null;
+    const item = createDownloadOrderItem(card.uuid, options, selection);
 
     return item ? [item] : [];
+  });
+
+  const productsWithMissingFields = cards.flatMap((card) => {
+    const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
+    const missingFields = getMissingDownloadSelectionFields(selection);
+
+    return missingFields.length > 0 ? [{ ...card, missingFields }] : [];
   });
 
   const canOrder =
@@ -118,15 +146,6 @@ export function DownloadPageContent({
     ],
   );
 
-  const productsWithMissingFields = cards.flatMap((card) => {
-    const productSelection = selectionInputs[card.uuid];
-    const missingFields: MissingDownloadSelectionField[] = productSelection
-      ? getMissingDownloadSelectionFields(productSelection.selection)
-      : ["area", "projection", "format"];
-
-    return missingFields.length > 0 ? [{ ...card, missingFields }] : [];
-  });
-
   return (
     <>
       <DownloadCartList
@@ -134,13 +153,15 @@ export function DownloadPageContent({
         cards={cards}
         isLoading={isLoading}
         hasLoadError={hasLoadError}
+        optionsByUuid={optionsByUuid}
+        selections={selections}
+        bulkSelection={bulkSelection}
+        productsWithMissingFields={productsWithMissingFields}
         onSelectionChange={handleSelectionChange}
+        onBulkAreaChange={handleBulkAreaChange}
+        onBulkProjectionChange={handleBulkProjectionChange}
+        onBulkFormatToggle={handleBulkFormatToggle}
       />
-      {productsWithMissingFields.length > 0 ? (
-        <MissingInputSummary
-          productsWithMissingFields={productsWithMissingFields}
-        />
-      ) : null}
       {orderItems.length > 0 ? (
         <section className={styles.orderSectionWrapper}>
           <section className={styles.orderSection}>

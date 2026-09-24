@@ -27,9 +27,9 @@ type DownloadCartListProps = {
     missingFields: MissingDownloadSelectionField[];
   }[];
   onSelectionChange: (uuid: string, selection: DownloadSelection) => void;
-  onBulkAreaChange: (areaCode
+  onBulkAreaChange: (areaCode: string) => void;
   onBulkProjectionChange: (projectionCode: string) => void;
-  onBulkFormatToggle: (format
+  onBulkFormatToggle: (formatName: string) => void;
 };
 
 export function DownloadCartList({
@@ -47,21 +47,21 @@ export function DownloadCartList({
   onBulkFormatToggle,
 }: DownloadCartListProps) {
   const optionsList = cards.map(
-    (card) => optionsByUuid[cl,
+    (card) => optionsByUuid[card.uuid]?.options ?? null,
   );
-  const isLoadingBulkOptions
+  const isLoadingBulkOptions = cards.some(
     (card) => optionsByUuid[card.uuid]?.isLoading ?? true,
   );
 
   return (
     <div className={styles.pageInner}>
-      <Heading data-size={"lg
+      <Heading data-size={"lg"} level={1}>
         Filnedlasting - bestilling
       </Heading>
       <Heading level={2} data-size={"sm"}>
-        Dine valgte produkter
+        Dine valgte produkter ({orderItemsCount})
       </Heading>
-      {orderItemsCount === 0
+      {orderItemsCount === 0 ? (
         <Paragraph>Ingen datasett lagt til nedlasting</Paragraph>
       ) : isLoading ? (
         <Paragraph aria-live="polite">Laster datasett...</Paragraph>
