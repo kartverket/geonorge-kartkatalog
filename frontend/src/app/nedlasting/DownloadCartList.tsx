@@ -1,6 +1,7 @@
 "use client";
 
 import { Heading, Paragraph } from "@kv-designsystem/react";
+import { useState } from "react";
 import { BulkDownloadSelectionForm } from "./BulkDownloadSelectionForm";
 import { DownloadCartCard } from "./DownloadCartCard";
 import styles from "./DownloadCartList.module.css";
@@ -20,16 +21,15 @@ type DownloadCartListProps = {
   hasLoadError: boolean;
   optionsByUuid: DownloadOptionsByUuid;
   selections: Record<string, DownloadSelection>;
-  bulkSelection: DownloadSelection;
   productsWithMissingFields: {
     uuid: string;
     title: string;
     missingFields: MissingDownloadSelectionField[];
   }[];
   onSelectionChange: (uuid: string, selection: DownloadSelection) => void;
-  onBulkAreaChange: (areaCode: string) => void;
-  onBulkProjectionChange: (projectionCode: string) => void;
-  onBulkFormatToggle: (formatName: string) => void;
+  onApplyToAll: (
+    update: (selection: DownloadSelection) => DownloadSelection,
+  ) => void;
 };
 
 export function DownloadCartList({
@@ -39,13 +39,41 @@ export function DownloadCartList({
   hasLoadError,
   optionsByUuid,
   selections,
-  bulkSelection,
   productsWithMissingFields,
   onSelectionChange,
-  onBulkAreaChange,
-  onBulkProjectionChange,
-  onBulkFormatToggle,
+  onApplyToAll,
 }: DownloadCartListProps) {
+  const [bulkSelection, setBulkSelection] = useState<DownloadSelection>(
+    EMPTY_DOWNLOAD_SELECTION,
+  );
+
+  function handleBulkAreaChange(areaCode: string) {
+    setBulkSelection((current) => ({ ...current, areaCode }));
+    onApplyToAll((selection) => ({ ...selection, areaCode }));
+  }
+
+  function handleBulkProjectionChange(projectionCode: string) {
+    setBulkSelection((current) => ({
+      ...current,
+      projectionCode,
+      formatNames: [],
+    }));
+    onApplyToAll((selection) => ({
+      ...selection,
+      projectionCode,
+      formatNames: [],
+    }));
+  }
+
+  function handleBulkFormatToggle(formatName: string) {
+    const formatNames = bulkSelection.formatNames.includes(formatName)
+      ? bulkSelection.formatNames.filter((name) => name !== formatName)
+      : [...bulkSelection.formatNames, formatName];
+
+    setBulkSelection((current) => ({ ...current, formatNames }));
+    onApplyToAll((selection) => ({ ...selection, formatNames }));
+  }
+
   const optionsList = cards.map(
     (card) => optionsByUuid[card.uuid]?.options ?? null,
   );
@@ -76,9 +104,9 @@ export function DownloadCartList({
           <BulkDownloadSelectionForm
             optionsList={optionsList}
             isLoading={isLoadingBulkOptions}
-            onAreaChangeAction={onBulkAreaChange}
-            onFormatToggleAction={onBulkFormatToggle}
-            onProjectionChangeAction={onBulkProjectionChange}
+            onAreaChangeAction={handleBulkAreaChange}
+            onFormatToggleAction={handleBulkFormatToggle}
+            onProjectionChangeAction={handleBulkProjectionChange}
             selectedAreaCode={bulkSelection.areaCode}
             selectedFormatNames={bulkSelection.formatNames}
             selectedProjectionCode={bulkSelection.projectionCode}

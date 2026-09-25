@@ -43,9 +43,6 @@ export function DownloadPageContent({
   const [selections, setSelections] = useState<
     Record<string, DownloadSelection>
   >({});
-  const [bulkSelection, setBulkSelection] = useState<DownloadSelection>(
-    EMPTY_DOWNLOAD_SELECTION,
-  );
   const [email, setEmail] = useState("");
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState("");
@@ -64,33 +61,6 @@ export function DownloadPageContent({
       }
       return next;
     });
-  }
-
-  function handleBulkAreaChange(areaCode: string) {
-    setBulkSelection((current) => ({ ...current, areaCode }));
-    applyToAllProducts((selection) => ({ ...selection, areaCode }));
-  }
-
-  function handleBulkProjectionChange(projectionCode: string) {
-    setBulkSelection((current) => ({
-      ...current,
-      projectionCode,
-      formatNames: [],
-    }));
-    applyToAllProducts((selection) => ({
-      ...selection,
-      projectionCode,
-      formatNames: [],
-    }));
-  }
-
-  function handleBulkFormatToggle(formatName: string) {
-    const formatNames = bulkSelection.formatNames.includes(formatName)
-      ? bulkSelection.formatNames.filter((name) => name !== formatName)
-      : [...bulkSelection.formatNames, formatName];
-
-    setBulkSelection((current) => ({ ...current, formatNames }));
-    applyToAllProducts((selection) => ({ ...selection, formatNames }));
   }
 
   const downloadableProducts = cards.flatMap((card) => {
@@ -155,12 +125,9 @@ export function DownloadPageContent({
         hasLoadError={hasLoadError}
         optionsByUuid={optionsByUuid}
         selections={selections}
-        bulkSelection={bulkSelection}
         productsWithMissingFields={productsWithMissingFields}
         onSelectionChange={handleSelectionChange}
-        onBulkAreaChange={handleBulkAreaChange}
-        onBulkProjectionChange={handleBulkProjectionChange}
-        onBulkFormatToggle={handleBulkFormatToggle}
+        onApplyToAll={applyToAllProducts}
       />
       {orderItems.length > 0 ? (
         <section className={styles.orderSectionWrapper}>
