@@ -4,57 +4,51 @@ import { Checkbox, Select, Tag } from "@kv-designsystem/react";
 import { useId } from "react";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
-import { getAvailableFormats, getAvailableProjections } from "./downloadUtils";
-
-type AreaOption = DownloadOptions["areas"][number];
-
-type AreaOptionGroup = {
-  label: string;
-  areas: AreaOption[];
-};
-
-const AREA_GROUPS = [
-  { type: "landsdekkende", label: "Hele landet" },
-  { type: "fylke", label: "Fylke" },
-  { type: "kommune", label: "Kommune" },
-] as const;
-
-function getAreaOptionGroups(areas: AreaOption[]): AreaOptionGroup[] {
-  return AREA_GROUPS.flatMap(({ type, label }) => {
-    const groupedAreas = areas.filter((area) => area.type === type);
-
-    return groupedAreas.length > 0 ? [{ label, areas: groupedAreas }] : [];
-  });
-}
+import type { DownloadSelection } from "./downloadUtils";
+import {
+  getAreaOptionGroups,
+  getAvailableFormats,
+  getAvailableProjections,
+} from "./downloadUtils";
 
 type DownloadOptionsFormProps = {
   error: string | null;
   isLoading: boolean;
-  onAreaChangeAction: (areaCode: string) => void;
-  onFormatToggleAction: (formatName: string) => void;
-  onProjectionChangeAction: (projectionCode: string) => void;
   options: DownloadOptions | null;
-  selectedAreaCode: string;
-  selectedFormatNames: string[];
-  selectedProjectionCode: string;
+  selection: DownloadSelection;
+  onSelectionChangeAction: (selection: DownloadSelection) => void;
 };
 
 export function DownloadOptionsForm({
   error,
   isLoading,
-  onAreaChangeAction,
-  onFormatToggleAction,
-  onProjectionChangeAction,
   options,
-  selectedAreaCode,
-  selectedFormatNames,
-  selectedProjectionCode,
+  selection,
+  onSelectionChangeAction,
 }: DownloadOptionsFormProps) {
   const areaId = useId();
   const projectionId = useId();
   const areaGroups = options ? getAreaOptionGroups(options.areas) : [];
   const projections = getAvailableProjections(options);
-  const availableFormats = getAvailableFormats(options, selectedProjectionCode);
+  const availableFormats = getAvailableFormats(
+    options,
+    selection.projectionCode,
+  );
+
+  function changeArea(areaCode: string) {
+    onSelectionChangeAction({ ...selection, areaCode });
+  }
+
+  function changeProjection(projectionCode: string) {
+    onSelectionChangeAction({ ...selection, projectionCode, formatNames: [] });
+  }
+
+  function toggleFormat(formatName: string) {
+    const formatNames = selection.formatNames.includes(formatName)
+      ? selection.formatNames.filter((name) => name !== formatName)
+      : [...selection.formatNames, formatName];
+    onSelectionChangeAction({ ...selection, formatNames });
+  }
 
   if (isLoading) return <p>Henter nedlastingsvalg...</p>;
 
@@ -75,8 +69,8 @@ export function DownloadOptionsForm({
         </label>
         <Select
           id={areaId}
-          value={selectedAreaCode}
-          onChange={(event) => onAreaChangeAction(event.target.value)}
+          value={selection.areaCode}
+          onChange={(event) => changeArea(event.target.value)}
         >
           <Select.Option value="">Velg geografisk område</Select.Option>
           {areaGroups.length > 0
@@ -102,8 +96,8 @@ export function DownloadOptionsForm({
         </label>
         <Select
           id={projectionId}
-          value={selectedProjectionCode}
-          onChange={(event) => onProjectionChangeAction(event.target.value)}
+          value={selection.projectionCode}
+          onChange={(event) => changeProjection(event.target.value)}
         >
           <Select.Option value="">Velg projeksjon</Select.Option>
           {projections.map((projection) => (
@@ -113,7 +107,7 @@ export function DownloadOptionsForm({
           ))}
         </Select>
       </div>
-      {selectedProjectionCode ? (
+      {selection.projectionCode ? (
         <fieldset className={styles.formatField}>
           <legend className={styles.fieldLabel}>
             Format <Tag data-color="warning">Påkrevd</Tag>
@@ -124,8 +118,8 @@ export function DownloadOptionsForm({
                 key={format.name}
                 label={format.name}
                 value={format.name}
-                checked={selectedFormatNames.includes(format.name)}
-                onChange={() => onFormatToggleAction(format.name)}
+                checked={selection.formatNames.includes(format.name)}
+                onChange={() => toggleFormat(format.name)}
               />
             ))}
           </div>

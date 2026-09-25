@@ -9,6 +9,12 @@ export type DownloadSelection = {
   projectionCode: string;
 };
 
+export const EMPTY_DOWNLOAD_SELECTION: DownloadSelection = {
+  areaCode: "",
+  formatNames: [],
+  projectionCode: "",
+};
+
 export type MissingDownloadSelectionField = "area" | "projection" | "format";
 
 export function getMissingDownloadSelectionFields(
@@ -69,4 +75,82 @@ export function createDownloadOrderItem(
     projections: [projection],
     formats: formats.map((format) => ({ name: format.name })),
   };
+}
+
+export type DownloadArea = DownloadOptions["areas"][number];
+type DownloadFormat = DownloadOptions["formats"][number];
+type DownloadProjection = ReturnType<typeof getAvailableProjections>[number];
+
+export type AreaOptionGroup = {
+  label: string;
+  areas: DownloadArea[];
+};
+
+const AREA_GROUPS = [
+  { type: "landsdekkende", label: "Hele landet" },
+  { type: "fylke", label: "Fylke" },
+  { type: "kommune", label: "Kommune" },
+] as const;
+
+export function getAreaOptionGroups(areas: DownloadArea[]): AreaOptionGroup[] {
+  return AREA_GROUPS.flatMap(({ type, label }) => {
+    const groupedAreas = areas.filter((area) => area.type === type);
+
+    return groupedAreas.length > 0 ? [{ label, areas: groupedAreas }] : [];
+  });
+}
+
+function intersectByKey<T>(lists: T[][], key: (item: T) => string): T[] {
+  if (lists.length === 0) return [];
+
+  const [first, ...rest] = lists;
+  return first.filter((item) =>
+    rest.every((list) =>
+      list.some((candidate) => key(candidate) === key(item)),
+    ),
+  );
+}
+
+export function getCommonAreas(
+  optionsList: (DownloadOptions | null)[],
+): DownloadArea[] {
+  if (optionsList.length === 0 || optionsList.some((options) => !options)) {
+    return [];
+  }
+
+  return intersectByKey(
+    optionsList.map((options) => options?.areas ?? []),
+    (area) => area.code,
+  );
+}
+
+export function getCommonProjections(
+  optionsList: (DownloadOptions | null)[],
+): DownloadProjection[] {
+  if (optionsList.length === 0 || optionsList.some((options) => !options)) {
+    return [];
+  }
+
+  return intersectByKey(
+    optionsList.map((options) => getAvailableProjections(options)),
+    (projection) => projection.code,
+  );
+}
+
+export function getCommonFormats(
+  optionsList: (DownloadOptions | null)[],
+  projectionCode: string,
+): DownloadFormat[] {
+  if (
+    !projectionCode ||
+    optionsList.length === 0 ||
+    optionsList.some((options) => !options)
+  ) {
+    return [];
+  }
+
+  return intersectByKey(
+    optionsList.map((options) => getAvailableFormats(options, projectionCode)),
+    (format) => format.name,
+  );
 }
