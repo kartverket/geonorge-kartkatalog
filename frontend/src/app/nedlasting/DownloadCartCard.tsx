@@ -57,7 +57,7 @@ export function DownloadCartCard({
     error: optionsError,
     isLoading: isLoadingOptions,
     options,
-  } = useDownloadOptions(uuid, expanded);
+  } = useDownloadOptions(uuid, expanded, distributionUrl);
 
   useEffect(() => {
     const selection = {

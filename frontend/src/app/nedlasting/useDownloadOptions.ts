@@ -29,6 +29,7 @@ function getErrorMessage(body: unknown): string {
 export function useDownloadOptions(
   uuid: string,
   enabled: boolean,
+  capabilitiesUrl: string,
 ): DownloadOptionsState {
   const [options, setOptions] = useState<DownloadOptions | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,8 +45,12 @@ export function useDownloadOptions(
       setError(null);
 
       try {
+        const params = new URLSearchParams();
+        if (capabilitiesUrl) params.set("capabilitiesUrl", capabilitiesUrl);
         const response = await fetch(
-          `${basePath}/api/download/options/${encodeURIComponent(uuid)}`,
+          `${basePath}/api/download/options/${encodeURIComponent(uuid)}${
+            params.toString() ? `?${params}` : ""
+          }`,
         );
         const body: unknown = await response.json();
 
@@ -74,7 +79,7 @@ export function useDownloadOptions(
     return () => {
       cancelled = true;
     };
-  }, [enabled, options, uuid]);
+  }, [enabled, options, uuid, capabilitiesUrl]);
 
   return { error, isLoading, options };
 }

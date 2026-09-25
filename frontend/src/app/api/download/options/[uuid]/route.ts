@@ -6,9 +6,11 @@ export async function GET(
   { params }: { params: Promise<{ uuid: string }> },
 ) {
   const { uuid } = await params;
+  const capabilitiesUrl =
+    new URL(_request.url).searchParams.get("capabilitiesUrl") ?? "";
 
   try {
-    const options = await getDownloadOptions(uuid);
+    const options = await getDownloadOptions(uuid, capabilitiesUrl);
     return NextResponse.json(options);
   } catch (error) {
     if (error instanceof HttpError) {

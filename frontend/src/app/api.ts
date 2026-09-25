@@ -265,7 +265,7 @@ export async function getSearchResults({
 
 export async function getDownloadOptions(
   uuid: string,
-  capabilitiesUrl?: string,
+  capabilitiesUrl: string,
 ): Promise<DownloadOptions> {
   if (!uuid) throw new Error("uuid is required");
   const params = new URLSearchParams();
