@@ -58,25 +58,6 @@ export function DownloadCartCard({
   const accessContext =
     TYPE_TO_ACCESS_CONTEXT[typeTranslated ?? ""] ?? "datasett";
 
-  function changeArea(areaCode: string) {
-    onSelectionChangeAction(uuid, { ...selection, areaCode });
-  }
-
-  function changeProjection(projectionCode: string) {
-    onSelectionChangeAction(uuid, {
-      ...selection,
-      projectionCode,
-      formatNames: [],
-    });
-  }
-
-  function toggleFormat(formatName: string) {
-    const formatNames = selection.formatNames.includes(formatName)
-      ? selection.formatNames.filter((name) => name !== formatName)
-      : [...selection.formatNames, formatName];
-    onSelectionChangeAction(uuid, { ...selection, formatNames });
-  }
-
   return (
     <Card className={styles.card}>
       <div className={styles.infoRow}>
@@ -156,13 +137,11 @@ export function DownloadCartCard({
           <DownloadOptionsForm
             error={optionsError}
             isLoading={isLoadingOptions}
-            onAreaChangeAction={changeArea}
-            onFormatToggleAction={toggleFormat}
-            onProjectionChangeAction={changeProjection}
             options={options}
-            selectedAreaCode={selection.areaCode}
-            selectedFormatNames={selection.formatNames}
-            selectedProjectionCode={selection.projectionCode}
+            selection={selection}
+            onSelectionChangeAction={(newSelection) =>
+              onSelectionChangeAction(uuid, newSelection)
+            }
           />
         </div>
       ) : null}
