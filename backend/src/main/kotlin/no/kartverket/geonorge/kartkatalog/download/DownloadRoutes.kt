@@ -71,13 +71,17 @@ fun Route.downloadRoutes(downloadService: DownloadService) {
 
         get("/options/{uuid}") {
             val uuid =
-                call.parameters["uuid"]?.takeIf {
-                    it.isNotBlank()
-                }
+                call.parameters["uuid"]?.takeIf { it.isNotBlank() }
                     ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
-            val capabilitiesUrl = call.request.queryParameters["capabilitiesUrl"]
-            println(capabilitiesUrl)
-            val options = downloadService.getOptions(uuid, capabilitiesURL = capabilitiesUrl ?: "")
+
+            val capabilitiesUrl =
+                call.request.queryParameters["capabilitiesUrl"]?.takeIf { it.isNotBlank() }
+                    ?: return@get call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to "Missing capabilitiesUrl"),
+                    )
+
+            val options = downloadService.getOptions(uuid, capabilitiesUrl)
             call.respond(
                 DownloadOptionsDto(
                     areas = options.areas,

@@ -328,7 +328,9 @@ class DownloadRoutesTest {
                         MockEngine { request ->
                             val content =
                                 when {
-                                    request.url.encodedPath.startsWith("/api/capabilities") -> capabilitiesWithFormatsLinkJson
+                                    request.url.encodedPath.startsWith(
+                                        "/api/capabilities",
+                                    ) -> capabilitiesWithFormatsLinkJson
                                     request.url.encodedPath.startsWith("/api/codelists/format") -> formatsJson
                                     request.url.encodedPath.startsWith("/api/codelists/area") -> areasJson
                                     else -> "[]"
@@ -366,5 +368,27 @@ class DownloadRoutesTest {
             )
             assertContains(body, "\"formats\":[{\"name\":\"GML\",\"projections\":[{\"code\":\"25832\"")
             assertContains(body, "{\"name\":\"SOSI\",\"projections\":[{\"code\":\"25833\"")
+        }
+
+    @Test
+    fun `returns bad request when capabilitiesUrl is missing`() =
+        testApplication {
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(MockEngine { respond(content = "[]", status = HttpStatusCode.OK) }) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
+                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
+                routing { downloadRoutes(downloadService) }
+            }
+
+            val response = client.get("/api/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b")
+
+            assertEquals(HttpStatusCode.BadRequest, response.status)
         }
 }

@@ -19,6 +19,8 @@ import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrde
 import org.slf4j.LoggerFactory
 
 private const val ORDER_REL = "http://rel.geonorge.no/download/order"
+private const val FORMAT_REL = "http://rel.geonorge.no/download/format"
+private const val AREA_REL = "http://rel.geonorge.no/download/area"
 
 class DownloadException(
     message: String,
@@ -70,13 +72,18 @@ class DownloadService(
             DownloadOrderResult(responses)
         }
 
-    suspend fun getOptions(uuid: String, capabilitiesURL: String): DownloadOptions =
+    suspend fun getOptions(
+        uuid: String,
+        capabilitiesUrl: String,
+    ): DownloadOptions =
         coroutineScope {
-            val capabilities = getCapabilities(capabilitiesURL, uuid)
-            val formatsUrl = capabilities.linkFor("http://rel.geonorge.no/download/format")
-                ?: throw DownloadException("Fant ingen codelist/format-URL for datasett $uuid")
-            val areasUrl = capabilities.linkFor("http://rel.geonorge.no/download/area")
-                ?: throw DownloadException("Fant ingen codelist/area-URL for datasett $uuid")
+            val capabilities = getCapabilities(capabilitiesUrl, uuid)
+            val formatsUrl =
+                capabilities.linkFor(FORMAT_REL)
+                    ?: throw DownloadException("Fant ingen codelist/format-URL for datasett $uuid")
+            val areasUrl =
+                capabilities.linkFor(AREA_REL)
+                    ?: throw DownloadException("Fant ingen codelist/area-URL for datasett $uuid")
             val formatsDeferred = async { nedlastingClient.getFormats(formatsUrl) }
             val areasDeferred = async { nedlastingClient.getAreas(areasUrl) }
 
@@ -120,20 +127,24 @@ class DownloadService(
             brukergrupper = brukergrupper?.toList() ?: emptyList(),
         )
     }
-    suspend fun getCapabilities(capabilitiesURL: String, uuid: String): NedlastingCapabilities {
-        val path = "${capabilitiesURL.trimEnd('/')}/$uuid"
+
+    private suspend fun getCapabilities(
+        capabilitiesUrl: String,
+        uuid: String,
+    ): NedlastingCapabilities {
+        val path = "${capabilitiesUrl.trimEnd('/')}/$uuid"
         val response = getResponse(path)
 
         if (!response.status.isSuccess()) {
             log.warn("Request to {} failed with status: {}", path, response.status)
-            throw NedlastingException("Request to $path failed with status ${response.status}")
+            throw DownloadException("Request to $path failed with status ${response.status}")
         }
 
         return try {
             json.decodeFromString(NedlastingCapabilities.serializer(), response.bodyAsText())
         } catch (e: Exception) {
             log.error("Failed to parse capabilities response from {}", path, e)
-            throw NedlastingException("Failed to parse capabilities response from $path", e)
+            throw DownloadException("Failed to parse capabilities response from $path", e)
         }
     }
 
@@ -141,8 +152,6 @@ class DownloadService(
         try {
             httpClient.get(path)
         } catch (e: Exception) {
-            throw Exception("Response request to $path failed", e)
+            throw DownloadException("Request to $path failed", e)
         }
-
 }
-

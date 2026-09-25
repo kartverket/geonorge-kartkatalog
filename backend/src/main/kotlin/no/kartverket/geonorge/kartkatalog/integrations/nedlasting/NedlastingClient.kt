@@ -41,21 +41,21 @@ class NedlastingClient(
         }
     }
 
-    suspend fun getFormats(path: String): List<NedlastingFormatCodelistEntry> = try {
-        val response = httpClient.get(path)
-        json.decodeFromString(ListSerializer(NedlastingFormatCodelistEntry.serializer()), response.bodyAsText())
+    suspend fun getFormats(path: String): List<NedlastingFormatCodelistEntry> =
+        try {
+            val response = httpClient.get(path)
+            json.decodeFromString(ListSerializer(NedlastingFormatCodelistEntry.serializer()), response.bodyAsText())
+        } catch (e: Exception) {
+            throw NedlastingException("Nedlasting request to $path failed", e)
+        }
 
-    } catch (e: Exception) {
-        throw NedlastingException("Nedlasting request to $path failed", e)
-    }
-
-    suspend fun getAreas(path: String): List<NedlastingAreaCodelistEntry> = try {
-        val response = httpClient.get(path)
-        json.decodeFromString(ListSerializer(NedlastingAreaCodelistEntry.serializer()), response.bodyAsText())
-
-    } catch (e: Exception) {
-        throw NedlastingException("Nedlasting request to $path failed", e)
-    }
+    suspend fun getAreas(path: String): List<NedlastingAreaCodelistEntry> =
+        try {
+            val response = httpClient.get(path)
+            json.decodeFromString(ListSerializer(NedlastingAreaCodelistEntry.serializer()), response.bodyAsText())
+        } catch (e: Exception) {
+            throw NedlastingException("Nedlasting request to $path failed", e)
+        }
 
     private suspend fun getResponse(path: String): HttpResponse =
         try {
