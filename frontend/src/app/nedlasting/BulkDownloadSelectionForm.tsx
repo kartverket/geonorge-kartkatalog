@@ -5,6 +5,7 @@ import { useId } from "react";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
 import {
+  getAreaOptionGroups,
   getCommonAreas,
   getCommonFormats,
   getCommonProjections,
@@ -34,6 +35,7 @@ export function BulkDownloadSelectionForm({
   const areaId = useId();
   const projectionId = useId();
   const commonAreas = getCommonAreas(optionsList);
+  const areaGroups = getAreaOptionGroups(commonAreas);
   const commonProjections = getCommonProjections(optionsList);
   const commonFormats = getCommonFormats(optionsList, selectedProjectionCode);
 
@@ -56,11 +58,21 @@ export function BulkDownloadSelectionForm({
               onChange={(event) => onAreaChangeAction(event.target.value)}
             >
               <Select.Option value="">Velg geografisk område</Select.Option>
-              {commonAreas.map((area) => (
-                <Select.Option key={area.code} value={area.code}>
-                  {area.name}
-                </Select.Option>
-              ))}
+              {areaGroups.length > 0
+                ? areaGroups.map((group) => (
+                    <Select.Optgroup key={group.label} label={group.label}>
+                      {group.areas.map((area) => (
+                        <Select.Option key={area.code} value={area.code}>
+                          {area.name}
+                        </Select.Option>
+                      ))}
+                    </Select.Optgroup>
+                  ))
+                : commonAreas.map((area) => (
+                    <Select.Option key={area.code} value={area.code}>
+                      {area.name}
+                    </Select.Option>
+                  ))}
             </Select>
             {commonAreas.length === 0 ? (
               <p className={styles.emptyMessage}>

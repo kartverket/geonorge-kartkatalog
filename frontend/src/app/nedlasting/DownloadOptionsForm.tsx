@@ -4,28 +4,11 @@ import { Checkbox, Select, Tag } from "@kv-designsystem/react";
 import { useId } from "react";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
-import { getAvailableFormats, getAvailableProjections } from "./downloadUtils";
-
-type AreaOption = DownloadOptions["areas"][number];
-
-type AreaOptionGroup = {
-  label: string;
-  areas: AreaOption[];
-};
-
-const AREA_GROUPS = [
-  { type: "landsdekkende", label: "Hele landet" },
-  { type: "fylke", label: "Fylke" },
-  { type: "kommune", label: "Kommune" },
-] as const;
-
-function getAreaOptionGroups(areas: AreaOption[]): AreaOptionGroup[] {
-  return AREA_GROUPS.flatMap(({ type, label }) => {
-    const groupedAreas = areas.filter((area) => area.type === type);
-
-    return groupedAreas.length > 0 ? [{ label, areas: groupedAreas }] : [];
-  });
-}
+import {
+  getAreaOptionGroups,
+  getAvailableFormats,
+  getAvailableProjections,
+} from "./downloadUtils";
 
 type DownloadOptionsFormProps = {
   error: string | null;

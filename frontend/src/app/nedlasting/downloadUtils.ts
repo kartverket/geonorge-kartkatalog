@@ -77,9 +77,28 @@ export function createDownloadOrderItem(
   };
 }
 
-type DownloadArea = DownloadOptions["areas"][number];
+export type DownloadArea = DownloadOptions["areas"][number];
 type DownloadFormat = DownloadOptions["formats"][number];
 type DownloadProjection = ReturnType<typeof getAvailableProjections>[number];
+
+export type AreaOptionGroup = {
+  label: string;
+  areas: DownloadArea[];
+};
+
+const AREA_GROUPS = [
+  { type: "landsdekkende", label: "Hele landet" },
+  { type: "fylke", label: "Fylke" },
+  { type: "kommune", label: "Kommune" },
+] as const;
+
+export function getAreaOptionGroups(areas: DownloadArea[]): AreaOptionGroup[] {
+  return AREA_GROUPS.flatMap(({ type, label }) => {
+    const groupedAreas = areas.filter((area) => area.type === type);
+
+    return groupedAreas.length > 0 ? [{ label, areas: groupedAreas }] : [];
+  });
+}
 
 function intersectByKey<T>(lists: T[][], key: (item: T) => string): T[] {
   if (lists.length === 0) return [];
