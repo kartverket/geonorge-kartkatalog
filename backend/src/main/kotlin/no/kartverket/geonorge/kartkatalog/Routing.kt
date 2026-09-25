@@ -39,7 +39,7 @@ fun Application.configureRouting(appConfig: AppConfig) {
     val searchService = SearchService(solrClient, areaResolver, hvdResolver)
     val nedlastingClient = NedlastingClient(httpClient, appConfig.nedlastingBaseUrl)
     val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-    val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
+    val downloadService = DownloadService(httpClient, nedlastingClient, downloadInsightGroupsResolver)
 
     monitor.subscribe(ApplicationStopping) { httpClient.close() }
 

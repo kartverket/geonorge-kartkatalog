@@ -42,9 +42,13 @@ class NedlastingClient(
         }
     }
 
-    suspend fun getFormats(uuid: String): List<NedlastingFormatCodelistEntry> =
-        fetchList("/api/codelists/format/$uuid", NedlastingFormatCodelistEntry.serializer())
+    suspend fun getFormats(path: String): List<NedlastingFormatCodelistEntry> = try {
+        val response = httpClient.get(path)
+        json.decodeFromString(ListSerializer(NedlastingFormatCodelistEntry.serializer()), response.bodyAsText())
 
+    } catch (e: Exception) {
+        throw NedlastingException("Nedlasting request to $path failed", e)
+    }
     suspend fun getAreas(uuid: String): List<NedlastingAreaCodelistEntry> =
         fetchList("/api/codelists/area/$uuid", NedlastingAreaCodelistEntry.serializer())
 

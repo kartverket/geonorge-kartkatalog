@@ -84,6 +84,18 @@ class DownloadRoutesTest {
         ]
         """.trimIndent()
 
+    private val capabilitiesWithFormatsLinkJson =
+        """
+        {
+          "supportsDownloadBundling": true,
+          "distributedBy": "Geonorge",
+          "deliveryNotificationByEmail": false,
+          "_links": [
+            {"href": "https://nedlasting.geonorge.no/api/codelists/format/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "rel": "http://rel.geonorge.no/download/format"}
+          ]
+        }
+        """.trimIndent()
+
     @Test
     fun `orders a download and returns ready-for-download files`() =
         testApplication {
@@ -113,7 +125,7 @@ class DownloadRoutesTest {
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
+                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -162,7 +174,7 @@ class DownloadRoutesTest {
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
+                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -215,7 +227,7 @@ class DownloadRoutesTest {
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
+                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -280,7 +292,7 @@ class DownloadRoutesTest {
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
+                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -315,6 +327,7 @@ class DownloadRoutesTest {
                         MockEngine { request ->
                             val content =
                                 when {
+                                    request.url.encodedPath.startsWith("/api/capabilities") -> capabilitiesWithFormatsLinkJson
                                     request.url.encodedPath.startsWith("/api/codelists/format") -> formatsJson
                                     request.url.encodedPath.startsWith("/api/codelists/area") -> areasJson
                                     else -> "[]"
@@ -331,11 +344,15 @@ class DownloadRoutesTest {
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
+                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
-            val response = client.get("/api/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b")
+            val response =
+                client.get(
+                    "/api/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b" +
+                        "?capabilitiesUrl=https://nedlasting.geonorge.no/api/capabilities",
+                )
 
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()

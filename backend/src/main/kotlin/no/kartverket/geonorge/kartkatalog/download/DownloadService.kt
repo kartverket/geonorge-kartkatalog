@@ -1,13 +1,22 @@
 package no.kartverket.geonorge.kartkatalog.download
 
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.isSuccess
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.serialization.json.Json
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingArea
+import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingCapabilities
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
+import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingException
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingInsightGroups
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderLine
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderRequest
+import org.slf4j.LoggerFactory
 
 private const val ORDER_REL = "http://rel.geonorge.no/download/order"
 
@@ -22,9 +31,18 @@ private data class ResolvedOrderLine(
 )
 
 class DownloadService(
+    private val httpClient: HttpClient,
     private val nedlastingClient: NedlastingClient,
     private val downloadInsightGroupsResolver: DownloadInsightGroupsResolver,
 ) {
+    private val log = LoggerFactory.getLogger(DownloadService::class.java)
+
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
+
     suspend fun order(request: DownloadOrderRequest): DownloadOrderResult =
         coroutineScope {
             val resolved =
@@ -52,9 +70,12 @@ class DownloadService(
             DownloadOrderResult(responses)
         }
 
-    suspend fun getOptions(uuid: String): DownloadOptions =
+    suspend fun getOptions(uuid: String, capabilitiesURL: String): DownloadOptions =
         coroutineScope {
-            val formatsDeferred = async { nedlastingClient.getFormats(uuid) }
+            val capabilities = getCapabilities(capabilitiesURL, uuid)
+            val formatsUrl = capabilities.linkFor("http://rel.geonorge.no/download/format")
+                ?: throw DownloadException("Fant ingen codelist/format-URL for datasett $uuid")
+            val formatsDeferred = async { nedlastingClient.getFormats(formatsUrl) }
             val areasDeferred = async { nedlastingClient.getAreas(uuid) }
 
             val formats = formatsDeferred.await()
@@ -97,4 +118,29 @@ class DownloadService(
             brukergrupper = brukergrupper?.toList() ?: emptyList(),
         )
     }
+    suspend fun getCapabilities(capabilitiesURL: String, uuid: String): NedlastingCapabilities {
+        val path = "${capabilitiesURL.trimEnd('/')}/$uuid"
+        val response = getResponse(path)
+
+        if (!response.status.isSuccess()) {
+            log.warn("Request to {} failed with status: {}", path, response.status)
+            throw NedlastingException("Request to $path failed with status ${response.status}")
+        }
+
+        return try {
+            json.decodeFromString(NedlastingCapabilities.serializer(), response.bodyAsText())
+        } catch (e: Exception) {
+            log.error("Failed to parse capabilities response from {}", path, e)
+            throw NedlastingException("Failed to parse capabilities response from $path", e)
+        }
+    }
+
+    private suspend fun getResponse(path: String): HttpResponse =
+        try {
+            httpClient.get(path)
+        } catch (e: Exception) {
+            throw Exception("Response request to $path failed", e)
+        }
+
 }
+
