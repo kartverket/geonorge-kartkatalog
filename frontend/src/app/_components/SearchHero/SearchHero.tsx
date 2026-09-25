@@ -17,9 +17,7 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
   const showSuggestions = isFocused && suggestions.length > 0;
   const inputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
-    if (inputRef) {
-      inputRef.current?.focus();
-    }
+    inputRef.current?.focus();
   }, []);
 
   return (
