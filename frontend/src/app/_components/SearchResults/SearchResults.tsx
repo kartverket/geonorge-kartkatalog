@@ -42,10 +42,8 @@ export function SearchResults({
   const {
     results,
     facets,
-    isLoadingMore,
     loadMoreError,
     currentPage,
-    hasMoreResults,
     total,
     totalPageCount,
     setCurrentPage,
@@ -56,8 +54,6 @@ export function SearchResults({
     initialOffset,
   });
 
-  const onChange = (_event, page: number) =>
-    console.log(`Going to page ${page}`);
   const { pages, prevButtonProps, nextButtonProps } =
     usePagination({
       currentPage,
