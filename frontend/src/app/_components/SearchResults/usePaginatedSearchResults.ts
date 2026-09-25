@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SearchResult, SearchResultItem } from "@/lib/schemas/search";
 import { getSearchResults } from "./../../api";
 
@@ -32,8 +32,8 @@ export function usePaginatedSearchResults({
   const [facets, setFacets] = useState<SearchResult["facets"]>([]);
   const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    const doSearch = async (
+  const doSearch = useCallback(
+    async (
       text: string,
       orderby: string,
       filters: Record<string, string[]>,
@@ -46,14 +46,14 @@ export function usePaginatedSearchResults({
           orderby,
           filters,
           limit,
-          offset: (page - 1) * pageSize,
+          offset: (page - 1) * limit,
         });
 
         setResults(response.results != null ? response.results : []);
         setTotal(response.numFound);
         setFacets(response.facets ?? []);
         setHasMoreResults(
-          (response.results?.length ?? 0) + (page - 1) * pageSize <
+          (response.results?.length ?? 0) + (page - 1) * limit <
             response.numFound,
         );
       } catch {
@@ -61,22 +61,38 @@ export function usePaginatedSearchResults({
       } finally {
         setIsLoadingMore(false);
       }
-    };
+    },
+    [],
+  );
 
-    setIsLoadingMore(true);
-    setLoadMoreError(null);
-    doSearch(searchText, orderby, filters, pageSize, currentPage);
-  }, [searchText, orderby, pageSize, filters, currentPage]);
+  useEffect(() => {
+    setCurrentPage(1);
+    const effect = async () => {
+      await doSearch(searchText, orderby, filters, pageSize, 1);
+    };
+    effect();
+  }, [doSearch, pageSize, searchText, orderby, filters]);
+
+  useEffect(() => {
+    console.log("Effct secnod")
+    const effect = async () => {
+      setIsLoadingMore(true);
+      setLoadMoreError(null);
+      await doSearch(searchText, orderby, filters, pageSize, currentPage);
+    };
+    effect();
+  }, [doSearch, currentPage, pageSize, searchText, orderby, filters]);
 
   const setPage = (page: number) => {
+    let pageToSet = page
     if (page < 1) {
-      page = 1;
+      pageToSet = 1;
     }
     if (page > Math.ceil(total / pageSize)) {
-      page = Math.ceil(total / pageSize);
+      pageToSet = Math.ceil(total / pageSize);
     }
-    setCurrentPage(page);
-  };
+    setCurrentPage(pageToSet);
+  }; //Bruk tanstack query. JEg orker ikke mer
 
   return {
     results,
