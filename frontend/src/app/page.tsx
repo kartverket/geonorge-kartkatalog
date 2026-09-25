@@ -28,7 +28,6 @@ export default async function Home({
   const sp = await searchParams;
   const text = typeof sp.text === "string" ? sp.text : undefined;
   const offset = typeof sp.offset === "string" ? sp.offset : undefined;
-  const limit = typeof sp.limit === "string" ? sp.limit : undefined;
   const orderby = typeof sp.orderby === "string" ? sp.orderby : undefined;
 
   const filters: Record<string, string[]> = {};
@@ -37,28 +36,15 @@ export default async function Home({
     filters[key] = Array.isArray(value) ? value : [value];
   }
   const initialOffset = Number(offset) || 1;
-  const searchResult = await getSearchResults({
-    text,
-    offset: initialOffset,
-    limit: Number(limit) || 12,
-    orderby: orderby || "score",
-    filters: filters,
-  });
-  const results: Array<Omit<DatasetCardProps, "viewMode">> =
-    searchResult.results;
 
   return (
     <>
       <SearchHero initialValue={text ?? ""} />
       <SearchResults
         initialViewMode={isViewMode(storedViewMode) ? storedViewMode : "grid"}
-        initialResults={results}
-        totalCount={searchResult.numFound}
         searchText={text ?? ""}
         orderby={orderby || "score"}
-        initialLimit={searchResult.limit}
         initialOffset={initialOffset}
-        facets={searchResult.facets}
       />
     </>
   );

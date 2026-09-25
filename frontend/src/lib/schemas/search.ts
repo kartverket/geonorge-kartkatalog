@@ -49,6 +49,7 @@ export const SearchResultSchema = z.object({
 });
 
 export type SearchResult = z.infer<typeof SearchResultSchema>;
+export type SearchResultItem = z.infer<typeof SearchResultItemSchema>;
 export type DownloadItem = z.infer<typeof DownloadItemSchema>;
 
 export function parseSearchResult(body: unknown): SearchResult {

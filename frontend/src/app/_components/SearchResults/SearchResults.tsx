@@ -18,39 +18,38 @@ import type { ViewMode } from "./viewMode";
 
 type SearchResultsProps = {
   initialViewMode?: ViewMode;
-  initialResults: Array<Omit<DatasetCardProps, "viewMode">>;
-  totalCount: number;
+  
   searchText: string;
   orderby: string;
-  initialLimit: number;
+  
   initialOffset: number;
-  facets: SearchResult["facets"];
+
+
 };
 
 export function SearchResults({
   initialViewMode = "grid",
-  initialResults,
-  totalCount,
   searchText,
   orderby,
-  initialLimit,
   initialOffset,
-  facets,
+
 }: SearchResultsProps) {
   const [viewMode, setViewMode] = usePersistedViewMode(initialViewMode);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
   const {
     results,
+    facets,
     isLoadingMore,
     loadMoreError,
+    currentOffset,
     hasMoreResults,
-    handleLoadMore,
+    total,
+    nextPage,
+    prevPage,
   } = usePaginatedSearchResults({
-    initialResults,
-    totalCount,
     searchText,
     orderby,
-    initialLimit,
     initialOffset,
   });
 
@@ -71,7 +70,7 @@ export function SearchResults({
             </Suspense>
             <div className={styles.header}>
               <Heading level={2} data-size="sm">
-                {totalCount} treff
+                {total} treff
               </Heading>
               <div className={styles.headerControls}>
                 <ViewToggle value={viewMode} onChange={setViewMode} />
@@ -103,7 +102,7 @@ export function SearchResults({
                 className={styles.showResultsButton}
                 onClick={() => setIsMobileFilterOpen(false)}
               >
-                Vis {totalCount} treff
+                Vis {total} treff
               </Button>
             </div>
             <div className={resultsClassName}>
@@ -122,11 +121,21 @@ export function SearchResults({
                 </Paragraph>
               ) : null}
 
+              {currentOffset > 0 ? (
+                <Button
+                  variant="secondary"
+                  data-size="sm"
+                  onClick={prevPage}
+                  disabled={isLoadingMore}
+                >
+                  {isLoadingMore ? "Laster forrige treff..." : "Vis forrige"}
+                </Button>
+              ) : null}
               {hasMoreResults ? (
                 <Button
                   variant="secondary"
                   data-size="sm"
-                  onClick={handleLoadMore}
+                  onClick={nextPage}
                   disabled={isLoadingMore}
                 >
                   {isLoadingMore ? "Laster flere treff..." : "Vis mer"}
