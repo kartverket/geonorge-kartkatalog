@@ -9,7 +9,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
@@ -49,27 +48,21 @@ class NedlastingClient(
     } catch (e: Exception) {
         throw NedlastingException("Nedlasting request to $path failed", e)
     }
-    suspend fun getAreas(uuid: String): List<NedlastingAreaCodelistEntry> =
-        fetchList("/api/codelists/area/$uuid", NedlastingAreaCodelistEntry.serializer())
 
-    private suspend fun <T> fetchList(
-        path: String,
-        serializer: KSerializer<T>,
-    ): List<T> {
-        val response = getResponse(path)
+    suspend fun getAreas(path: String): List<NedlastingAreaCodelistEntry> = try {
+        val response = httpClient.get(path)
+        json.decodeFromString(ListSerializer(NedlastingAreaCodelistEntry.serializer()), response.bodyAsText())
 
-        if (!response.status.isSuccess()) {
-            log.warn("Nedlasting request to {} failed with status: {}", path, response.status)
-            throw NedlastingException("Nedlasting request to $path failed with status ${response.status}")
-        }
-
-        return try {
-            json.decodeFromString(ListSerializer(serializer), response.bodyAsText())
-        } catch (e: Exception) {
-            log.error("Failed to parse Nedlasting response from {}", path, e)
-            throw NedlastingException("Failed to parse Nedlasting response from $path", e)
-        }
+    } catch (e: Exception) {
+        throw NedlastingException("Nedlasting request to $path failed", e)
     }
+
+    private suspend fun getResponse(path: String): HttpResponse =
+        try {
+            httpClient.get("$baseUrl$path")
+        } catch (e: Exception) {
+            throw NedlastingException("Nedlasting request to $path failed", e)
+        }
 
     suspend fun order(
         orderUrl: String,
@@ -96,13 +89,6 @@ class NedlastingClient(
             throw NedlastingException("Failed to parse Nedlasting order response from $orderUrl", e)
         }
     }
-
-    private suspend fun getResponse(path: String): HttpResponse =
-        try {
-            httpClient.get("$baseUrl$path")
-        } catch (e: Exception) {
-            throw NedlastingException("Nedlasting request to $path failed", e)
-        }
 }
 
 class NedlastingException(

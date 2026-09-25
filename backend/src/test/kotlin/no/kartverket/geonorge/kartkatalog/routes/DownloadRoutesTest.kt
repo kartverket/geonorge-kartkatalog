@@ -91,7 +91,8 @@ class DownloadRoutesTest {
           "distributedBy": "Geonorge",
           "deliveryNotificationByEmail": false,
           "_links": [
-            {"href": "https://nedlasting.geonorge.no/api/codelists/format/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "rel": "http://rel.geonorge.no/download/format"}
+            {"href": "https://nedlasting.geonorge.no/api/codelists/format/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "rel": "http://rel.geonorge.no/download/format"},
+            {"href": "https://nedlasting.geonorge.no/api/codelists/area/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "rel": "http://rel.geonorge.no/download/area"}
           ]
         }
         """.trimIndent()

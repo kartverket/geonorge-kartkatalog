@@ -75,8 +75,10 @@ class DownloadService(
             val capabilities = getCapabilities(capabilitiesURL, uuid)
             val formatsUrl = capabilities.linkFor("http://rel.geonorge.no/download/format")
                 ?: throw DownloadException("Fant ingen codelist/format-URL for datasett $uuid")
+            val areasUrl = capabilities.linkFor("http://rel.geonorge.no/download/area")
+                ?: throw DownloadException("Fant ingen codelist/area-URL for datasett $uuid")
             val formatsDeferred = async { nedlastingClient.getFormats(formatsUrl) }
-            val areasDeferred = async { nedlastingClient.getAreas(uuid) }
+            val areasDeferred = async { nedlastingClient.getAreas(areasUrl) }
 
             val formats = formatsDeferred.await()
             val areas = areasDeferred.await()
