@@ -32,7 +32,7 @@ import {
   type TegnereglerItem,
 } from "@/lib/schemas/tegneregler";
 
-const API_BASE = process.env.API_BASE;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
 
 export class HttpError extends Error {
@@ -259,6 +259,7 @@ export async function getSearchResults({
   }
 
   const url = `${API_BASE}/api/search?${params.toString()}`;
+  console.log("sup", url);
   const body = await fetchJson(url, { method: "GET" });
   return parseSearchResult(body);
 }

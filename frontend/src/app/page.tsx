@@ -1,14 +1,12 @@
 import { getServerConsent } from "@cookieyes/nextjs/server";
 import { cookies } from "next/headers";
 import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
-import type { DatasetCardProps } from "./_components/DatasetCard/DatasetCard";
 import { SearchHero } from "./_components/SearchHero/SearchHero";
 import { SearchResults } from "./_components/SearchResults/SearchResults";
 import {
   isViewMode,
   VIEW_MODE_COOKIE_NAME,
 } from "./_components/SearchResults/viewMode";
-import { getSearchResults } from "./api";
 
 export const instant = false;
 
@@ -45,6 +43,7 @@ export default async function Home({
         searchText={text ?? ""}
         orderby={orderby || "score"}
         initialOffset={initialOffset}
+        filters={filters}
       />
     </>
   );

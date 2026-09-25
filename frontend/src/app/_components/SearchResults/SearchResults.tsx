@@ -3,8 +3,7 @@
 import { Button, Heading, Paragraph } from "@kv-designsystem/react";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import { Suspense, useState } from "react";
-import type { SearchResult } from "@/lib/schemas/search";
-import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
+import { DatasetCard } from "../DatasetCard/DatasetCard";
 import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
 import { ActiveFilters } from "./ActiveFilters";
 import styles from "./SearchResults.module.css";
@@ -18,21 +17,18 @@ import type { ViewMode } from "./viewMode";
 
 type SearchResultsProps = {
   initialViewMode?: ViewMode;
-  
+  filters: Record<string, string[]>;
   searchText: string;
   orderby: string;
-  
   initialOffset: number;
-
-
 };
 
 export function SearchResults({
   initialViewMode = "grid",
   searchText,
+  filters,
   orderby,
   initialOffset,
-
 }: SearchResultsProps) {
   const [viewMode, setViewMode] = usePersistedViewMode(initialViewMode);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -49,6 +45,7 @@ export function SearchResults({
     prevPage,
   } = usePaginatedSearchResults({
     searchText,
+    filters,
     orderby,
     initialOffset,
   });

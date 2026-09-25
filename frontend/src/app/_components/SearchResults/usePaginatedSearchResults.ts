@@ -1,20 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { basePath } from "@/lib/basePath";
-import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
-import {
-  parseSearchResult,
-  SearchResult,
-  SearchResultItem,
-} from "@/lib/schemas/search";
-import type { DatasetCardProps } from "../DatasetCard/DatasetCard";
-import { getSearchResults } from "./../../api"; //Refactor to use this
-
-type SearchResultCard = Omit<DatasetCardProps, "viewMode">;
+import type { SearchResult, SearchResultItem } from "@/lib/schemas/search";
+import { getSearchResults } from "./../../api";
 
 type UsePaginatedSearchResultsOptions = {
   searchText: string;
+  filters: Record<string, string[]>;
   orderby: string;
   pageSize?: number;
   initialOffset?: number;
@@ -25,6 +17,7 @@ const PAGE_SIZE = 12;
 export function usePaginatedSearchResults({
   searchText,
   orderby,
+  filters,
   pageSize = PAGE_SIZE,
   initialOffset = 0,
 }: UsePaginatedSearchResultsOptions) {
@@ -37,55 +30,39 @@ export function usePaginatedSearchResults({
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    const doSearch = async (params: URLSearchParams) => {
+    const doSearch = async (
+      text: string,
+      orderby: string,
+      filters: Record<string, string[]>,
+      limit: number,
+      offset: number,
+    ) => {
       try {
-        const response = await fetch(
-          `${basePath}/api/search?${params.toString()}`,
-          {
-            method: "GET",
-            cache: "no-store",
-          },
+        const response = await getSearchResults({
+          text,
+          orderby,
+          filters,
+          limit,
+          offset,
+        });
+
+        setResults(response.results != null ? response.results : []);
+        setTotal(response.numFound);
+        setFacets(response.facets ?? []);
+        setHasMoreResults(
+          (response.results?.length ?? 0) + currentOffset < response.numFound,
         );
-
-        if (!response.ok) {
-          setLoadMoreError("Kunne ikke hente flere treff akkurat nå.");
-          return;
-        }
-
-        const body: unknown = await response.json();
-        const nextPage = parseSearchResult(body);
-
-        setResults(nextPage.results != null ? nextPage.results : []);
-        setTotal(nextPage.numFound);
-        setFacets(nextPage.facets ?? []);
-        setHasMoreResults((nextPage.results?.length ?? 0) + currentOffset < nextPage.numFound);
       } catch {
         setLoadMoreError("Kunne ikke hente flere treff akkurat nå.");
       } finally {
         setIsLoadingMore(false);
       }
     };
-    const params = new URLSearchParams({
-      limit: String(pageSize),
-      offset: String(currentOffset),
-      orderby,
-    });
-    const trimmedSearchText = searchText.trim();
-
-    if (trimmedSearchText) {
-      params.set("text", trimmedSearchText);
-    }
-
-    for (const [key, value] of new URLSearchParams(window.location.search)) {
-      if (!RESERVED_SEARCH_PARAMS.has(key)) {
-        params.append(key, value);
-      }
-    }
 
     setIsLoadingMore(true);
     setLoadMoreError(null);
-    doSearch(params);
-  }, [searchText, orderby, pageSize, currentOffset]);
+    doSearch(searchText, orderby, filters, pageSize, currentOffset);
+  }, [searchText, orderby, pageSize, filters, currentOffset]);
 
   const nextPage = () => {
     if (currentOffset + pageSize >= total) {
