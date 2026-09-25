@@ -75,7 +75,8 @@ fun Route.downloadRoutes(downloadService: DownloadService) {
                     it.isNotBlank()
                 }
                     ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
-
+            val capabilitiesUrl = call.request.queryParameters["capabilitiesUrl"]
+            println(capabilitiesUrl)
             val options = downloadService.getOptions(uuid)
             call.respond(
                 DownloadOptionsDto(

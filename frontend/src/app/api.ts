@@ -265,9 +265,13 @@ export async function getSearchResults({
 
 export async function getDownloadOptions(
   uuid: string,
+  capabilitiesUrl?: string,
 ): Promise<DownloadOptions> {
   if (!uuid) throw new Error("uuid is required");
-  const url = `${API_BASE}/api/download/options/${encodeURIComponent(uuid)}`;
+  const params = new URLSearchParams();
+  if (capabilitiesUrl) params.set("capabilitiesUrl", capabilitiesUrl);
+  const query = params.toString();
+  const url = `${API_BASE}/api/download/options/${encodeURIComponent(uuid)}${query ? `?${query}` : ""}`;
   const body = await fetchJson(url, { method: "GET" });
   return parseDownloadOptions(body);
 }
