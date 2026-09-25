@@ -1,6 +1,12 @@
 "use client";
 
-import { Button, Heading, Paragraph } from "@kv-designsystem/react";
+import {
+  Button,
+  Heading,
+  Pagination,
+  Paragraph,
+  usePagination,
+} from "@kv-designsystem/react";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import { Suspense, useState } from "react";
 import { DatasetCard } from "../DatasetCard/DatasetCard";
@@ -38,17 +44,27 @@ export function SearchResults({
     facets,
     isLoadingMore,
     loadMoreError,
-    currentOffset,
+    currentPage,
     hasMoreResults,
     total,
-    nextPage,
-    prevPage,
+    totalPageCount,
+    setCurrentPage,
   } = usePaginatedSearchResults({
     searchText,
     filters,
     orderby,
     initialOffset,
   });
+
+  const onChange = (_event, page: number) =>
+    console.log(`Going to page ${page}`);
+  const { pages, prevButtonProps, nextButtonProps } =
+    usePagination({
+      currentPage,
+      setCurrentPage,
+      totalPages: totalPageCount,
+      showPages: 6,
+    });
 
   const resultsClassName = `${styles.results} ${
     viewMode === "list" ? styles.list : styles.grid
@@ -118,33 +134,44 @@ export function SearchResults({
                 </Paragraph>
               ) : null}
 
-              {currentOffset > 0 ? (
-                <Button
-                  variant="secondary"
-                  data-size="sm"
-                  onClick={prevPage}
-                  disabled={isLoadingMore}
-                >
-                  {isLoadingMore ? "Laster forrige treff..." : "Vis forrige"}
-                </Button>
-              ) : null}
-              {hasMoreResults ? (
-                <Button
-                  variant="secondary"
-                  data-size="sm"
-                  onClick={nextPage}
-                  disabled={isLoadingMore}
-                >
-                  {isLoadingMore ? "Laster flere treff..." : "Vis mer"}
-                </Button>
-              ) : results.length > 0 ? (
-                <Paragraph
-                  className={styles.loadMoreMessage}
-                  aria-live="polite"
-                >
-                  Alle treff er vist.
-                </Paragraph>
-              ) : null}
+              <Pagination>
+                <Pagination.List>
+                  <Pagination.Item>
+                    <Pagination.Button
+                      aria-label="Forrige side"
+                      data-variant="tertiary"
+                      {...prevButtonProps}
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                    >
+                      Forrige
+                    </Pagination.Button>
+                  </Pagination.Item>
+
+                  {pages.map(({ page, itemKey, buttonProps }) => (
+                    <Pagination.Item key={itemKey}>
+                      {typeof page === "number" && (
+                        <Pagination.Button
+                          aria-label={`Side ${page}`}
+                          {...buttonProps}
+                        >
+                          {page}
+                        </Pagination.Button>
+                      )}
+                    </Pagination.Item>
+                  ))}
+                  <Pagination.Item>
+                    <Pagination.Button
+                      aria-label="Neste side"
+                      data-variant="tertiary"
+                      {...nextButtonProps}
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                    >
+                      Neste
+                    </Pagination.Button>
+                  </Pagination.Item>
+                </Pagination.List>
+              </Pagination>
+
               <div className={styles.toTopButton}>
                 <ToTopButton />
               </div>

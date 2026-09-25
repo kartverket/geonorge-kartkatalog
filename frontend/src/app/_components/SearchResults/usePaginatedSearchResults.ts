@@ -22,7 +22,10 @@ export function usePaginatedSearchResults({
   initialOffset = 0,
 }: UsePaginatedSearchResultsOptions) {
   const [results, setResults] = useState<SearchResultItem[]>([]);
-  const [currentOffset, setCurrentOffset] = useState(initialOffset || 0);
+  const [currentPage, setCurrentPage] = useState(
+    Math.floor(initialOffset / pageSize) + 1,
+  );
+
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
   const [hasMoreResults, setHasMoreResults] = useState(false);
@@ -35,7 +38,7 @@ export function usePaginatedSearchResults({
       orderby: string,
       filters: Record<string, string[]>,
       limit: number,
-      offset: number,
+      page: number,
     ) => {
       try {
         const response = await getSearchResults({
@@ -43,14 +46,15 @@ export function usePaginatedSearchResults({
           orderby,
           filters,
           limit,
-          offset,
+          offset: (page - 1) * pageSize,
         });
 
         setResults(response.results != null ? response.results : []);
         setTotal(response.numFound);
         setFacets(response.facets ?? []);
         setHasMoreResults(
-          (response.results?.length ?? 0) + currentOffset < response.numFound,
+          (response.results?.length ?? 0) + (page - 1) * pageSize <
+            response.numFound,
         );
       } catch {
         setLoadMoreError("Kunne ikke hente flere treff akkurat nå.");
@@ -61,32 +65,28 @@ export function usePaginatedSearchResults({
 
     setIsLoadingMore(true);
     setLoadMoreError(null);
-    doSearch(searchText, orderby, filters, pageSize, currentOffset);
-  }, [searchText, orderby, pageSize, filters, currentOffset]);
+    doSearch(searchText, orderby, filters, pageSize, currentPage);
+  }, [searchText, orderby, pageSize, filters, currentPage]);
 
-  const nextPage = () => {
-    if (currentOffset + pageSize >= total) {
-      return;
+  const setPage = (page: number) => {
+    if (page < 1) {
+      page = 1;
     }
-    setCurrentOffset(currentOffset + pageSize);
-  };
-
-  const prevPage = () => {
-    if (currentOffset - pageSize < 0) {
-      return;
+    if (page > Math.ceil(total / pageSize)) {
+      page = Math.ceil(total / pageSize);
     }
-    setCurrentOffset(currentOffset - pageSize);
+    setCurrentPage(page);
   };
 
   return {
     results,
     facets,
     total,
+    totalPageCount: Math.ceil(total / pageSize),
     isLoadingMore,
     loadMoreError,
-    currentOffset,
+    currentPage,
     hasMoreResults,
-    nextPage, //rework the paging mechanism
-    prevPage,
+    setCurrentPage: setPage,
   };
 }
