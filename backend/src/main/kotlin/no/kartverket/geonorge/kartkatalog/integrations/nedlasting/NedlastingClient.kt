@@ -1,6 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.integrations.nedlasting
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -70,10 +71,12 @@ class NedlastingClient(
     suspend fun order(
         orderUrl: String,
         request: NedlastingOrderRequest,
+        accessToken: String? = null,
     ): NedlastingOrderResponse {
         val response =
             try {
                 httpClient.post(orderUrl) {
+                    accessToken?.let { bearerAuth(it) }
                     contentType(ContentType.Application.Json)
                     setBody(json.encodeToString(NedlastingOrderRequest.serializer(), request))
                 }

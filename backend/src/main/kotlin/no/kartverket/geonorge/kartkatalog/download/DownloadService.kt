@@ -15,9 +15,12 @@ class DownloadException(
     message: String,
 ) : RuntimeException(message)
 
+class DownloadAuthenticationRequiredException : RuntimeException("Authentication is required for protected downloads")
+
 private data class ResolvedOrderLine(
     val orderUrl: String,
     val supportsBundling: Boolean,
+    val restricted: Boolean,
     val line: NedlastingOrderLine,
 )
 
@@ -25,15 +28,25 @@ class DownloadService(
     private val nedlastingClient: NedlastingClient,
     private val downloadInsightGroupsResolver: DownloadInsightGroupsResolver,
 ) {
-    suspend fun order(request: DownloadOrderRequest): DownloadOrderResult =
+    suspend fun order(
+        request: DownloadOrderRequest,
+        geoIdUser: GeoIdUser? = null,
+    ): DownloadOrderResult =
         coroutineScope {
             val resolved =
                 request.items
                     .map { item -> async { resolveOrderLine(item) } }
                     .awaitAll()
 
+            val hasRestrictedDownloads = resolved.any { it.restricted }
+            if (hasRestrictedDownloads && geoIdUser == null) {
+                throw DownloadAuthenticationRequiredException()
+            }
+
             val (bundlable, individual) = resolved.partition { it.supportsBundling }
-            val groups = bundlable.groupBy { it.orderUrl }.values + individual.map { listOf(it) }
+            val groups =
+                bundlable.groupBy { it.orderUrl to it.restricted }.values +
+                    individual.map { listOf(it) }
 
             val responses =
                 groups.map { group ->
@@ -45,6 +58,7 @@ class DownloadService(
                                 usageGroup = request.usageGroup,
                                 orderLines = group.map { it.line },
                             ),
+                            if (group.first().restricted) geoIdUser?.accessToken else null,
                         )
                     }
                 }.awaitAll()
@@ -75,6 +89,7 @@ class DownloadService(
         return ResolvedOrderLine(
             orderUrl = orderUrl,
             supportsBundling = capabilities.supportsDownloadBundling,
+            restricted = !capabilities.accessConstraintRequiredRole.isNullOrBlank(),
             line =
                 NedlastingOrderLine(
                     metadataUuid = item.uuid,

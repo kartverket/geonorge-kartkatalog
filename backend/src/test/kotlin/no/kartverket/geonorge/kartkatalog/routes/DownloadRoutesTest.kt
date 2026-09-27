@@ -21,6 +21,7 @@ import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
+import no.kartverket.geonorge.kartkatalog.download.GeoIdUser
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
@@ -65,6 +66,19 @@ class DownloadRoutesTest {
           "_links": [
             {"href": "https://nedlasting.geonorge.no/api/order", "rel": "http://rel.geonorge.no/download/order"}
           ]
+        }
+        """.trimIndent()
+
+    private val protectedCapabilitiesJson =
+        """
+        {
+            "supportsDownloadBundling": true,
+            "distributedBy": "Geonorge",
+            "deliveryNotificationByEmail": false,
+            "accessConstraintRequiredRole": "nd.filnedlasting",
+            "_links": [
+                {"href": "https://nedlasting.geonorge.no/api/order", "rel": "http://rel.geonorge.no/download/order"}
+            ]
         }
         """.trimIndent()
 
@@ -173,6 +187,186 @@ class DownloadRoutesTest {
                 }
 
             assertEquals(HttpStatusCode.BadGateway, response.status)
+        }
+
+    @Test
+    fun `requires authentication before ordering a protected dataset`() =
+        testApplication {
+            val requestedPaths = mutableListOf<String>()
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(
+                        MockEngine { request ->
+                            requestedPaths += request.url.encodedPath
+                            respond(
+                                content = protectedCapabilitiesJson,
+                                status = HttpStatusCode.OK,
+                                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                            )
+                        },
+                    ) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
+                routing { downloadRoutes(downloadService) }
+            }
+
+            val response =
+                client.post("/api/download/order") {
+                    header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                    setBody(
+                        """
+                        {
+                          "email": "submitted@example.com",
+                          "items": [{"uuid": "protected-dataset"}]
+                        }
+                        """.trimIndent(),
+                    )
+                }
+
+            assertEquals(HttpStatusCode.Unauthorized, response.status)
+            assertEquals(listOf("/api/capabilities/protected-dataset"), requestedPaths)
+        }
+
+    @Test
+    fun `forwards access token when ordering a restricted dataset`() =
+        testApplication {
+            val orderRequests = mutableListOf<Pair<String, String?>>()
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(
+                        MockEngine { request ->
+                            if (request.url.encodedPath.startsWith("/api/capabilities")) {
+                                respond(
+                                    content = protectedCapabilitiesJson,
+                                    status = HttpStatusCode.OK,
+                                    headers =
+                                        headersOf(
+                                            HttpHeaders.ContentType,
+                                            ContentType.Application.Json.toString(),
+                                        ),
+                                )
+                            } else {
+                                orderRequests +=
+                                    (request.body as OutgoingContent.ByteArrayContent).bytes().decodeToString() to
+                                    request.headers[HttpHeaders.Authorization]
+                                respond(
+                                    content = orderResponseJson,
+                                    status = HttpStatusCode.OK,
+                                    headers =
+                                        headersOf(
+                                            HttpHeaders.ContentType,
+                                            ContentType.Application.Json.toString(),
+                                        ),
+                                )
+                            }
+                        },
+                    ) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadService =
+                    DownloadService(nedlastingClient, DownloadInsightGroupsResolver(registerClient))
+                routing {
+                    downloadRoutes(downloadService) {
+                        GeoIdUser("authenticated-user", "access-token")
+                    }
+                }
+            }
+
+            val response =
+                client.post("/api/download/order") {
+                    header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                    setBody(
+                        """
+                        {
+                          "items": [{"uuid": "protected-dataset"}]
+                        }
+                        """.trimIndent(),
+                    )
+                }
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(1, orderRequests.size)
+            assertContains(orderRequests.single().first, "\"email\":\"\"")
+            assertEquals("Bearer access-token", orderRequests.single().second)
+        }
+
+    @Test
+    fun `adds access token only to restricted order requests`() =
+        testApplication {
+            val orderRequests = mutableListOf<Pair<String, String?>>()
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(
+                        MockEngine { request ->
+                            when {
+                                request.url.encodedPath.endsWith("/protected-dataset") -> protectedCapabilitiesJson
+                                request.url.encodedPath.startsWith("/api/capabilities") -> capabilitiesJson
+                                else -> {
+                                    orderRequests +=
+                                        (request.body as OutgoingContent.ByteArrayContent).bytes().decodeToString() to
+                                        request.headers[HttpHeaders.Authorization]
+                                    orderResponseJson
+                                }
+                            }.let {
+                                respond(
+                                    content = it,
+                                    status = HttpStatusCode.OK,
+                                    headers =
+                                        headersOf(
+                                            HttpHeaders.ContentType,
+                                            ContentType.Application.Json.toString(),
+                                        ),
+                                )
+                            }
+                        },
+                    ) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadService =
+                    DownloadService(nedlastingClient, DownloadInsightGroupsResolver(registerClient))
+                routing {
+                    downloadRoutes(downloadService) {
+                        GeoIdUser("authenticated-user", "access-token")
+                    }
+                }
+            }
+
+            val response =
+                client.post("/api/download/order") {
+                    header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                    setBody(
+                        """
+                        {
+                          "email": "submitted@example.com",
+                          "items": [
+                            {"uuid": "open-dataset"},
+                            {"uuid": "protected-dataset"}
+                          ]
+                        }
+                        """.trimIndent(),
+                    )
+                }
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(2, orderRequests.size)
+            val openOrder = orderRequests.single { it.first.contains("open-dataset") }
+            val restrictedOrder = orderRequests.single { it.first.contains("protected-dataset") }
+            assertEquals(null, openOrder.second)
+            assertEquals("Bearer access-token", restrictedOrder.second)
         }
 
     @Test

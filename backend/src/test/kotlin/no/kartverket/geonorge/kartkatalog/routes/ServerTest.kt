@@ -27,6 +27,7 @@ class ServerTest {
                             "SOLR_BASE_URL" to "https://test.example.com/solr",
                             "NORGESKART_BASE_URL" to "https://test.example.com/norgeskart",
                             "NEDLASTING_BASE_URL" to "https://test.example.com/nedlasting",
+                            "BAAT_BASE_URL" to "https://test.example.com/baat",
                         ),
                     ),
                 )

@@ -26,6 +26,32 @@ data class DownloadOrderResult(
     val responses: List<NedlastingOrderResponse>,
 )
 
+data class GeoIdUser(
+    val username: String,
+    val accessToken: String,
+)
+
+@Serializable
+data class BaatOrganization(
+    val name: String,
+    val organizationNumber: String,
+)
+
+@Serializable
+data class BaatUserInfo(
+    val username: String,
+    val name: String,
+    val email: String,
+    val authorizedFrom: Int,
+    val authorizedUntil: Int,
+    val organization: BaatOrganization,
+    val services: Set<String>,
+)
+
+fun interface BaatAuthorizationService {
+    suspend fun getUserInfo(user: GeoIdUser): BaatUserInfo
+}
+
 data class DownloadOptions(
     val areas: List<NedlastingArea>,
     val formats: List<DownloadFormatOption>,

@@ -7,7 +7,9 @@ import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
+import no.kartverket.geonorge.kartkatalog.download.DownloadAuthenticationRequiredException
 import no.kartverket.geonorge.kartkatalog.download.DownloadException
+import no.kartverket.geonorge.kartkatalog.integrations.baat.BaatException
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeoNetworkException
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingException
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
@@ -19,6 +21,9 @@ private val log = LoggerFactory.getLogger("StatusPages")
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
+        exception<DownloadAuthenticationRequiredException> { call, _ ->
+            call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Authentication required"))
+        }
         exception<MetadataRecordNotFoundException> { call, cause ->
             log.warn("Metadata record not found", cause)
             call.respond(HttpStatusCode.NotFound, mapOf("error" to "Record not found"))
@@ -38,6 +43,10 @@ fun Application.configureStatusPages() {
         exception<RegisterException> { call, cause ->
             log.warn("Register request failed", cause)
             call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream Register error"))
+        }
+        exception<BaatException> { call, cause ->
+            log.warn("BAAT request failed", cause)
+            call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream authorization error"))
         }
         exception<Throwable> { call, cause ->
             log.error("Unhandled exception", cause)

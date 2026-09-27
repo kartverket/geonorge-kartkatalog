@@ -2,16 +2,22 @@ package no.kartverket.geonorge.kartkatalog
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopping
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
+import no.kartverket.geonorge.kartkatalog.download.DownloadAuthenticationRequiredException
+import no.kartverket.geonorge.kartkatalog.download.GeoIdUser
 import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.baat.BaatClient
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
@@ -38,6 +44,7 @@ fun Application.configureRouting(appConfig: AppConfig) {
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)
     val searchService = SearchService(solrClient, areaResolver, hvdResolver)
     val nedlastingClient = NedlastingClient(httpClient, appConfig.nedlastingBaseUrl)
+    val baatClient = BaatClient(httpClient, appConfig.baatBaseUrl)
     val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
     val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
 
@@ -49,6 +56,17 @@ fun Application.configureRouting(appConfig: AppConfig) {
         }
         searchRoutes(searchService)
         metadataRoutes(metadataService, linkedDistributionsService)
-        downloadRoutes(downloadService)
+        downloadRoutes(downloadService) { geoIdUserFromHeaders() }
+        get("/api/geoid/me") {
+            val geoIdUser = call.geoIdUserFromHeaders() ?: throw DownloadAuthenticationRequiredException()
+            call.respond(baatClient.getUserInfo(geoIdUser))
+        }
     }
+}
+
+private fun io.ktor.server.application.ApplicationCall.geoIdUserFromHeaders(): GeoIdUser? {
+    val username = request.headers["X-GeoID-Username"]?.takeIf { it.isNotBlank() } ?: return null
+    val authorization = request.headers[HttpHeaders.Authorization] ?: return null
+    val accessToken = authorization.removePrefix("Bearer ").takeIf { it != authorization && it.isNotBlank() } ?: return null
+    return GeoIdUser(username, accessToken)
 }

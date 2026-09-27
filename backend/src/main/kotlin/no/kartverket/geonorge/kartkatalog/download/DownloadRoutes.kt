@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.download
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -42,7 +43,10 @@ data class DownloadOptionsDto(
     val formats: List<DownloadFormatOption>,
 )
 
-fun Route.downloadRoutes(downloadService: DownloadService) {
+fun Route.downloadRoutes(
+    downloadService: DownloadService,
+    currentGeoIdUser: ApplicationCall.() -> GeoIdUser? = { null },
+) {
     route("/api/download") {
         post("/order") {
             val body = call.receive<DownloadOrderRequestDto>()
@@ -65,7 +69,7 @@ fun Route.downloadRoutes(downloadService: DownloadService) {
                         },
                 )
 
-            val result = downloadService.order(request)
+            val result = downloadService.order(request, call.currentGeoIdUser())
             call.respond(DownloadOrderResponseDto(result.responses))
         }
 

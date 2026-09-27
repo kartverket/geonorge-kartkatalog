@@ -15,6 +15,7 @@ class AppConfig(
     val solrBaseUrl: String = env("SOLR_BASE_URL")
     val nedlastingBaseUrl: String = env("NEDLASTING_BASE_URL")
     val staticNorgeskartUrl: String = env("NORGESKART_BASE_URL")
+    val baatBaseUrl: String = env("BAAT_BASE_URL")
 
     private fun env(key: String): String =
         (overrides[key] ?: dotenv[key])?.trimEnd('/')
