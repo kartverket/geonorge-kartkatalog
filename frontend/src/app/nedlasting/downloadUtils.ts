@@ -3,6 +3,23 @@ import type {
   DownloadOrderItemInput,
 } from "@/lib/schemas/download";
 
+export type DownloadCard = {
+  uuid: string;
+  title: string;
+  organization: string | null;
+  typeTranslated: string | null;
+  accessState: "restricted" | "open" | "protected" | null;
+  distributionUrl: string;
+};
+
+export type DownloadOptionsState = {
+  options: DownloadOptions | null;
+  isLoading: boolean;
+  error: string | null;
+};
+
+export type DownloadOptionsByUuid = Record<string, DownloadOptionsState>;
+
 export type DownloadSelection = {
   areaCode: string;
   formatNames: string[];

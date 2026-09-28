@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
 import { basePath } from "@/lib/basePath";
 import { parseProductMetadata } from "@/lib/schemas/product";
-
-export type DownloadCard = {
-  uuid: string;
-  title: string;
-  organization: string | null;
-  typeTranslated: string | null;
-  accessState: "restricted" | "open" | "protected" | null;
-  distributionUrl: string;
-};
+import type { DownloadCard } from "./downloadUtils";
 
 type StoredDownloadMetadata = {
   accessIsOpendata?: unknown;

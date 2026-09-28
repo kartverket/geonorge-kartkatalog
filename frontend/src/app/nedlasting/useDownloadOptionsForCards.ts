@@ -2,18 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { basePath } from "@/lib/basePath";
-import {
-  type DownloadOptions,
-  parseDownloadOptions,
-} from "@/lib/schemas/download";
-
-export type DownloadOptionsState = {
-  options: DownloadOptions | null;
-  isLoading: boolean;
-  error: string | null;
-};
-
-export type DownloadOptionsByUuid = Record<string, DownloadOptionsState>;
+import { parseDownloadOptions } from "@/lib/schemas/download";
+import type { DownloadOptionsByUuid } from "./downloadUtils";
 
 function getErrorMessage(body: unknown): string {
   if (

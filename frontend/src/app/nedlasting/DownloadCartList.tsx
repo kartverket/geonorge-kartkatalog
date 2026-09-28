@@ -5,13 +5,13 @@ import { BulkDownloadSelectionForm } from "./BulkDownloadSelectionForm";
 import { DownloadCartCard } from "./DownloadCartCard";
 import styles from "./DownloadCartList.module.css";
 import {
+  type DownloadCard,
+  type DownloadOptionsByUuid,
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
   type MissingDownloadSelectionField,
 } from "./downloadUtils";
 import { MissingInputSummary } from "./MissingInputSummary";
-import type { DownloadCard } from "./useDownloadCartCards";
-import type { DownloadOptionsByUuid } from "./useDownloadOptionsForCards";
 
 type DownloadCartListProps = {
   orderItemsCount: number;
