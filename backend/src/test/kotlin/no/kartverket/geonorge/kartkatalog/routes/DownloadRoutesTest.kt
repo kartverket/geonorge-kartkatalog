@@ -126,7 +126,7 @@ class DownloadRoutesTest {
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -175,7 +175,7 @@ class DownloadRoutesTest {
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -228,7 +228,7 @@ class DownloadRoutesTest {
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -293,7 +293,7 @@ class DownloadRoutesTest {
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -347,7 +347,7 @@ class DownloadRoutesTest {
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 
@@ -383,7 +383,7 @@ class DownloadRoutesTest {
                 val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(client, nedlastingClient, downloadInsightGroupsResolver)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 routing { downloadRoutes(downloadService) }
             }
 

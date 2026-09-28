@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { getDownloadOptions, HttpError } from "@/app/api";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ uuid: string }> },
 ) {
   const { uuid } = await params;
   const capabilitiesUrl =
-    new URL(_request.url).searchParams.get("capabilitiesUrl") ?? "";
+    new URL(request.url).searchParams.get("capabilitiesUrl") ?? "";
 
   try {
     const options = await getDownloadOptions(uuid, capabilitiesUrl);

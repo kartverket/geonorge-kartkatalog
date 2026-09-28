@@ -1,26 +1,16 @@
 package no.kartverket.geonorge.kartkatalog.download
 
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.isSuccess
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.serialization.json.Json
+import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.AREA_REL
+import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.FORMAT_REL
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingArea
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingCapabilities
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingException
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingInsightGroups
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderLine
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderRequest
-import org.slf4j.LoggerFactory
-
-private const val ORDER_REL = "http://rel.geonorge.no/download/order"
-private const val FORMAT_REL = "http://rel.geonorge.no/download/format"
-private const val AREA_REL = "http://rel.geonorge.no/download/area"
+import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.ORDER_REL
 
 class DownloadException(
     message: String,
@@ -33,18 +23,9 @@ private data class ResolvedOrderLine(
 )
 
 class DownloadService(
-    private val httpClient: HttpClient,
     private val nedlastingClient: NedlastingClient,
     private val downloadInsightGroupsResolver: DownloadInsightGroupsResolver,
 ) {
-    private val log = LoggerFactory.getLogger(DownloadService::class.java)
-
-    private val json =
-        Json {
-            ignoreUnknownKeys = true
-            encodeDefaults = true
-        }
-
     suspend fun order(request: DownloadOrderRequest): DownloadOrderResult =
         coroutineScope {
             val resolved =
@@ -77,13 +58,13 @@ class DownloadService(
         capabilitiesUrl: String,
     ): DownloadOptions =
         coroutineScope {
-            val capabilities = getCapabilities(capabilitiesUrl, uuid)
+            val capabilities = nedlastingClient.getCapabilities(capabilitiesUrl, uuid)
             val formatsUrl =
                 capabilities.linkFor(FORMAT_REL)
-                    ?: throw DownloadException("Fant ingen codelist/format-URL for datasett $uuid")
+                    ?: throw DownloadException("No format codelist URL found for dataset $uuid")
             val areasUrl =
                 capabilities.linkFor(AREA_REL)
-                    ?: throw DownloadException("Fant ingen codelist/area-URL for datasett $uuid")
+                    ?: throw DownloadException("No area codelist URL found for dataset $uuid")
             val formatsDeferred = async { nedlastingClient.getFormats(formatsUrl) }
             val areasDeferred = async { nedlastingClient.getAreas(areasUrl) }
 
@@ -100,7 +81,7 @@ class DownloadService(
         val capabilities = nedlastingClient.getCapabilities(item.uuid)
         val orderUrl =
             capabilities.linkFor(ORDER_REL)
-                ?: throw DownloadException("Fant ingen bestillings-URL for datasett ${item.uuid}")
+                ?: throw DownloadException("No order URL found for dataset ${item.uuid}")
 
         return ResolvedOrderLine(
             orderUrl = orderUrl,
@@ -127,31 +108,4 @@ class DownloadService(
             brukergrupper = brukergrupper?.toList() ?: emptyList(),
         )
     }
-
-    private suspend fun getCapabilities(
-        capabilitiesUrl: String,
-        uuid: String,
-    ): NedlastingCapabilities {
-        val path = "${capabilitiesUrl.trimEnd('/')}/$uuid"
-        val response = getResponse(path)
-
-        if (!response.status.isSuccess()) {
-            log.warn("Request to {} failed with status: {}", path, response.status)
-            throw DownloadException("Request to $path failed with status ${response.status}")
-        }
-
-        return try {
-            json.decodeFromString(NedlastingCapabilities.serializer(), response.bodyAsText())
-        } catch (e: Exception) {
-            log.error("Failed to parse capabilities response from {}", path, e)
-            throw DownloadException("Failed to parse capabilities response from $path", e)
-        }
-    }
-
-    private suspend fun getResponse(path: String): HttpResponse =
-        try {
-            httpClient.get(path)
-        } catch (e: Exception) {
-            throw DownloadException("Request to $path failed", e)
-        }
 }
