@@ -28,10 +28,12 @@ export function useDownloadOptionsForCards(
   useEffect(() => {
     const controller = new AbortController();
     const currentUuids = uuidsKey.length > 0 ? uuidsKey.split(",") : [];
+    const pendingUuids = new Set<string>();
 
     for (const uuid of currentUuids) {
       if (requestedUuids.current.has(uuid)) continue;
       requestedUuids.current.add(uuid);
+      pendingUuids.add(uuid);
 
       setOptionsByUuid((current) => ({
         ...current,
@@ -42,6 +44,7 @@ export function useDownloadOptionsForCards(
         signal: controller.signal,
       })
         .then(async (response) => {
+          pendingUuids.delete(uuid);
           const body: unknown = await response.json();
 
           if (!response.ok) {
@@ -66,10 +69,8 @@ export function useDownloadOptionsForCards(
           }));
         })
         .catch((cause) => {
-          if (controller.signal.aborted) {
-            requestedUuids.current.delete(uuid);
-            return;
-          }
+          pendingUuids.delete(uuid);
+          if (controller.signal.aborted) return;
 
           console.error("Could not fetch download options", cause);
           setOptionsByUuid((current) => ({
@@ -86,7 +87,12 @@ export function useDownloadOptionsForCards(
         });
     }
 
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      for (const uuid of pendingUuids) {
+        requestedUuids.current.delete(uuid);
+      }
+    };
   }, [uuidsKey]);
 
   return optionsByUuid;
