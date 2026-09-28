@@ -129,7 +129,7 @@ export function Header() {
             <Button asChild variant="tertiary" className={styles.showFromXl}>
               <Link
                 href={downloadHref}
-                onClick={() => trackHeaderClick("nedlastingskurv")}
+                onClick={() => trackHeaderClick("nedlasting")}
               >
                 <Badge.Position
                   overlap="circle"
@@ -141,7 +141,7 @@ export function Header() {
                   )}
                   <DownloadIcon aria-hidden />
                 </Badge.Position>
-                Nedlastingskurv
+                Nedlasting
               </Link>
             </Button>
             {!isBeta &&

@@ -59,7 +59,7 @@ export function DistributionDetailActionButton({
         location={LOCATIONS.MetadataPageTabs}
         variant="secondary"
         addLabel="Last ned"
-        removeLabel="Fjern fra handlekurv"
+        removeLabel="Fjern fra nedlasting"
         preventAccordionToggle
       />
     );

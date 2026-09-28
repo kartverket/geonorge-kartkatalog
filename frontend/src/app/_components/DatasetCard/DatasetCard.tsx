@@ -120,6 +120,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           )}
           <Heading level={3} data-size={"sm"}>
             <Link
+              className={styles.datasetLink}
               href={`/metadata/${p.uuid}`}
               onClick={() =>
                 trackClick("open-dataset-card", analyticsLocation, {

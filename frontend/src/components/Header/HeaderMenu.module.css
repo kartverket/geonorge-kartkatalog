@@ -113,7 +113,7 @@ må matche de andre Header-filene */
 
 @media (max-width: 800px) {
   .inMenuFromXl {
-    /* Kart og Nedlastingskurv skal
+    /* Kart og Nedlasting skal
     ikke vises på mobil */
     display: none;
   }

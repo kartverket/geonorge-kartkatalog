@@ -52,7 +52,7 @@ Brukes via composes fra de andre Header-filene */
 
 @media (max-width: 1280px) {
   .showFromXl {
-    display: none; /* kart, nedlastingskurv */
+    display: none; /* kart, nedlasting */
   }
 }
 
