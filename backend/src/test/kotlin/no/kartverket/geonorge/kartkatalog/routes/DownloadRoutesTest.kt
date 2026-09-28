@@ -97,6 +97,18 @@ class DownloadRoutesTest {
         }
         """.trimIndent()
 
+    private val capabilitiesWithOnlyAreaLinkJson =
+        """
+        {
+          "supportsDownloadBundling": true,
+          "distributedBy": "Geonorge",
+          "deliveryNotificationByEmail": false,
+          "_links": [
+            {"href": "https://nedlasting.geonorge.no/api/codelists/area/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "rel": "http://rel.geonorge.no/download/area"}
+          ]
+        }
+        """.trimIndent()
+
     @Test
     fun `orders a download and returns ready-for-download files`() =
         testApplication {
@@ -390,5 +402,56 @@ class DownloadRoutesTest {
             val response = client.get("/api/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b")
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
+
+    @Test
+    fun `returns areas with empty formats when the format link is missing from capabilities`() =
+        testApplication {
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(
+                        MockEngine { request ->
+                            val content =
+                                when {
+                                    request.url.encodedPath.startsWith(
+                                        "/api/capabilities",
+                                    ) -> capabilitiesWithOnlyAreaLinkJson
+                                    request.url.encodedPath.startsWith("/api/codelists/area") -> areasJson
+                                    else -> "[]"
+                                }
+                            respond(
+                                content = content,
+                                status = HttpStatusCode.OK,
+                                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                            )
+                        },
+                    ) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
+                routing { downloadRoutes(downloadService) }
+            }
+
+            val response =
+                client.get(
+                    "/api/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b" +
+                        "?capabilitiesUrl=https://nedlasting.geonorge.no/api/capabilities",
+                )
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val body = response.bodyAsText()
+            assertContains(body, "\"formats\":[]")
+            assertContains(
+                body,
+                listOf(
+                    "\"areas\":[{\"code\":\"42\",\"name\":\"Agder\",\"type\":\"fylke\"},",
+                    "{\"code\":\"32\",\"name\":\"Akershus\",\"type\":\"fylke\"}]",
+                ).joinToString(separator = ""),
+            )
         }
 }

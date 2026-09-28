@@ -6,11 +6,14 @@ import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.AREA_REL
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.FORMAT_REL
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingArea
+import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingAreaCodelistEntry
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
+import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingFormatCodelistEntry
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingInsightGroups
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderLine
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderRequest
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.ORDER_REL
+import org.slf4j.LoggerFactory
 
 class DownloadException(
     message: String,
@@ -26,6 +29,8 @@ class DownloadService(
     private val nedlastingClient: NedlastingClient,
     private val downloadInsightGroupsResolver: DownloadInsightGroupsResolver,
 ) {
+    private val log = LoggerFactory.getLogger(DownloadService::class.java)
+
     suspend fun order(request: DownloadOrderRequest): DownloadOrderResult =
         coroutineScope {
             val resolved =
@@ -59,14 +64,28 @@ class DownloadService(
     ): DownloadOptions =
         coroutineScope {
             val capabilities = nedlastingClient.getCapabilities(capabilitiesUrl, uuid)
-            val formatsUrl =
-                capabilities.linkFor(FORMAT_REL)
-                    ?: throw DownloadException("No format codelist URL found for dataset $uuid")
-            val areasUrl =
-                capabilities.linkFor(AREA_REL)
-                    ?: throw DownloadException("No area codelist URL found for dataset $uuid")
-            val formatsDeferred = async { nedlastingClient.getFormats(formatsUrl) }
-            val areasDeferred = async { nedlastingClient.getAreas(areasUrl) }
+
+            val formatsUrl = capabilities.linkFor(FORMAT_REL)
+            val areasUrl = capabilities.linkFor(AREA_REL)
+
+            val formatsDeferred =
+                async {
+                    if (formatsUrl == null) {
+                        log.warn("No format codelist URL found for dataset {}, returning no formats", uuid)
+                        emptyList<NedlastingFormatCodelistEntry>()
+                    } else {
+                        nedlastingClient.getFormats(formatsUrl)
+                    }
+                }
+            val areasDeferred =
+                async {
+                    if (areasUrl == null) {
+                        log.warn("No area codelist URL found for dataset {}, returning no areas", uuid)
+                        emptyList<NedlastingAreaCodelistEntry>()
+                    } else {
+                        nedlastingClient.getAreas(areasUrl)
+                    }
+                }
 
             val formats = formatsDeferred.await()
             val areas = areasDeferred.await()
