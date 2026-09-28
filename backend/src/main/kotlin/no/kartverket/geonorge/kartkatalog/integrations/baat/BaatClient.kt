@@ -57,11 +57,12 @@ class BaatClient(
         if (!response.status.isSuccess()) {
             throw BaatException("BAAT request to $path failed with status ${response.status}")
         }
-        val info = try {
-            json.decodeFromString(BaatInfo.serializer(), response.bodyAsText())
-        } catch (cause: Exception) {
-            throw BaatException("Failed to parse BAAT response from $path")
-        }
+        val info =
+            try {
+                json.decodeFromString(BaatInfo.serializer(), response.bodyAsText())
+            } catch (cause: Exception) {
+                throw BaatException("Failed to parse BAAT response from $path")
+            }
 
         return BaatUserInfo(
             username = info.user,
