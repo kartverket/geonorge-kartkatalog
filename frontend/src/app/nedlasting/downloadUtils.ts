@@ -110,11 +110,21 @@ const AREA_GROUPS = [
 ] as const;
 
 export function getAreaOptionGroups(areas: DownloadArea[]): AreaOptionGroup[] {
-  return AREA_GROUPS.flatMap(({ type, label }) => {
+  const knownTypes = new Set(AREA_GROUPS.map((group) => group.type));
+
+  const groups = AREA_GROUPS.flatMap(({ type, label }) => {
     const groupedAreas = areas.filter((area) => area.type === type);
 
     return groupedAreas.length > 0 ? [{ label, areas: groupedAreas }] : [];
   });
+
+  const otherAreas = areas.filter(
+    (area) => !area.type || !knownTypes.has(area.type),
+  );
+
+  return otherAreas.length > 0
+    ? [...groups, { label: "Annet", areas: otherAreas }]
+    : groups;
 }
 
 function intersectByKey<T>(lists: T[][], key: (item: T) => string): T[] {
