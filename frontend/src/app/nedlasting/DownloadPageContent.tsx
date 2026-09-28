@@ -10,7 +10,12 @@ import {
   Select,
 } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
-import { type SubmitEventHandler, useCallback, useState } from "react";
+import {
+  type SubmitEventHandler,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { clearCart } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import {
@@ -116,6 +121,12 @@ export function DownloadPageContent({
     ],
   );
 
+  useEffect(() => {
+    if (orderResult) {
+      clearCart();
+    }
+  }, [orderResult]);
+
   return (
     <>
       <DownloadCartList
@@ -129,7 +140,7 @@ export function DownloadPageContent({
         onSelectionChange={handleSelectionChange}
         onApplyToAll={applyToAllProducts}
       />
-      {orderItems.length > 0 ? (
+      {orderItems.length > 0 || orderResult ? (
         <section className={styles.orderSectionWrapper}>
           <section className={styles.orderSection}>
             <Heading level={2} data-size={"sm"}>
