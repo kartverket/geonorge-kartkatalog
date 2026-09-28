@@ -110,7 +110,7 @@ const AREA_GROUPS = [
 ] as const;
 
 export function getAreaOptionGroups(areas: DownloadArea[]): AreaOptionGroup[] {
-  const knownTypes = new Set(AREA_GROUPS.map((group) => group.type));
+  const knownTypes = new Set<string>(AREA_GROUPS.map((group) => group.type));
 
   const groups = AREA_GROUPS.flatMap(({ type, label }) => {
     const groupedAreas = areas.filter((area) => area.type === type);
