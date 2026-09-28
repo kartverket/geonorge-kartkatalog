@@ -12,6 +12,7 @@ export type ChipSelectOption = {
 
 type ChipSelectProps = {
   allSelectedLabel?: string;
+  isOrdering?: boolean;
   noOptionsLabel?: string;
   onChangeAction: (values: string[]) => void;
   options: ChipSelectOption[];
@@ -21,6 +22,7 @@ type ChipSelectProps = {
 
 export function ChipMultiSelect({
   allSelectedLabel = "Alle valg er valgt",
+  isOrdering = false,
   noOptionsLabel = "Ingen alternativer tilgjengelig",
   onChangeAction,
   options,
@@ -48,7 +50,8 @@ export function ChipMultiSelect({
 
   function handleRemoveClick(event: MouseEvent<HTMLButtonElement>) {
     const value = event.currentTarget.dataset.value;
-    if (value) {
+    if (isOrdering) return;
+    if (value && !optionByValue.get(value)?.disabled) {
       onChangeAction(selectedValues.filter((selected) => selected !== value));
     }
   }
@@ -69,6 +72,7 @@ export function ChipMultiSelect({
               key={option.value}
               onClick={handleRemoveClick}
               data-value={option.value}
+              disabled={isOrdering || option.disabled}
             >
               {option.label}
             </Chip.Removable>
@@ -79,7 +83,7 @@ export function ChipMultiSelect({
       <Select
         value=""
         onChange={(event) => handleSelectChange(event.target.value)}
-        disabled={selectableOptions.length === 0}
+        disabled={selectableOptions.length === 0 || isOrdering}
       >
         <Select.Option value="">{selectMessage}</Select.Option>
 

@@ -17,6 +17,7 @@ import {
 type BulkDownloadSelectionFormProps = {
   optionsList: (DownloadOptions | null)[];
   isLoading: boolean;
+  isOrdering?: boolean;
   onApplyToAll: (
     update: (selection: DownloadSelection) => DownloadSelection,
   ) => void;
@@ -25,6 +26,7 @@ type BulkDownloadSelectionFormProps = {
 export function BulkDownloadSelectionForm({
   optionsList,
   isLoading,
+  isOrdering = false,
   onApplyToAll,
 }: BulkDownloadSelectionFormProps) {
   const [selection, setSelection] = useState<DownloadSelection>(
@@ -81,6 +83,7 @@ export function BulkDownloadSelectionForm({
                 value: area.code,
               }))}
               placeholder="Velg geografisk område"
+              isOrdering={isOrdering}
             />
             {commonAreas.length === 0 ? (
               <p className={styles.emptyMessage}>
@@ -98,6 +101,7 @@ export function BulkDownloadSelectionForm({
                 value: projection.code,
               }))}
               placeholder="Velg projeksjon"
+              isOrdering={isOrdering}
             />
             {commonProjections.length === 0 ? (
               <p className={styles.emptyMessage}>
@@ -122,6 +126,7 @@ export function BulkDownloadSelectionForm({
                     value: format.name,
                   }))}
                   placeholder="Velg format"
+                  isOrdering={isOrdering}
                 />
               )}
             </Field>

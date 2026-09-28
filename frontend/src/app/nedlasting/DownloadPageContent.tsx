@@ -129,6 +129,7 @@ export function DownloadPageContent({
         productsWithMissingFields={productsWithMissingFields}
         onSelectionChange={handleSelectionChange}
         onApplyToAll={applyToAllProducts}
+        isOrdering={isOrdering}
       />
       {orderItems.length > 0 ? (
         <section className={styles.orderSectionWrapper}>
@@ -161,9 +162,9 @@ export function DownloadPageContent({
                     options={insightGroups.formal.map((purpose) => ({
                       label: purpose,
                       value: purpose,
-                      disabled: isOrdering,
                     }))}
                     placeholder="Velg formål"
+                    isOrdering={isOrdering}
                   />
                 </Field>
                 <Field>

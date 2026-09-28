@@ -14,6 +14,7 @@ import {
 type DownloadOptionsFormProps = {
   error: string | null;
   isLoading: boolean;
+  isOrdering?: boolean;
   options: DownloadOptions | null;
   selection: DownloadSelection;
   onSelectionChangeAction: (selection: DownloadSelection) => void;
@@ -22,6 +23,7 @@ type DownloadOptionsFormProps = {
 export function DownloadOptionsForm({
   error,
   isLoading,
+  isOrdering = false,
   options,
   selection,
   onSelectionChangeAction,
@@ -75,6 +77,7 @@ export function DownloadOptionsForm({
             value: area.code,
           }))}
           placeholder="Velg geografisk område"
+          isOrdering={isOrdering}
         />
       </Field>
       <Field className={styles.selectionField}>
@@ -89,6 +92,7 @@ export function DownloadOptionsForm({
             value: projection.code,
           }))}
           placeholder="Velg projeksjon"
+          isOrdering={isOrdering}
         />
       </Field>
       {selection.projectionCodes.length > 0 ? (
@@ -105,6 +109,7 @@ export function DownloadOptionsForm({
             }))}
             placeholder="Velg format"
             noOptionsLabel="Ingen formater tilgjengelig for valgte projeksjoner"
+            isOrdering={isOrdering}
           />
         </Field>
       ) : null}

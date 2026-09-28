@@ -29,6 +29,7 @@ type DownloadCartListProps = {
   onApplyToAll: (
     update: (selection: DownloadSelection) => DownloadSelection,
   ) => void;
+  isOrdering?: boolean;
 };
 
 export function DownloadCartList({
@@ -41,6 +42,7 @@ export function DownloadCartList({
   productsWithMissingFields,
   onSelectionChange,
   onApplyToAll,
+  isOrdering = false,
 }: DownloadCartListProps) {
   const optionsList = cards.map(
     (card) => optionsByUuid[card.uuid]?.options ?? null,
@@ -73,6 +75,7 @@ export function DownloadCartList({
             optionsList={optionsList}
             isLoading={isLoadingBulkOptions}
             onApplyToAll={onApplyToAll}
+            isOrdering={isOrdering}
           />
 
           {productsWithMissingFields.length > 0 ? (
@@ -94,6 +97,7 @@ export function DownloadCartList({
                 optionsError={optionsByUuid[card.uuid]?.error ?? null}
                 selection={selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION}
                 onSelectionChangeAction={onSelectionChange}
+                isOrdering={isOrdering}
               />
             ))}
           </div>
