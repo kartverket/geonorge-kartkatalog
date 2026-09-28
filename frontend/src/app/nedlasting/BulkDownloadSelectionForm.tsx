@@ -34,7 +34,6 @@ export function BulkDownloadSelectionForm({
   );
   const commonAreas = getCommonAreas(optionsList);
   const areaGroups = getAreaOptionGroups(commonAreas);
-  const areas = areaGroups.flatMap((group) => group.areas);
   const commonProjections = getCommonProjections(optionsList);
   const commonFormats = getCommonFormats(
     optionsList,
@@ -78,9 +77,12 @@ export function BulkDownloadSelectionForm({
             <ChipMultiSelect
               selectedValues={selection.areaCodes}
               onChangeAction={changeArea}
-              options={areas.map((area) => ({
-                label: area.name,
-                value: area.code,
+              options={areaGroups.map((group) => ({
+                label: group.label,
+                options: group.areas.map((area) => ({
+                  label: area.name,
+                  value: area.code,
+                })),
               }))}
               placeholder="Velg geografisk område"
               isOrdering={isOrdering}

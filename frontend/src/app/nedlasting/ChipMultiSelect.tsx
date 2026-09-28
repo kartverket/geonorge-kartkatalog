@@ -5,9 +5,13 @@ import type { MouseEvent } from "react";
 import styles from "./ChipMultiSelect.module.css";
 
 export type ChipSelectOption = {
-  disabled?: boolean;
   label: string;
   value: string;
+};
+
+export type ChipSelectOptionGroup = {
+  label: string;
+  options: ChipSelectOption[];
 };
 
 type ChipSelectProps = {
@@ -15,10 +19,18 @@ type ChipSelectProps = {
   isOrdering?: boolean;
   noOptionsLabel?: string;
   onChangeAction: (values: string[]) => void;
-  options: ChipSelectOption[];
+  options: ChipSelectOption[] | ChipSelectOptionGroup[];
   placeholder?: string;
   selectedValues: string[];
 };
+
+function isGroupedOptions(
+  options: ChipSelectOption[] | ChipSelectOptionGroup[],
+): options is ChipSelectOptionGroup[] {
+  return options.every(
+    (option): option is ChipSelectOptionGroup => "options" in option,
+  );
+}
 
 export function ChipMultiSelect({
   allSelectedLabel = "Alle valg er valgt",
@@ -29,19 +41,31 @@ export function ChipMultiSelect({
   placeholder = "Velg alternativ",
   selectedValues,
 }: ChipSelectProps) {
+  const groups: ChipSelectOptionGroup[] = isGroupedOptions(options)
+    ? options
+    : [{ label: "", options }];
+  const flatOptions = groups.flatMap((group) => group.options);
+
   const selectedSet = new Set(selectedValues);
   const optionByValue = new Map(
-    options.map((option) => [option.value, option]),
+    flatOptions.map((option) => [option.value, option]),
   );
 
   const selectedOptions = selectedValues
     .map((value) => optionByValue.get(value))
     .filter((option): option is ChipSelectOption => Boolean(option));
 
-  const selectableOptions = options.filter((option) => !option.disabled);
-  const availableOptions = selectableOptions.filter(
-    (option) => !selectedSet.has(option.value),
+  const availableSet = new Set(
+    flatOptions
+      .filter((option) => !selectedSet.has(option.value))
+      .map((option) => option.value),
   );
+  const availableGroups = groups
+    .map((group) => ({
+      label: group.label,
+      options: group.options.filter((option) => availableSet.has(option.value)),
+    }))
+    .filter((group) => group.options.length > 0);
 
   function handleSelectChange(nextValue: string) {
     if (!nextValue || selectedValues.includes(nextValue)) return;
@@ -51,15 +75,15 @@ export function ChipMultiSelect({
   function handleRemoveClick(event: MouseEvent<HTMLButtonElement>) {
     const value = event.currentTarget.dataset.value;
     if (isOrdering) return;
-    if (value && !optionByValue.get(value)?.disabled) {
+    if (value) {
       onChangeAction(selectedValues.filter((selected) => selected !== value));
     }
   }
 
   const selectMessage =
-    selectableOptions.length === 0
+    flatOptions.length === 0
       ? noOptionsLabel
-      : availableOptions.length === 0
+      : availableSet.size === 0
         ? allSelectedLabel
         : placeholder;
 
@@ -72,7 +96,7 @@ export function ChipMultiSelect({
               key={option.value}
               onClick={handleRemoveClick}
               data-value={option.value}
-              disabled={isOrdering || option.disabled}
+              disabled={isOrdering}
             >
               {option.label}
             </Chip.Removable>
@@ -83,15 +107,27 @@ export function ChipMultiSelect({
       <Select
         value=""
         onChange={(event) => handleSelectChange(event.target.value)}
-        disabled={selectableOptions.length === 0 || isOrdering}
+        disabled={flatOptions.length === 0 || isOrdering}
       >
         <Select.Option value="">{selectMessage}</Select.Option>
 
-        {availableOptions.map((option) => (
-          <Select.Option key={option.value} value={option.value}>
-            {option.label}
-          </Select.Option>
-        ))}
+        {availableGroups.map((group) =>
+          group.label ? (
+            <Select.Optgroup key={group.label} label={group.label}>
+              {group.options.map((option) => (
+                <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
+            </Select.Optgroup>
+          ) : (
+            group.options.map((option) => (
+              <Select.Option key={option.value} value={option.value}>
+                {option.label}
+              </Select.Option>
+            ))
+          ),
+        )}
       </Select>
     </>
   );

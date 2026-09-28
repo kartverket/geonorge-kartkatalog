@@ -29,7 +29,6 @@ export function DownloadOptionsForm({
   onSelectionChangeAction,
 }: DownloadOptionsFormProps) {
   const areaGroups = options ? getAreaOptionGroups(options.areas) : [];
-  const areas = areaGroups.flatMap((group) => group.areas);
   const projections = getAvailableProjections(options);
   const availableFormats = getAvailableFormats(
     options,
@@ -72,9 +71,12 @@ export function DownloadOptionsForm({
         <ChipMultiSelect
           selectedValues={selection.areaCodes}
           onChangeAction={changeArea}
-          options={areas.map((area) => ({
-            label: area.name,
-            value: area.code,
+          options={areaGroups.map((group) => ({
+            label: group.label,
+            options: group.areas.map((area) => ({
+              label: area.name,
+              value: area.code,
+            })),
           }))}
           placeholder="Velg geografisk område"
           isOrdering={isOrdering}
