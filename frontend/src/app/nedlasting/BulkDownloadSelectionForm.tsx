@@ -5,12 +5,12 @@ import { useId, useState } from "react";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
 import {
+  type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
   getAreaOptionGroups,
   getCommonAreas,
   getCommonFormats,
   getCommonProjections,
-  type DownloadSelection,
 } from "./downloadUtils";
 
 type BulkDownloadSelectionFormProps = {
