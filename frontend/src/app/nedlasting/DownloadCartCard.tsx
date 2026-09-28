@@ -6,7 +6,7 @@ import {
   ChevronUpIcon,
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
 import {
   AccessStateTag,
@@ -17,7 +17,6 @@ import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadCartCard.module.css";
 import { DownloadOptionsForm } from "./DownloadOptionsForm";
 import type { DownloadSelection } from "./downloadUtils";
-import { useDownloadOptions } from "./useDownloadOptions";
 
 export type DownloadCartCardProps = {
   uuid: string;
@@ -26,11 +25,11 @@ export type DownloadCartCardProps = {
   typeTranslated: string | null;
   accessState: "restricted" | "open" | "protected" | null;
   distributionUrl: string;
-  onSelectionChangeAction?: (
-    uuid: string,
-    options: DownloadOptions | null,
-    selection: DownloadSelection,
-  ) => void;
+  options: DownloadOptions | null;
+  isLoadingOptions: boolean;
+  optionsError: string | null;
+  selection: DownloadSelection;
+  onSelectionChangeAction: (uuid: string, selection: DownloadSelection) => void;
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -47,51 +46,17 @@ export function DownloadCartCard({
   typeTranslated,
   accessState,
   distributionUrl,
+  options,
+  isLoadingOptions,
+  optionsError,
+  selection,
   onSelectionChangeAction,
 }: DownloadCartCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const [selectedAreaCode, setSelectedAreaCode] = useState("");
-  const [selectedProjectionCode, setSelectedProjectionCode] = useState("");
-  const [selectedFormatNames, setSelectedFormatNames] = useState<string[]>([]);
-  const {
-    error: optionsError,
-    isLoading: isLoadingOptions,
-    options,
-  } = useDownloadOptions(uuid, expanded);
-
-  useEffect(() => {
-    const selection = {
-      areaCode: selectedAreaCode,
-      formatNames: selectedFormatNames,
-      projectionCode: selectedProjectionCode,
-    };
-
-    onSelectionChangeAction?.(uuid, options, selection);
-  }, [
-    uuid,
-    options,
-    selectedAreaCode,
-    selectedProjectionCode,
-    selectedFormatNames,
-    onSelectionChangeAction,
-  ]);
 
   const detailsId = useId();
   const accessContext =
     TYPE_TO_ACCESS_CONTEXT[typeTranslated ?? ""] ?? "datasett";
-
-  function toggleFormat(formatName: string) {
-    setSelectedFormatNames((current) =>
-      current.includes(formatName)
-        ? current.filter((name) => name !== formatName)
-        : [...current, formatName],
-    );
-  }
-
-  function changeProjection(projectionCode: string) {
-    setSelectedProjectionCode(projectionCode);
-    setSelectedFormatNames([]);
-  }
 
   return (
     <Card className={styles.card}>
@@ -172,13 +137,11 @@ export function DownloadCartCard({
           <DownloadOptionsForm
             error={optionsError}
             isLoading={isLoadingOptions}
-            onAreaChangeAction={setSelectedAreaCode}
-            onFormatToggleAction={toggleFormat}
-            onProjectionChangeAction={changeProjection}
             options={options}
-            selectedAreaCode={selectedAreaCode}
-            selectedFormatNames={selectedFormatNames}
-            selectedProjectionCode={selectedProjectionCode}
+            selection={selection}
+            onSelectionChangeAction={(newSelection) =>
+              onSelectionChangeAction(uuid, newSelection)
+            }
           />
         </div>
       ) : null}
