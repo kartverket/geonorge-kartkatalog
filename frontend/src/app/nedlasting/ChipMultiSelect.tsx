@@ -78,7 +78,7 @@ export function ChipMultiSelect({
       <Select
         value=""
         onChange={(event) => handleSelectChange(event.target.value)}
-        disabled={availableOptions.length === 0}
+        disabled={selectableOptions.length === 0}
       >
         <Select.Option value="">{selectMessage}</Select.Option>
 
