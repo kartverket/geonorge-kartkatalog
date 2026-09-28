@@ -1,6 +1,7 @@
 "use client";
 
 import { Chip, Select } from "@kv-designsystem/react";
+import type { MouseEvent } from "react";
 import styles from "./ChipMultiSelect.module.css";
 
 export type ChipSelectOption = {
@@ -45,7 +46,7 @@ export function ChipMultiSelect({
     onChangeAction([...selectedValues, nextValue]);
   }
 
-  function handleRemoveClick(event: React.MouseEvent<HTMLButtonElement>) {
+  function handleRemoveClick(event: MouseEvent<HTMLButtonElement>) {
     const value = event.currentTarget.dataset.value;
     if (value) {
       onChangeAction(selectedValues.filter((selected) => selected !== value));
