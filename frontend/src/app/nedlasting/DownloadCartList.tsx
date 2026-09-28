@@ -1,7 +1,6 @@
 "use client";
 
 import { Heading, Paragraph } from "@kv-designsystem/react";
-import { useState } from "react";
 import { BulkDownloadSelectionForm } from "./BulkDownloadSelectionForm";
 import { DownloadCartCard } from "./DownloadCartCard";
 import styles from "./DownloadCartList.module.css";
@@ -43,37 +42,6 @@ export function DownloadCartList({
   onSelectionChange,
   onApplyToAll,
 }: DownloadCartListProps) {
-  const [bulkSelection, setBulkSelection] = useState<DownloadSelection>(
-    EMPTY_DOWNLOAD_SELECTION,
-  );
-
-  function handleBulkAreaChange(areaCode: string) {
-    setBulkSelection((current) => ({ ...current, areaCode }));
-    onApplyToAll((selection) => ({ ...selection, areaCode }));
-  }
-
-  function handleBulkProjectionChange(projectionCode: string) {
-    setBulkSelection((current) => ({
-      ...current,
-      projectionCode,
-      formatNames: [],
-    }));
-    onApplyToAll((selection) => ({
-      ...selection,
-      projectionCode,
-      formatNames: [],
-    }));
-  }
-
-  function handleBulkFormatToggle(formatName: string) {
-    const formatNames = bulkSelection.formatNames.includes(formatName)
-      ? bulkSelection.formatNames.filter((name) => name !== formatName)
-      : [...bulkSelection.formatNames, formatName];
-
-    setBulkSelection((current) => ({ ...current, formatNames }));
-    onApplyToAll((selection) => ({ ...selection, formatNames }));
-  }
-
   const optionsList = cards.map(
     (card) => optionsByUuid[card.uuid]?.options ?? null,
   );
@@ -104,12 +72,7 @@ export function DownloadCartList({
           <BulkDownloadSelectionForm
             optionsList={optionsList}
             isLoading={isLoadingBulkOptions}
-            onAreaChangeAction={handleBulkAreaChange}
-            onFormatToggleAction={handleBulkFormatToggle}
-            onProjectionChangeAction={handleBulkProjectionChange}
-            selectedAreaCode={bulkSelection.areaCode}
-            selectedFormatNames={bulkSelection.formatNames}
-            selectedProjectionCode={bulkSelection.projectionCode}
+            onApplyToAll={onApplyToAll}
           />
 
           {productsWithMissingFields.length > 0 ? (
