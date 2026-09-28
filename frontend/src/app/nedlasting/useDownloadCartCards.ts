@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { basePath } from "@/lib/basePath";
 import { parseProductMetadata } from "@/lib/schemas/product";
-import type { DownloadCartCardProps } from "./DownloadCartCard";
-
-type DownloadCard = DownloadCartCardProps;
+import type { DownloadCard } from "./downloadUtils";
 
 type StoredDownloadMetadata = {
   accessIsOpendata?: unknown;
