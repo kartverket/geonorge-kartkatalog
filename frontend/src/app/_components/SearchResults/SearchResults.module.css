@@ -6,14 +6,8 @@
 .pageInner {
   padding-block: 2rem;
   padding-inline: var(--page-content-padding-inline);
-  max-width: var(--page-content-max-width);
+  max-width: clamp(var(--page-content-max-width), 78vw, 2000px);
   margin: 0 auto;
-}
-
-@media (min-width: 2560px) {
-  .pageInner {
-    max-width: 2000px;
-  }
 }
 
 .header {
