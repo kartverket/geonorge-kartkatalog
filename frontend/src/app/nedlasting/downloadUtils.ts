@@ -21,15 +21,15 @@ export type DownloadOptionsState = {
 export type DownloadOptionsByUuid = Record<string, DownloadOptionsState>;
 
 export type DownloadSelection = {
-  areaCode: string[];
+  areaCodes: string[];
   formatNames: string[];
   projectionCodes: string[];
 };
 
 export const EMPTY_DOWNLOAD_SELECTION: DownloadSelection = {
-  areaCode: "",
+  areaCodes: [],
   formatNames: [],
-  projectionCode: "",
+  projectionCodes: [],
 };
 
 export type MissingDownloadSelectionField = "area" | "projection" | "format";
@@ -39,10 +39,8 @@ export function getMissingDownloadSelectionFields(
 ): MissingDownloadSelectionField[] {
   const missingFields: MissingDownloadSelectionField[] = [];
 
-  if (!selection.areaCode || selection.areaCode.length === 0)
-    missingFields.push("area");
-  if (!selection.projectionCodes || selection.projectionCodes.length === 0)
-    missingFields.push("projection");
+  if (selection.areaCodes.length === 0) missingFields.push("area");
+  if (selection.projectionCodes.length === 0) missingFields.push("projection");
   if (selection.formatNames.length === 0) missingFields.push("format");
 
   return missingFields;
@@ -80,13 +78,12 @@ export function createDownloadOrderItem(
   options: DownloadOptions | null,
   selection: DownloadSelection,
 ): DownloadOrderItemInput | null {
+  const areaCodeSet = new Set(selection.areaCodes);
   const areas =
-    options?.areas.filter((candidate) =>
-      selection.areaCode.includes(candidate.code),
-    ) ?? [];
-  const selectedProjectionSet = new Set(selection.projectionCodes);
+    options?.areas.filter((candidate) => areaCodeSet.has(candidate.code)) ?? [];
+  const projectionCodeSet = new Set(selection.projectionCodes);
   const projections = getAvailableProjections(options).filter((candidate) =>
-    selectedProjectionSet.has(candidate.code),
+    projectionCodeSet.has(candidate.code),
   );
   const formats = getAvailableFormats(
     options,
@@ -176,10 +173,10 @@ export function getCommonProjections(
 
 export function getCommonFormats(
   optionsList: (DownloadOptions | null)[],
-  projectionCode: string,
+  projectionCodes: string[],
 ): DownloadFormat[] {
   if (
-    !projectionCode ||
+    projectionCodes.length === 0 ||
     optionsList.length === 0 ||
     optionsList.some((options) => !options)
   ) {
@@ -187,7 +184,7 @@ export function getCommonFormats(
   }
 
   return intersectByKey(
-    optionsList.map((options) => getAvailableFormats(options, projectionCode)),
+    optionsList.map((options) => getAvailableFormats(options, projectionCodes)),
     (format) => format.name,
   );
 }

@@ -11,7 +11,6 @@ export type ChipSelectOption = {
 
 type ChipSelectProps = {
   allSelectedLabel?: string;
-  id: string;
   noOptionsLabel?: string;
   onChangeAction: (values: string[]) => void;
   options: ChipSelectOption[];
@@ -21,7 +20,6 @@ type ChipSelectProps = {
 
 export function ChipMultiSelect({
   allSelectedLabel = "Alle valg er valgt",
-  id,
   noOptionsLabel = "Ingen alternativer tilgjengelig",
   onChangeAction,
   options,
@@ -78,7 +76,6 @@ export function ChipMultiSelect({
       ) : null}
 
       <Select
-        id={id}
         value=""
         onChange={(event) => handleSelectChange(event.target.value)}
         disabled={availableOptions.length === 0}

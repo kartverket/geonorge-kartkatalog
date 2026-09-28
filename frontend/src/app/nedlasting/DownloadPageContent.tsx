@@ -13,6 +13,7 @@ import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
 import { type SubmitEventHandler, useCallback, useState } from "react";
 import { clearCart } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
+import { ChipMultiSelect } from "@/app/nedlasting/ChipMultiSelect";
 import {
   createDownloadOrderItem,
   type DownloadSelection,
@@ -45,7 +46,7 @@ export function DownloadPageContent({
   >({});
   const [email, setEmail] = useState("");
   const [usageGroup, setUsageGroup] = useState("");
-  const [usagePurpose, setUsagePurpose] = useState("");
+  const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
 
   function handleSelectionChange(uuid: string, selection: DownloadSelection) {
     setSelections((current) => ({ ...current, [uuid]: selection }));
@@ -83,7 +84,7 @@ export function DownloadPageContent({
     downloadableProducts.length === cards.length &&
     email.trim() !== "" &&
     usageGroup !== "" &&
-    usagePurpose !== "" &&
+    usagePurpose.length > 0 &&
     !isOrdering &&
     !orderResult;
 
@@ -102,7 +103,7 @@ export function DownloadPageContent({
         usageGroup,
         items: downloadableProducts.map((item) => ({
           ...item,
-          usagePurpose: [usagePurpose],
+          usagePurpose,
         })),
       });
     },
@@ -142,8 +143,7 @@ export function DownloadPageContent({
                   <Select
                     value={usageGroup}
                     onChange={(event) => setUsageGroup(event.target.value)}
-                    disabled={!hasInsightGroupOptions || isOrdering}
-                    required
+                    disabled={isOrdering}
                   >
                     <Select.Option value="">Velg brukergruppe</Select.Option>
                     {insightGroups.brukergrupper.map((group) => (
@@ -155,19 +155,16 @@ export function DownloadPageContent({
                 </Field>
                 <Field>
                   <Label>Formål</Label>
-                  <Select
-                    value={usagePurpose}
-                    onChange={(event) => setUsagePurpose(event.target.value)}
-                    disabled={!hasInsightGroupOptions || isOrdering}
-                    required
-                  >
-                    <Select.Option value="">Velg formål</Select.Option>
-                    {insightGroups.formal.map((purpose) => (
-                      <Select.Option key={purpose} value={purpose}>
-                        {purpose}
-                      </Select.Option>
-                    ))}
-                  </Select>
+                  <ChipMultiSelect
+                    selectedValues={usagePurpose}
+                    onChangeAction={setUsagePurpose}
+                    options={insightGroups.formal.map((purpose) => ({
+                      label: purpose,
+                      value: purpose,
+                      disabled: isOrdering,
+                    }))}
+                    placeholder="Velg formål"
+                  />
                 </Field>
                 <Field>
                   <Label>E-post</Label>
