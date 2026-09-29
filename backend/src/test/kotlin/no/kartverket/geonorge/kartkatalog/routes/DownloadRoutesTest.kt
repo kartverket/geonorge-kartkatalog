@@ -49,8 +49,17 @@ class DownloadRoutesTest {
               "status": "ReadyForDownload",
               "downloadUrl": "https://nedlasting.geonorge.no/api/download/order/abc/def",
               "name": "Kommuner_GML.zip",
+              "areaName": "Agder",
+              "projectionName": "EUREF89 UTM sone 32",
+              "format": "GML",
               "metadataUuid": "041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
               "metadataName": "Kommuner"
+            }
+          ],
+          "_links": [
+            {
+              "href": "https://nedlasting.geonorge.no/api/order/abc",
+              "rel": "self"
             }
           ]
         }
@@ -133,6 +142,7 @@ class DownloadRoutesTest {
     fun `orders a download and returns ready-for-download files`() =
         testApplication {
             val requestedPaths = mutableListOf<String>()
+            val orderRequestBodies = mutableListOf<String>()
             application {
                 configureSerialization()
                 configureStatusPages()
@@ -144,6 +154,8 @@ class DownloadRoutesTest {
                                 if (request.url.encodedPath.startsWith("/api/capabilities")) {
                                     capabilitiesJson
                                 } else {
+                                    orderRequestBodies +=
+                                        (request.body as OutgoingContent.ByteArrayContent).bytes().decodeToString()
                                     orderResponseJson
                                 }
                             respond(
@@ -168,8 +180,18 @@ class DownloadRoutesTest {
                     setBody(
                         """
                         {
+                          "email": "user@example.com",
+                          "usageGroup": "professional",
                           "items": [
-                            {"uuid": "041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "formats": [{"name": "GML"}]}
+                            {
+                              "uuid": "041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+                              "areas": [{"code": "42", "name": "Agder", "type": "fylke"}],
+                              "projections": [{"code": "25832", "name": "EUREF89 UTM sone 32", "codespace": "EPSG"}],
+                              "formats": [{"code": "gml", "name": "GML", "type": "vector"}],
+                              "usagePurpose": ["analysis"],
+                              "coordinates": "POLYGON ((...))",
+                              "clipperFile": "clipper.zip"
+                            }
                           ]
                         }
                         """.trimIndent(),
@@ -180,6 +202,28 @@ class DownloadRoutesTest {
             val body = response.bodyAsText()
             assertContains(body, "\"status\":\"ReadyForDownload\"")
             assertContains(body, "\"metadataUuid\":\"041f1e6e-bdbc-4091-b48f-8a5990f3cc5b\"")
+            assertContains(body, "\"areaName\":\"Agder\"")
+            assertContains(body, "\"projectionName\":\"EUREF89 UTM sone 32\"")
+            assertContains(body, "\"format\":\"GML\"")
+            assertContains(body, "\"metadataName\":\"Kommuner\"")
+            assertContains(
+                body,
+                "\"_links\":[{\"href\":\"https://nedlasting.geonorge.no/api/order/abc\",\"rel\":\"self\"}]",
+            )
+            assertEquals(1, orderRequestBodies.size)
+            val orderRequestBody = orderRequestBodies.single()
+            assertContains(orderRequestBody, "\"email\":\"user@example.com\"")
+            assertContains(orderRequestBody, "\"usageGroup\":\"professional\"")
+            assertContains(orderRequestBody, "\"metadataUuid\":\"041f1e6e-bdbc-4091-b48f-8a5990f3cc5b\"")
+            assertContains(orderRequestBody, "\"areas\":[{\"code\":\"42\",\"name\":\"Agder\",\"type\":\"fylke\"}]")
+            assertContains(
+                orderRequestBody,
+                "\"projections\":[{\"code\":\"25832\",\"name\":\"EUREF89 UTM sone 32\",\"codespace\":\"EPSG\"}]",
+            )
+            assertContains(orderRequestBody, "\"formats\":[{\"code\":\"gml\",\"name\":\"GML\",\"type\":\"vector\"}]")
+            assertContains(orderRequestBody, "\"usagePurpose\":[\"analysis\"]")
+            assertContains(orderRequestBody, "\"coordinates\":\"POLYGON ((...))\"")
+            assertContains(orderRequestBody, "\"clipperFile\":\"clipper.zip\"")
             assertEquals(
                 listOf("/api/capabilities/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "/api/order"),
                 requestedPaths,
