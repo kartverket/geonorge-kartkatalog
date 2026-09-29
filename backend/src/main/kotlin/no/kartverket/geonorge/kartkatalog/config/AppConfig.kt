@@ -16,6 +16,11 @@ class AppConfig(
     val nedlastingBaseUrl: String = env("NEDLASTING_BASE_URL")
     val staticNorgeskartUrl: String = env("NORGESKART_BASE_URL")
 
+    val geoIdIssuer: String = env("GEOID_ISSUER")
+    val geoIdClientId: String = env("GEOID_CLIENT_ID")
+    val geoIdClientSecret: String = env("GEOID_CLIENT_SECRET")
+    val publicBaseUrl: String = env("PUBLIC_BASE_URL")
+
     private fun env(key: String): String =
         (overrides[key] ?: dotenv[key])?.trimEnd('/')
             ?: throw IllegalStateException(
