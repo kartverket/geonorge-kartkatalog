@@ -1,5 +1,6 @@
 import type {
   DownloadOptions,
+  DownloadOrderAreaInput,
   DownloadOrderItemInput,
 } from "@/lib/schemas/download";
 
@@ -48,7 +49,9 @@ export function getMissingDownloadSelectionFields(
 
 function getSelectedAreas(options: DownloadOptions, areaCodes: string[]) {
   const selectedCodes = new Set(areaCodes);
-  const areas = options.areas.filter((area) => selectedCodes.has(area.code));
+  const areas = options.areas.filter((option) =>
+    selectedCodes.has(option.area.code),
+  );
   return areas.length === selectedCodes.size ? areas : [];
 }
 
@@ -99,7 +102,9 @@ export function createDownloadOrderItem(
 ): DownloadOrderItemInput | null {
   const areaCodeSet = new Set(selection.areaCodes);
   const areas =
-    options?.areas.filter((candidate) => areaCodeSet.has(candidate.code)) ?? [];
+    options?.areas.filter((candidate) =>
+      areaCodeSet.has(candidate.area.code),
+    ) ?? [];
   const projectionCodeSet = new Set(selection.projectionCodes);
   const projections = getAvailableProjections(
     options,
@@ -116,19 +121,26 @@ export function createDownloadOrderItem(
 
   return {
     uuid,
-    areas: areas.map(({ code, name, type }) => ({ code, name, type })),
+    areas: areas.map(toDownloadOrderArea),
     projections,
     formats: formats.map((format) => ({ name: format.name })),
   };
 }
 
-export type DownloadArea = DownloadOptions["areas"][number];
-type DownloadFormat = DownloadArea["formats"][number];
+export type DownloadAreaOption = DownloadOptions["areas"][number];
+type DownloadFormat = DownloadAreaOption["formats"][number];
 type DownloadProjection = ReturnType<typeof getAvailableProjections>[number];
+
+function toDownloadOrderArea(
+  option: DownloadAreaOption,
+): DownloadOrderAreaInput {
+  const { code, name, type } = option.area;
+  return { code, name, type };
+}
 
 export type AreaOptionGroup = {
   label: string;
-  areas: DownloadArea[];
+  areas: DownloadAreaOption[];
 };
 
 const AREA_GROUPS = [
@@ -137,17 +149,19 @@ const AREA_GROUPS = [
   { type: "kommune", label: "Kommune" },
 ] as const;
 
-export function getAreaOptionGroups(areas: DownloadArea[]): AreaOptionGroup[] {
+export function getAreaOptionGroups(
+  areas: DownloadAreaOption[],
+): AreaOptionGroup[] {
   const knownTypes = new Set<string>(AREA_GROUPS.map((group) => group.type));
 
   const groups = AREA_GROUPS.flatMap(({ type, label }) => {
-    const groupedAreas = areas.filter((area) => area.type === type);
+    const groupedAreas = areas.filter((option) => option.area.type === type);
 
     return groupedAreas.length > 0 ? [{ label, areas: groupedAreas }] : [];
   });
 
   const otherAreas = areas.filter(
-    (area) => !area.type || !knownTypes.has(area.type),
+    (option) => !option.area.type || !knownTypes.has(option.area.type),
   );
 
   return otherAreas.length > 0
@@ -168,14 +182,14 @@ function intersectByKey<T>(lists: T[][], key: (item: T) => string): T[] {
 
 export function getCommonAreas(
   optionsList: (DownloadOptions | null)[],
-): DownloadArea[] {
+): DownloadAreaOption[] {
   if (optionsList.length === 0 || optionsList.some((options) => !options)) {
     return [];
   }
 
   return intersectByKey(
     optionsList.map((options) => options?.areas ?? []),
-    (area) => area.code,
+    (option) => option.area.code,
   );
 }
 

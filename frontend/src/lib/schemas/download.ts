@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const NedlastingProjectionSchema = z.object({
+export const DownloadProjectionSchema = z.object({
   code: z.string(),
   name: z.string(),
   codespace: z.string().nullable(),
@@ -8,19 +8,23 @@ export const NedlastingProjectionSchema = z.object({
 
 export const DownloadFormatOptionSchema = z.object({
   name: z.string(),
-  projections: z.array(NedlastingProjectionSchema),
+  projections: z.array(DownloadProjectionSchema),
 });
 
-export const NedlastingAreaSchema = z.object({
+export const DownloadAreaSchema = z.object({
   code: z.string(),
   name: z.string(),
   type: z.string().nullable(),
-  projections: z.array(NedlastingProjectionSchema),
+});
+
+export const DownloadAreaOptionSchema = z.object({
+  area: DownloadAreaSchema,
+  projections: z.array(DownloadProjectionSchema),
   formats: z.array(DownloadFormatOptionSchema),
 });
 
 export const DownloadOptionsSchema = z.object({
-  areas: z.array(NedlastingAreaSchema),
+  areas: z.array(DownloadAreaOptionSchema),
 });
 
 export type DownloadOptions = z.infer<typeof DownloadOptionsSchema>;
@@ -35,7 +39,7 @@ export function parseDownloadOptions(body: unknown): DownloadOptions {
   return res.data;
 }
 
-const NedlastingOrderFileSchema = z.object({
+const DownloadOrderFileSchema = z.object({
   status: z.string(),
   downloadUrl: z.string().nullable(),
   name: z.string().nullable(),
@@ -46,12 +50,12 @@ const NedlastingOrderFileSchema = z.object({
   metadataName: z.string().nullable(),
 });
 
-const NedlastingOrderResponseSchema = z.object({
-  files: z.array(NedlastingOrderFileSchema),
+const DownloadOrderResponseSchema = z.object({
+  files: z.array(DownloadOrderFileSchema),
 });
 
 export const DownloadOrderResultSchema = z.object({
-  orders: z.array(NedlastingOrderResponseSchema),
+  orders: z.array(DownloadOrderResponseSchema),
 });
 
 export type DownloadOrderResult = z.infer<typeof DownloadOrderResultSchema>;
@@ -66,9 +70,11 @@ export function parseDownloadOrderResult(body: unknown): DownloadOrderResult {
   return res.data;
 }
 
+export type DownloadOrderAreaInput = z.infer<typeof DownloadAreaSchema>;
+
 export type DownloadOrderItemInput = {
   uuid: string;
-  areas?: Array<{ code: string; name: string; type?: string | null }>;
+  areas?: DownloadOrderAreaInput[];
   projections?: Array<{
     code: string;
     name: string;

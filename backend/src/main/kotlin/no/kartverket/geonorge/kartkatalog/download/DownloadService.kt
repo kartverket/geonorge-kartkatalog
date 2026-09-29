@@ -70,9 +70,12 @@ class DownloadService(
             areas =
                 nedlastingClient.getAreas(areasUrl).map { area ->
                     DownloadAreaOption(
-                        code = area.code,
-                        name = area.name,
-                        type = area.type,
+                        area =
+                            DownloadArea(
+                                code = area.code,
+                                name = area.name,
+                                type = area.type,
+                            ),
                         projections = area.projections,
                         formats =
                             area.formats.map { format ->
