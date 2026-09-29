@@ -26,6 +26,7 @@ import styles from "./DownloadPageContent.module.css";
 import { useDownloadCartCards } from "./useDownloadCartCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
+import { usePersistedDownloadSelections } from "./usePersistedDownloadSelections";
 
 type DownloadPageContentProps = {
   insightGroups: DownloadInsightGroups;
@@ -41,9 +42,7 @@ export function DownloadPageContent({
   const { isOrdering, orderError, orderResult, submitOrder } =
     useDownloadOrder();
 
-  const [selections, setSelections] = useState<
-    Record<string, DownloadSelection>
-  >({});
+  const [selections, setSelections] = usePersistedDownloadSelections();
   const [email, setEmail] = useState("");
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
