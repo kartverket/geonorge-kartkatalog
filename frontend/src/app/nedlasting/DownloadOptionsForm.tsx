@@ -8,6 +8,9 @@ import type { DownloadSelection } from "./downloadUtils";
 import {
   getAreaOptionGroups,
   resolveDownloadAvailability,
+  selectDownloadAreas,
+  selectDownloadFormats,
+  selectDownloadProjections,
 } from "./downloadUtils";
 
 type DownloadOptionsFormProps = {
@@ -31,23 +34,17 @@ export function DownloadOptionsForm({
   const areaGroups = getAreaOptionGroups(availability.areaOptions);
 
   function changeArea(areaCodes: string[]) {
-    onSelectionChangeAction({
-      areaCodes,
-      projectionCodes: [],
-      formatNames: [],
-    });
+    onSelectionChangeAction(selectDownloadAreas(selection, areaCodes));
   }
 
   function changeProjection(projectionCodes: string[]) {
-    onSelectionChangeAction({
-      ...selection,
-      projectionCodes,
-      formatNames: [],
-    });
+    onSelectionChangeAction(
+      selectDownloadProjections(selection, projectionCodes),
+    );
   }
 
   function changeFormat(formatNames: string[]) {
-    onSelectionChangeAction({ ...selection, formatNames });
+    onSelectionChangeAction(selectDownloadFormats(selection, formatNames));
   }
 
   if (isLoading) return <p>Henter nedlastingsvalg...</p>;

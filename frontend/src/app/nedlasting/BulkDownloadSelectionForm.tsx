@@ -10,6 +10,9 @@ import {
   EMPTY_DOWNLOAD_SELECTION,
   getAreaOptionGroups,
   resolveCommonDownloadAvailability,
+  selectDownloadAreas,
+  selectDownloadFormats,
+  selectDownloadProjections,
 } from "./downloadUtils";
 
 type BulkDownloadSelectionFormProps = {
@@ -37,33 +40,24 @@ export function BulkDownloadSelectionForm({
   const areaGroups = getAreaOptionGroups(availability.areaOptions);
 
   function changeArea(areaCodes: string[]) {
-    setSelection({ areaCodes, projectionCodes: [], formatNames: [] });
-    onApplyToAllAction(() => ({
-      areaCodes,
-      projectionCodes: [],
-      formatNames: [],
-    }));
+    const update = (current: DownloadSelection) =>
+      selectDownloadAreas(current, areaCodes);
+    setSelection(update);
+    onApplyToAllAction(update);
   }
 
   function changeProjection(projectionCodes: string[]) {
-    setSelection((current) => ({
-      ...current,
-      projectionCodes,
-      formatNames: [],
-    }));
-    onApplyToAllAction((productSelection) => ({
-      ...productSelection,
-      projectionCodes,
-      formatNames: [],
-    }));
+    const update = (current: DownloadSelection) =>
+      selectDownloadProjections(current, projectionCodes);
+    setSelection(update);
+    onApplyToAllAction(update);
   }
 
   function changeFormat(formatNames: string[]) {
-    setSelection((current) => ({ ...current, formatNames }));
-    onApplyToAllAction((productSelection) => ({
-      ...productSelection,
-      formatNames,
-    }));
+    const update = (current: DownloadSelection) =>
+      selectDownloadFormats(current, formatNames);
+    setSelection(update);
+    onApplyToAllAction(update);
   }
 
   return (

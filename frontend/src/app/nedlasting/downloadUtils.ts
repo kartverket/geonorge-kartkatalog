@@ -34,6 +34,39 @@ export const EMPTY_DOWNLOAD_SELECTION: DownloadSelection = {
   projectionCodes: [],
 };
 
+export function selectDownloadAreas(
+  selection: DownloadSelection,
+  areaCodes: string[],
+): DownloadSelection {
+  return {
+    ...selection,
+    areaCodes,
+    projectionCodes: [],
+    formatNames: [],
+  };
+}
+
+export function selectDownloadProjections(
+  selection: DownloadSelection,
+  projectionCodes: string[],
+): DownloadSelection {
+  return {
+    ...selection,
+    projectionCodes,
+    formatNames: [],
+  };
+}
+
+export function selectDownloadFormats(
+  selection: DownloadSelection,
+  formatNames: string[],
+): DownloadSelection {
+  return {
+    ...selection,
+    formatNames,
+  };
+}
+
 export type MissingDownloadSelectionField = "area" | "projection" | "format";
 
 export function getMissingDownloadSelectionFields(
