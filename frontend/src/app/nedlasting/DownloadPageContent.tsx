@@ -13,28 +13,22 @@ import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
 import { type SubmitEventHandler, useCallback, useState } from "react";
 import { clearCart } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
+import { ChipMultiSelect } from "@/app/nedlasting/ChipMultiSelect";
 import {
   createDownloadOrderItem,
   type DownloadSelection,
+  EMPTY_DOWNLOAD_SELECTION,
   getMissingDownloadSelectionFields,
-  type MissingDownloadSelectionField,
 } from "@/app/nedlasting/downloadUtils";
-import { MissingInputSummary } from "@/app/nedlasting/MissingInputSummary";
-import type {
-  DownloadInsightGroups,
-  DownloadOptions,
-} from "@/lib/schemas/download";
+import type { DownloadInsightGroups } from "@/lib/schemas/download";
 import { DownloadCartList } from "./DownloadCartList";
 import styles from "./DownloadPageContent.module.css";
 import { useDownloadCartCards } from "./useDownloadCartCards";
+import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
 
 type DownloadPageContentProps = {
   insightGroups: DownloadInsightGroups;
-};
-type ProductSelection = {
-  options: DownloadOptions | null;
-  selection: DownloadSelection;
 };
 
 export function DownloadPageContent({
@@ -42,42 +36,47 @@ export function DownloadPageContent({
 }: DownloadPageContentProps) {
   const orderItems = useOrderItems();
   const { cards, isLoading, hasLoadError } = useDownloadCartCards(orderItems);
+  const cardUuids = cards.map((card) => card.uuid);
+  const optionsByUuid = useDownloadOptionsForCards(cardUuids);
   const { isOrdering, orderError, orderResult, submitOrder } =
     useDownloadOrder();
 
-  const [selectionInputs, setSelectionInputs] = useState<
-    Record<string, ProductSelection>
+  const [selections, setSelections] = useState<
+    Record<string, DownloadSelection>
   >({});
   const [email, setEmail] = useState("");
   const [usageGroup, setUsageGroup] = useState("");
-  const [usagePurpose, setUsagePurpose] = useState("");
+  const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
 
-  const handleSelectionChange = useCallback(
-    (
-      uuid: string,
-      options: DownloadOptions | null,
-      selection: DownloadSelection,
-    ) => {
-      setSelectionInputs((current) => ({
-        ...current,
-        [uuid]: { options, selection },
-      }));
-    },
-    [],
-  );
+  function handleSelectionChange(uuid: string, selection: DownloadSelection) {
+    setSelections((current) => ({ ...current, [uuid]: selection }));
+  }
+
+  function applyToAllProducts(
+    update: (selection: DownloadSelection) => DownloadSelection,
+  ) {
+    setSelections((current) => {
+      const next = { ...current };
+      for (const card of cards) {
+        next[card.uuid] = update(next[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION);
+      }
+      return next;
+    });
+  }
 
   const downloadableProducts = cards.flatMap((card) => {
-    const productSelection = selectionInputs[card.uuid];
-
-    if (!productSelection) return [];
-
-    const item = createDownloadOrderItem(
-      card.uuid,
-      productSelection.options,
-      productSelection.selection,
-    );
+    const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
+    const options = optionsByUuid[card.uuid]?.options ?? null;
+    const item = createDownloadOrderItem(card.uuid, options, selection);
 
     return item ? [item] : [];
+  });
+
+  const productsWithMissingFields = cards.flatMap((card) => {
+    const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
+    const missingFields = getMissingDownloadSelectionFields(selection);
+
+    return missingFields.length > 0 ? [{ ...card, missingFields }] : [];
   });
 
   const canOrder =
@@ -85,7 +84,7 @@ export function DownloadPageContent({
     downloadableProducts.length === cards.length &&
     email.trim() !== "" &&
     usageGroup !== "" &&
-    usagePurpose !== "" &&
+    usagePurpose.length > 0 &&
     !isOrdering &&
     !orderResult;
 
@@ -104,7 +103,7 @@ export function DownloadPageContent({
         usageGroup,
         items: downloadableProducts.map((item) => ({
           ...item,
-          usagePurpose: [usagePurpose],
+          usagePurpose,
         })),
       });
     },
@@ -118,15 +117,6 @@ export function DownloadPageContent({
     ],
   );
 
-  const productsWithMissingFields = cards.flatMap((card) => {
-    const productSelection = selectionInputs[card.uuid];
-    const missingFields: MissingDownloadSelectionField[] = productSelection
-      ? getMissingDownloadSelectionFields(productSelection.selection)
-      : ["area", "projection", "format"];
-
-    return missingFields.length > 0 ? [{ ...card, missingFields }] : [];
-  });
-
   return (
     <>
       <DownloadCartList
@@ -134,13 +124,13 @@ export function DownloadPageContent({
         cards={cards}
         isLoading={isLoading}
         hasLoadError={hasLoadError}
+        optionsByUuid={optionsByUuid}
+        selections={selections}
+        productsWithMissingFields={productsWithMissingFields}
         onSelectionChange={handleSelectionChange}
+        onApplyToAll={applyToAllProducts}
+        isOrdering={isOrdering}
       />
-      {productsWithMissingFields.length > 0 ? (
-        <MissingInputSummary
-          productsWithMissingFields={productsWithMissingFields}
-        />
-      ) : null}
       {orderItems.length > 0 ? (
         <section className={styles.orderSectionWrapper}>
           <section className={styles.orderSection}>
@@ -154,8 +144,7 @@ export function DownloadPageContent({
                   <Select
                     value={usageGroup}
                     onChange={(event) => setUsageGroup(event.target.value)}
-                    disabled={!hasInsightGroupOptions || isOrdering}
-                    required
+                    disabled={isOrdering}
                   >
                     <Select.Option value="">Velg brukergruppe</Select.Option>
                     {insightGroups.brukergrupper.map((group) => (
@@ -167,19 +156,16 @@ export function DownloadPageContent({
                 </Field>
                 <Field>
                   <Label>Formål</Label>
-                  <Select
-                    value={usagePurpose}
-                    onChange={(event) => setUsagePurpose(event.target.value)}
-                    disabled={!hasInsightGroupOptions || isOrdering}
-                    required
-                  >
-                    <Select.Option value="">Velg formål</Select.Option>
-                    {insightGroups.formal.map((purpose) => (
-                      <Select.Option key={purpose} value={purpose}>
-                        {purpose}
-                      </Select.Option>
-                    ))}
-                  </Select>
+                  <ChipMultiSelect
+                    selectedValues={usagePurpose}
+                    onChangeAction={setUsagePurpose}
+                    options={insightGroups.formal.map((purpose) => ({
+                      label: purpose,
+                      value: purpose,
+                    }))}
+                    placeholder="Velg formål"
+                    isOrdering={isOrdering}
+                  />
                 </Field>
                 <Field>
                   <Label>E-post</Label>
