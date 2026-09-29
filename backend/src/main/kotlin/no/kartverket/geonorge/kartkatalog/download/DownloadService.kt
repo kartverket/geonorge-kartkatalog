@@ -76,10 +76,17 @@ class DownloadService(
                                 name = area.name,
                                 type = area.type,
                             ),
-                        projections = area.projections,
-                        formats =
-                            area.formats.map { format ->
-                                DownloadFormatOption(name = format.name, projections = format.projections)
+                        projections =
+                            area.projections.map { projection ->
+                                DownloadProjectionOption(
+                                    code = projection.code,
+                                    name = projection.name,
+                                    codespace = projection.codespace,
+                                    formats =
+                                        (projection.formats?.takeIf { it.isNotEmpty() } ?: area.formats).map { format ->
+                                            DownloadFormatOption(name = format.name)
+                                        },
+                                )
                             },
                     )
                 },

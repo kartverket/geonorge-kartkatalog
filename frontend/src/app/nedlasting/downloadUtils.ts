@@ -2,6 +2,7 @@ import type {
   DownloadOptions,
   DownloadOrderAreaInput,
   DownloadOrderItemInput,
+  DownloadOrderProjectionInput,
 } from "@/lib/schemas/download";
 
 export type DownloadCard = {
@@ -81,18 +82,16 @@ export function getAvailableFormats(
   const areas = getSelectedAreas(options, areaCodes);
   if (areas.length === 0) return [];
 
-  return intersectByKey(
-    areas.map((area) =>
-      area.formats.filter((format) =>
-        projectionCodes.every((projectionCode) =>
-          format.projections.some(
-            (projection) => projection.code === projectionCode,
-          ),
-        ),
-      ),
+  const formatLists = areas.flatMap((area) =>
+    projectionCodes.map(
+      (projectionCode) =>
+        area.projections.find(
+          (projection) => projection.code === projectionCode,
+        )?.formats ?? [],
     ),
-    (format) => format.name,
   );
+
+  return intersectByKey(formatLists, (format) => format.name);
 }
 
 export function createDownloadOrderItem(
@@ -122,13 +121,14 @@ export function createDownloadOrderItem(
   return {
     uuid,
     areas: areas.map(toDownloadOrderArea),
-    projections,
+    projections: projections.map(toDownloadOrderProjection),
     formats: formats.map((format) => ({ name: format.name })),
   };
 }
 
 export type DownloadAreaOption = DownloadOptions["areas"][number];
-type DownloadFormat = DownloadAreaOption["formats"][number];
+type DownloadProjectionOption = DownloadAreaOption["projections"][number];
+type DownloadFormat = DownloadProjectionOption["formats"][number];
 type DownloadProjection = ReturnType<typeof getAvailableProjections>[number];
 
 function toDownloadOrderArea(
@@ -136,6 +136,13 @@ function toDownloadOrderArea(
 ): DownloadOrderAreaInput {
   const { code, name, type } = option.area;
   return { code, name, type };
+}
+
+function toDownloadOrderProjection(
+  projection: DownloadProjection,
+): DownloadOrderProjectionInput {
+  const { code, name, codespace } = projection;
+  return { code, name, codespace };
 }
 
 export type AreaOptionGroup = {

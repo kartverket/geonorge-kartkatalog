@@ -93,14 +93,21 @@ data class NedlastingAreaCodelistEntry(
     val type: String? = null,
     val name: String,
     val code: String,
-    val projections: List<NedlastingProjection> = emptyList(),
+    val projections: List<NedlastingProjectionOption> = emptyList(),
     val formats: List<NedlastingFormatOption> = emptyList(),
+)
+
+@Serializable
+data class NedlastingProjectionOption(
+    val code: String,
+    val name: String,
+    val codespace: String? = null,
+    val formats: List<NedlastingFormatOption>? = null,
 )
 
 @Serializable
 data class NedlastingFormatOption(
     val name: String,
-    val projections: List<NedlastingProjection> = emptyList(),
 )
 
 @Serializable

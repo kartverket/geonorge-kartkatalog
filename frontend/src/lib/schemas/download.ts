@@ -8,7 +8,10 @@ export const DownloadProjectionSchema = z.object({
 
 export const DownloadFormatOptionSchema = z.object({
   name: z.string(),
-  projections: z.array(DownloadProjectionSchema),
+});
+
+export const DownloadProjectionOptionSchema = DownloadProjectionSchema.extend({
+  formats: z.array(DownloadFormatOptionSchema),
 });
 
 export const DownloadAreaSchema = z.object({
@@ -19,8 +22,7 @@ export const DownloadAreaSchema = z.object({
 
 export const DownloadAreaOptionSchema = z.object({
   area: DownloadAreaSchema,
-  projections: z.array(DownloadProjectionSchema),
-  formats: z.array(DownloadFormatOptionSchema),
+  projections: z.array(DownloadProjectionOptionSchema),
 });
 
 export const DownloadOptionsSchema = z.object({
@@ -115,6 +117,9 @@ export const DownloadOrderRequestSchema = z
 
 export type DownloadOrderAreaInput = z.infer<
   typeof DownloadOrderAreaInputSchema
+>;
+export type DownloadOrderProjectionInput = z.infer<
+  typeof DownloadOrderProjectionInputSchema
 >;
 export type DownloadOrderItemInput = z.infer<
   typeof DownloadOrderItemInputSchema

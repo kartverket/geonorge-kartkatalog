@@ -76,12 +76,18 @@ class DownloadRoutesTest {
             "name": "Agder",
             "code": "42",
             "projections": [
-              {"code": "25832", "name": "EUREF89 UTM sone 32, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25832"},
-              {"code": "25833", "name": "EUREF89 UTM sone 33, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25833"}
-            ],
-            "formats": [
-              {"name": "GML", "projections": [{"code": "25832", "name": "EUREF89 UTM sone 32, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25832"}]},
-              {"name": "SOSI", "projections": [{"code": "25833", "name": "EUREF89 UTM sone 33, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25833"}]}
+              {
+                "code": "25832",
+                "name": "EUREF89 UTM sone 32, 2d",
+                "codespace": "http://www.opengis.net/def/crs/EPSG/0/25832",
+                "formats": [{"name": "GML"}]
+              },
+              {
+                "code": "25833",
+                "name": "EUREF89 UTM sone 33, 2d",
+                "codespace": "http://www.opengis.net/def/crs/EPSG/0/25833",
+                "formats": [{"name": "SOSI"}]
+              }
             ]
           },
           {
@@ -92,7 +98,7 @@ class DownloadRoutesTest {
               {"code": "25832", "name": "EUREF89 UTM sone 32, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25832"}
             ],
             "formats": [
-              {"name": "GML", "projections": [{"code": "25832", "name": "EUREF89 UTM sone 32, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25832"}]}
+              {"name": "GML"}
             ]
           }
         ]
@@ -388,9 +394,8 @@ class DownloadRoutesTest {
             val body = response.bodyAsText()
             assertContains(body, "\"areas\":[{\"area\":{\"code\":\"42\",\"name\":\"Agder\",\"type\":\"fylke\"}")
             assertContains(body, "{\"area\":{\"code\":\"32\",\"name\":\"Akershus\",\"type\":\"fylke\"}")
-            assertContains(body, "\"projections\":[{\"code\":\"25832\"")
-            assertContains(body, "\"formats\":[{\"name\":\"GML\",\"projections\":[{\"code\":\"25832\"")
-            assertContains(body, "{\"name\":\"SOSI\",\"projections\":[{\"code\":\"25833\"")
+            assertEquals(2, body.split("\"formats\":[{\"name\":\"GML\"}]").size - 1)
+            assertContains(body, "\"formats\":[{\"name\":\"SOSI\"}]")
             assertEquals(
                 listOf(
                     "/api/capabilities/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",

@@ -33,8 +33,7 @@ data class DownloadOptions(
 @Serializable
 data class DownloadAreaOption(
     val area: DownloadArea,
-    val projections: List<NedlastingProjection>,
-    val formats: List<DownloadFormatOption>,
+    val projections: List<DownloadProjectionOption>,
 )
 
 @Serializable
@@ -47,5 +46,12 @@ data class DownloadArea(
 @Serializable
 data class DownloadFormatOption(
     val name: String,
-    val projections: List<NedlastingProjection>,
+)
+
+@Serializable
+data class DownloadProjectionOption(
+    val code: String,
+    val name: String,
+    val codespace: String? = null,
+    val formats: List<DownloadFormatOption>,
 )
