@@ -62,8 +62,8 @@ export function DownloadCartList({
       {orderItemsCount > 0 ? (
         <Paragraph data-size="sm">
           Ditt nedlastingsvalg lagres i nettleseren, brukes når du laster ned
-          filer, og glemmes når du avslutter besøket på siden. Du kan bytte
-          nedlastingsvalg når som helst.
+          filer, og glemmes når fanen lukkes. Du kan bytte nedlastingsvalg når
+          som helst.
         </Paragraph>
       ) : null}
       {orderItemsCount === 0 ? (
