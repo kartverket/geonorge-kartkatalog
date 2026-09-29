@@ -109,6 +109,11 @@ export function DownloadPageContent({
           ...item,
           usagePurpose: [usagePurpose],
         })),
+      }).then((result) => {
+        if (result) {
+          clearCart();
+          setSelections({});
+        }
       });
     },
     [
@@ -120,12 +125,6 @@ export function DownloadPageContent({
       usagePurpose,
     ],
   );
-
-  useEffect(() => {
-    if (orderResult) {
-      clearCart();
-    }
-  }, [orderResult]);
 
   return (
     <>

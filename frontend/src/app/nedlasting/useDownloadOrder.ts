@@ -25,7 +25,7 @@ export function useDownloadOrder() {
     email,
     usageGroup,
     items,
-  }: DownloadOrderSubmission) {
+  }: DownloadOrderSubmission): Promise<DownloadOrderResult | null> {
     setIsOrdering(true);
     setOrderError(null);
     setOrderResult(null);
@@ -45,8 +45,10 @@ export function useDownloadOrder() {
         await response.json(),
       );
       setOrderResult(result);
+      return result;
     } catch {
       setOrderError("Kunne ikke fullføre bestillingen. Prøv igjen.");
+      return null;
     } finally {
       setIsOrdering(false);
     }
