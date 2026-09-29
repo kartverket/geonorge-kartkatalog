@@ -10,7 +10,7 @@ import {
   Select,
 } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
-import { type SubmitEventHandler, useCallback, useState } from "react";
+import { type SubmitEventHandler, useState } from "react";
 import { clearCart } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import { ChipMultiSelect } from "@/app/nedlasting/ChipMultiSelect";
@@ -95,31 +95,26 @@ export function DownloadPageContent({
   const hasInsightGroupOptions =
     insightGroups.brukergrupper.length > 0 && insightGroups.formal.length > 0;
 
-  const handleSubmit: SubmitEventHandler<HTMLFormElement> = useCallback(
-    (event) => {
-      event.preventDefault();
-      if (!canOrder) {
-        return;
-      }
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
+    event.preventDefault();
+    if (!canOrder) {
+      return;
+    }
 
-      void submitOrder({
-        email: email.trim(),
-        usageGroup,
-        items: downloadableProducts.map((item) => ({
-          ...item,
-          usagePurpose,
-        })),
-      });
-    },
-    [
-      canOrder,
-      email,
-      downloadableProducts,
-      submitOrder,
+    void submitOrder({
+      email: email.trim(),
       usageGroup,
-      usagePurpose,
-    ],
-  );
+      items: downloadableProducts.map((item) => ({
+        ...item,
+        usagePurpose,
+      })),
+    }).then((result) => {
+      if (result) {
+        clearCart();
+        setSelections({});
+      }
+    });
+  };
 
   return (
     <>
@@ -135,7 +130,7 @@ export function DownloadPageContent({
         onApplyToAll={applyToAllProducts}
         isOrdering={isOrdering}
       />
-      {orderItems.length > 0 ? (
+      {orderItems.length > 0 || orderResult ? (
         <section className={styles.orderSectionWrapper}>
           <section className={styles.orderSection}>
             <Heading level={2} data-size={"sm"}>
