@@ -9,9 +9,7 @@ import {
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
   getAreaOptionGroups,
-  getCommonAreas,
-  getCommonFormats,
-  getCommonProjections,
+  resolveCommonDownloadAvailability,
 } from "./downloadUtils";
 
 type BulkDownloadSelectionFormProps = {
@@ -32,17 +30,11 @@ export function BulkDownloadSelectionForm({
   const [selection, setSelection] = useState<DownloadSelection>(
     EMPTY_DOWNLOAD_SELECTION,
   );
-  const commonAreas = getCommonAreas(optionsList);
-  const areaGroups = getAreaOptionGroups(commonAreas);
-  const commonProjections = getCommonProjections(
+  const availability = resolveCommonDownloadAvailability(
     optionsList,
-    selection.areaCodes,
+    selection,
   );
-  const commonFormats = getCommonFormats(
-    optionsList,
-    selection.areaCodes,
-    selection.projectionCodes,
-  );
+  const areaGroups = getAreaOptionGroups(availability.areaOptions);
 
   function changeArea(areaCodes: string[]) {
     setSelection({ areaCodes, projectionCodes: [], formatNames: [] });
@@ -98,7 +90,7 @@ export function BulkDownloadSelectionForm({
               placeholder="Velg geografisk område"
               isOrdering={isOrdering}
             />
-            {commonAreas.length === 0 ? (
+            {availability.areaOptions.length === 0 ? (
               <p className={styles.emptyMessage}>
                 Ingen felles geografiske områder for alle valgte produkter.
               </p>
@@ -110,14 +102,14 @@ export function BulkDownloadSelectionForm({
               <ChipMultiSelect
                 selectedValues={selection.projectionCodes}
                 onChangeAction={changeProjection}
-                options={commonProjections.map((projection) => ({
+                options={availability.projectionOptions.map((projection) => ({
                   label: projection.name,
                   value: projection.code,
                 }))}
                 placeholder="Velg projeksjon"
                 isOrdering={isOrdering}
               />
-              {commonProjections.length === 0 ? (
+              {availability.projectionOptions.length === 0 ? (
                 <p className={styles.emptyMessage}>
                   Ingen felles projeksjoner for valgte områder i alle produkter.
                 </p>
@@ -127,7 +119,7 @@ export function BulkDownloadSelectionForm({
           {selection.projectionCodes.length > 0 ? (
             <Field className={styles.selectionField}>
               <Label>Format</Label>
-              {commonFormats.length === 0 ? (
+              {availability.formatOptions.length === 0 ? (
                 <p className={styles.emptyMessage}>
                   Ingen felles formater for alle valgte produkter med disse
                   projeksjonene.
@@ -136,7 +128,7 @@ export function BulkDownloadSelectionForm({
                 <ChipMultiSelect
                   selectedValues={selection.formatNames}
                   onChangeAction={changeFormat}
-                  options={commonFormats.map((format) => ({
+                  options={availability.formatOptions.map((format) => ({
                     label: format.name,
                     value: format.name,
                   }))}

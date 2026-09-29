@@ -7,8 +7,7 @@ import styles from "./DownloadOptionsForm.module.css";
 import type { DownloadSelection } from "./downloadUtils";
 import {
   getAreaOptionGroups,
-  getAvailableFormats,
-  getAvailableProjections,
+  resolveDownloadAvailability,
 } from "./downloadUtils";
 
 type DownloadOptionsFormProps = {
@@ -28,13 +27,8 @@ export function DownloadOptionsForm({
   selection,
   onSelectionChangeAction,
 }: DownloadOptionsFormProps) {
-  const areaGroups = options ? getAreaOptionGroups(options.areas) : [];
-  const projections = getAvailableProjections(options, selection.areaCodes);
-  const availableFormats = getAvailableFormats(
-    options,
-    selection.areaCodes,
-    selection.projectionCodes,
-  );
+  const availability = resolveDownloadAvailability(options, selection);
+  const areaGroups = getAreaOptionGroups(availability.areaOptions);
 
   function changeArea(areaCodes: string[]) {
     onSelectionChangeAction({
@@ -95,7 +89,7 @@ export function DownloadOptionsForm({
           <ChipMultiSelect
             selectedValues={selection.projectionCodes}
             onChangeAction={changeProjection}
-            options={projections.map((projection) => ({
+            options={availability.projectionOptions.map((projection) => ({
               label: projection.name,
               value: projection.code,
             }))}
@@ -113,7 +107,7 @@ export function DownloadOptionsForm({
           <ChipMultiSelect
             selectedValues={selection.formatNames}
             onChangeAction={changeFormat}
-            options={availableFormats.map((format) => ({
+            options={availability.formatOptions.map((format) => ({
               label: format.name,
               value: format.name,
             }))}
