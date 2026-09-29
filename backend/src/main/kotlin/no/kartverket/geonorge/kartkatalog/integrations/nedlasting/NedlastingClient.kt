@@ -48,14 +48,6 @@ class NedlastingClient(
         }
     }
 
-    suspend fun getFormats(url: String): List<NedlastingFormatCodelistEntry> =
-        try {
-            val response = httpClient.get(url)
-            json.decodeFromString(ListSerializer(NedlastingFormatCodelistEntry.serializer()), response.bodyAsText())
-        } catch (e: Exception) {
-            throw NedlastingException("Nedlasting request to $url failed", e)
-        }
-
     suspend fun getAreas(url: String): List<NedlastingAreaCodelistEntry> =
         try {
             val response = httpClient.get(url)

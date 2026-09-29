@@ -4,11 +4,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.AREA_REL
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.FORMAT_REL
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingArea
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingAreaCodelistEntry
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingFormatCodelistEntry
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingInsightGroups
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderLine
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderRequest
@@ -61,40 +57,31 @@ class DownloadService(
     suspend fun getOptions(
         uuid: String,
         capabilitiesUrl: String,
-    ): DownloadOptions =
-        coroutineScope {
-            val capabilities = nedlastingClient.getCapabilities(capabilitiesUrl, uuid)
+    ): DownloadOptions {
+        val capabilities = nedlastingClient.getCapabilities(capabilitiesUrl, uuid)
+        val areasUrl = capabilities.linkFor(AREA_REL)
 
-            val formatsUrl = capabilities.linkFor(FORMAT_REL)
-            val areasUrl = capabilities.linkFor(AREA_REL)
-
-            val formatsDeferred =
-                async {
-                    if (formatsUrl == null) {
-                        log.warn("No format codelist URL found for dataset {}, returning no formats", uuid)
-                        emptyList<NedlastingFormatCodelistEntry>()
-                    } else {
-                        nedlastingClient.getFormats(formatsUrl)
-                    }
-                }
-            val areasDeferred =
-                async {
-                    if (areasUrl == null) {
-                        log.warn("No area codelist URL found for dataset {}, returning no areas", uuid)
-                        emptyList<NedlastingAreaCodelistEntry>()
-                    } else {
-                        nedlastingClient.getAreas(areasUrl)
-                    }
-                }
-
-            val formats = formatsDeferred.await()
-            val areas = areasDeferred.await()
-
-            DownloadOptions(
-                areas = areas.map { NedlastingArea(code = it.code, name = it.name, type = it.type) },
-                formats = formats.map { DownloadFormatOption(name = it.name, projections = it.projections) },
-            )
+        if (areasUrl == null) {
+            log.warn("No area codelist URL found for dataset {}, returning no areas", uuid)
+            return DownloadOptions(areas = emptyList())
         }
+
+        return DownloadOptions(
+            areas =
+                nedlastingClient.getAreas(areasUrl).map { area ->
+                    DownloadAreaOption(
+                        code = area.code,
+                        name = area.name,
+                        type = area.type,
+                        projections = area.projections,
+                        formats =
+                            area.formats.map { format ->
+                                DownloadFormatOption(name = format.name, projections = format.projections)
+                            },
+                    )
+                },
+        )
+    }
 
     private suspend fun resolveOrderLine(item: DownloadOrderItem): ResolvedOrderLine {
         val capabilities = nedlastingClient.getCapabilities(item.uuid)

@@ -4,7 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 const val ORDER_REL = "http://rel.geonorge.no/download/order"
-const val FORMAT_REL = "http://rel.geonorge.no/download/format"
 const val AREA_REL = "http://rel.geonorge.no/download/area"
 
 @Serializable
@@ -90,16 +89,18 @@ data class NedlastingOrderFile(
 )
 
 @Serializable
-data class NedlastingFormatCodelistEntry(
-    val name: String,
-    val projections: List<NedlastingProjection> = emptyList(),
-)
-
-@Serializable
 data class NedlastingAreaCodelistEntry(
     val type: String? = null,
     val name: String,
     val code: String,
+    val projections: List<NedlastingProjection> = emptyList(),
+    val formats: List<NedlastingFormatOption> = emptyList(),
+)
+
+@Serializable
+data class NedlastingFormatOption(
+    val name: String,
+    val projections: List<NedlastingProjection> = emptyList(),
 )
 
 @Serializable

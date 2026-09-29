@@ -18,7 +18,7 @@ type BulkDownloadSelectionFormProps = {
   optionsList: (DownloadOptions | null)[];
   isLoading: boolean;
   isOrdering?: boolean;
-  onApplyToAll: (
+  onApplyToAllAction: (
     update: (selection: DownloadSelection) => DownloadSelection,
   ) => void;
 };
@@ -27,22 +27,30 @@ export function BulkDownloadSelectionForm({
   optionsList,
   isLoading,
   isOrdering = false,
-  onApplyToAll,
+  onApplyToAllAction,
 }: BulkDownloadSelectionFormProps) {
   const [selection, setSelection] = useState<DownloadSelection>(
     EMPTY_DOWNLOAD_SELECTION,
   );
   const commonAreas = getCommonAreas(optionsList);
   const areaGroups = getAreaOptionGroups(commonAreas);
-  const commonProjections = getCommonProjections(optionsList);
+  const commonProjections = getCommonProjections(
+    optionsList,
+    selection.areaCodes,
+  );
   const commonFormats = getCommonFormats(
     optionsList,
+    selection.areaCodes,
     selection.projectionCodes,
   );
 
   function changeArea(areaCodes: string[]) {
-    setSelection((current) => ({ ...current, areaCodes }));
-    onApplyToAll((productSelection) => ({ ...productSelection, areaCodes }));
+    setSelection({ areaCodes, projectionCodes: [], formatNames: [] });
+    onApplyToAllAction(() => ({
+      areaCodes,
+      projectionCodes: [],
+      formatNames: [],
+    }));
   }
 
   function changeProjection(projectionCodes: string[]) {
@@ -51,7 +59,7 @@ export function BulkDownloadSelectionForm({
       projectionCodes,
       formatNames: [],
     }));
-    onApplyToAll((productSelection) => ({
+    onApplyToAllAction((productSelection) => ({
       ...productSelection,
       projectionCodes,
       formatNames: [],
@@ -60,7 +68,10 @@ export function BulkDownloadSelectionForm({
 
   function changeFormat(formatNames: string[]) {
     setSelection((current) => ({ ...current, formatNames }));
-    onApplyToAll((productSelection) => ({ ...productSelection, formatNames }));
+    onApplyToAllAction((productSelection) => ({
+      ...productSelection,
+      formatNames,
+    }));
   }
 
   return (
@@ -93,24 +104,26 @@ export function BulkDownloadSelectionForm({
               </p>
             ) : null}
           </Field>
-          <Field className={styles.selectionField}>
-            <Label>Projeksjon</Label>
-            <ChipMultiSelect
-              selectedValues={selection.projectionCodes}
-              onChangeAction={changeProjection}
-              options={commonProjections.map((projection) => ({
-                label: projection.name,
-                value: projection.code,
-              }))}
-              placeholder="Velg projeksjon"
-              isOrdering={isOrdering}
-            />
-            {commonProjections.length === 0 ? (
-              <p className={styles.emptyMessage}>
-                Ingen felles projeksjoner for alle valgte produkter.
-              </p>
-            ) : null}
-          </Field>
+          {selection.areaCodes.length > 0 ? (
+            <Field className={styles.selectionField}>
+              <Label>Projeksjon</Label>
+              <ChipMultiSelect
+                selectedValues={selection.projectionCodes}
+                onChangeAction={changeProjection}
+                options={commonProjections.map((projection) => ({
+                  label: projection.name,
+                  value: projection.code,
+                }))}
+                placeholder="Velg projeksjon"
+                isOrdering={isOrdering}
+              />
+              {commonProjections.length === 0 ? (
+                <p className={styles.emptyMessage}>
+                  Ingen felles projeksjoner for valgte områder i alle produkter.
+                </p>
+              ) : null}
+            </Field>
+          ) : null}
           {selection.projectionCodes.length > 0 ? (
             <Field className={styles.selectionField}>
               <Label>Format</Label>

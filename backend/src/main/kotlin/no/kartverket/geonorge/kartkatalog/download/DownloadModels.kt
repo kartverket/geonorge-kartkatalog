@@ -27,7 +27,15 @@ data class DownloadOrderResult(
 )
 
 data class DownloadOptions(
-    val areas: List<NedlastingArea>,
+    val areas: List<DownloadAreaOption>,
+)
+
+@Serializable
+data class DownloadAreaOption(
+    val code: String,
+    val name: String,
+    val type: String? = null,
+    val projections: List<NedlastingProjection>,
     val formats: List<DownloadFormatOption>,
 )
 

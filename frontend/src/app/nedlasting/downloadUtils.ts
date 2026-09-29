@@ -46,30 +46,49 @@ export function getMissingDownloadSelectionFields(
   return missingFields;
 }
 
-export function getAvailableProjections(options: DownloadOptions | null) {
-  if (!options) return [];
+function getSelectedAreas(options: DownloadOptions, areaCodes: string[]) {
+  const selectedCodes = new Set(areaCodes);
+  const areas = options.areas.filter((area) => selectedCodes.has(area.code));
+  return areas.length === selectedCodes.size ? areas : [];
+}
 
-  return Array.from(
-    new Map(
-      options.formats
-        .flatMap((format) => format.projections)
-        .map((projection) => [projection.code, projection]),
-    ).values(),
+export function getAvailableProjections(
+  options: DownloadOptions | null,
+  areaCodes: string[],
+) {
+  if (!options || areaCodes.length === 0) return [];
+
+  const areas = getSelectedAreas(options, areaCodes);
+  if (areas.length === 0) return [];
+
+  return intersectByKey(
+    areas.map((area) => area.projections),
+    (projection) => projection.code,
   );
 }
 
 export function getAvailableFormats(
   options: DownloadOptions | null,
+  areaCodes: string[],
   projectionCodes: string[],
 ) {
-  if (!options || projectionCodes.length === 0) return [];
+  if (!options || areaCodes.length === 0 || projectionCodes.length === 0)
+    return [];
 
-  return options.formats.filter((format) =>
-    projectionCodes.every((projectionCode) =>
-      format.projections.some(
-        (projection) => projection.code === projectionCode,
+  const areas = getSelectedAreas(options, areaCodes);
+  if (areas.length === 0) return [];
+
+  return intersectByKey(
+    areas.map((area) =>
+      area.formats.filter((format) =>
+        projectionCodes.every((projectionCode) =>
+          format.projections.some(
+            (projection) => projection.code === projectionCode,
+          ),
+        ),
       ),
     ),
+    (format) => format.name,
   );
 }
 
@@ -82,11 +101,13 @@ export function createDownloadOrderItem(
   const areas =
     options?.areas.filter((candidate) => areaCodeSet.has(candidate.code)) ?? [];
   const projectionCodeSet = new Set(selection.projectionCodes);
-  const projections = getAvailableProjections(options).filter((candidate) =>
-    projectionCodeSet.has(candidate.code),
-  );
+  const projections = getAvailableProjections(
+    options,
+    selection.areaCodes,
+  ).filter((candidate) => projectionCodeSet.has(candidate.code));
   const formats = getAvailableFormats(
     options,
+    selection.areaCodes,
     selection.projectionCodes,
   ).filter((format) => selection.formatNames.includes(format.name));
 
@@ -95,14 +116,14 @@ export function createDownloadOrderItem(
 
   return {
     uuid,
-    areas: areas,
+    areas: areas.map(({ code, name, type }) => ({ code, name, type })),
     projections,
     formats: formats.map((format) => ({ name: format.name })),
   };
 }
 
 export type DownloadArea = DownloadOptions["areas"][number];
-type DownloadFormat = DownloadOptions["formats"][number];
+type DownloadFormat = DownloadArea["formats"][number];
 type DownloadProjection = ReturnType<typeof getAvailableProjections>[number];
 
 export type AreaOptionGroup = {
@@ -160,22 +181,29 @@ export function getCommonAreas(
 
 export function getCommonProjections(
   optionsList: (DownloadOptions | null)[],
+  areaCodes: string[],
 ): DownloadProjection[] {
-  if (optionsList.length === 0 || optionsList.some((options) => !options)) {
+  if (
+    areaCodes.length === 0 ||
+    optionsList.length === 0 ||
+    optionsList.some((options) => !options)
+  ) {
     return [];
   }
 
   return intersectByKey(
-    optionsList.map((options) => getAvailableProjections(options)),
+    optionsList.map((options) => getAvailableProjections(options, areaCodes)),
     (projection) => projection.code,
   );
 }
 
 export function getCommonFormats(
   optionsList: (DownloadOptions | null)[],
+  areaCodes: string[],
   projectionCodes: string[],
 ): DownloadFormat[] {
   if (
+    areaCodes.length === 0 ||
     projectionCodes.length === 0 ||
     optionsList.length === 0 ||
     optionsList.some((options) => !options)
@@ -184,7 +212,9 @@ export function getCommonFormats(
   }
 
   return intersectByKey(
-    optionsList.map((options) => getAvailableFormats(options, projectionCodes)),
+    optionsList.map((options) =>
+      getAvailableFormats(options, areaCodes, projectionCodes),
+    ),
     (format) => format.name,
   );
 }

@@ -29,14 +29,19 @@ export function DownloadOptionsForm({
   onSelectionChangeAction,
 }: DownloadOptionsFormProps) {
   const areaGroups = options ? getAreaOptionGroups(options.areas) : [];
-  const projections = getAvailableProjections(options);
+  const projections = getAvailableProjections(options, selection.areaCodes);
   const availableFormats = getAvailableFormats(
     options,
+    selection.areaCodes,
     selection.projectionCodes,
   );
 
   function changeArea(areaCodes: string[]) {
-    onSelectionChangeAction({ ...selection, areaCodes });
+    onSelectionChangeAction({
+      areaCodes,
+      projectionCodes: [],
+      formatNames: [],
+    });
   }
 
   function changeProjection(projectionCodes: string[]) {
@@ -82,21 +87,24 @@ export function DownloadOptionsForm({
           isOrdering={isOrdering}
         />
       </Field>
-      <Field className={styles.selectionField}>
-        <Label>
-          Projeksjon <Tag data-color="warning">Påkrevd</Tag>
-        </Label>
-        <ChipMultiSelect
-          selectedValues={selection.projectionCodes}
-          onChangeAction={changeProjection}
-          options={projections.map((projection) => ({
-            label: projection.name,
-            value: projection.code,
-          }))}
-          placeholder="Velg projeksjon"
-          isOrdering={isOrdering}
-        />
-      </Field>
+      {selection.areaCodes.length > 0 ? (
+        <Field className={styles.selectionField}>
+          <Label>
+            Projeksjon <Tag data-color="warning">Påkrevd</Tag>
+          </Label>
+          <ChipMultiSelect
+            selectedValues={selection.projectionCodes}
+            onChangeAction={changeProjection}
+            options={projections.map((projection) => ({
+              label: projection.name,
+              value: projection.code,
+            }))}
+            placeholder="Velg projeksjon"
+            noOptionsLabel="Ingen felles projeksjoner for valgte områder"
+            isOrdering={isOrdering}
+          />
+        </Field>
+      ) : null}
       {selection.projectionCodes.length > 0 ? (
         <Field className={styles.selectionField}>
           <Label>

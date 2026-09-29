@@ -68,23 +68,37 @@ class DownloadRoutesTest {
         }
         """.trimIndent()
 
-    private val formatsJson =
-        """
-        [
-          {"name": "GML", "projections": [{"code": "25832", "name": "EUREF89 UTM sone 32, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25832"}]},
-          {"name": "SOSI", "projections": [{"code": "25833", "name": "EUREF89 UTM sone 33, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25833"}]}
-        ]
-        """.trimIndent()
-
     private val areasJson =
         """
         [
-          {"type": "fylke", "name": "Agder", "code": "42"},
-          {"type": "fylke", "name": "Akershus", "code": "32"}
+          {
+            "type": "fylke",
+            "name": "Agder",
+            "code": "42",
+            "projections": [
+              {"code": "25832", "name": "EUREF89 UTM sone 32, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25832"},
+              {"code": "25833", "name": "EUREF89 UTM sone 33, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25833"}
+            ],
+            "formats": [
+              {"name": "GML", "projections": [{"code": "25832", "name": "EUREF89 UTM sone 32, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25832"}]},
+              {"name": "SOSI", "projections": [{"code": "25833", "name": "EUREF89 UTM sone 33, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25833"}]}
+            ]
+          },
+          {
+            "type": "fylke",
+            "name": "Akershus",
+            "code": "32",
+            "projections": [
+              {"code": "25832", "name": "EUREF89 UTM sone 32, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25832"}
+            ],
+            "formats": [
+              {"name": "GML", "projections": [{"code": "25832", "name": "EUREF89 UTM sone 32, 2d", "codespace": "http://www.opengis.net/def/crs/EPSG/0/25832"}]}
+            ]
+          }
         ]
         """.trimIndent()
 
-    private val capabilitiesWithFormatsLinkJson =
+    private val capabilitiesWithAreaAndFormatLinksJson =
         """
         {
           "supportsDownloadBundling": true,
@@ -97,14 +111,14 @@ class DownloadRoutesTest {
         }
         """.trimIndent()
 
-    private val capabilitiesWithOnlyAreaLinkJson =
+    private val capabilitiesWithOnlyFormatLinkJson =
         """
         {
           "supportsDownloadBundling": true,
           "distributedBy": "Geonorge",
           "deliveryNotificationByEmail": false,
           "_links": [
-            {"href": "https://nedlasting.geonorge.no/api/codelists/area/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "rel": "http://rel.geonorge.no/download/area"}
+            {"href": "https://nedlasting.geonorge.no/api/codelists/format/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "rel": "http://rel.geonorge.no/download/format"}
           ]
         }
         """.trimIndent()
@@ -330,22 +344,23 @@ class DownloadRoutesTest {
         }
 
     @Test
-    fun `returns all areas and formats with their projections for a dataset`() =
+    fun `returns formats and projections from areas without requesting the format codelist`() =
         testApplication {
+            val requestedPaths = mutableListOf<String>()
             application {
                 configureSerialization()
                 configureStatusPages()
                 val client =
                     HttpClient(
                         MockEngine { request ->
+                            requestedPaths += request.url.encodedPath
                             val content =
                                 when {
                                     request.url.encodedPath.startsWith(
                                         "/api/capabilities",
-                                    ) -> capabilitiesWithFormatsLinkJson
-                                    request.url.encodedPath.startsWith("/api/codelists/format") -> formatsJson
+                                    ) -> capabilitiesWithAreaAndFormatLinksJson
                                     request.url.encodedPath.startsWith("/api/codelists/area") -> areasJson
-                                    else -> "[]"
+                                    else -> error("Unexpected request to ${request.url}")
                                 }
                             respond(
                                 content = content,
@@ -371,15 +386,18 @@ class DownloadRoutesTest {
 
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()
-            assertContains(
-                body,
-                listOf(
-                    "\"areas\":[{\"code\":\"42\",\"name\":\"Agder\",\"type\":\"fylke\"},",
-                    "{\"code\":\"32\",\"name\":\"Akershus\",\"type\":\"fylke\"}]",
-                ).joinToString(separator = ""),
-            )
+            assertContains(body, "\"areas\":[{\"code\":\"42\",\"name\":\"Agder\",\"type\":\"fylke\"")
+            assertContains(body, "{\"code\":\"32\",\"name\":\"Akershus\",\"type\":\"fylke\"")
+            assertContains(body, "\"projections\":[{\"code\":\"25832\"")
             assertContains(body, "\"formats\":[{\"name\":\"GML\",\"projections\":[{\"code\":\"25832\"")
             assertContains(body, "{\"name\":\"SOSI\",\"projections\":[{\"code\":\"25833\"")
+            assertEquals(
+                listOf(
+                    "/api/capabilities/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+                    "/api/codelists/area/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+                ),
+                requestedPaths,
+            )
         }
 
     @Test
@@ -405,7 +423,7 @@ class DownloadRoutesTest {
         }
 
     @Test
-    fun `returns areas with empty formats when the format link is missing from capabilities`() =
+    fun `returns no options when the area link is missing from capabilities`() =
         testApplication {
             application {
                 configureSerialization()
@@ -417,9 +435,8 @@ class DownloadRoutesTest {
                                 when {
                                     request.url.encodedPath.startsWith(
                                         "/api/capabilities",
-                                    ) -> capabilitiesWithOnlyAreaLinkJson
-                                    request.url.encodedPath.startsWith("/api/codelists/area") -> areasJson
-                                    else -> "[]"
+                                    ) -> capabilitiesWithOnlyFormatLinkJson
+                                    else -> error("Unexpected request to ${request.url}")
                                 }
                             respond(
                                 content = content,
@@ -445,13 +462,6 @@ class DownloadRoutesTest {
 
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()
-            assertContains(body, "\"formats\":[]")
-            assertContains(
-                body,
-                listOf(
-                    "\"areas\":[{\"code\":\"42\",\"name\":\"Agder\",\"type\":\"fylke\"},",
-                    "{\"code\":\"32\",\"name\":\"Akershus\",\"type\":\"fylke\"}]",
-                ).joinToString(separator = ""),
-            )
+            assertContains(body, "\"areas\":[]")
         }
 }
