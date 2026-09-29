@@ -5,6 +5,23 @@ import type { DownloadSelection } from "./downloadUtils";
 
 const STORAGE_KEY = "downloadSelections";
 
+function isStringArray(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === "string")
+  );
+}
+
+function isDownloadSelection(value: unknown): value is DownloadSelection {
+  if (typeof value !== "object" || value === null) return false;
+
+  const candidate = value as Record<string, unknown>;
+  return (
+    isStringArray(candidate.areaCodes) &&
+    isStringArray(candidate.projectionCodes) &&
+    isStringArray(candidate.formatNames)
+  );
+}
+
 function readStoredSelections(): Record<string, DownloadSelection> {
   if (typeof window === "undefined") return {};
 
@@ -12,9 +29,19 @@ function readStoredSelections(): Record<string, DownloadSelection> {
     const parsed: unknown = JSON.parse(
       sessionStorage.getItem(STORAGE_KEY) || "{}",
     );
-    return typeof parsed === "object" && parsed !== null
-      ? (parsed as Record<string, DownloadSelection>)
-      : {};
+
+    if (typeof parsed !== "object" || parsed === null) return {};
+
+    const validSelections: Record<string, DownloadSelection> = {};
+    for (const [uuid, value] of Object.entries(
+      parsed as Record<string, unknown>,
+    )) {
+      if (isDownloadSelection(value)) {
+        validSelections[uuid] = value;
+      }
+    }
+
+    return validSelections;
   } catch {
     return {};
   }
