@@ -48,13 +48,20 @@ class NedlastingClient(
         }
     }
 
-    suspend fun getAreas(url: String): List<NedlastingAreaCodelistEntry> =
-        try {
-            val response = httpClient.get(url)
+    suspend fun getAreas(url: String): List<NedlastingAreaCodelistEntry> {
+        val response = getResponse(url)
+
+        if (!response.status.isSuccess()) {
+            log.warn("Nedlasting request to {} failed with status: {}", url, response.status)
+            throw NedlastingException("Nedlasting request to $url failed with status ${response.status}")
+        }
+
+        return try {
             json.decodeFromString(ListSerializer(NedlastingAreaCodelistEntry.serializer()), response.bodyAsText())
         } catch (e: Exception) {
-            throw NedlastingException("Nedlasting request to $url failed", e)
+            throw NedlastingException("Failed to parse Nedlasting area response from $url", e)
         }
+    }
 
     private suspend fun getResponse(url: String): HttpResponse =
         try {
