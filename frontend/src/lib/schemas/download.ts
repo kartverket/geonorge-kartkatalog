@@ -74,6 +74,7 @@ export type DownloadOrderItemInput = {
     codespace?: string | null;
   }>;
   formats?: Array<{ name: string }>;
+  usagePurpose?: string[];
 };
 
 export const DownloadInsightGroupsSchema = z.object({
