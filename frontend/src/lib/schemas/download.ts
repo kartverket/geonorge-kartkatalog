@@ -70,19 +70,60 @@ export function parseDownloadOrderResult(body: unknown): DownloadOrderResult {
   return res.data;
 }
 
-export type DownloadOrderAreaInput = z.infer<typeof DownloadAreaSchema>;
+export const DownloadOrderAreaInputSchema = z
+  .object({
+    code: z.string().min(1),
+    name: z.string().min(1),
+    type: z.string().nullable(),
+  })
+  .strict();
 
-export type DownloadOrderItemInput = {
-  uuid: string;
-  areas?: DownloadOrderAreaInput[];
-  projections?: Array<{
-    code: string;
-    name: string;
-    codespace?: string | null;
-  }>;
-  formats?: Array<{ name: string }>;
-  usagePurpose?: string[];
-};
+export const DownloadOrderProjectionInputSchema = z
+  .object({
+    code: z.string().min(1),
+    name: z.string().min(1),
+    codespace: z.string().nullable(),
+  })
+  .strict();
+
+export const DownloadOrderFormatInputSchema = z
+  .object({
+    name: z.string().min(1),
+  })
+  .strict();
+
+export const DownloadOrderItemInputSchema = z
+  .object({
+    uuid: z.string().min(1),
+    areas: z.array(DownloadOrderAreaInputSchema).min(1),
+    projections: z.array(DownloadOrderProjectionInputSchema).min(1),
+    formats: z.array(DownloadOrderFormatInputSchema).min(1),
+  })
+  .strict();
+
+const DownloadOrderRequestItemSchema = DownloadOrderItemInputSchema.extend({
+  usagePurpose: z.array(z.string().min(1)).min(1),
+}).strict();
+
+export const DownloadOrderRequestSchema = z
+  .object({
+    email: z.string().email(),
+    usageGroup: z.string().min(1),
+    items: z.array(DownloadOrderRequestItemSchema).min(1),
+  })
+  .strict();
+
+export type DownloadOrderAreaInput = z.infer<
+  typeof DownloadOrderAreaInputSchema
+>;
+export type DownloadOrderItemInput = z.infer<
+  typeof DownloadOrderItemInputSchema
+>;
+export type DownloadOrderRequest = z.infer<typeof DownloadOrderRequestSchema>;
+
+export function parseDownloadOrderRequest(body: unknown): DownloadOrderRequest {
+  return DownloadOrderRequestSchema.parse(body);
+}
 
 export const DownloadInsightGroupsSchema = z.object({
   formal: z.array(z.string()),

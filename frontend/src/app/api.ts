@@ -4,7 +4,7 @@ import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
   type DownloadInsightGroups,
   type DownloadOptions,
-  type DownloadOrderItemInput,
+  type DownloadOrderRequest,
   type DownloadOrderResult,
   parseDownloadInsightGroups,
   parseDownloadOptions,
@@ -276,20 +276,14 @@ export async function getDownloadOptions(
   return parseDownloadOptions(body);
 }
 
-export async function orderDownload({
-  email,
-  usageGroup,
-  items,
-}: {
-  email: string;
-  usageGroup: string;
-  items: DownloadOrderItemInput[];
-}): Promise<DownloadOrderResult> {
+export async function orderDownload(
+  request: DownloadOrderRequest,
+): Promise<DownloadOrderResult> {
   const url = `${API_BASE}/api/download/order`;
   const body = await fetchJson(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, usageGroup, items }),
+    body: JSON.stringify(request),
   });
   return parseDownloadOrderResult(body);
 }
