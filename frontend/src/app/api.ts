@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
@@ -292,6 +293,9 @@ export async function orderDownload({
 
 export const getDownloadInsightGroups = cache(
   async (): Promise<DownloadInsightGroups> => {
+    "use cache";
+    cacheLife("hours");
+
     const url = `${API_BASE}/api/download/insight-groups`;
     const body = await fetchJson(url, {
       method: "GET",
