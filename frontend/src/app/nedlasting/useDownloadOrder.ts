@@ -16,7 +16,9 @@ export function useDownloadOrder() {
     null,
   );
 
-  async function submitOrder(request: DownloadOrderRequest): Promise<DownloadOrderResult | null> {
+  async function submitOrder(
+    request: DownloadOrderRequest,
+  ): Promise<DownloadOrderResult | null> {
     setIsOrdering(true);
     setOrderError(null);
     setOrderResult(null);
