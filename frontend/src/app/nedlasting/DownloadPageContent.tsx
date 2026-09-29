@@ -190,7 +190,10 @@ export function DownloadPageContent({
                   type="button"
                   data-color="danger"
                   variant="secondary"
-                  onClick={clearCart}
+                  onClick={() => {
+                    clearCart();
+                    setSelections({});
+                  }}
                   disabled={isOrdering || orderItems.length === 0}
                 >
                   <TrashIcon aria-hidden />
