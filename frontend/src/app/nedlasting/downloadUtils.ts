@@ -224,11 +224,12 @@ function intersectByKey<T>(lists: T[][], key: (item: T) => string): T[] {
   if (lists.length === 0) return [];
 
   const [first, ...rest] = lists;
-  return first.filter((item) =>
-    rest.every((list) =>
-      list.some((candidate) => key(candidate) === key(item)),
-    ),
-  );
+  const keySets = rest.map((list) => new Set(list.map(key)));
+
+  return first.filter((item) => {
+    const itemKey = key(item);
+    return keySets.every((keys) => keys.has(itemKey));
+  });
 }
 
 function getCommonAreas(
