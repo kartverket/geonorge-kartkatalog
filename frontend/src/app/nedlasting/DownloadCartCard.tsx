@@ -30,6 +30,7 @@ export type DownloadCartCardProps = {
   optionsError: string | null;
   selection: DownloadSelection;
   onSelectionChangeAction: (uuid: string, selection: DownloadSelection) => void;
+  isOrdering?: boolean;
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -51,6 +52,7 @@ export function DownloadCartCard({
   optionsError,
   selection,
   onSelectionChangeAction,
+  isOrdering = false,
 }: DownloadCartCardProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -142,6 +144,7 @@ export function DownloadCartCard({
             onSelectionChangeAction={(newSelection) =>
               onSelectionChangeAction(uuid, newSelection)
             }
+            isOrdering={isOrdering}
           />
         </div>
       ) : null}

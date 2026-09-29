@@ -1,8 +1,8 @@
 "use client";
 
-import { Checkbox, Select, Tag } from "@kv-designsystem/react";
-import { useId } from "react";
+import { Field, Label, Tag } from "@kv-designsystem/react";
 import type { DownloadOptions } from "@/lib/schemas/download";
+import { ChipMultiSelect } from "./ChipMultiSelect";
 import styles from "./DownloadOptionsForm.module.css";
 import type { DownloadSelection } from "./downloadUtils";
 import {
@@ -14,6 +14,7 @@ import {
 type DownloadOptionsFormProps = {
   error: string | null;
   isLoading: boolean;
+  isOrdering?: boolean;
   options: DownloadOptions | null;
   selection: DownloadSelection;
   onSelectionChangeAction: (selection: DownloadSelection) => void;
@@ -22,31 +23,31 @@ type DownloadOptionsFormProps = {
 export function DownloadOptionsForm({
   error,
   isLoading,
+  isOrdering = false,
   options,
   selection,
   onSelectionChangeAction,
 }: DownloadOptionsFormProps) {
-  const areaId = useId();
-  const projectionId = useId();
   const areaGroups = options ? getAreaOptionGroups(options.areas) : [];
   const projections = getAvailableProjections(options);
   const availableFormats = getAvailableFormats(
     options,
-    selection.projectionCode,
+    selection.projectionCodes,
   );
 
-  function changeArea(areaCode: string) {
-    onSelectionChangeAction({ ...selection, areaCode });
+  function changeArea(areaCodes: string[]) {
+    onSelectionChangeAction({ ...selection, areaCodes });
   }
 
-  function changeProjection(projectionCode: string) {
-    onSelectionChangeAction({ ...selection, projectionCode, formatNames: [] });
+  function changeProjection(projectionCodes: string[]) {
+    onSelectionChangeAction({
+      ...selection,
+      projectionCodes,
+      formatNames: [],
+    });
   }
 
-  function toggleFormat(formatName: string) {
-    const formatNames = selection.formatNames.includes(formatName)
-      ? selection.formatNames.filter((name) => name !== formatName)
-      : [...selection.formatNames, formatName];
+  function changeFormat(formatNames: string[]) {
     onSelectionChangeAction({ ...selection, formatNames });
   }
 
@@ -63,67 +64,56 @@ export function DownloadOptionsForm({
 
   return (
     <div className={styles.selectionFields}>
-      <div className={styles.selectionField}>
-        <label className={styles.fieldLabel} htmlFor={areaId}>
+      <Field className={styles.selectionField}>
+        <Label>
           Geografisk område <Tag data-color="warning">Påkrevd</Tag>
-        </label>
-        <Select
-          id={areaId}
-          value={selection.areaCode}
-          onChange={(event) => changeArea(event.target.value)}
-        >
-          <Select.Option value="">Velg geografisk område</Select.Option>
-          {areaGroups.length > 0
-            ? areaGroups.map((group) => (
-                <Select.Optgroup key={group.label} label={group.label}>
-                  {group.areas.map((area) => (
-                    <Select.Option key={area.code} value={area.code}>
-                      {area.name}
-                    </Select.Option>
-                  ))}
-                </Select.Optgroup>
-              ))
-            : options.areas.map((area) => (
-                <Select.Option key={area.code} value={area.code}>
-                  {area.name}
-                </Select.Option>
-              ))}
-        </Select>
-      </div>
-      <div className={styles.selectionField}>
-        <label className={styles.fieldLabel} htmlFor={projectionId}>
+        </Label>
+        <ChipMultiSelect
+          selectedValues={selection.areaCodes}
+          onChangeAction={changeArea}
+          options={areaGroups.map((group) => ({
+            label: group.label,
+            options: group.areas.map((area) => ({
+              label: area.name,
+              value: area.code,
+            })),
+          }))}
+          placeholder="Velg geografisk område"
+          isOrdering={isOrdering}
+        />
+      </Field>
+      <Field className={styles.selectionField}>
+        <Label>
           Projeksjon <Tag data-color="warning">Påkrevd</Tag>
-        </label>
-        <Select
-          id={projectionId}
-          value={selection.projectionCode}
-          onChange={(event) => changeProjection(event.target.value)}
-        >
-          <Select.Option value="">Velg projeksjon</Select.Option>
-          {projections.map((projection) => (
-            <Select.Option key={projection.code} value={projection.code}>
-              {projection.name}
-            </Select.Option>
-          ))}
-        </Select>
-      </div>
-      {selection.projectionCode ? (
-        <fieldset className={styles.formatField}>
-          <legend className={styles.fieldLabel}>
+        </Label>
+        <ChipMultiSelect
+          selectedValues={selection.projectionCodes}
+          onChangeAction={changeProjection}
+          options={projections.map((projection) => ({
+            label: projection.name,
+            value: projection.code,
+          }))}
+          placeholder="Velg projeksjon"
+          isOrdering={isOrdering}
+        />
+      </Field>
+      {selection.projectionCodes.length > 0 ? (
+        <Field className={styles.selectionField}>
+          <Label>
             Format <Tag data-color="warning">Påkrevd</Tag>
-          </legend>
-          <div className={styles.formatOptions}>
-            {availableFormats.map((format) => (
-              <Checkbox
-                key={format.name}
-                label={format.name}
-                value={format.name}
-                checked={selection.formatNames.includes(format.name)}
-                onChange={() => toggleFormat(format.name)}
-              />
-            ))}
-          </div>
-        </fieldset>
+          </Label>
+          <ChipMultiSelect
+            selectedValues={selection.formatNames}
+            onChangeAction={changeFormat}
+            options={availableFormats.map((format) => ({
+              label: format.name,
+              value: format.name,
+            }))}
+            placeholder="Velg format"
+            noOptionsLabel="Ingen formater tilgjengelig for valgte projeksjoner"
+            isOrdering={isOrdering}
+          />
+        </Field>
       ) : null}
     </div>
   );

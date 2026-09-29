@@ -1,8 +1,9 @@
 "use client";
 
-import { Checkbox, Heading, Select } from "@kv-designsystem/react";
-import { useId, useState } from "react";
+import { Field, Heading, Label } from "@kv-designsystem/react";
+import { useState } from "react";
 import type { DownloadOptions } from "@/lib/schemas/download";
+import { ChipMultiSelect } from "./ChipMultiSelect";
 import styles from "./DownloadOptionsForm.module.css";
 import {
   type DownloadSelection,
@@ -16,6 +17,7 @@ import {
 type BulkDownloadSelectionFormProps = {
   optionsList: (DownloadOptions | null)[];
   isLoading: boolean;
+  isOrdering?: boolean;
   onApplyToAll: (
     update: (selection: DownloadSelection) => DownloadSelection,
   ) => void;
@@ -24,41 +26,39 @@ type BulkDownloadSelectionFormProps = {
 export function BulkDownloadSelectionForm({
   optionsList,
   isLoading,
+  isOrdering = false,
   onApplyToAll,
 }: BulkDownloadSelectionFormProps) {
-  const areaId = useId();
-  const projectionId = useId();
   const [selection, setSelection] = useState<DownloadSelection>(
     EMPTY_DOWNLOAD_SELECTION,
   );
   const commonAreas = getCommonAreas(optionsList);
   const areaGroups = getAreaOptionGroups(commonAreas);
   const commonProjections = getCommonProjections(optionsList);
-  const commonFormats = getCommonFormats(optionsList, selection.projectionCode);
+  const commonFormats = getCommonFormats(
+    optionsList,
+    selection.projectionCodes,
+  );
 
-  function changeArea(areaCode: string) {
-    setSelection((current) => ({ ...current, areaCode }));
-    onApplyToAll((productSelection) => ({ ...productSelection, areaCode }));
+  function changeArea(areaCodes: string[]) {
+    setSelection((current) => ({ ...current, areaCodes }));
+    onApplyToAll((productSelection) => ({ ...productSelection, areaCodes }));
   }
 
-  function changeProjection(projectionCode: string) {
+  function changeProjection(projectionCodes: string[]) {
     setSelection((current) => ({
       ...current,
-      projectionCode,
+      projectionCodes,
       formatNames: [],
     }));
     onApplyToAll((productSelection) => ({
       ...productSelection,
-      projectionCode,
+      projectionCodes,
       formatNames: [],
     }));
   }
 
-  function toggleFormat(formatName: string) {
-    const formatNames = selection.formatNames.includes(formatName)
-      ? selection.formatNames.filter((name) => name !== formatName)
-      : [...selection.formatNames, formatName];
-
+  function changeFormat(formatNames: string[]) {
     setSelection((current) => ({ ...current, formatNames }));
     onApplyToAll((productSelection) => ({ ...productSelection, formatNames }));
   }
@@ -72,82 +72,66 @@ export function BulkDownloadSelectionForm({
         <p>Henter nedlastingsvalg...</p>
       ) : (
         <div className={styles.selectionFields}>
-          <div className={styles.selectionField}>
-            <label className={styles.fieldLabel} htmlFor={areaId}>
-              Geografisk område
-            </label>
-            <Select
-              id={areaId}
-              value={selection.areaCode}
-              onChange={(event) => changeArea(event.target.value)}
-            >
-              <Select.Option value="">Velg geografisk område</Select.Option>
-              {areaGroups.length > 0
-                ? areaGroups.map((group) => (
-                    <Select.Optgroup key={group.label} label={group.label}>
-                      {group.areas.map((area) => (
-                        <Select.Option key={area.code} value={area.code}>
-                          {area.name}
-                        </Select.Option>
-                      ))}
-                    </Select.Optgroup>
-                  ))
-                : commonAreas.map((area) => (
-                    <Select.Option key={area.code} value={area.code}>
-                      {area.name}
-                    </Select.Option>
-                  ))}
-            </Select>
+          <Field className={styles.selectionField}>
+            <Label>Geografisk område</Label>
+            <ChipMultiSelect
+              selectedValues={selection.areaCodes}
+              onChangeAction={changeArea}
+              options={areaGroups.map((group) => ({
+                label: group.label,
+                options: group.areas.map((area) => ({
+                  label: area.name,
+                  value: area.code,
+                })),
+              }))}
+              placeholder="Velg geografisk område"
+              isOrdering={isOrdering}
+            />
             {commonAreas.length === 0 ? (
               <p className={styles.emptyMessage}>
                 Ingen felles geografiske områder for alle valgte produkter.
               </p>
             ) : null}
-          </div>
-          <div className={styles.selectionField}>
-            <label className={styles.fieldLabel} htmlFor={projectionId}>
-              Projeksjon
-            </label>
-            <Select
-              id={projectionId}
-              value={selection.projectionCode}
-              onChange={(event) => changeProjection(event.target.value)}
-            >
-              <Select.Option value="">Velg projeksjon</Select.Option>
-              {commonProjections.map((projection) => (
-                <Select.Option key={projection.code} value={projection.code}>
-                  {projection.name}
-                </Select.Option>
-              ))}
-            </Select>
+          </Field>
+          <Field className={styles.selectionField}>
+            <Label>Projeksjon</Label>
+            <ChipMultiSelect
+              selectedValues={selection.projectionCodes}
+              onChangeAction={changeProjection}
+              options={commonProjections.map((projection) => ({
+                label: projection.name,
+                value: projection.code,
+              }))}
+              placeholder="Velg projeksjon"
+              isOrdering={isOrdering}
+            />
             {commonProjections.length === 0 ? (
               <p className={styles.emptyMessage}>
                 Ingen felles projeksjoner for alle valgte produkter.
               </p>
             ) : null}
-          </div>
-          {selection.projectionCode ? (
-            <fieldset className={styles.formatField}>
-              <legend className={styles.fieldLabel}>Format</legend>
+          </Field>
+          {selection.projectionCodes.length > 0 ? (
+            <Field className={styles.selectionField}>
+              <Label>Format</Label>
               {commonFormats.length === 0 ? (
                 <p className={styles.emptyMessage}>
-                  Ingen felles formater for alle valgte produkter med denne
-                  projeksjonen.
+                  Ingen felles formater for alle valgte produkter med disse
+                  projeksjonene.
                 </p>
               ) : (
-                <div className={styles.formatOptions}>
-                  {commonFormats.map((format) => (
-                    <Checkbox
-                      key={format.name}
-                      label={format.name}
-                      value={format.name}
-                      checked={selection.formatNames.includes(format.name)}
-                      onChange={() => toggleFormat(format.name)}
-                    />
-                  ))}
-                </div>
+                <ChipMultiSelect
+                  selectedValues={selection.formatNames}
+                  onChangeAction={changeFormat}
+                  options={commonFormats.map((format) => ({
+                    label: format.name,
+                    value: format.name,
+                  }))}
+                  placeholder="Velg format"
+                  isOrdering={isOrdering}
+                />
               )}
-            </fieldset>
+            </Field>
           ) : null}
         </div>
       )}
