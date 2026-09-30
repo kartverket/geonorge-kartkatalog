@@ -1,13 +1,9 @@
 import Link from "next/link";
-import { connection } from "next/server";
-import { getDownloadInsightGroups } from "@/app/api";
+import { Suspense } from "react";
 import { DownloadPageContent } from "./DownloadPageContent";
 import styles from "./page.module.css";
 
-export default async function NedlastingPage() {
-  await connection();
-  const insightGroups = await getDownloadInsightGroups();
-
+export default function NedlastingPage() {
   return (
     <main className={styles.page}>
       <div className={styles.content}>
@@ -15,7 +11,9 @@ export default async function NedlastingPage() {
           <a href="/">Geonorge</a> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
           {"›"} <span>Filnedlasting</span>
         </nav>
-        <DownloadPageContent insightGroups={insightGroups} />
+        <Suspense fallback={null}>
+          <DownloadPageContent />
+        </Suspense>
       </div>
     </main>
   );
