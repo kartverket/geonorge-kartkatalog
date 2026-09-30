@@ -1,12 +1,14 @@
 package no.kartverket.geonorge.kartkatalog.config
 
 import io.ktor.http.path
+import io.ktor.http.takeFrom
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.oidc.Oidc
 import io.ktor.server.auth.oidc.OidcProvider
 import io.ktor.server.response.respondRedirect
 import org.slf4j.LoggerFactory
+import java.net.URI
 import kotlin.time.Duration.Companion.seconds
 
 data class GeoIdAuthentication(
@@ -16,6 +18,18 @@ data class GeoIdAuthentication(
 private val log = LoggerFactory.getLogger("Authentication")
 
 suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuthentication {
+    val publicBaseUri = URI(appConfig.publicBaseUrl)
+    val publicOrigin =
+        URI(
+            publicBaseUri.scheme,
+            null,
+            publicBaseUri.host,
+            publicBaseUri.port,
+            null,
+            null,
+            null,
+        ).toString()
+
     val oidc =
         install(Oidc) {
             initialDiscoveryAttempts = 3
@@ -52,8 +66,7 @@ suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuth
                     name = "GEOID_SESSION"
 
                     csrfProtection {
-                        allowOrigin(appConfig.publicBaseUrl)
-                        allowOrigin("http://localhost:3000")
+                        allowOrigin(publicOrigin)
                     }
                     cookie {
                         cookie.path = "/"
@@ -71,17 +84,27 @@ suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuth
                 logout(
                     path = "/auth/geoid/logout",
                     postLogoutRedirectUri = {
-                        path("/")
+                        takeFrom(appConfig.publicBaseUrl)
                     },
                 )
 
                 onAuthenticated {
-                    call.respondRedirect("/")
+                    call.respondRedirect(appConfig.publicBaseUrl)
                 }
 
                 onAuthenticationFailed { cause ->
                     log.warn("GeoID login failed: {}", cause)
-                    call.respondRedirect("/?loginError=true")
+                    val loginErrorUri =
+                        URI(
+                            publicBaseUri.scheme,
+                            publicBaseUri.userInfo,
+                            publicBaseUri.host,
+                            publicBaseUri.port,
+                            publicBaseUri.path.ifEmpty { "/" },
+                            "loginError=true",
+                            null,
+                        )
+                    call.respondRedirect(loginErrorUri.toString())
                 }
             }
         }

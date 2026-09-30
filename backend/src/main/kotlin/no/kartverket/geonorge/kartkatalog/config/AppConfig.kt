@@ -22,7 +22,7 @@ class AppConfig(
     val publicBaseUrl: String = env("PUBLIC_BASE_URL")
 
     private fun env(key: String): String =
-        (overrides[key] ?: dotenv[key])?.trimEnd('/')
+        (overrides[key] ?: dotenv[key])
             ?: throw IllegalStateException(
                 "Missing required environment variable: $key. Set it in .env or as an environment variable.",
             )
