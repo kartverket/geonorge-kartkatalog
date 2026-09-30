@@ -10,7 +10,7 @@ import {
   Select,
 } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
-import { type SubmitEventHandler, useState } from "react";
+import { type SubmitEventHandler, useEffect, useState } from "react";
 import { clearCart } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import { ChipMultiSelect } from "@/app/nedlasting/ChipMultiSelect";
@@ -26,6 +26,7 @@ import styles from "./DownloadPageContent.module.css";
 import { useDownloadCartCards } from "./useDownloadCartCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
+import { usePersistedDownloadSelections } from "./usePersistedDownloadSelections";
 
 type DownloadPageContentProps = {
   insightGroups: DownloadInsightGroups;
@@ -45,9 +46,7 @@ export function DownloadPageContent({
   const { isOrdering, orderError, orderResult, submitOrder } =
     useDownloadOrder();
 
-  const [selections, setSelections] = useState<
-    Record<string, DownloadSelection>
-  >({});
+  const [selections, setSelections] = usePersistedDownloadSelections();
   const [email, setEmail] = useState("");
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
@@ -67,6 +66,22 @@ export function DownloadPageContent({
       return next;
     });
   }
+
+  useEffect(() => {
+    if (orderItems.length === 0) return;
+
+    const cartUuids = new Set(orderItems);
+
+    setSelections((current) => {
+      const stillRelevant = Object.entries(current).filter(([uuid]) =>
+        cartUuids.has(uuid),
+      );
+
+      return stillRelevant.length === Object.keys(current).length
+        ? current
+        : Object.fromEntries(stillRelevant);
+    });
+  }, [orderItems, setSelections]);
 
   const downloadableProducts = cards.flatMap((card) => {
     const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
@@ -195,7 +210,10 @@ export function DownloadPageContent({
                   type="button"
                   data-color="danger"
                   variant="secondary"
-                  onClick={clearCart}
+                  onClick={() => {
+                    clearCart();
+                    setSelections({});
+                  }}
                   disabled={isOrdering || orderItems.length === 0}
                 >
                   <TrashIcon aria-hidden />
