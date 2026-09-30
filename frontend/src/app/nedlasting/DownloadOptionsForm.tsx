@@ -7,8 +7,10 @@ import styles from "./DownloadOptionsForm.module.css";
 import type { DownloadSelection } from "./downloadUtils";
 import {
   getAreaOptionGroups,
-  getAvailableFormats,
-  getAvailableProjections,
+  resolveDownloadAvailability,
+  selectDownloadAreas,
+  selectDownloadFormats,
+  selectDownloadProjections,
 } from "./downloadUtils";
 
 type DownloadOptionsFormProps = {
@@ -28,27 +30,21 @@ export function DownloadOptionsForm({
   selection,
   onSelectionChangeAction,
 }: DownloadOptionsFormProps) {
-  const areaGroups = options ? getAreaOptionGroups(options.areas) : [];
-  const projections = getAvailableProjections(options);
-  const availableFormats = getAvailableFormats(
-    options,
-    selection.projectionCodes,
-  );
+  const availability = resolveDownloadAvailability(options, selection);
+  const areaGroups = getAreaOptionGroups(availability.areaOptions);
 
   function changeArea(areaCodes: string[]) {
-    onSelectionChangeAction({ ...selection, areaCodes });
+    onSelectionChangeAction(selectDownloadAreas(selection, areaCodes));
   }
 
   function changeProjection(projectionCodes: string[]) {
-    onSelectionChangeAction({
-      ...selection,
-      projectionCodes,
-      formatNames: [],
-    });
+    onSelectionChangeAction(
+      selectDownloadProjections(selection, projectionCodes),
+    );
   }
 
   function changeFormat(formatNames: string[]) {
-    onSelectionChangeAction({ ...selection, formatNames });
+    onSelectionChangeAction(selectDownloadFormats(selection, formatNames));
   }
 
   if (isLoading) return <p>Henter nedlastingsvalg...</p>;
@@ -73,30 +69,33 @@ export function DownloadOptionsForm({
           onChangeAction={changeArea}
           options={areaGroups.map((group) => ({
             label: group.label,
-            options: group.areas.map((area) => ({
-              label: area.name,
-              value: area.code,
+            options: group.areas.map((option) => ({
+              label: option.area.name,
+              value: option.area.code,
             })),
           }))}
           placeholder="Velg geografisk område"
           isOrdering={isOrdering}
         />
       </Field>
-      <Field className={styles.selectionField}>
-        <Label>
-          Projeksjon <Tag data-color="warning">Påkrevd</Tag>
-        </Label>
-        <ChipMultiSelect
-          selectedValues={selection.projectionCodes}
-          onChangeAction={changeProjection}
-          options={projections.map((projection) => ({
-            label: projection.name,
-            value: projection.code,
-          }))}
-          placeholder="Velg projeksjon"
-          isOrdering={isOrdering}
-        />
-      </Field>
+      {selection.areaCodes.length > 0 ? (
+        <Field className={styles.selectionField}>
+          <Label>
+            Projeksjon <Tag data-color="warning">Påkrevd</Tag>
+          </Label>
+          <ChipMultiSelect
+            selectedValues={selection.projectionCodes}
+            onChangeAction={changeProjection}
+            options={availability.projectionOptions.map((projection) => ({
+              label: projection.name,
+              value: projection.code,
+            }))}
+            placeholder="Velg projeksjon"
+            noOptionsLabel="Ingen felles projeksjoner for valgte områder"
+            isOrdering={isOrdering}
+          />
+        </Field>
+      ) : null}
       {selection.projectionCodes.length > 0 ? (
         <Field className={styles.selectionField}>
           <Label>
@@ -105,7 +104,7 @@ export function DownloadOptionsForm({
           <ChipMultiSelect
             selectedValues={selection.formatNames}
             onChangeAction={changeFormat}
-            options={availableFormats.map((format) => ({
+            options={availability.formatOptions.map((format) => ({
               label: format.name,
               value: format.name,
             }))}

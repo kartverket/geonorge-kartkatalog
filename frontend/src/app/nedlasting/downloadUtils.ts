@@ -1,6 +1,8 @@
 import type {
   DownloadOptions,
+  DownloadOrderAreaInput,
   DownloadOrderItemInput,
+  DownloadOrderProjectionInput,
 } from "@/lib/schemas/download";
 
 export type DownloadCard = {
@@ -32,6 +34,39 @@ export const EMPTY_DOWNLOAD_SELECTION: DownloadSelection = {
   projectionCodes: [],
 };
 
+export function selectDownloadAreas(
+  selection: DownloadSelection,
+  areaCodes: string[],
+): DownloadSelection {
+  return {
+    ...selection,
+    areaCodes,
+    projectionCodes: [],
+    formatNames: [],
+  };
+}
+
+export function selectDownloadProjections(
+  selection: DownloadSelection,
+  projectionCodes: string[],
+): DownloadSelection {
+  return {
+    ...selection,
+    projectionCodes,
+    formatNames: [],
+  };
+}
+
+export function selectDownloadFormats(
+  selection: DownloadSelection,
+  formatNames: string[],
+): DownloadSelection {
+  return {
+    ...selection,
+    formatNames,
+  };
+}
+
 export type MissingDownloadSelectionField = "area" | "projection" | "format";
 
 export function getMissingDownloadSelectionFields(
@@ -46,31 +81,65 @@ export function getMissingDownloadSelectionFields(
   return missingFields;
 }
 
-export function getAvailableProjections(options: DownloadOptions | null) {
-  if (!options) return [];
+function getSelectedAreas(options: DownloadOptions, areaCodes: string[]) {
+  const selectedCodes = new Set(areaCodes);
+  const areas = options.areas.filter((option) =>
+    selectedCodes.has(option.area.code),
+  );
+  return areas.length === selectedCodes.size ? areas : [];
+}
 
-  return Array.from(
-    new Map(
-      options.formats
-        .flatMap((format) => format.projections)
-        .map((projection) => [projection.code, projection]),
-    ).values(),
+function resolveProjectionOptions(areas: DownloadAreaOption[]) {
+  if (areas.length === 0) return [];
+  return intersectByKey(
+    areas.map((area) => area.projections),
+    (projection) => projection.code,
   );
 }
 
-export function getAvailableFormats(
-  options: DownloadOptions | null,
+function resolveFormatOptions(
+  areas: DownloadAreaOption[],
   projectionCodes: string[],
 ) {
-  if (!options || projectionCodes.length === 0) return [];
+  if (areas.length === 0 || projectionCodes.length === 0) return [];
 
-  return options.formats.filter((format) =>
-    projectionCodes.every((projectionCode) =>
-      format.projections.some(
-        (projection) => projection.code === projectionCode,
-      ),
+  const formatLists = areas.flatMap((area) =>
+    projectionCodes.map(
+      (projectionCode) =>
+        area.projections.find(
+          (projection) => projection.code === projectionCode,
+        )?.formats ?? [],
     ),
   );
+
+  return intersectByKey(formatLists, (format) => format.name);
+}
+
+export type DownloadAvailability = {
+  areaOptions: DownloadAreaOption[];
+  selectedAreaOptions: DownloadAreaOption[];
+  projectionOptions: DownloadProjectionOption[];
+  formatOptions: DownloadFormat[];
+};
+
+export function resolveDownloadAvailability(
+  options: DownloadOptions | null,
+  selection: Pick<DownloadSelection, "areaCodes" | "projectionCodes">,
+): DownloadAvailability {
+  const areaOptions = options?.areas ?? [];
+  const selectedAreaOptions = options
+    ? getSelectedAreas(options, selection.areaCodes)
+    : [];
+
+  return {
+    areaOptions,
+    selectedAreaOptions,
+    projectionOptions: resolveProjectionOptions(selectedAreaOptions),
+    formatOptions: resolveFormatOptions(
+      selectedAreaOptions,
+      selection.projectionCodes,
+    ),
+  };
 }
 
 export function createDownloadOrderItem(
@@ -78,36 +147,51 @@ export function createDownloadOrderItem(
   options: DownloadOptions | null,
   selection: DownloadSelection,
 ): DownloadOrderItemInput | null {
-  const areaCodeSet = new Set(selection.areaCodes);
-  const areas =
-    options?.areas.filter((candidate) => areaCodeSet.has(candidate.code)) ?? [];
+  const availability = resolveDownloadAvailability(options, selection);
   const projectionCodeSet = new Set(selection.projectionCodes);
-  const projections = getAvailableProjections(options).filter((candidate) =>
+  const projections = availability.projectionOptions.filter((candidate) =>
     projectionCodeSet.has(candidate.code),
   );
-  const formats = getAvailableFormats(
-    options,
-    selection.projectionCodes,
-  ).filter((format) => selection.formatNames.includes(format.name));
+  const formats = availability.formatOptions.filter((format) =>
+    selection.formatNames.includes(format.name),
+  );
 
-  if (areas.length === 0 || projections.length === 0 || formats.length === 0)
+  if (
+    availability.selectedAreaOptions.length === 0 ||
+    projections.length === 0 ||
+    formats.length === 0
+  )
     return null;
 
   return {
     uuid,
-    areas: areas,
-    projections,
+    areas: availability.selectedAreaOptions.map(toDownloadOrderArea),
+    projections: projections.map(toDownloadOrderProjection),
     formats: formats.map((format) => ({ name: format.name })),
   };
 }
 
-export type DownloadArea = DownloadOptions["areas"][number];
-type DownloadFormat = DownloadOptions["formats"][number];
-type DownloadProjection = ReturnType<typeof getAvailableProjections>[number];
+export type DownloadAreaOption = DownloadOptions["areas"][number];
+type DownloadProjectionOption = DownloadAreaOption["projections"][number];
+type DownloadFormat = DownloadProjectionOption["formats"][number];
+
+function toDownloadOrderArea(
+  option: DownloadAreaOption,
+): DownloadOrderAreaInput {
+  const { code, name, type } = option.area;
+  return { code, name, type };
+}
+
+function toDownloadOrderProjection(
+  projection: DownloadProjectionOption,
+): DownloadOrderProjectionInput {
+  const { code, name, codespace } = projection;
+  return { code, name, codespace };
+}
 
 export type AreaOptionGroup = {
   label: string;
-  areas: DownloadArea[];
+  areas: DownloadAreaOption[];
 };
 
 const AREA_GROUPS = [
@@ -116,17 +200,19 @@ const AREA_GROUPS = [
   { type: "kommune", label: "Kommune" },
 ] as const;
 
-export function getAreaOptionGroups(areas: DownloadArea[]): AreaOptionGroup[] {
+export function getAreaOptionGroups(
+  areas: DownloadAreaOption[],
+): AreaOptionGroup[] {
   const knownTypes = new Set<string>(AREA_GROUPS.map((group) => group.type));
 
   const groups = AREA_GROUPS.flatMap(({ type, label }) => {
-    const groupedAreas = areas.filter((area) => area.type === type);
+    const groupedAreas = areas.filter((option) => option.area.type === type);
 
     return groupedAreas.length > 0 ? [{ label, areas: groupedAreas }] : [];
   });
 
   const otherAreas = areas.filter(
-    (area) => !area.type || !knownTypes.has(area.type),
+    (option) => !option.area.type || !knownTypes.has(option.area.type),
   );
 
   return otherAreas.length > 0
@@ -138,53 +224,62 @@ function intersectByKey<T>(lists: T[][], key: (item: T) => string): T[] {
   if (lists.length === 0) return [];
 
   const [first, ...rest] = lists;
-  return first.filter((item) =>
-    rest.every((list) =>
-      list.some((candidate) => key(candidate) === key(item)),
-    ),
-  );
+  const keySets = rest.map((list) => new Set(list.map(key)));
+
+  return first.filter((item) => {
+    const itemKey = key(item);
+    return keySets.every((keys) => keys.has(itemKey));
+  });
 }
 
-export function getCommonAreas(
+function getCommonAreas(
   optionsList: (DownloadOptions | null)[],
-): DownloadArea[] {
+): DownloadAreaOption[] {
   if (optionsList.length === 0 || optionsList.some((options) => !options)) {
     return [];
   }
 
   return intersectByKey(
     optionsList.map((options) => options?.areas ?? []),
-    (area) => area.code,
+    (option) => option.area.code,
   );
 }
 
-export function getCommonProjections(
+export function resolveCommonDownloadAvailability(
   optionsList: (DownloadOptions | null)[],
-): DownloadProjection[] {
+  selection: Pick<DownloadSelection, "areaCodes" | "projectionCodes">,
+): DownloadAvailability {
   if (optionsList.length === 0 || optionsList.some((options) => !options)) {
-    return [];
+    return {
+      areaOptions: [],
+      selectedAreaOptions: [],
+      projectionOptions: [],
+      formatOptions: [],
+    };
   }
 
-  return intersectByKey(
-    optionsList.map((options) => getAvailableProjections(options)),
-    (projection) => projection.code,
+  const resolutions = optionsList.map((options) =>
+    resolveDownloadAvailability(options, selection),
   );
-}
-
-export function getCommonFormats(
-  optionsList: (DownloadOptions | null)[],
-  projectionCodes: string[],
-): DownloadFormat[] {
-  if (
-    projectionCodes.length === 0 ||
-    optionsList.length === 0 ||
-    optionsList.some((options) => !options)
-  ) {
-    return [];
-  }
-
-  return intersectByKey(
-    optionsList.map((options) => getAvailableFormats(options, projectionCodes)),
-    (format) => format.name,
+  const areaOptions = getCommonAreas(optionsList);
+  const selectedCodes = new Set(selection.areaCodes);
+  const selectedAreaOptions = areaOptions.filter((option) =>
+    selectedCodes.has(option.area.code),
   );
+
+  return {
+    areaOptions,
+    selectedAreaOptions:
+      selectedAreaOptions.length === selectedCodes.size
+        ? selectedAreaOptions
+        : [],
+    projectionOptions: intersectByKey(
+      resolutions.map((resolution) => resolution.projectionOptions),
+      (projection) => projection.code,
+    ),
+    formatOptions: intersectByKey(
+      resolutions.map((resolution) => resolution.formatOptions),
+      (format) => format.name,
+    ),
+  };
 }

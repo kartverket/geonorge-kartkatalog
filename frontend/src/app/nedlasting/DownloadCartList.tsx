@@ -81,7 +81,7 @@ export function DownloadCartList({
           <BulkDownloadSelectionForm
             optionsList={optionsList}
             isLoading={isLoadingBulkOptions}
-            onApplyToAll={onApplyToAll}
+            onApplyToAllAction={onApplyToAll}
             isOrdering={isOrdering}
           />
 

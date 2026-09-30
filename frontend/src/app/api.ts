@@ -4,7 +4,7 @@ import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
   type DownloadInsightGroups,
   type DownloadOptions,
-  type DownloadOrderItemInput,
+  type DownloadOrderRequest,
   type DownloadOrderResult,
   parseDownloadInsightGroups,
   parseDownloadOptions,
@@ -265,27 +265,25 @@ export async function getSearchResults({
 
 export async function getDownloadOptions(
   uuid: string,
+  capabilitiesUrl: string,
 ): Promise<DownloadOptions> {
   if (!uuid) throw new Error("uuid is required");
-  const url = `${API_BASE}/api/download/options/${encodeURIComponent(uuid)}`;
+  const params = new URLSearchParams();
+  if (capabilitiesUrl) params.set("capabilitiesUrl", capabilitiesUrl);
+  const query = params.toString();
+  const url = `${API_BASE}/api/download/options/${encodeURIComponent(uuid)}${query ? `?${query}` : ""}`;
   const body = await fetchJson(url, { method: "GET" });
   return parseDownloadOptions(body);
 }
 
-export async function orderDownload({
-  email,
-  usageGroup,
-  items,
-}: {
-  email: string;
-  usageGroup: string;
-  items: DownloadOrderItemInput[];
-}): Promise<DownloadOrderResult> {
+export async function orderDownload(
+  request: DownloadOrderRequest,
+): Promise<DownloadOrderResult> {
   const url = `${API_BASE}/api/download/order`;
   const body = await fetchJson(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, usageGroup, items }),
+    body: JSON.stringify(request),
   });
   return parseDownloadOrderResult(body);
 }
