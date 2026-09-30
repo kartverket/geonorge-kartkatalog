@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
@@ -288,12 +289,13 @@ export async function orderDownload(
   return parseDownloadOrderResult(body);
 }
 
-export const getDownloadInsightGroups = cache(
-  async (): Promise<DownloadInsightGroups> => {
-    const url = `${API_BASE}/api/download/insight-groups`;
-    const body = await fetchJson(url, {
-      method: "GET",
-    });
-    return parseDownloadInsightGroups(body);
-  },
-);
+export async function getDownloadInsightGroups(): Promise<DownloadInsightGroups> {
+  "use cache";
+  cacheLife("days");
+
+  const url = `${API_BASE}/api/download/insight-groups`;
+  const body = await fetchJson(url, {
+    method: "GET",
+  });
+  return parseDownloadInsightGroups(body);
+}
