@@ -198,6 +198,7 @@ const AREA_GROUPS = [
   { type: "landsdekkende", label: "Hele landet" },
   { type: "fylke", label: "Fylke" },
   { type: "kommune", label: "Kommune" },
+  { type: "celle", label: "Celle" },
 ] as const;
 
 export function getAreaOptionGroups(
