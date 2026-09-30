@@ -16,6 +16,7 @@ class ServerTest {
     fun `test root endpoint`() =
         testApplication {
             application {
+                val authentication = configureTestAuthentication()
                 configureHttp()
                 configureSerialization()
                 configureStatusPages()
@@ -29,6 +30,7 @@ class ServerTest {
                             "NEDLASTING_BASE_URL" to "https://test.example.com/nedlasting",
                         ),
                     ),
+                    authentication,
                 )
             }
             assertEquals(HttpStatusCode.OK, client.get("/").status)
