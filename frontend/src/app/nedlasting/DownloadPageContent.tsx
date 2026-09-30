@@ -10,7 +10,7 @@ import {
   Select,
 } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
-import { type SubmitEventHandler, useState } from "react";
+import { type SubmitEventHandler, useEffect, useState } from "react";
 import { clearCart } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import { ChipMultiSelect } from "@/app/nedlasting/ChipMultiSelect";
@@ -62,6 +62,22 @@ export function DownloadPageContent({
       return next;
     });
   }
+
+  useEffect(() => {
+    if (orderItems.length === 0) return;
+
+    const cartUuids = new Set(orderItems);
+
+    setSelections((current) => {
+      const stillRelevant = Object.entries(current).filter(([uuid]) =>
+        cartUuids.has(uuid),
+      );
+
+      return stillRelevant.length === Object.keys(current).length
+        ? current
+        : Object.fromEntries(stillRelevant);
+    });
+  }, [orderItems]);
 
   const downloadableProducts = cards.flatMap((card) => {
     const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
