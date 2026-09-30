@@ -513,4 +513,60 @@ class DownloadRoutesTest {
             val body = response.bodyAsText()
             assertContains(body, "\"areas\":[]")
         }
+
+    @Test
+    fun `reports a group as failed without failing the whole request when its order call fails`() =
+        testApplication {
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(
+                        MockEngine { request ->
+                            if (request.url.encodedPath.startsWith("/api/capabilities")) {
+                                respond(
+                                    content = capabilitiesJson,
+                                    status = HttpStatusCode.OK,
+                                    headers =
+                                        headersOf(
+                                            HttpHeaders.ContentType,
+                                            ContentType.Application.Json.toString(),
+                                        ),
+                                )
+                            } else {
+                                respond(
+                                    content = "Internal error",
+                                    status = HttpStatusCode.InternalServerError,
+                                )
+                            }
+                        },
+                    ) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
+                routing { downloadRoutes(downloadService) }
+            }
+
+            val response =
+                client.post("/api/download/order") {
+                    header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                    setBody(
+                        """
+                        {
+                          "items": [
+                            {"uuid": "uuid-e", "formats": [{"name": "GML"}]}
+                          ]
+                        }
+                        """.trimIndent(),
+                    )
+                }
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val body = response.bodyAsText()
+            assertContains(body, "\"status\":\"failed\"")
+            assertContains(body, "\"metadataUuids\":[\"uuid-e\"]")
+        }
 }

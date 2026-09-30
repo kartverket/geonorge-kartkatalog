@@ -6,6 +6,7 @@ import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.AREA_REL
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingArea
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
+import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingException
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingFormat
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingInsightGroups
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderLine
@@ -40,47 +41,63 @@ class DownloadService(
             val (bundlable, individual) = resolved.partition { it.supportsBundling }
             val groups = bundlable.groupBy { it.orderUrl }.values + individual.map { listOf(it) }
 
-            val responses =
+            val results =
                 groups
-                    .map { group ->
-                        async {
-                            nedlastingClient.order(
-                                group.first().orderUrl,
-                                NedlastingOrderRequest(
-                                    email = request.email,
-                                    usageGroup = request.usageGroup,
-                                    orderLines = group.map { it.line },
-                                ),
-                            )
-                        }
-                    }.awaitAll()
-                    .map { response ->
-                        DownloadOrderResponse(
-                            files =
-                                response.files.map { file ->
-                                    DownloadOrderFile(
-                                        status = file.status,
-                                        downloadUrl = file.downloadUrl,
-                                        name = file.name,
-                                        areaName = file.areaName,
-                                        projectionName = file.projectionName,
-                                        format = file.format,
-                                        metadataUuid = file.metadataUuid,
-                                        metadataName = file.metadataName,
-                                    )
-                                },
-                            links =
-                                response.links.map { link ->
-                                    DownloadOrderLink(
-                                        href = link.href,
-                                        rel = link.rel,
-                                    )
-                                },
-                        )
-                    }
+                    .map { group -> async { orderGroup(request, group) } }
+                    .awaitAll()
 
-            DownloadOrderResult(responses)
+            DownloadOrderResult(results)
         }
+
+    private suspend fun orderGroup(
+        request: DownloadOrderRequest,
+        group: List<ResolvedOrderLine>,
+    ): DownloadOrderGroupResult {
+        val metadataUuids = group.map { it.line.metadataUuid }
+
+        return try {
+            val response =
+                nedlastingClient.order(
+                    group.first().orderUrl,
+                    NedlastingOrderRequest(
+                        email = request.email,
+                        usageGroup = request.usageGroup,
+                        orderLines = group.map { it.line },
+                    ),
+                )
+
+            DownloadOrderGroupResult.Success(
+                DownloadOrderResponse(
+                    files =
+                        response.files.map { file ->
+                            DownloadOrderFile(
+                                status = file.status,
+                                downloadUrl = file.downloadUrl,
+                                name = file.name,
+                                areaName = file.areaName,
+                                projectionName = file.projectionName,
+                                format = file.format,
+                                metadataUuid = file.metadataUuid,
+                                metadataName = file.metadataName,
+                            )
+                        },
+                    links =
+                        response.links.map { link ->
+                            DownloadOrderLink(
+                                href = link.href,
+                                rel = link.rel,
+                            )
+                        },
+                ),
+            )
+        } catch (e: NedlastingException) {
+            log.warn("Order failed for group with url {}", group.first().orderUrl, e)
+            DownloadOrderGroupResult.Failure(
+                metadataUuids = metadataUuids,
+                message = e.message ?: "Bestillingen feilet",
+            )
+        }
+    }
 
     suspend fun getOptions(
         uuid: String,
