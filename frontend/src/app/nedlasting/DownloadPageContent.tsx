@@ -81,7 +81,7 @@ export function DownloadPageContent({
         ? current
         : Object.fromEntries(stillRelevant);
     });
-  }, [orderItems]);
+  }, [orderItems, setSelections]);
 
   const downloadableProducts = cards.flatMap((card) => {
     const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
