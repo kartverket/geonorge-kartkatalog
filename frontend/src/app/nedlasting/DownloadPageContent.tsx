@@ -229,7 +229,10 @@ export function DownloadPageContent({
               <div className={styles.resultList}>
                 {orderResult.orders.map((order, orderIndex) =>
                   order.status === "failed" ? (
-                    <Paragraph key={`failed-${orderIndex}`} aria-live="polite">
+                    <Paragraph
+                      key={`failed-${order.metadataUuids.join("-")}`}
+                      aria-live="polite"
+                    >
                       Kunne ikke bestille{" "}
                       {order.metadataUuids
                         .map(
