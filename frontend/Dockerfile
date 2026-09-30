@@ -18,7 +18,7 @@ ENV NEXT_PUBLIC_POSTHOG_HOST=$NEXT_PUBLIC_POSTHOG_HOST
 
 RUN npm run build
 
-FROM node:26-alpine AS runtime
+FROM dhi.io/node:26-alpine AS runtime
 
 WORKDIR /app
 
