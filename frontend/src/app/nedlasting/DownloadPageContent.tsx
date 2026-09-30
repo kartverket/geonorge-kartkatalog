@@ -227,23 +227,39 @@ export function DownloadPageContent({
             ) : null}
             {orderResult ? (
               <div className={styles.resultList}>
-                {orderResult.orders
-                  .flatMap((order) => order.files)
-                  .map((file, index) => (
-                    <Paragraph key={`${file.metadataUuid}-${index}`}>
-                      {file.status === "ReadyForDownload" &&
-                      file.downloadUrl ? (
-                        <a href={file.downloadUrl}>
-                          Last ned {file.name ?? file.metadataName}
-                        </a>
-                      ) : (
-                        <>
-                          {file.name ?? file.metadataName} er under behandling.
-                          Du får beskjed når den er klar.
-                        </>
-                      )}
+                {orderResult.orders.map((order, orderIndex) =>
+                  order.status === "failed" ? (
+                    <Paragraph key={`failed-${orderIndex}`} aria-live="polite">
+                      Kunne ikke bestille{" "}
+                      {order.metadataUuids
+                        .map(
+                          (uuid) =>
+                            cards.find((card) => card.uuid === uuid)?.title ??
+                            uuid,
+                        )
+                        .join(", ")}
+                      : {order.message ?? "Ukjent feil"}. Du kan prøve på nytt.
                     </Paragraph>
-                  ))}
+                  ) : (
+                    order.files.map((file, fileIndex) => (
+                      <Paragraph
+                        key={`${file.metadataUuid}-${orderIndex}-${fileIndex}`}
+                      >
+                        {file.status === "ReadyForDownload" &&
+                        file.downloadUrl ? (
+                          <a href={file.downloadUrl}>
+                            Last ned {file.name ?? file.metadataName}
+                          </a>
+                        ) : (
+                          <>
+                            {file.name ?? file.metadataName} er under
+                            behandling. Du får beskjed når den er klar.
+                          </>
+                        )}
+                      </Paragraph>
+                    ))
+                  ),
+                )}
               </div>
             ) : null}
           </section>
