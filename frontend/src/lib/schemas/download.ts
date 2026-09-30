@@ -1,12 +1,6 @@
 import { z } from "zod";
 
-export const NedlastingAreaSchema = z.object({
-  code: z.string(),
-  name: z.string(),
-  type: z.string().nullable(),
-});
-
-export const NedlastingProjectionSchema = z.object({
+export const DownloadProjectionSchema = z.object({
   code: z.string(),
   name: z.string(),
   codespace: z.string().nullable(),
@@ -14,12 +8,25 @@ export const NedlastingProjectionSchema = z.object({
 
 export const DownloadFormatOptionSchema = z.object({
   name: z.string(),
-  projections: z.array(NedlastingProjectionSchema),
+});
+
+export const DownloadProjectionOptionSchema = DownloadProjectionSchema.extend({
+  formats: z.array(DownloadFormatOptionSchema),
+});
+
+export const DownloadAreaSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  type: z.string().nullable(),
+});
+
+export const DownloadAreaOptionSchema = z.object({
+  area: DownloadAreaSchema,
+  projections: z.array(DownloadProjectionOptionSchema),
 });
 
 export const DownloadOptionsSchema = z.object({
-  areas: z.array(NedlastingAreaSchema),
-  formats: z.array(DownloadFormatOptionSchema),
+  areas: z.array(DownloadAreaOptionSchema),
 });
 
 export type DownloadOptions = z.infer<typeof DownloadOptionsSchema>;
@@ -34,7 +41,7 @@ export function parseDownloadOptions(body: unknown): DownloadOptions {
   return res.data;
 }
 
-const NedlastingOrderFileSchema = z.object({
+const DownloadOrderFileSchema = z.object({
   status: z.string(),
   downloadUrl: z.string().nullable(),
   name: z.string().nullable(),
@@ -45,12 +52,12 @@ const NedlastingOrderFileSchema = z.object({
   metadataName: z.string().nullable(),
 });
 
-const NedlastingOrderResponseSchema = z.object({
-  files: z.array(NedlastingOrderFileSchema),
+const DownloadOrderResponseSchema = z.object({
+  files: z.array(DownloadOrderFileSchema),
 });
 
 export const DownloadOrderResultSchema = z.object({
-  orders: z.array(NedlastingOrderResponseSchema),
+  orders: z.array(DownloadOrderResponseSchema),
 });
 
 export type DownloadOrderResult = z.infer<typeof DownloadOrderResultSchema>;
@@ -65,17 +72,63 @@ export function parseDownloadOrderResult(body: unknown): DownloadOrderResult {
   return res.data;
 }
 
-export type DownloadOrderItemInput = {
-  uuid: string;
-  areas?: Array<{ code: string; name: string; type?: string | null }>;
-  projections?: Array<{
-    code: string;
-    name: string;
-    codespace?: string | null;
-  }>;
-  formats?: Array<{ name: string }>;
-  usagePurpose?: string[];
-};
+export const DownloadOrderAreaInputSchema = z
+  .object({
+    code: z.string().min(1),
+    name: z.string().min(1),
+    type: z.string().nullable(),
+  })
+  .strict();
+
+export const DownloadOrderProjectionInputSchema = z
+  .object({
+    code: z.string().min(1),
+    name: z.string().min(1),
+    codespace: z.string().nullable(),
+  })
+  .strict();
+
+export const DownloadOrderFormatInputSchema = z
+  .object({
+    name: z.string().min(1),
+  })
+  .strict();
+
+export const DownloadOrderItemInputSchema = z
+  .object({
+    uuid: z.string().min(1),
+    areas: z.array(DownloadOrderAreaInputSchema).min(1),
+    projections: z.array(DownloadOrderProjectionInputSchema).min(1),
+    formats: z.array(DownloadOrderFormatInputSchema).min(1),
+  })
+  .strict();
+
+const DownloadOrderRequestItemSchema = DownloadOrderItemInputSchema.extend({
+  usagePurpose: z.array(z.string().min(1)).min(1),
+}).strict();
+
+export const DownloadOrderRequestSchema = z
+  .object({
+    email: z.string().email(),
+    usageGroup: z.string().min(1),
+    items: z.array(DownloadOrderRequestItemSchema).min(1),
+  })
+  .strict();
+
+export type DownloadOrderAreaInput = z.infer<
+  typeof DownloadOrderAreaInputSchema
+>;
+export type DownloadOrderProjectionInput = z.infer<
+  typeof DownloadOrderProjectionInputSchema
+>;
+export type DownloadOrderItemInput = z.infer<
+  typeof DownloadOrderItemInputSchema
+>;
+export type DownloadOrderRequest = z.infer<typeof DownloadOrderRequestSchema>;
+
+export function parseDownloadOrderRequest(body: unknown): DownloadOrderRequest {
+  return DownloadOrderRequestSchema.parse(body);
+}
 
 export const DownloadInsightGroupsSchema = z.object({
   formal: z.array(z.string()),

@@ -9,7 +9,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
@@ -25,47 +24,51 @@ class NedlastingClient(
         }
     private val log = LoggerFactory.getLogger(NedlastingClient::class.java)
 
-    suspend fun getCapabilities(uuid: String): NedlastingCapabilities {
-        val path = "/api/capabilities/$uuid"
-        val response = getResponse(path)
+    suspend fun getCapabilities(uuid: String): NedlastingCapabilities =
+        fetchCapabilities("$baseUrl/api/capabilities/$uuid")
+
+    suspend fun getCapabilities(
+        capabilitiesUrl: String,
+        uuid: String,
+    ): NedlastingCapabilities = fetchCapabilities("${capabilitiesUrl.trimEnd('/')}/$uuid")
+
+    private suspend fun fetchCapabilities(url: String): NedlastingCapabilities {
+        val response = getResponse(url)
 
         if (!response.status.isSuccess()) {
-            log.warn("Nedlasting request to {} failed with status: {}", path, response.status)
-            throw NedlastingException("Nedlasting request to $path failed with status ${response.status}")
+            log.warn("Nedlasting request to {} failed with status: {}", url, response.status)
+            throw NedlastingException("Nedlasting request to $url failed with status ${response.status}")
         }
 
         return try {
             json.decodeFromString(NedlastingCapabilities.serializer(), response.bodyAsText())
         } catch (e: Exception) {
-            log.error("Failed to parse Nedlasting capabilities response from {}", path, e)
-            throw NedlastingException("Failed to parse Nedlasting capabilities response from $path", e)
+            log.error("Failed to parse Nedlasting capabilities response from {}", url, e)
+            throw NedlastingException("Failed to parse Nedlasting capabilities response from $url", e)
         }
     }
 
-    suspend fun getFormats(uuid: String): List<NedlastingFormatCodelistEntry> =
-        fetchList("/api/codelists/format/$uuid", NedlastingFormatCodelistEntry.serializer())
-
-    suspend fun getAreas(uuid: String): List<NedlastingAreaCodelistEntry> =
-        fetchList("/api/codelists/area/$uuid", NedlastingAreaCodelistEntry.serializer())
-
-    private suspend fun <T> fetchList(
-        path: String,
-        serializer: KSerializer<T>,
-    ): List<T> {
-        val response = getResponse(path)
+    suspend fun getAreas(url: String): List<NedlastingAreaCodelistEntry> {
+        val response = getResponse(url)
 
         if (!response.status.isSuccess()) {
-            log.warn("Nedlasting request to {} failed with status: {}", path, response.status)
-            throw NedlastingException("Nedlasting request to $path failed with status ${response.status}")
+            log.warn("Nedlasting request to {} failed with status: {}", url, response.status)
+            throw NedlastingException("Nedlasting request to $url failed with status ${response.status}")
         }
 
         return try {
-            json.decodeFromString(ListSerializer(serializer), response.bodyAsText())
+            json.decodeFromString(ListSerializer(NedlastingAreaCodelistEntry.serializer()), response.bodyAsText())
         } catch (e: Exception) {
-            log.error("Failed to parse Nedlasting response from {}", path, e)
-            throw NedlastingException("Failed to parse Nedlasting response from $path", e)
+            throw NedlastingException("Failed to parse Nedlasting area response from $url", e)
         }
     }
+
+    private suspend fun getResponse(url: String): HttpResponse =
+        try {
+            httpClient.get(url)
+        } catch (e: Exception) {
+            throw NedlastingException("Nedlasting request to $url failed", e)
+        }
 
     suspend fun order(
         orderUrl: String,
@@ -92,13 +95,6 @@ class NedlastingClient(
             throw NedlastingException("Failed to parse Nedlasting order response from $orderUrl", e)
         }
     }
-
-    private suspend fun getResponse(path: String): HttpResponse =
-        try {
-            httpClient.get("$baseUrl$path")
-        } catch (e: Exception) {
-            throw NedlastingException("Nedlasting request to $path failed", e)
-        }
 }
 
 class NedlastingException(

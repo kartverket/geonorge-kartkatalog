@@ -18,33 +18,48 @@ function getErrorMessage(body: unknown): string {
   return "Ukjent feil fra nedlastingstjenesten.";
 }
 
+export type DownloadOptionsCardInput = {
+  uuid: string;
+  capabilitiesUrl: string;
+};
+
+function buildOptionsUrl(uuid: string, capabilitiesUrl: string): string {
+  const params = new URLSearchParams();
+  if (capabilitiesUrl) params.set("capabilitiesUrl", capabilitiesUrl);
+  const query = params.toString();
+  return `${basePath}/api/download/options/${encodeURIComponent(uuid)}${
+    query ? `?${query}` : ""
+  }`;
+}
+
 export function useDownloadOptionsForCards(
-  uuids: string[],
+  cards: DownloadOptionsCardInput[],
 ): DownloadOptionsByUuid {
   const [optionsByUuid, setOptionsByUuid] = useState<DownloadOptionsByUuid>({});
-  const requestedUuids = useRef(new Set<string>());
-  const uuidsKey = uuids.join(",");
+  const requestedKeys = useRef(new Set<string>());
+  const cardsKey = JSON.stringify(cards);
 
   useEffect(() => {
     const controller = new AbortController();
-    const currentUuids = uuidsKey.length > 0 ? uuidsKey.split(",") : [];
-    const pendingUuids = new Set<string>();
+    const currentCards: DownloadOptionsCardInput[] = JSON.parse(cardsKey);
+    const pendingKeys = new Set<string>();
 
-    for (const uuid of currentUuids) {
-      if (requestedUuids.current.has(uuid)) continue;
-      requestedUuids.current.add(uuid);
-      pendingUuids.add(uuid);
+    for (const { uuid, capabilitiesUrl } of currentCards) {
+      const key = JSON.stringify({ uuid, capabilitiesUrl });
+      if (requestedKeys.current.has(key)) continue;
+      requestedKeys.current.add(key);
+      pendingKeys.add(key);
 
       setOptionsByUuid((current) => ({
         ...current,
         [uuid]: { options: null, isLoading: true, error: null },
       }));
 
-      fetch(`${basePath}/api/download/options/${encodeURIComponent(uuid)}`, {
+      fetch(buildOptionsUrl(uuid, capabilitiesUrl), {
         signal: controller.signal,
       })
         .then(async (response) => {
-          pendingUuids.delete(uuid);
+          pendingKeys.delete(key);
           const body: unknown = await response.json();
 
           if (!response.ok) {
@@ -69,7 +84,7 @@ export function useDownloadOptionsForCards(
           }));
         })
         .catch((cause) => {
-          pendingUuids.delete(uuid);
+          pendingKeys.delete(key);
           if (controller.signal.aborted) return;
 
           console.error("Could not fetch download options", cause);
@@ -89,11 +104,11 @@ export function useDownloadOptionsForCards(
 
     return () => {
       controller.abort();
-      for (const uuid of pendingUuids) {
-        requestedUuids.current.delete(uuid);
+      for (const key of pendingKeys) {
+        requestedKeys.current.delete(key);
       }
     };
-  }, [uuidsKey]);
+  }, [cardsKey]);
 
   return optionsByUuid;
 }

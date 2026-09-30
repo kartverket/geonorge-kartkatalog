@@ -36,8 +36,12 @@ export function DownloadPageContent({
 }: DownloadPageContentProps) {
   const orderItems = useOrderItems();
   const { cards, isLoading, hasLoadError } = useDownloadCartCards(orderItems);
-  const cardUuids = cards.map((card) => card.uuid);
-  const optionsByUuid = useDownloadOptionsForCards(cardUuids);
+  const optionsByUuid = useDownloadOptionsForCards(
+    cards.map((card) => ({
+      uuid: card.uuid,
+      capabilitiesUrl: card.distributionUrl,
+    })),
+  );
   const { isOrdering, orderError, orderResult, submitOrder } =
     useDownloadOrder();
 

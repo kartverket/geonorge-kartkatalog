@@ -3,6 +3,9 @@ package no.kartverket.geonorge.kartkatalog.integrations.nedlasting
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+const val ORDER_REL = "http://rel.geonorge.no/download/order"
+const val AREA_REL = "http://rel.geonorge.no/download/area"
+
 @Serializable
 data class NedlastingCapabilities(
     val supportsProjectionSelection: Boolean = false,
@@ -86,16 +89,25 @@ data class NedlastingOrderFile(
 )
 
 @Serializable
-data class NedlastingFormatCodelistEntry(
-    val name: String,
-    val projections: List<NedlastingProjection> = emptyList(),
-)
-
-@Serializable
 data class NedlastingAreaCodelistEntry(
     val type: String? = null,
     val name: String,
     val code: String,
+    val projections: List<NedlastingProjectionOption> = emptyList(),
+    val formats: List<NedlastingFormatOption> = emptyList(),
+)
+
+@Serializable
+data class NedlastingProjectionOption(
+    val code: String,
+    val name: String,
+    val codespace: String? = null,
+    val formats: List<NedlastingFormatOption>? = null,
+)
+
+@Serializable
+data class NedlastingFormatOption(
+    val name: String,
 )
 
 @Serializable
