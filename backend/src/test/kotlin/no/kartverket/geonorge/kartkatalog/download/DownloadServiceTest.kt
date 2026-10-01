@@ -62,7 +62,7 @@ class DownloadServiceTest {
                         items =
                             listOf(
                                 DownloadOrderItem(
-                                    uuid = "restricted-dataset",
+                                    uuid = "11111111-1111-1111-1111-111111111111",
                                     capabilitiesUrl = "https://nedlasting.geonorge.no/api/capabilities",
                                 ),
                             ),
@@ -117,7 +117,7 @@ class DownloadServiceTest {
                     items =
                         listOf(
                             DownloadOrderItem(
-                                "public-dataset",
+                                "22222222-2222-2222-2222-222222222222",
                                 "https://nedlasting.geonorge.no/api/capabilities",
                             ),
                         ),
@@ -137,7 +137,10 @@ class DownloadServiceTest {
                     MockEngine { request ->
                         val content =
                             if (request.url.encodedPath.startsWith("/api/capabilities")) {
-                                val restricted = request.url.encodedPath.endsWith("/restricted-dataset")
+                                val restricted =
+                                    request.url.encodedPath.endsWith(
+                                        "/11111111-1111-1111-1111-111111111111",
+                                    )
                                 """
                                 {
                                   ${if (restricted) "\"accessConstraintRequiredRole\": \"nd.metadata\"," else ""}
@@ -178,11 +181,11 @@ class DownloadServiceTest {
                         items =
                             listOf(
                                 DownloadOrderItem(
-                                    "public-dataset",
+                                    "22222222-2222-2222-2222-222222222222",
                                     "https://nedlasting.geonorge.no/api/capabilities",
                                 ),
                                 DownloadOrderItem(
-                                    "restricted-dataset",
+                                    "11111111-1111-1111-1111-111111111111",
                                     "https://nedlasting.geonorge.no/api/capabilities",
                                 ),
                             ),

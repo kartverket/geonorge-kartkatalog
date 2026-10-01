@@ -73,6 +73,88 @@ class DownloadApiClientTest {
         }
 
     @Test
+    fun `getCapabilities appends a validated UUID as a path segment`() =
+        runBlocking {
+            var requestedPath: String? = null
+            val httpClient =
+                HttpClient(
+                    MockEngine { request ->
+                        requestedPath = request.url.encodedPath
+                        respond("""{"_links": []}""", HttpStatusCode.OK)
+                    },
+                )
+
+            try {
+                DownloadApiClient(httpClient).getCapabilities(
+                    "https://nedlasting.example.com/api/capabilities/",
+                    "041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+                )
+
+                assertEquals("/api/capabilities/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", requestedPath)
+            } finally {
+                httpClient.close()
+            }
+        }
+
+    @Test
+    fun `getCapabilities rejects query fragments and invalid UUIDs before making a request`() =
+        runBlocking {
+            var requestWasMade = false
+            val httpClient =
+                HttpClient(
+                    MockEngine {
+                        requestWasMade = true
+                        respond("""{"_links": []}""", HttpStatusCode.OK)
+                    },
+                )
+            val client = DownloadApiClient(httpClient)
+            val validUuid = "041f1e6e-bdbc-4091-b48f-8a5990f3cc5b"
+
+            try {
+                listOf(
+                    "https://nedlasting.example.com/api/capabilities?target=other" to validUuid,
+                    "https://nedlasting.example.com/api/capabilities?" to validUuid,
+                    "https://nedlasting.example.com/api/capabilities#fragment" to validUuid,
+                    "https://nedlasting.example.com/api/capabilities" to "invalid/uuid?target=other",
+                ).forEach { (capabilitiesUrl, uuid) ->
+                    assertFailsWith<DownloadApiException> {
+                        client.getCapabilities(capabilitiesUrl, uuid)
+                    }
+                }
+
+                assertFalse(requestWasMade)
+            } finally {
+                httpClient.close()
+            }
+        }
+
+    @Test
+    fun `order rejects an invalid URL before making a request`() =
+        runBlocking {
+            var requestWasMade = false
+            val httpClient =
+                HttpClient(
+                    MockEngine {
+                        requestWasMade = true
+                        respond("""{"files": [], "_links": []}""", HttpStatusCode.OK)
+                    },
+                )
+
+            try {
+                assertFailsWith<DownloadApiException> {
+                    DownloadApiClient(httpClient).order(
+                        "https://nedlasting.example.com/api/order#fragment",
+                        DownloadApiOrderRequest(orderLines = emptyList()),
+                    )
+                }
+
+                assertFalse(requestWasMade)
+            } finally {
+                httpClient.close()
+            }
+        }
+
+    @Test
     fun `order sends the GeoID token to an allowlisted origin`() =
         runBlocking {
             var authorizationHeader: String? = null

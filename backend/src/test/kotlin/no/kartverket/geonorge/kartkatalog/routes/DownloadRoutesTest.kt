@@ -332,8 +332,8 @@ class DownloadRoutesTest {
                         """
                         {
                           "items": [
-                            {"uuid": "uuid-a", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]},
-                            {"uuid": "uuid-b", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]}
+                            {"uuid": "11111111-1111-1111-1111-111111111111", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]},
+                            {"uuid": "22222222-2222-2222-2222-222222222222", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]}
                           ]
                         }
                         """.trimIndent(),
@@ -342,8 +342,8 @@ class DownloadRoutesTest {
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals(1, orderRequestBodies.size)
-            assertContains(orderRequestBodies.first(), "uuid-a")
-            assertContains(orderRequestBodies.first(), "uuid-b")
+            assertContains(orderRequestBodies.first(), "11111111-1111-1111-1111-111111111111")
+            assertContains(orderRequestBodies.first(), "22222222-2222-2222-2222-222222222222")
         }
 
     @Test
@@ -398,8 +398,8 @@ class DownloadRoutesTest {
                         """
                         {
                           "items": [
-                            {"uuid": "uuid-c", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]},
-                            {"uuid": "uuid-d", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]}
+                            {"uuid": "33333333-3333-3333-3333-333333333333", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]},
+                            {"uuid": "44444444-4444-4444-4444-444444444444", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]}
                           ]
                         }
                         """.trimIndent(),
@@ -408,7 +408,13 @@ class DownloadRoutesTest {
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals(2, orderRequestBodies.size)
-            assertEquals(0, orderRequestBodies.count { it.contains("uuid-c") && it.contains("uuid-d") })
+            assertEquals(
+                0,
+                orderRequestBodies.count {
+                    it.contains("33333333-3333-3333-3333-333333333333") &&
+                        it.contains("44444444-4444-4444-4444-444444444444")
+                },
+            )
         }
 
     @Test
