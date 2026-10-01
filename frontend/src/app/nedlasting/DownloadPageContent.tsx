@@ -11,7 +11,10 @@ import {
 } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
 import { type SubmitEventHandler, useEffect, useState } from "react";
-import { clearCart } from "@/app/_components/addToCart/cartStorage";
+import {
+  clearCart,
+  removeItemsFromCart,
+} from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
 import { ChipMultiSelect } from "@/app/nedlasting/ChipMultiSelect";
 import {
@@ -99,13 +102,13 @@ export function DownloadPageContent({
   });
 
   const canOrder =
+    cards.length > 0 &&
     cards.length === orderItems.length &&
     downloadableProducts.length === cards.length &&
     email.trim() !== "" &&
     usageGroup !== "" &&
     usagePurpose.length > 0 &&
-    !isOrdering &&
-    !orderResult;
+    !isOrdering;
 
   const hasInsightGroupOptions =
     insightGroups.brukergrupper.length > 0 && insightGroups.formal.length > 0;
@@ -124,9 +127,27 @@ export function DownloadPageContent({
         usagePurpose,
       })),
     }).then((result) => {
-      if (result) {
-        clearCart();
-        setSelections({});
+      if (!result) return;
+
+      const successfulUuids = new Set(
+        result.orders
+          .filter((order) => order.status === "ordered")
+          .flatMap((order) => order.files)
+          .flatMap((file) => (file.metadataUuid ? [file.metadataUuid] : [])),
+      );
+
+      const successfulItems = cards
+        .filter((card) => successfulUuids.has(card.uuid))
+        .map((card) => ({
+          accessType: card.accessState,
+          distributionUrl: card.distributionUrl,
+          name: card.title,
+          organizationName: card.organization,
+          uuid: card.uuid,
+        }));
+
+      if (successfulItems.length > 0) {
+        removeItemsFromCart(successfulItems);
       }
     });
   };
