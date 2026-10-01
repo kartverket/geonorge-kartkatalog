@@ -525,6 +525,7 @@ class DownloadRoutesTest {
     fun `reports a group as failed without failing the whole request when its order call fails`() =
         testApplication {
             application {
+                val authentication = configureTestAuthentication()
                 configureSerialization()
                 configureStatusPages()
                 val client =
@@ -554,7 +555,7 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService) }
+                routing { downloadRoutes(downloadService, authentication) }
             }
 
             val response =
