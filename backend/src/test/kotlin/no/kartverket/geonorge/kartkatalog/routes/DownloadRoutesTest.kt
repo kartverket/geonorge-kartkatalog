@@ -24,6 +24,7 @@ import no.kartverket.geonorge.kartkatalog.download.DownloadService
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -141,8 +142,8 @@ class DownloadRoutesTest {
     @Test
     fun `orders a download and returns ready-for-download files`() =
         testApplication {
-            val requestedPaths = mutableListOf<String>()
-            val orderRequestBodies = mutableListOf<String>()
+            val requestedPaths = CopyOnWriteArrayList<String>()
+            val orderRequestBodies = CopyOnWriteArrayList<String>()
             application {
                 val authentication = configureTestAuthentication()
                 configureSerialization()
@@ -269,7 +270,7 @@ class DownloadRoutesTest {
     @Test
     fun `combines items that share an order url and support bundling into one request`() =
         testApplication {
-            val orderRequestBodies = mutableListOf<String>()
+            val orderRequestBodies = CopyOnWriteArrayList<String>()
             application {
                 val authentication = configureTestAuthentication()
                 configureSerialization()
@@ -335,7 +336,7 @@ class DownloadRoutesTest {
     @Test
     fun `keeps items separate when their capability says bundling is unsupported`() =
         testApplication {
-            val orderRequestBodies = mutableListOf<String>()
+            val orderRequestBodies = CopyOnWriteArrayList<String>()
             application {
                 val authentication = configureTestAuthentication()
                 configureSerialization()
@@ -400,7 +401,7 @@ class DownloadRoutesTest {
     @Test
     fun `returns formats and projections from areas without requesting the format codelist`() =
         testApplication {
-            val requestedPaths = mutableListOf<String>()
+            val requestedPaths = CopyOnWriteArrayList<String>()
             application {
                 val authentication = configureTestAuthentication()
                 configureSerialization()
