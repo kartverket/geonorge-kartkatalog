@@ -39,7 +39,7 @@ class DownloadService(
             }
 
             val (bundlable, individual) = resolved.partition { it.supportsBundling }
-            val groups = bundlable.groupBy { it.orderUrl }.values + individual.map { listOf(it) }
+            val groups = bundlable.groupBy { it.orderUrl to it.restricted }.values + individual.map { listOf(it) }
 
             val responses =
                 groups

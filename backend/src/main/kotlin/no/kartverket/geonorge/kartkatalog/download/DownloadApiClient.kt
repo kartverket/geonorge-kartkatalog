@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory
 
 class DownloadApiClient(
     private val httpClient: HttpClient,
+    private val tokenAllowlist: DownloadTokenAllowlist = DownloadTokenAllowlist.fromCommaSeparated(null),
 ) {
     private val json =
         Json {
@@ -73,6 +74,10 @@ class DownloadApiClient(
         request: DownloadApiOrderRequest,
         geoIdAccessToken: String? = null,
     ): DownloadApiOrderResponse {
+        if (geoIdAccessToken != null && !tokenAllowlist.permits(orderUrl)) {
+            throw DownloadTokenDestinationNotAllowedException()
+        }
+
         val response =
             try {
                 httpClient.post(orderUrl) {
@@ -97,7 +102,10 @@ class DownloadApiClient(
     }
 }
 
-class DownloadApiException(
+open class DownloadApiException(
     message: String,
     e: Throwable? = null,
 ) : RuntimeException(message, e)
+
+class DownloadTokenDestinationNotAllowedException :
+    DownloadApiException("GeoID access token cannot be sent to a non-allowlisted download client")
