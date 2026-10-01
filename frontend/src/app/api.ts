@@ -35,13 +35,8 @@ import {
 
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
-const katalogBaseUrl = process.env.KATALOG_BASE_URL;
-
-if (!katalogBaseUrl) {
-  throw new Error("KATALOG_BASE_URL is required");
-}
-
-const KATALOG_ORIGIN = new URL(katalogBaseUrl).origin;
+const katalogBaseUrl: string | undefined = process.env.KATALOG_BASE_URL;
+const KATALOG_ORIGIN = new URL(katalogBaseUrl ?? "https://dummy.org").origin;
 
 export class HttpError extends Error {
   status: number;
