@@ -292,7 +292,7 @@ export async function orderDownload(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Origin: `${KATALOG_ORIGIN}`,
+      Origin: KATALOG_ORIGIN,
     },
     body: JSON.stringify(request),
   });

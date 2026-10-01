@@ -50,7 +50,6 @@ dependencies {
     implementation(ktorLibs.client.contentNegotiation)
     implementation(ktorLibs.serialization.kotlinx.json)
 
-    implementation("io.ktor:ktor-server-auth-oidc")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
 
     testImplementation(kotlin("test"))
