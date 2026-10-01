@@ -24,6 +24,7 @@ import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import java.util.Collections
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -143,7 +144,7 @@ class DownloadRoutesTest {
         testApplication {
             val requestedPaths = mutableListOf<String>()
             val requestedUrls = mutableListOf<String>()
-            val orderRequestBodies = mutableListOf<String>()
+            val orderRequestBodies = Collections.synchronizedList(mutableListOf<String>())
             application {
                 val authentication = configureTestAuthentication()
                 configureSerialization()
@@ -283,7 +284,7 @@ class DownloadRoutesTest {
     @Test
     fun `combines items that share an order url and support bundling into one request`() =
         testApplication {
-            val orderRequestBodies = mutableListOf<String>()
+            val orderRequestBodies = Collections.synchronizedList(mutableListOf<String>())
             application {
                 val authentication = configureTestAuthentication()
                 configureSerialization()
@@ -349,7 +350,7 @@ class DownloadRoutesTest {
     @Test
     fun `keeps items separate when their capability says bundling is unsupported`() =
         testApplication {
-            val orderRequestBodies = mutableListOf<String>()
+            val orderRequestBodies = Collections.synchronizedList(mutableListOf<String>())
             application {
                 val authentication = configureTestAuthentication()
                 configureSerialization()
