@@ -145,6 +145,7 @@ class DownloadRoutesTest {
             val requestedUrls = mutableListOf<String>()
             val orderRequestBodies = mutableListOf<String>()
             application {
+                val authentication = configureTestAuthentication()
                 configureSerialization()
                 configureStatusPages()
                 val client =
@@ -173,7 +174,7 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService) }
+                routing { downloadRoutes(downloadService, authentication) }
             }
 
             val response =
@@ -241,6 +242,7 @@ class DownloadRoutesTest {
     fun `returns bad gateway when dataset has no order link`() =
         testApplication {
             application {
+                val authentication = configureTestAuthentication()
                 configureSerialization()
                 configureStatusPages()
                 val client =
@@ -259,7 +261,7 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService) }
+                routing { downloadRoutes(downloadService, authentication) }
             }
 
             val response =
@@ -283,6 +285,7 @@ class DownloadRoutesTest {
         testApplication {
             val orderRequestBodies = mutableListOf<String>()
             application {
+                val authentication = configureTestAuthentication()
                 configureSerialization()
                 configureStatusPages()
                 val client =
@@ -319,7 +322,7 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService) }
+                routing { downloadRoutes(downloadService, authentication) }
             }
 
             val response =
@@ -348,6 +351,7 @@ class DownloadRoutesTest {
         testApplication {
             val orderRequestBodies = mutableListOf<String>()
             application {
+                val authentication = configureTestAuthentication()
                 configureSerialization()
                 configureStatusPages()
                 val client =
@@ -384,7 +388,7 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService) }
+                routing { downloadRoutes(downloadService, authentication) }
             }
 
             val response =
@@ -412,6 +416,7 @@ class DownloadRoutesTest {
         testApplication {
             val requestedPaths = mutableListOf<String>()
             application {
+                val authentication = configureTestAuthentication()
                 configureSerialization()
                 configureStatusPages()
                 val client =
@@ -439,7 +444,7 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService) }
+                routing { downloadRoutes(downloadService, authentication) }
             }
 
             val response =
@@ -467,6 +472,7 @@ class DownloadRoutesTest {
     fun `returns bad request when capabilitiesUrl is missing`() =
         testApplication {
             application {
+                val authentication = configureTestAuthentication()
                 configureSerialization()
                 configureStatusPages()
                 val client =
@@ -477,7 +483,7 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService) }
+                routing { downloadRoutes(downloadService, authentication) }
             }
 
             val response = client.get("/api/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b")
@@ -489,6 +495,7 @@ class DownloadRoutesTest {
     fun `returns no options when the area link is missing from capabilities`() =
         testApplication {
             application {
+                val authentication = configureTestAuthentication()
                 configureSerialization()
                 configureStatusPages()
                 val client =
@@ -514,7 +521,7 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService) }
+                routing { downloadRoutes(downloadService, authentication) }
             }
 
             val response =

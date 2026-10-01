@@ -1,6 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.download
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -70,10 +71,12 @@ class DownloadApiClient(
     suspend fun order(
         orderUrl: String,
         request: DownloadApiOrderRequest,
+        geoIdAccessToken: String? = null,
     ): DownloadApiOrderResponse {
         val response =
             try {
                 httpClient.post(orderUrl) {
+                    geoIdAccessToken?.let { bearerAuth(it) }
                     contentType(ContentType.Application.Json)
                     setBody(json.encodeToString(DownloadApiOrderRequest.serializer(), request))
                 }

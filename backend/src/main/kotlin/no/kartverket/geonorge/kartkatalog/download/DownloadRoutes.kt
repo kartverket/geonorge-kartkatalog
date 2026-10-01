@@ -1,6 +1,8 @@
 package no.kartverket.geonorge.kartkatalog.download
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.auth.authenticateWithOptional
+import io.ktor.server.auth.principalOrNull
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -9,6 +11,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
 
 @Serializable
 data class DownloadOrderAreaDto(
@@ -207,12 +210,19 @@ private fun DownloadOptions.toDto() =
             },
     )
 
-fun Route.downloadRoutes(downloadService: DownloadService) {
+fun Route.downloadRoutes(
+    downloadService: DownloadService,
+    authentication: GeoIdAuthentication,
+) {
     route("/api/download") {
-        post("/order") {
-            val body = call.receive<DownloadOrderRequestDto>()
-            val result = downloadService.order(body.toDomain())
-            call.respond(result.toDto())
+        authenticateWithOptional(authentication.provider.session) {
+            post("/order") {
+                val body = call.receive<DownloadOrderRequestDto>()
+                val accessToken = call.principalOrNull?.accessToken
+
+                val result = downloadService.order(body.toDomain(), accessToken)
+                call.respond(result.toDto())
+            }
         }
 
         get("/options/{uuid}") {
