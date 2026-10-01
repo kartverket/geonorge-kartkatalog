@@ -1,6 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.download
 
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -23,6 +24,13 @@ class DownloadTokenAllowlistTest {
         val allowlist = DownloadTokenAllowlist.fromCommaSeparated("https://nedlasting.geonorge.no")
 
         assertTrue(allowlist.permits("https://nedlasting.geonorge.no:443/api/order"))
+    }
+
+    @Test
+    fun `rejects HTTP origins in configuration`() {
+        assertFailsWith<IllegalArgumentException> {
+            DownloadTokenAllowlist.fromCommaSeparated("http://nedlasting.geonorge.no")
+        }
     }
 
     @Test

@@ -52,24 +52,17 @@ class DownloadTokenAllowlist private constructor(
                 uri: URI,
                 value: String,
             ): Origin {
-                require(uri.scheme.equals("http", ignoreCase = true) || uri.scheme.equals("https", ignoreCase = true)) {
-                    "Download client URL must use HTTP or HTTPS: $value"
+                require(uri.scheme.equals("https", ignoreCase = true)) {
+                    "Download client URL must use HTTPS: $value"
                 }
                 require(!uri.host.isNullOrBlank()) { "Download client URL must include a host: $value" }
 
                 return Origin(
                     scheme = uri.scheme.lowercase(),
                     host = uri.host.lowercase(),
-                    port = if (uri.port == -1) defaultPort(uri.scheme) else uri.port,
+                    port = if (uri.port == -1) 443 else uri.port,
                 )
             }
-
-            private fun defaultPort(scheme: String): Int =
-                when (scheme.lowercase()) {
-                    "http" -> 80
-                    "https" -> 443
-                    else -> error("Unsupported URL scheme: $scheme")
-                }
         }
     }
 }
