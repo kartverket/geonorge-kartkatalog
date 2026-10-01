@@ -37,7 +37,7 @@ fun Application.configureRouting(appConfig: AppConfig) {
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)
     val searchService = SearchService(solrClient, areaResolver, hvdResolver)
-    val nedlastingClient = NedlastingClient(httpClient, appConfig.nedlastingBaseUrl)
+    val nedlastingClient = NedlastingClient(httpClient)
     val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
     val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
 

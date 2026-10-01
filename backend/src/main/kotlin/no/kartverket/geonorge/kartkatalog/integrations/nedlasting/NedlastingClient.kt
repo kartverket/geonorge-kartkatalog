@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory
 
 class NedlastingClient(
     private val httpClient: HttpClient,
-    private val baseUrl: String,
 ) {
     private val json =
         Json {
@@ -23,9 +22,6 @@ class NedlastingClient(
             encodeDefaults = true
         }
     private val log = LoggerFactory.getLogger(NedlastingClient::class.java)
-
-    suspend fun getCapabilities(uuid: String): NedlastingCapabilities =
-        fetchCapabilities("$baseUrl/api/capabilities/$uuid")
 
     suspend fun getCapabilities(
         capabilitiesUrl: String,

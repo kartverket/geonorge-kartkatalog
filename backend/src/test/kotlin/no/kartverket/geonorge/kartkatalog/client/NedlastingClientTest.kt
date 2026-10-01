@@ -40,7 +40,7 @@ class NedlastingClientTest {
                 )
 
             try {
-                val areas = NedlastingClient(httpClient, "https://nedlasting.example.com").getAreas(areasUrl)
+                val areas = NedlastingClient(httpClient).getAreas(areasUrl)
 
                 assertEquals(1, areas.size)
                 assertEquals("42", areas.single().code)
@@ -63,7 +63,7 @@ class NedlastingClientTest {
             try {
                 val exception =
                     assertFailsWith<NedlastingException> {
-                        NedlastingClient(httpClient, "https://nedlasting.example.com").getAreas(areasUrl)
+                        NedlastingClient(httpClient).getAreas(areasUrl)
                     }
 
                 assertContains(exception.message.orEmpty(), "500 Internal Server Error")

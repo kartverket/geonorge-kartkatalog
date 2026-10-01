@@ -144,6 +144,7 @@ export function resolveDownloadAvailability(
 
 export function createDownloadOrderItem(
   uuid: string,
+  capabilitiesUrl: string,
   options: DownloadOptions | null,
   selection: DownloadSelection,
 ): DownloadOrderItemInput | null {
@@ -165,6 +166,7 @@ export function createDownloadOrderItem(
 
   return {
     uuid,
+    capabilitiesUrl,
     areas: availability.selectedAreaOptions.map(toDownloadOrderArea),
     projections: projections.map(toDownloadOrderProjection),
     formats: formats.map((format) => ({ name: format.name })),

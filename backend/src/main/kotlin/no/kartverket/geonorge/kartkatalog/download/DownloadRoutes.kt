@@ -34,6 +34,7 @@ data class DownloadOrderFormatDto(
 @Serializable
 data class DownloadOrderItemDto(
     val uuid: String,
+    val capabilitiesUrl: String,
     val areas: List<DownloadOrderAreaDto> = emptyList(),
     val projections: List<DownloadOrderProjectionDto> = emptyList(),
     val formats: List<DownloadOrderFormatDto> = emptyList(),
@@ -118,6 +119,7 @@ private fun DownloadOrderRequestDto.toDomain() =
             items.map { item ->
                 DownloadOrderItem(
                     uuid = item.uuid,
+                    capabilitiesUrl = item.capabilitiesUrl,
                     areas =
                         item.areas.map { area ->
                             DownloadOrderArea(

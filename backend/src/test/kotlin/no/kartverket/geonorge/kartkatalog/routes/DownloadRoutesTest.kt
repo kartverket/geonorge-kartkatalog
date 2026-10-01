@@ -142,6 +142,7 @@ class DownloadRoutesTest {
     fun `orders a download and returns ready-for-download files`() =
         testApplication {
             val requestedPaths = mutableListOf<String>()
+            val requestedUrls = mutableListOf<String>()
             val orderRequestBodies = mutableListOf<String>()
             application {
                 configureSerialization()
@@ -150,6 +151,7 @@ class DownloadRoutesTest {
                     HttpClient(
                         MockEngine { request ->
                             requestedPaths += request.url.encodedPath
+                            requestedUrls += request.url.toString()
                             val content =
                                 if (request.url.encodedPath.startsWith("/api/capabilities")) {
                                     capabilitiesJson
@@ -167,7 +169,7 @@ class DownloadRoutesTest {
                     ) {
                         install(ContentNegotiation) { json() }
                     }
-                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val nedlastingClient = NedlastingClient(client)
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
@@ -185,6 +187,7 @@ class DownloadRoutesTest {
                           "items": [
                             {
                               "uuid": "041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+                              "capabilitiesUrl": "https://external-download.example/api/capabilities/",
                               "areas": [{"code": "42", "name": "Agder", "type": "fylke"}],
                               "projections": [{"code": "25832", "name": "EUREF89 UTM sone 32", "codespace": "EPSG"}],
                               "formats": [{"code": "gml", "name": "GML", "type": "vector"}],
@@ -225,6 +228,10 @@ class DownloadRoutesTest {
             assertContains(orderRequestBody, "\"coordinates\":\"POLYGON ((...))\"")
             assertContains(orderRequestBody, "\"clipperFile\":\"clipper.zip\"")
             assertEquals(
+                "https://external-download.example/api/capabilities/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+                requestedUrls.first(),
+            )
+            assertEquals(
                 listOf("/api/capabilities/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "/api/order"),
                 requestedPaths,
             )
@@ -248,7 +255,7 @@ class DownloadRoutesTest {
                     ) {
                         install(ContentNegotiation) { json() }
                     }
-                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val nedlastingClient = NedlastingClient(client)
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
@@ -258,7 +265,14 @@ class DownloadRoutesTest {
             val response =
                 client.post("/api/download/order") {
                     header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                    setBody("""{"items": [{"uuid": "mangler-ordre-lenke"}]}""")
+                    setBody(
+                        """
+                        {"items": [{
+                          "uuid": "mangler-ordre-lenke",
+                          "capabilitiesUrl": "https://external-download.example/api/capabilities"
+                        }]}
+                        """.trimIndent(),
+                    )
                 }
 
             assertEquals(HttpStatusCode.BadGateway, response.status)
@@ -301,7 +315,7 @@ class DownloadRoutesTest {
                     ) {
                         install(ContentNegotiation) { json() }
                     }
-                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val nedlastingClient = NedlastingClient(client)
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
@@ -315,8 +329,8 @@ class DownloadRoutesTest {
                         """
                         {
                           "items": [
-                            {"uuid": "uuid-a", "formats": [{"name": "GML"}]},
-                            {"uuid": "uuid-b", "formats": [{"name": "GML"}]}
+                            {"uuid": "uuid-a", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]},
+                            {"uuid": "uuid-b", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]}
                           ]
                         }
                         """.trimIndent(),
@@ -366,7 +380,7 @@ class DownloadRoutesTest {
                     ) {
                         install(ContentNegotiation) { json() }
                     }
-                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val nedlastingClient = NedlastingClient(client)
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
@@ -380,8 +394,8 @@ class DownloadRoutesTest {
                         """
                         {
                           "items": [
-                            {"uuid": "uuid-c", "formats": [{"name": "GML"}]},
-                            {"uuid": "uuid-d", "formats": [{"name": "GML"}]}
+                            {"uuid": "uuid-c", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]},
+                            {"uuid": "uuid-d", "capabilitiesUrl": "https://external-download.example/api/capabilities", "formats": [{"name": "GML"}]}
                           ]
                         }
                         """.trimIndent(),
@@ -421,7 +435,7 @@ class DownloadRoutesTest {
                     ) {
                         install(ContentNegotiation) { json() }
                     }
-                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val nedlastingClient = NedlastingClient(client)
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
@@ -459,7 +473,7 @@ class DownloadRoutesTest {
                     HttpClient(MockEngine { respond(content = "[]", status = HttpStatusCode.OK) }) {
                         install(ContentNegotiation) { json() }
                     }
-                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val nedlastingClient = NedlastingClient(client)
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
@@ -496,7 +510,7 @@ class DownloadRoutesTest {
                     ) {
                         install(ContentNegotiation) { json() }
                     }
-                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val nedlastingClient = NedlastingClient(client)
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)

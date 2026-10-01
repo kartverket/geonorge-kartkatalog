@@ -122,7 +122,7 @@ class DownloadService(
     }
 
     private suspend fun resolveOrderLine(item: DownloadOrderItem): ResolvedOrderLine {
-        val capabilities = nedlastingClient.getCapabilities(item.uuid)
+        val capabilities = nedlastingClient.getCapabilities(item.capabilitiesUrl, item.uuid)
         val orderUrl =
             capabilities.linkFor(ORDER_REL)
                 ?: throw DownloadException("No order URL found for dataset ${item.uuid}")
