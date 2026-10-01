@@ -56,6 +56,9 @@ class DownloadService(
                     .map { group -> async { orderGroup(request, group, geoIdAccessToken) } }
                     .awaitAll()
 
+            DownloadOrderResult(results)
+        }
+
     private suspend fun orderGroup(
         request: DownloadOrderRequest,
         group: List<ResolvedOrderLine>,
@@ -74,7 +77,7 @@ class DownloadService(
                         orderLines = group.map { it.line },
                     ),
                     if (groupIsRestricted) geoIdAccessToken else null,
-                ))
+                )
 
             DownloadOrderGroupResult.Success(
                 DownloadOrderResponse(
@@ -89,20 +92,6 @@ class DownloadService(
                                 format = file.format,
                                 metadataUuid = file.metadataUuid,
                                 metadataName = file.metadataName,
-
-                    .map { group ->
-                        async {
-                            val groupIsRestricted = group.any { it.restricted }
-
-                            nedlastingClient.order(
-                                group.first().orderUrl,
-                                NedlastingOrderRequest(
-                                    email = request.email,
-                                    usageGroup = request.usageGroup,
-                                    orderLines = group.map { it.line },
-                                ),
-                                if (groupIsRestricted) geoIdAccessToken else null,
-
                             )
                         },
                     links =
