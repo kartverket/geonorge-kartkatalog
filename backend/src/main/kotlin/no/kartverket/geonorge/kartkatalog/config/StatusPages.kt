@@ -7,9 +7,9 @@ import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
+import no.kartverket.geonorge.kartkatalog.download.DownloadApiException
 import no.kartverket.geonorge.kartkatalog.download.DownloadException
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeoNetworkException
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingException
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataRecordNotFoundException
@@ -47,8 +47,8 @@ fun Application.configureStatusPages() {
             log.warn("Download order failed", cause)
             call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream download error"))
         }
-        exception<NedlastingException> { call, cause ->
-            log.warn("Nedlasting request failed", cause)
+        exception<DownloadApiException> { call, cause ->
+            log.warn("Download API request failed", cause)
             call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream download error"))
         }
         exception<ContentTransformationException> { call, cause ->

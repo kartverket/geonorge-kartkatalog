@@ -1,18 +1,16 @@
-package no.kartverket.geonorge.kartkatalog.client
+package no.kartverket.geonorge.kartkatalog.download
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingException
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class NedlastingClientTest {
+class DownloadApiClientTest {
     private val areasUrl = "https://nedlasting.example.com/api/codelists/area/dataset"
 
     @Test
@@ -40,7 +38,7 @@ class NedlastingClientTest {
                 )
 
             try {
-                val areas = NedlastingClient(httpClient).getAreas(areasUrl)
+                val areas = DownloadApiClient(httpClient).getAreas(areasUrl)
 
                 assertEquals(1, areas.size)
                 assertEquals("42", areas.single().code)
@@ -62,8 +60,8 @@ class NedlastingClientTest {
 
             try {
                 val exception =
-                    assertFailsWith<NedlastingException> {
-                        NedlastingClient(httpClient).getAreas(areasUrl)
+                    assertFailsWith<DownloadApiException> {
+                        DownloadApiClient(httpClient).getAreas(areasUrl)
                     }
 
                 assertContains(exception.message.orEmpty(), "500 Internal Server Error")
