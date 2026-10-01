@@ -1,17 +1,11 @@
 "use client";
 
-import { Chip, Select } from "@kv-designsystem/react";
-import type { MouseEvent } from "react";
-import styles from "./ChipMultiSelect.module.css";
+import { Suggestion } from "@kv-designsystem/react";
+import { useRef } from "react";
 
 export type ChipSelectOption = {
   label: string;
   value: string;
-};
-
-export type ChipSelectOptionGroup = {
-  label: string;
-  options: ChipSelectOption[];
 };
 
 type ChipSelectProps = {
@@ -19,18 +13,10 @@ type ChipSelectProps = {
   isOrdering?: boolean;
   noOptionsLabel?: string;
   onChangeAction: (values: string[]) => void;
-  options: ChipSelectOption[] | ChipSelectOptionGroup[];
+  options: ChipSelectOption[];
   placeholder?: string;
   selectedValues: string[];
 };
-
-function isGroupedOptions(
-  options: ChipSelectOption[] | ChipSelectOptionGroup[],
-): options is ChipSelectOptionGroup[] {
-  return options.every(
-    (option): option is ChipSelectOptionGroup => "options" in option,
-  );
-}
 
 export function ChipMultiSelect({
   allSelectedLabel = "Alle valg er valgt",
@@ -41,94 +27,57 @@ export function ChipMultiSelect({
   placeholder = "Velg alternativ",
   selectedValues,
 }: ChipSelectProps) {
-  const groups: ChipSelectOptionGroup[] = isGroupedOptions(options)
-    ? options
-    : [{ label: "", options }];
-  const flatOptions = groups.flatMap((group) => group.options);
-
-  const selectedSet = new Set(selectedValues);
+  const inputRef = useRef<HTMLInputElement>(null);
   const optionByValue = new Map(
-    flatOptions.map((option) => [option.value, option]),
+    options.map((option) => [option.value, option]),
   );
-
-  const selectedOptions = selectedValues
-    .map((value) => optionByValue.get(value))
-    .filter((option): option is ChipSelectOption => Boolean(option));
-
-  const availableSet = new Set(
-    flatOptions
-      .filter((option) => !selectedSet.has(option.value))
-      .map((option) => option.value),
-  );
-  const availableGroups = groups
-    .map((group) => ({
-      label: group.label,
-      options: group.options.filter((option) => availableSet.has(option.value)),
-    }))
-    .filter((group) => group.options.length > 0);
-
-  function handleSelectChange(nextValue: string) {
-    if (!nextValue || selectedValues.includes(nextValue)) return;
-    onChangeAction([...selectedValues, nextValue]);
-  }
-
-  function handleRemoveClick(event: MouseEvent<HTMLButtonElement>) {
-    const value = event.currentTarget.dataset.value;
-    if (isOrdering) return;
-    if (value) {
-      onChangeAction(selectedValues.filter((selected) => selected !== value));
-    }
-  }
-
-  const selectMessage =
-    flatOptions.length === 0
+  const selected = selectedValues.flatMap((value) => {
+    const option = optionByValue.get(value);
+    return option ? [option] : [];
+  });
+  const emptyLabel =
+    options.length === 0
       ? noOptionsLabel
-      : availableSet.size === 0
+      : selected.length === options.length
         ? allSelectedLabel
-        : placeholder;
+        : "Ingen treff";
 
   return (
-    <>
-      {selectedOptions.length > 0 ? (
-        <div className={styles.selectedChipsContainer}>
-          {selectedOptions.map((option) => (
-            <Chip.Removable
-              key={option.value}
-              onClick={handleRemoveClick}
-              data-value={option.value}
-              disabled={isOrdering}
-            >
-              {option.label}
-            </Chip.Removable>
-          ))}
-        </div>
-      ) : null}
+    <Suggestion
+      multiple
+      selected={selected}
+      onSelectedChange={(nextSelected) => {
+        requestAnimationFrame(() => {
+          const input = inputRef.current;
+          if (!input) return;
 
-      <Select
-        value=""
-        onChange={(event) => handleSelectChange(event.target.value)}
-        disabled={flatOptions.length === 0 || isOrdering}
-      >
-        <Select.Option value="">{selectMessage}</Select.Option>
+          input.value = "";
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        });
 
-        {availableGroups.map((group) =>
-          group.label ? (
-            <Select.Optgroup key={group.label} label={group.label}>
-              {group.options.map((option) => (
-                <Select.Option key={option.value} value={option.value}>
-                  {option.label}
-                </Select.Option>
-              ))}
-            </Select.Optgroup>
-          ) : (
-            group.options.map((option) => (
-              <Select.Option key={option.value} value={option.value}>
-                {option.label}
-              </Select.Option>
-            ))
-          ),
-        )}
-      </Select>
-    </>
+        if (!isOrdering) {
+          onChangeAction(nextSelected.map((option) => option.value));
+        }
+      }}
+    >
+      <Suggestion.Input
+        ref={inputRef}
+        placeholder={placeholder}
+        disabled={options.length === 0 || isOrdering}
+      />
+      <Suggestion.Clear aria-label="Tøm søk" />
+      <Suggestion.List>
+        <Suggestion.Empty>{emptyLabel}</Suggestion.Empty>
+        {options.map((option) => (
+          <Suggestion.Option
+            key={option.value}
+            label={option.label}
+            value={option.value}
+          >
+            {option.label}
+          </Suggestion.Option>
+        ))}
+      </Suggestion.List>
+    </Suggestion>
   );
 }

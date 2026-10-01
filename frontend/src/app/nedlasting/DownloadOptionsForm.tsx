@@ -6,7 +6,6 @@ import { ChipMultiSelect } from "./ChipMultiSelect";
 import styles from "./DownloadOptionsForm.module.css";
 import type { DownloadSelection } from "./downloadUtils";
 import {
-  getAreaOptionGroups,
   resolveDownloadAvailability,
   selectDownloadAreas,
   selectDownloadFormats,
@@ -31,7 +30,6 @@ export function DownloadOptionsForm({
   onSelectionChangeAction,
 }: DownloadOptionsFormProps) {
   const availability = resolveDownloadAvailability(options, selection);
-  const areaGroups = getAreaOptionGroups(availability.areaOptions);
 
   function changeArea(areaCodes: string[]) {
     onSelectionChangeAction(selectDownloadAreas(selection, areaCodes));
@@ -67,12 +65,9 @@ export function DownloadOptionsForm({
         <ChipMultiSelect
           selectedValues={selection.areaCodes}
           onChangeAction={changeArea}
-          options={areaGroups.map((group) => ({
-            label: group.label,
-            options: group.areas.map((option) => ({
-              label: option.area.name,
-              value: option.area.code,
-            })),
+          options={availability.areaOptions.map((option) => ({
+            label: option.area.name,
+            value: option.area.code,
           }))}
           placeholder="Velg geografisk område"
           isOrdering={isOrdering}

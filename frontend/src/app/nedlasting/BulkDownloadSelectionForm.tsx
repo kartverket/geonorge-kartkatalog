@@ -8,7 +8,6 @@ import styles from "./DownloadOptionsForm.module.css";
 import {
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
-  getAreaOptionGroups,
   resolveCommonDownloadAvailability,
   selectDownloadAreas,
   selectDownloadFormats,
@@ -37,7 +36,6 @@ export function BulkDownloadSelectionForm({
     optionsList,
     selection,
   );
-  const areaGroups = getAreaOptionGroups(availability.areaOptions);
 
   function changeArea(areaCodes: string[]) {
     const update = (current: DownloadSelection) =>
@@ -74,12 +72,9 @@ export function BulkDownloadSelectionForm({
             <ChipMultiSelect
               selectedValues={selection.areaCodes}
               onChangeAction={changeArea}
-              options={areaGroups.map((group) => ({
-                label: group.label,
-                options: group.areas.map((option) => ({
-                  label: option.area.name,
-                  value: option.area.code,
-                })),
+              options={availability.areaOptions.map((option) => ({
+                label: option.area.name,
+                value: option.area.code,
               }))}
               placeholder="Velg geografisk område"
               isOrdering={isOrdering}
