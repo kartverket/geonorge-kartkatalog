@@ -19,9 +19,12 @@ class DownloadException(
     message: String,
 ) : RuntimeException(message)
 
+class DownloadAuthenticationRequiredException : RuntimeException("Authentication is required for restricted downloads")
+
 private data class ResolvedOrderLine(
     val orderUrl: String,
     val supportsBundling: Boolean,
+    val restricted: Boolean,
     val line: NedlastingOrderLine,
 )
 
@@ -31,29 +34,35 @@ class DownloadService(
 ) {
     private val log = LoggerFactory.getLogger(DownloadService::class.java)
 
-    suspend fun order(request: DownloadOrderRequest): DownloadOrderResult =
+    suspend fun order(
+        request: DownloadOrderRequest,
+        geoIdAccessToken: String? = null,
+    ): DownloadOrderResult =
         coroutineScope {
             val resolved =
                 request.items
                     .map { item -> async { resolveOrderLine(item) } }
                     .awaitAll()
+            val restricted = resolved.any { it.restricted }
+            if (restricted && geoIdAccessToken == null) {
+                throw DownloadAuthenticationRequiredException()
+            }
 
             val (bundlable, individual) = resolved.partition { it.supportsBundling }
             val groups = bundlable.groupBy { it.orderUrl }.values + individual.map { listOf(it) }
 
             val results =
                 groups
-                    .map { group -> async { orderGroup(request, group) } }
+                    .map { group -> async { orderGroup(request, group, geoIdAccessToken) } }
                     .awaitAll()
-
-            DownloadOrderResult(results)
-        }
 
     private suspend fun orderGroup(
         request: DownloadOrderRequest,
         group: List<ResolvedOrderLine>,
+        geoIdAccessToken: String?,
     ): DownloadOrderGroupResult {
         val metadataUuids = group.map { it.line.metadataUuid }
+        val groupIsRestricted = group.any { it.restricted }
 
         return try {
             val response =
@@ -64,7 +73,8 @@ class DownloadService(
                         usageGroup = request.usageGroup,
                         orderLines = group.map { it.line },
                     ),
-                )
+                    if (groupIsRestricted) geoIdAccessToken else null,
+                ))
 
             DownloadOrderGroupResult.Success(
                 DownloadOrderResponse(
@@ -79,6 +89,20 @@ class DownloadService(
                                 format = file.format,
                                 metadataUuid = file.metadataUuid,
                                 metadataName = file.metadataName,
+
+                    .map { group ->
+                        async {
+                            val groupIsRestricted = group.any { it.restricted }
+
+                            nedlastingClient.order(
+                                group.first().orderUrl,
+                                NedlastingOrderRequest(
+                                    email = request.email,
+                                    usageGroup = request.usageGroup,
+                                    orderLines = group.map { it.line },
+                                ),
+                                if (groupIsRestricted) geoIdAccessToken else null,
+
                             )
                         },
                     links =
@@ -147,6 +171,7 @@ class DownloadService(
         return ResolvedOrderLine(
             orderUrl = orderUrl,
             supportsBundling = capabilities.supportsDownloadBundling,
+            restricted = !capabilities.accessConstraintRequiredRole.isNullOrBlank(),
             line =
                 NedlastingOrderLine(
                     metadataUuid = item.uuid,

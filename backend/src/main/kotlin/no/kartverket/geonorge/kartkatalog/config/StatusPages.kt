@@ -7,6 +7,7 @@ import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
+import no.kartverket.geonorge.kartkatalog.download.DownloadAuthenticationRequiredException
 import no.kartverket.geonorge.kartkatalog.download.DownloadException
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeoNetworkException
 import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingException
@@ -46,6 +47,10 @@ fun Application.configureStatusPages() {
         exception<DownloadException> { call, cause ->
             log.warn("Download order failed", cause)
             call.respond(HttpStatusCode.BadGateway, mapOf("error" to "Upstream download error"))
+        }
+        exception<DownloadAuthenticationRequiredException> { call, cause ->
+            log.warn("Authentication required for restricted download", cause)
+            call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Authentication required"))
         }
         exception<NedlastingException> { call, cause ->
             log.warn("Nedlasting request failed", cause)

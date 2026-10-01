@@ -17,6 +17,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GEOID_ISSUER: https://test.example.com/geoid
+      GEOID_CLIENT_ID: test-client
+      GEOID_CLIENT_SECRET: test-secret
+      PUBLIC_BASE_URL: http://localhost:3000
     defaults:
       run:
         working-directory: backend

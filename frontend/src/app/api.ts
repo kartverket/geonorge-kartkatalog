@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
@@ -34,6 +35,13 @@ import {
 
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
+const katalogBaseUrl = process.env.KATALOG_BASE_URL;
+
+if (!katalogBaseUrl) {
+  throw new Error("KATALOG_BASE_URL is required");
+}
+
+const KATALOG_ORIGIN = new URL(katalogBaseUrl).origin;
 
 export class HttpError extends Error {
   status: number;
@@ -282,18 +290,22 @@ export async function orderDownload(
   const url = `${API_BASE}/api/download/order`;
   const body = await fetchJson(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Origin: KATALOG_ORIGIN,
+    },
     body: JSON.stringify(request),
   });
   return parseDownloadOrderResult(body);
 }
 
-export const getDownloadInsightGroups = cache(
-  async (): Promise<DownloadInsightGroups> => {
-    const url = `${API_BASE}/api/download/insight-groups`;
-    const body = await fetchJson(url, {
-      method: "GET",
-    });
-    return parseDownloadInsightGroups(body);
-  },
-);
+export async function getDownloadInsightGroups(): Promise<DownloadInsightGroups> {
+  "use cache";
+  cacheLife("days");
+
+  const url = `${API_BASE}/api/download/insight-groups`;
+  const body = await fetchJson(url, {
+    method: "GET",
+  });
+  return parseDownloadInsightGroups(body);
+}
