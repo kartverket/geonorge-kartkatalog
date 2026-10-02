@@ -65,7 +65,7 @@ export function ProductTabs({
       : []),
   ];
   return (
-    <div data-color="info">
+    <div>
       <Tabs defaultValue="distribution" className={styles.tabs}>
         <Tabs.List>
           {tabs.map((t) => (
