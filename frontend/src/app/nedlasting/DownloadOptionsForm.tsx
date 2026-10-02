@@ -2,16 +2,15 @@
 
 import { Field, Label, Tag } from "@kv-designsystem/react";
 import type { DownloadOptions } from "@/lib/schemas/download";
-import { ChipMultiSelect } from "./ChipMultiSelect";
 import styles from "./DownloadOptionsForm.module.css";
 import type { DownloadSelection } from "./downloadUtils";
 import {
-  getAreaOptionGroups,
   resolveDownloadAvailability,
   selectDownloadAreas,
   selectDownloadFormats,
   selectDownloadProjections,
 } from "./downloadUtils";
+import { MultiSuggestion } from "./MultiSuggestion";
 
 type DownloadOptionsFormProps = {
   error: string | null;
@@ -31,7 +30,6 @@ export function DownloadOptionsForm({
   onSelectionChangeAction,
 }: DownloadOptionsFormProps) {
   const availability = resolveDownloadAvailability(options, selection);
-  const areaGroups = getAreaOptionGroups(availability.areaOptions);
 
   function changeArea(areaCodes: string[]) {
     onSelectionChangeAction(selectDownloadAreas(selection, areaCodes));
@@ -64,15 +62,14 @@ export function DownloadOptionsForm({
         <Label>
           Geografisk område <Tag data-color="warning">Påkrevd</Tag>
         </Label>
-        <ChipMultiSelect
+        <MultiSuggestion
           selectedValues={selection.areaCodes}
           onChangeAction={changeArea}
-          options={areaGroups.map((group) => ({
-            label: group.label,
-            options: group.areas.map((option) => ({
-              label: option.area.name,
-              value: option.area.code,
-            })),
+          options={availability.areaOptions.map((option) => ({
+            label: option.area.type
+              ? `${option.area.name} (${option.area.type})`
+              : option.area.name,
+            value: option.area.code,
           }))}
           placeholder="Velg geografisk område"
           isOrdering={isOrdering}
@@ -83,7 +80,7 @@ export function DownloadOptionsForm({
           <Label>
             Projeksjon <Tag data-color="warning">Påkrevd</Tag>
           </Label>
-          <ChipMultiSelect
+          <MultiSuggestion
             selectedValues={selection.projectionCodes}
             onChangeAction={changeProjection}
             options={availability.projectionOptions.map((projection) => ({
@@ -101,7 +98,7 @@ export function DownloadOptionsForm({
           <Label>
             Format <Tag data-color="warning">Påkrevd</Tag>
           </Label>
-          <ChipMultiSelect
+          <MultiSuggestion
             selectedValues={selection.formatNames}
             onChangeAction={changeFormat}
             options={availability.formatOptions.map((format) => ({

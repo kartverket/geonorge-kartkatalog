@@ -16,13 +16,13 @@ import {
   removeItemsFromCart,
 } from "@/app/_components/addToCart/cartStorage";
 import { useOrderItems } from "@/app/_components/addToCart/useCart";
-import { ChipMultiSelect } from "@/app/nedlasting/ChipMultiSelect";
 import {
   createDownloadOrderItem,
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
   getMissingDownloadSelectionFields,
 } from "@/app/nedlasting/downloadUtils";
+import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import type { DownloadInsightGroups } from "@/lib/schemas/download";
 import { DownloadCartList } from "./DownloadCartList";
 import styles from "./DownloadPageContent.module.css";
@@ -196,7 +196,7 @@ export function DownloadPageContentClient({
                 </Field>
                 <Field>
                   <Label>Formål</Label>
-                  <ChipMultiSelect
+                  <MultiSuggestion
                     selectedValues={usagePurpose}
                     onChangeAction={setUsagePurpose}
                     options={insightGroups.formal.map((purpose) => ({
