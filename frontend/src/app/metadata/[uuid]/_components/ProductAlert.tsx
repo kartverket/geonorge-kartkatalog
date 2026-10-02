@@ -39,7 +39,9 @@ export default function ProductAlert({
             {alert.alertType}
             {alert.detailsUrl && (
               <>
-              {" ("}<a href={alert.detailsUrl}>Gå til varsel</a>{"). "}
+                {" ("}
+                <a href={alert.detailsUrl}>Gå til varsel</a>
+                {"). "}
               </>
             )}
             <Markdown components={{ p: ({ children }) => <>{children}</> }}>

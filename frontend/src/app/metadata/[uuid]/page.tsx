@@ -9,6 +9,10 @@ import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCa
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
 import { ProductTabsSection } from "@/app/metadata/[uuid]/_components/ProductTabsSection";
 import {
+  decodeRouteUuid,
+  getAlertDetailsUrl,
+} from "@/app/metadata/[uuid]/_utils/productPage";
+import {
   getRelevantAlerts,
   getUniqueItemsFromListByKey,
   unwrapSettled,
@@ -32,32 +36,6 @@ const EMPTY_LINKED_DISTRIBUTIONS: LinkedDistributions = {
   serviceLayers: [],
   parentService: [],
 };
-
-function decodeRouteUuid(uuid: string) {
-  try {
-    return decodeURIComponent(uuid);
-  } catch {
-    return uuid;
-  }
-}
-
-function cleanAlertLabel(label: string) {
-  return label
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
-
-function getAlertDetailsUrl(label: string | null, systemId: string | null) {
-  const registerBaseUrl = process.env.REGISTER_BASE_URL;
-  if (!label || !systemId || !registerBaseUrl) return null;
-
-  const cleanedLabel = cleanAlertLabel(label);
-  if (!cleanedLabel) return null;
-
-  return `${registerBaseUrl.replace(/\/$/, "")}/varsler/${cleanedLabel}/${encodeURIComponent(systemId)}`;
-}
 
 // Setter metadatatittel så det bla vises i faner
 export async function generateMetadata({
