@@ -60,7 +60,7 @@ export default function AddToDownloadsButton({
 
   return (
     <Button
-      variant={variant ?? (isInCart ? "secondary" : "primary")}
+      variant={variant ?? (isSelectedForDownload ? "secondary" : "primary")}
       data-size={size}
       className={className}
       onClick={handleToggleDownloads}
