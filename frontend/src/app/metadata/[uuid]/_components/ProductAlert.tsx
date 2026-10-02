@@ -26,10 +26,10 @@ export default function ProductAlert({
   alerts: AlertWithDetailsUrl[];
   hierarchyLevel: string;
 }) {
-  const parser = new DOMParser();
   const alertsWithNotes = alerts.flatMap((alert) => {
     if (!alert.note) return [];
 
+    const parser = new DOMParser();
     const parsedAlertNote = parser.parseFromString(alert.note, "text/html");
     return [
       {
