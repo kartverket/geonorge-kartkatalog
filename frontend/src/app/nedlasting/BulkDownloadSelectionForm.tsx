@@ -3,7 +3,6 @@
 import { Field, Heading, Label } from "@kv-designsystem/react";
 import { useState } from "react";
 import type { DownloadOptions } from "@/lib/schemas/download";
-import { ChipMultiSelect } from "./ChipMultiSelect";
 import styles from "./DownloadOptionsForm.module.css";
 import {
   type DownloadSelection,
@@ -13,6 +12,7 @@ import {
   selectDownloadFormats,
   selectDownloadProjections,
 } from "./downloadUtils";
+import { MultiSuggestion } from "./MultiSuggestion";
 
 type BulkDownloadSelectionFormProps = {
   optionsList: (DownloadOptions | null)[];
@@ -69,7 +69,7 @@ export function BulkDownloadSelectionForm({
         <div className={styles.selectionFields}>
           <Field className={styles.selectionField}>
             <Label>Geografisk område</Label>
-            <ChipMultiSelect
+            <MultiSuggestion
               selectedValues={selection.areaCodes}
               onChangeAction={changeArea}
               options={availability.areaOptions.map((option) => ({
@@ -90,7 +90,7 @@ export function BulkDownloadSelectionForm({
           {selection.areaCodes.length > 0 ? (
             <Field className={styles.selectionField}>
               <Label>Projeksjon</Label>
-              <ChipMultiSelect
+              <MultiSuggestion
                 selectedValues={selection.projectionCodes}
                 onChangeAction={changeProjection}
                 options={availability.projectionOptions.map((projection) => ({
@@ -116,7 +116,7 @@ export function BulkDownloadSelectionForm({
                   projeksjonene.
                 </p>
               ) : (
-                <ChipMultiSelect
+                <MultiSuggestion
                   selectedValues={selection.formatNames}
                   onChangeAction={changeFormat}
                   options={availability.formatOptions.map((format) => ({

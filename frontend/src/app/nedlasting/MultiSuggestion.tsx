@@ -18,7 +18,7 @@ type ChipSelectProps = {
   selectedValues: string[];
 };
 
-export function ChipMultiSelect({
+export function MultiSuggestion({
   allSelectedLabel = "Alle valg er valgt",
   isOrdering = false,
   noOptionsLabel = "Ingen alternativer tilgjengelig",
