@@ -10,7 +10,6 @@ import {
 } from "@/app/_components/addToCart/cartStorage";
 import { useAreAllItemsInCart } from "@/app/_components/addToCart/useCart";
 import { type Location, trackClick } from "@/posthog/posthog";
-import type { DatasetCardProps } from "../DatasetCard/DatasetCard";
 
 //Note, can only add open data here. In future, handle closed datasets when login is ok.
 export default function AddSeriesToCartButton({
@@ -21,7 +20,7 @@ export default function AddSeriesToCartButton({
   size,
   location,
 }: {
-  item: Omit<DatasetCardProps, "viewMode">;
+  item: { uuid: string; title: string };
   downloadableItems: DownloadItem[];
   className?: string;
   variant?: ButtonProps["variant"];
