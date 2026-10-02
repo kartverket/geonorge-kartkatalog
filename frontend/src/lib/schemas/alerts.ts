@@ -10,6 +10,7 @@ const Alert = z
     Owner: z.string().nullable(),
     Type: z.string().nullable(),
     SystemId: z.string().nullable(),
+    Label: z.string().nullable().optional(),
   })
   .transform((alert) => ({
     alertCategory: alert.AlertCategory,
@@ -20,13 +21,12 @@ const Alert = z
     owner: alert.Owner,
     type: alert.Type,
     systemId: alert.SystemId,
+    label: alert.Label ?? null,
   }));
 
 const Alerts = z.array(Alert);
 
 export type Alerts = z.infer<typeof Alerts>;
-
-export type Alert = z.infer<typeof Alert>;
 
 export function parseAlert(body: unknown): Alerts {
   const res = Alerts.safeParse(body);

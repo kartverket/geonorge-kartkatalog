@@ -9,6 +9,10 @@ import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCa
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
 import { ProductTabsSection } from "@/app/metadata/[uuid]/_components/ProductTabsSection";
 import {
+  decodeRouteUuid,
+  getAlertDetailsUrl,
+} from "@/app/metadata/[uuid]/_utils/productPage";
+import {
   getRelevantAlerts,
   getUniqueItemsFromListByKey,
   unwrapSettled,
@@ -32,14 +36,6 @@ const EMPTY_LINKED_DISTRIBUTIONS: LinkedDistributions = {
   serviceLayers: [],
   parentService: [],
 };
-
-function decodeRouteUuid(uuid: string) {
-  try {
-    return decodeURIComponent(uuid);
-  } catch {
-    return uuid;
-  }
-}
 
 // Setter metadatatittel så det bla vises i faner
 export async function generateMetadata({
@@ -75,6 +71,10 @@ export default async function ProductPage({
     EMPTY_LINKED_DISTRIBUTIONS,
   );
   const relevantAlerts = getRelevantAlerts(alerts);
+  const alertsWithDetailsUrl = relevantAlerts.map((alert) => ({
+    ...alert,
+    detailsUrl: getAlertDetailsUrl(alert.label, alert.systemId),
+  }));
 
   return (
     <div className={styles.content}>
@@ -84,12 +84,12 @@ export default async function ProductPage({
         organization={metadata.organization}
         access={metadata.accessState}
       />
-      {relevantAlerts.map((alert, index) => (
+      {alertsWithDetailsUrl.length > 0 && (
         <ProductAlert
-          key={`${alert.alertType ?? "alert"}-${index}`}
-          alert={alert}
+          alerts={alertsWithDetailsUrl}
+          hierarchyLevel={metadata.hierarchyLevel}
         />
-      ))}
+      )}
       <div className={styles.metaRow}>
         <ProductThumbnail thumbnailUrl={metadata.thumbnailUrl} />
         <ProductMeta
