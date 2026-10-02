@@ -3,12 +3,12 @@ import {
   FileTextIcon,
   PencilIcon,
 } from "@navikt/aksel-icons";
-import AddSeriesToCartButton from "@/app/_components/addToCart/AddSeriesToCartButton";
-import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
+import AddSeriesToDownloadsButton from "@/app/_components/addToDownloads/AddSeriesToDownloadsButton";
+import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
 import {
-  getCartItem,
   getDownloadableSeriesMembers,
+  getDownloadItem,
   getMapItem,
 } from "@/app/metadata/[uuid]/_utils/distributions";
 import {
@@ -32,33 +32,26 @@ export function ProductActions({
   metadata: ProductMetadata;
   uuid: string;
 }) {
-  const cartItem = getCartItem(metadata, uuid);
+  const downloadItem = getDownloadItem(metadata, uuid);
   const downloadableSeriesMembers =
     getDownloadableSeriesMembers(linkedDistributions);
   const mapItem = getMapItem(metadata, linkedDistributions, uuid);
 
   return (
     <div className={styles.actions}>
-      <AddSeriesToCartButton
+      <AddSeriesToDownloadsButton
         item={{
-          ...metadata,
           uuid,
-          downloadableSeriesMembers: downloadableSeriesMembers,
-          typeTranslated: null,
-          distributionUrl: null,
-          distributionProtocol: null,
-          getCapabilitiesUrl: null,
-          showMapLink: null,
-          mapCapabilitiesUrl: null,
+          title: metadata.title,
         }}
         className={styles.actionButton}
         downloadableItems={downloadableSeriesMembers}
         location={LOCATIONS.MetadataPage}
         variant="secondary"
       />
-      <AddToCartButton
+      <AddToDownloadsButton
         className={styles.actionButton}
-        item={cartItem}
+        item={downloadItem}
         location={LOCATIONS.MetadataPage}
         variant="primary"
       />

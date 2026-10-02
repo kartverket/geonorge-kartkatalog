@@ -4,16 +4,15 @@ import type { ButtonProps } from "@kv-designsystem/react";
 import { Button } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
 import {
-  addItemsToCart,
+  addItemsToDownloads,
   type DownloadItem,
-  removeItemsFromCart,
-} from "@/app/_components/addToCart/cartStorage";
-import { useAreAllItemsInCart } from "@/app/_components/addToCart/useCart";
+  removeItemsFromDownloads,
+} from "@/app/_components/addToDownloads/downloadStorage";
+import { useAreAllItemsSelectedForDownload } from "@/app/_components/addToDownloads/useDownloads";
 import { type Location, trackClick } from "@/posthog/posthog";
-import type { DatasetCardProps } from "../DatasetCard/DatasetCard";
 
 //Note, can only add open data here. In future, handle closed datasets when login is ok.
-export default function AddSeriesToCartButton({
+export default function AddSeriesToDownloadsButton({
   item,
   downloadableItems,
   className,
@@ -21,7 +20,7 @@ export default function AddSeriesToCartButton({
   size,
   location,
 }: {
-  item: Omit<DatasetCardProps, "viewMode">;
+  item: { uuid: string; title: string };
   downloadableItems: DownloadItem[];
   className?: string;
   variant?: ButtonProps["variant"];
@@ -29,7 +28,8 @@ export default function AddSeriesToCartButton({
   location: Location;
 }) {
   const addableItems = downloadableItems.filter((i) => i.accessType === "open");
-  const areItemsInCart = useAreAllItemsInCart(addableItems);
+  const areItemsSelectedForDownload =
+    useAreAllItemsSelectedForDownload(addableItems);
 
   const hasDownloadableItems = addableItems.some(
     (item) => item.uuid && item.distributionUrl,
@@ -37,9 +37,11 @@ export default function AddSeriesToCartButton({
 
   if (!hasDownloadableItems) return null;
 
-  const handleToggleCart = () => {
+  const handleToggleDownloads = () => {
     trackClick(
-      areItemsInCart ? "remove-all-from-cart" : "add-all-to-cart",
+      areItemsSelectedForDownload
+        ? "remove-all-from-downloads"
+        : "add-all-to-downloads",
       location,
       {
         itemName: item.title,
@@ -48,12 +50,12 @@ export default function AddSeriesToCartButton({
       },
     );
 
-    if (areItemsInCart) {
-      removeItemsFromCart(addableItems);
+    if (areItemsSelectedForDownload) {
+      removeItemsFromDownloads(addableItems);
       return;
     }
 
-    addItemsToCart(addableItems);
+    addItemsToDownloads(addableItems);
   };
 
   return (
@@ -61,9 +63,9 @@ export default function AddSeriesToCartButton({
       variant={variant}
       data-size={size}
       className={className}
-      onClick={handleToggleCart}
+      onClick={handleToggleDownloads}
     >
-      {areItemsInCart ? (
+      {areItemsSelectedForDownload ? (
         <>
           <TrashIcon aria-hidden />
           Fjern alle fra nedlasting

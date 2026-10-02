@@ -2,8 +2,8 @@
 
 import { Heading, Paragraph } from "@kv-designsystem/react";
 import { BulkDownloadSelectionForm } from "./BulkDownloadSelectionForm";
-import { DownloadCartCard } from "./DownloadCartCard";
-import styles from "./DownloadCartList.module.css";
+import { DownloadSelectionCard } from "./DownloadSelectionCard";
+import styles from "./DownloadSelectionList.module.css";
 import {
   type DownloadCard,
   type DownloadOptionsByUuid,
@@ -13,8 +13,8 @@ import {
 } from "./downloadUtils";
 import { MissingInputSummary } from "./MissingInputSummary";
 
-type DownloadCartListProps = {
-  orderItemsCount: number;
+type DownloadSelectionListProps = {
+  selectedDownloadCount: number;
   cards: DownloadCard[];
   isLoading: boolean;
   hasLoadError: boolean;
@@ -32,8 +32,8 @@ type DownloadCartListProps = {
   isOrdering?: boolean;
 };
 
-export function DownloadCartList({
-  orderItemsCount,
+export function DownloadSelectionList({
+  selectedDownloadCount,
   cards,
   isLoading,
   hasLoadError,
@@ -43,7 +43,7 @@ export function DownloadCartList({
   onSelectionChange,
   onApplyToAll,
   isOrdering = false,
-}: DownloadCartListProps) {
+}: DownloadSelectionListProps) {
   const optionsList = cards.map(
     (card) => optionsByUuid[card.uuid]?.options ?? null,
   );
@@ -57,16 +57,16 @@ export function DownloadCartList({
         Filnedlasting - bestilling
       </Heading>
       <Heading level={2} data-size={"sm"}>
-        Dine valgte produkter ({orderItemsCount})
+        Dine valgte produkter ({selectedDownloadCount})
       </Heading>
-      {orderItemsCount > 0 ? (
+      {selectedDownloadCount > 0 ? (
         <Paragraph data-size="sm">
           Ditt nedlastingsvalg lagres i nettleseren, brukes når du laster ned
           filer, og glemmes når fanen lukkes. Du kan bytte nedlastingsvalg når
           som helst.
         </Paragraph>
       ) : null}
-      {orderItemsCount === 0 ? (
+      {selectedDownloadCount === 0 ? (
         <Paragraph>Ingen datasett lagt til nedlasting</Paragraph>
       ) : isLoading ? (
         <Paragraph aria-live="polite">Laster datasett...</Paragraph>
@@ -96,7 +96,7 @@ export function DownloadCartList({
           </Heading>
           <div className={styles.results}>
             {cards.map((card) => (
-              <DownloadCartCard
+              <DownloadSelectionCard
                 key={card.uuid}
                 {...card}
                 options={optionsByUuid[card.uuid]?.options ?? null}

@@ -2,21 +2,19 @@
 
 import { Button, Heading } from "@kv-designsystem/react";
 import { useState } from "react";
-import {
-  DatasetCard,
-  type DatasetCardProps,
-} from "@/app/_components/DatasetCard/DatasetCard";
+import { DatasetCard } from "@/app/_components/DatasetCard/DatasetCard";
 import { getProductTypeString } from "@/lib/productType";
 import type {
   LinkedDistribution,
   LinkedDistributions,
 } from "@/lib/schemas/product";
+import type { DatasetCardData } from "@/lib/types/dataset";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./LinkedDistributionsSection.module.css";
 
 const PAGE_SIZE = 4;
 
-function toDatasetCardProps(d: LinkedDistribution): DatasetCardProps {
+function toDatasetCardData(d: LinkedDistribution): DatasetCardData {
   return {
     uuid: d.uuid,
     title: d.title ?? "-",
@@ -28,10 +26,8 @@ function toDatasetCardProps(d: LinkedDistribution): DatasetCardProps {
     getCapabilitiesUrl: d.getCapabilitiesUrl,
     showMapLink: d.showMapLink,
     mapCapabilitiesUrl: d.mapCapabilitiesUrl,
-    analyticsLocation: LOCATIONS.MetadataPageLinkedDistributions,
     accessState: d.accessState,
     hierarchyLevel: d.hierarchyLevel,
-    downloadableSeriesMembers: null,
   };
 }
 
@@ -82,7 +78,11 @@ function DistributionGroup({
       </Heading>
       <div className={styles.cardGrid}>
         {visible.map((d) => (
-          <DatasetCard key={d.uuid} {...toDatasetCardProps(d)} />
+          <DatasetCard
+            key={d.uuid}
+            {...toDatasetCardData(d)}
+            analyticsLocation={LOCATIONS.MetadataPageLinkedDistributions}
+          />
         ))}
       </div>
       {hasMore && (

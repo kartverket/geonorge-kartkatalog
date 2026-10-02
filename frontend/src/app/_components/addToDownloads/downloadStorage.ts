@@ -6,7 +6,8 @@ export type DownloadItem = {
   uuid: string;
 };
 
-export const ORDER_ITEMS_KEY = "orderItems";
+// Keep the existing value so previously selected downloads remain available.
+export const SELECTED_DOWNLOAD_UUIDS_KEY = "orderItems";
 export const DOWNLOAD_ITEMS_CHANGED_EVENT = "downloadItemsChanged";
 
 type StoredDownloadItem = {
@@ -60,63 +61,67 @@ function dispatchDownloadItemsChanged() {
   document.dispatchEvent(new Event(DOWNLOAD_ITEMS_CHANGED_EVENT));
 }
 
-export function readOrderItems(): string[] {
+export function readSelectedDownloadUuids(): string[] {
   if (typeof window === "undefined") return [];
 
   try {
-    const parsed = JSON.parse(localStorage.getItem(ORDER_ITEMS_KEY) || "[]");
+    const parsed = JSON.parse(
+      localStorage.getItem(SELECTED_DOWNLOAD_UUIDS_KEY) || "[]",
+    );
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
 }
 
-export function isItemInCart(uuid: string): boolean {
-  return readOrderItems().includes(uuid);
+export function isItemSelectedForDownload(uuid: string): boolean {
+  return readSelectedDownloadUuids().includes(uuid);
 }
 
-export function addItemsToCart(items: DownloadItem[]) {
+export function addItemsToDownloads(items: DownloadItem[]) {
   const normalizedItems = normalizeDownloadItems(items);
 
   if (normalizedItems.length === 0) return;
 
-  const selectedItems = new Set(readOrderItems());
+  const selectedItems = new Set(readSelectedDownloadUuids());
 
   for (const item of normalizedItems) {
     // Elementer vi ikke fikk lagret metadata for skal heller ikke inn i
-    // indeksen, ellers ender vi opp med en kurv som peker på ingenting.
+    // indeksen, ellers ender vi opp med et utvalg som peker på ingenting.
     if (!safeSetItem(`${item.uuid}.metadata`, JSON.stringify(item))) continue;
     selectedItems.add(item.uuid);
   }
 
-  safeSetItem(ORDER_ITEMS_KEY, JSON.stringify([...selectedItems]));
+  safeSetItem(SELECTED_DOWNLOAD_UUIDS_KEY, JSON.stringify([...selectedItems]));
   // Sendes uansett, slik at knappene leser tilbake det som faktisk ble lagret.
   dispatchDownloadItemsChanged();
 }
 
-export function removeItemsFromCart(items: DownloadItem[]) {
+export function removeItemsFromDownloads(items: DownloadItem[]) {
   const normalizedItems = normalizeDownloadItems(items);
 
   if (normalizedItems.length === 0) return;
 
   const idsToRemove = new Set(normalizedItems.map((item) => item.uuid));
-  const remainingItems = readOrderItems().filter((id) => !idsToRemove.has(id));
+  const remainingItems = readSelectedDownloadUuids().filter(
+    (id) => !idsToRemove.has(id),
+  );
 
   for (const item of normalizedItems) {
     safeRemoveItem(`${item.uuid}.metadata`);
   }
 
-  safeSetItem(ORDER_ITEMS_KEY, JSON.stringify(remainingItems));
+  safeSetItem(SELECTED_DOWNLOAD_UUIDS_KEY, JSON.stringify(remainingItems));
   dispatchDownloadItemsChanged();
 }
 
-export function clearCart() {
-  const currentItems = readOrderItems();
+export function clearDownloads() {
+  const currentItems = readSelectedDownloadUuids();
 
   for (const uuid of currentItems) {
     safeRemoveItem(`${uuid}.metadata`);
   }
 
-  safeRemoveItem(ORDER_ITEMS_KEY);
+  safeRemoveItem(SELECTED_DOWNLOAD_UUIDS_KEY);
   dispatchDownloadItemsChanged();
 }

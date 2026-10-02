@@ -10,34 +10,23 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
+import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
 import {
   AccessStateTag,
   type AccessTagContext,
 } from "@/components/AccessStateTag/AccessStateTag";
 import { isAllowedThumbnailUrl } from "@/lib/isAllowedThumbnailUrl";
+import type { DatasetCardData } from "@/lib/types/dataset";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
-import AddSeriesToCartButton from "../addToCart/AddSeriesToCartButton";
-import type { DownloadItem } from "../addToCart/cartStorage";
+import AddSeriesToDownloadsButton from "../addToDownloads/AddSeriesToDownloadsButton";
+import type { DownloadItem } from "../addToDownloads/downloadStorage";
 import styles from "./DatasetCard.module.css";
 
-export type DatasetCardProps = {
-  uuid: string;
-  title: string;
-  organization: string | null;
-  typeTranslated: string | null;
-  thumbnailUrl: string | null;
-  distributionUrl: string | null;
-  distributionProtocol: string | null;
-  getCapabilitiesUrl: string | null;
-  showMapLink: boolean | null;
-  mapCapabilitiesUrl: string | null;
-  accessState: "restricted" | "open" | "protected" | null;
-  hierarchyLevel: string | null;
+export type DatasetCardProps = DatasetCardData & {
   viewMode?: "grid" | "list";
   analyticsLocation?: Location;
-  downloadableSeriesMembers: DownloadItem[] | null;
+  downloadableSeriesMembers?: DownloadItem[] | null;
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -136,7 +125,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         <div className={styles.buttonGroupContainer}>
           {p.downloadableSeriesMembers &&
             p.downloadableSeriesMembers.length > 0 && (
-              <AddSeriesToCartButton
+              <AddSeriesToDownloadsButton
                 item={p}
                 downloadableItems={p.downloadableSeriesMembers}
                 location={"header"}
@@ -152,7 +141,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
             />
           )}
           {canDownload && isOpen && isDataset && p.distributionUrl && (
-            <AddToCartButton
+            <AddToDownloadsButton
               item={{
                 accessType: p.accessState,
                 uuid: p.uuid,

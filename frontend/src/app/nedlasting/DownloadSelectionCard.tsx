@@ -7,18 +7,18 @@ import {
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
 import { useId, useState } from "react";
-import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
+import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import {
   AccessStateTag,
   type AccessTagContext,
 } from "@/components/AccessStateTag/AccessStateTag";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
-import styles from "./DownloadCartCard.module.css";
 import { DownloadOptionsForm } from "./DownloadOptionsForm";
+import styles from "./DownloadSelectionCard.module.css";
 import type { DownloadSelection } from "./downloadUtils";
 
-export type DownloadCartCardProps = {
+export type DownloadSelectionCardProps = {
   uuid: string;
   title: string;
   organization: string | null;
@@ -40,7 +40,7 @@ const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
   Datasettserie: "datasettserie",
 };
 
-export function DownloadCartCard({
+export function DownloadSelectionCard({
   uuid,
   title,
   organization,
@@ -53,7 +53,7 @@ export function DownloadCartCard({
   selection,
   onSelectionChangeAction,
   isOrdering = false,
-}: DownloadCartCardProps) {
+}: DownloadSelectionCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   const detailsId = useId();
@@ -119,7 +119,7 @@ export function DownloadCartCard({
               <span>Vis produktsiden</span>
             </a>
           </Button>
-          <AddToCartButton
+          <AddToDownloadsButton
             item={{
               accessType: accessState,
               uuid,

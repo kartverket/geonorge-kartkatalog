@@ -12,10 +12,10 @@ import {
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
 import { type SubmitEventHandler, useEffect, useState } from "react";
 import {
-  clearCart,
-  removeItemsFromCart,
-} from "@/app/_components/addToCart/cartStorage";
-import { useOrderItems } from "@/app/_components/addToCart/useCart";
+  clearDownloads,
+  removeItemsFromDownloads,
+} from "@/app/_components/addToDownloads/downloadStorage";
+import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import {
   createDownloadOrderItem,
   type DownloadSelection,
@@ -24,9 +24,9 @@ import {
 } from "@/app/nedlasting/downloadUtils";
 import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import type { DownloadInsightGroups } from "@/lib/schemas/download";
-import { DownloadCartList } from "./DownloadCartList";
 import styles from "./DownloadPageContent.module.css";
-import { useDownloadCartCards } from "./useDownloadCartCards";
+import { DownloadSelectionList } from "./DownloadSelectionList";
+import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
 import { usePersistedDownloadSelections } from "./usePersistedDownloadSelections";
@@ -38,8 +38,10 @@ type DownloadPageContentClientProps = {
 export function DownloadPageContentClient({
   insightGroups,
 }: DownloadPageContentClientProps) {
-  const orderItems = useOrderItems();
-  const { cards, isLoading, hasLoadError } = useDownloadCartCards(orderItems);
+  const selectedDownloadUuids = useSelectedDownloadUuids();
+  const { cards, isLoading, hasLoadError } = useDownloadCards(
+    selectedDownloadUuids,
+  );
   const optionsByUuid = useDownloadOptionsForCards(
     cards.map((card) => ({
       uuid: card.uuid,
@@ -71,20 +73,20 @@ export function DownloadPageContentClient({
   }
 
   useEffect(() => {
-    if (orderItems.length === 0) return;
+    if (selectedDownloadUuids.length === 0) return;
 
-    const cartUuids = new Set(orderItems);
+    const selectedUuids = new Set(selectedDownloadUuids);
 
     setSelections((current) => {
       const stillRelevant = Object.entries(current).filter(([uuid]) =>
-        cartUuids.has(uuid),
+        selectedUuids.has(uuid),
       );
 
       return stillRelevant.length === Object.keys(current).length
         ? current
         : Object.fromEntries(stillRelevant);
     });
-  }, [orderItems, setSelections]);
+  }, [selectedDownloadUuids, setSelections]);
 
   const downloadableProducts = cards.flatMap((card) => {
     const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
@@ -108,7 +110,7 @@ export function DownloadPageContentClient({
 
   const canOrder =
     cards.length > 0 &&
-    cards.length === orderItems.length &&
+    cards.length === selectedDownloadUuids.length &&
     downloadableProducts.length === cards.length &&
     email.trim() !== "" &&
     usageGroup !== "" &&
@@ -152,15 +154,15 @@ export function DownloadPageContentClient({
         }));
 
       if (successfulItems.length > 0) {
-        removeItemsFromCart(successfulItems);
+        removeItemsFromDownloads(successfulItems);
       }
     });
   };
 
   return (
     <>
-      <DownloadCartList
-        orderItemsCount={orderItems.length}
+      <DownloadSelectionList
+        selectedDownloadCount={selectedDownloadUuids.length}
         cards={cards}
         isLoading={isLoading}
         hasLoadError={hasLoadError}
@@ -171,7 +173,7 @@ export function DownloadPageContentClient({
         onApplyToAll={applyToAllProducts}
         isOrdering={isOrdering}
       />
-      {orderItems.length > 0 || orderResult ? (
+      {selectedDownloadUuids.length > 0 || orderResult ? (
         <section className={styles.orderSectionWrapper}>
           <section className={styles.orderSection}>
             <Heading level={2} data-size={"sm"}>
@@ -237,10 +239,10 @@ export function DownloadPageContentClient({
                   data-color="danger"
                   variant="secondary"
                   onClick={() => {
-                    clearCart();
+                    clearDownloads();
                     setSelections({});
                   }}
-                  disabled={isOrdering || orderItems.length === 0}
+                  disabled={isOrdering || selectedDownloadUuids.length === 0}
                 >
                   <TrashIcon aria-hidden />
                   Fjern alt fra nedlasting
