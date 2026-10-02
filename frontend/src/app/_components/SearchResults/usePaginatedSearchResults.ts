@@ -4,12 +4,10 @@ import { useEffect, useState } from "react";
 import { basePath } from "@/lib/basePath";
 import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
 import { parseSearchResult } from "@/lib/schemas/search";
-import type { DatasetCardProps } from "../DatasetCard/DatasetCard";
-
-type SearchResultCard = Omit<DatasetCardProps, "viewMode">;
+import type { DatasetCardData } from "@/lib/types/dataset";
 
 type UsePaginatedSearchResultsOptions = {
-  initialResults: SearchResultCard[];
+  initialResults: DatasetCardData[];
   totalCount: number;
   searchText: string;
   orderby: string;

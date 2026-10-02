@@ -1,7 +1,7 @@
 import { getServerConsent } from "@cookieyes/nextjs/server";
 import { cookies } from "next/headers";
 import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
-import type { DatasetCardProps } from "./_components/DatasetCard/DatasetCard";
+import type { DatasetCardData } from "@/lib/types/dataset";
 import { SearchHero } from "./_components/SearchHero/SearchHero";
 import { SearchResults } from "./_components/SearchResults/SearchResults";
 import {
@@ -44,8 +44,7 @@ export default async function Home({
     orderby: orderby || "score",
     filters: filters,
   });
-  const results: Array<Omit<DatasetCardProps, "viewMode">> =
-    searchResult.results;
+  const results: DatasetCardData[] = searchResult.results;
 
   return (
     <>

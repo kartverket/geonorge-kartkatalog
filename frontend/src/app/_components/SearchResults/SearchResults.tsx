@@ -4,7 +4,8 @@ import { Button, Heading, Paragraph } from "@kv-designsystem/react";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import { Suspense, useState } from "react";
 import type { SearchResult } from "@/lib/schemas/search";
-import { DatasetCard, type DatasetCardProps } from "../DatasetCard/DatasetCard";
+import type { DatasetCardData } from "@/lib/types/dataset";
+import { DatasetCard } from "../DatasetCard/DatasetCard";
 import { FacetSidebar } from "../FacetSidebar/FacetSidebar";
 import { ActiveFilters } from "./ActiveFilters";
 import styles from "./SearchResults.module.css";
@@ -18,7 +19,7 @@ import type { ViewMode } from "./viewMode";
 
 type SearchResultsProps = {
   initialViewMode?: ViewMode;
-  initialResults: Array<Omit<DatasetCardProps, "viewMode">>;
+  initialResults: DatasetCardData[];
   totalCount: number;
   searchText: string;
   orderby: string;

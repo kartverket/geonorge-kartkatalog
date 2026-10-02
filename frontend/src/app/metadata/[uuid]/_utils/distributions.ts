@@ -1,4 +1,4 @@
-import type { DownloadItem } from "@/app/_components/addToCart/cartStorage";
+import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import type { MapItem } from "@/app/_components/addToMap/mapStorage";
 import {
   DISTRIBUTION_PROTOCOLS,
@@ -68,7 +68,7 @@ export function getDownloadableSeriesMembers(
   });
 }
 
-export function getCartItem(
+export function getDownloadItem(
   metadata: ProductMetadata,
   uuid: string,
 ): DownloadItem | null {

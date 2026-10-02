@@ -12,7 +12,7 @@ RUN --mount=type=cache,id=kartkatalog-backend-gradle-cache,target=/root/.gradle 
     && test -s build/libs/application.jar
 
 
-FROM eclipse-temurin:21-jre-noble AS runtime
+FROM dhi.io/eclipse-temurin:21-alpine3.24 AS runtime
 
 WORKDIR /app
 
