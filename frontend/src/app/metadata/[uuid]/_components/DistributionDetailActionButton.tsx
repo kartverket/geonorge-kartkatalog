@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
+import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
 import { DistributionActionLinkButton } from "@/app/metadata/[uuid]/_components/DistributionActionLinkButton";
 import {
@@ -47,7 +47,7 @@ export function DistributionDetailActionButton({
     accessState === "open"
   ) {
     return (
-      <AddToCartButton
+      <AddToDownloadsButton
         item={{
           accessType: accessState,
           uuid,

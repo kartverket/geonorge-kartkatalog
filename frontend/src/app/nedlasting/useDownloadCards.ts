@@ -83,7 +83,7 @@ function toDownloadCardFromStored(
   };
 }
 
-export function useDownloadCartCards(orderItems: string[]) {
+export function useDownloadCards(selectedDownloadUuids: string[]) {
   const [cards, setCards] = useState<DownloadCard[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasLoadError, setHasLoadError] = useState(false);
@@ -91,7 +91,7 @@ export function useDownloadCartCards(orderItems: string[]) {
   useEffect(() => {
     const controller = new AbortController();
 
-    if (orderItems.length === 0) {
+    if (selectedDownloadUuids.length === 0) {
       setCards([]);
       setHasLoadError(false);
       setIsLoading(false);
@@ -103,7 +103,7 @@ export function useDownloadCartCards(orderItems: string[]) {
       setHasLoadError(false);
 
       const results = await Promise.all(
-        orderItems.map(async (uuid) => {
+        selectedDownloadUuids.map(async (uuid) => {
           const savedItem = readStoredDownloadMetadata(uuid);
           if (hasCardMetadata(savedItem)) {
             return {
@@ -150,7 +150,7 @@ export function useDownloadCartCards(orderItems: string[]) {
 
     void loadCards();
     return () => controller.abort();
-  }, [orderItems]);
+  }, [selectedDownloadUuids]);
 
   return { cards, isLoading, hasLoadError };
 }

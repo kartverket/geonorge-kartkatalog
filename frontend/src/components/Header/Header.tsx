@@ -13,7 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useOrderItems } from "@/app/_components/addToCart/useCart";
+import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import { useMapItems } from "@/app/_components/addToMap/useMap";
 import { basePath, isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
@@ -40,7 +40,7 @@ export function Header() {
   // const user = null; // test utlogget tilstand
 
   const mapCount = useMapItems().length;
-  const downloadCount = useOrderItems().length;
+  const downloadCount = useSelectedDownloadUuids().length;
 
   const geonorgeHref = isBeta ? "https://www.geonorge.no/" : "/";
   const findDataHref = "/";

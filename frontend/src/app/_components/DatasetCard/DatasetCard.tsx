@@ -10,7 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import AddToCartButton from "@/app/_components/addToCart/AddToCartButton";
+import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
 import {
   AccessStateTag,
@@ -19,8 +19,8 @@ import {
 import { isAllowedThumbnailUrl } from "@/lib/isAllowedThumbnailUrl";
 import type { DatasetCardData } from "@/lib/types/dataset";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
-import AddSeriesToCartButton from "../addToCart/AddSeriesToCartButton";
-import type { DownloadItem } from "../addToCart/cartStorage";
+import AddSeriesToDownloadsButton from "../addToDownloads/AddSeriesToDownloadsButton";
+import type { DownloadItem } from "../addToDownloads/downloadStorage";
 import styles from "./DatasetCard.module.css";
 
 export type DatasetCardProps = DatasetCardData & {
@@ -125,7 +125,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         <div className={styles.buttonGroupContainer}>
           {p.downloadableSeriesMembers &&
             p.downloadableSeriesMembers.length > 0 && (
-              <AddSeriesToCartButton
+              <AddSeriesToDownloadsButton
                 item={p}
                 downloadableItems={p.downloadableSeriesMembers}
                 location={"header"}
@@ -141,7 +141,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
             />
           )}
           {canDownload && isOpen && isDataset && p.distributionUrl && (
-            <AddToCartButton
+            <AddToDownloadsButton
               item={{
                 accessType: p.accessState,
                 uuid: p.uuid,
