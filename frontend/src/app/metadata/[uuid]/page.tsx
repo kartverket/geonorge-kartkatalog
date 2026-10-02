@@ -84,10 +84,12 @@ export default async function ProductPage({
         organization={metadata.organization}
         access={metadata.accessState}
       />
-      <ProductAlert
-        alerts={alertsWithDetailsUrl}
-        hierarchyLevel={metadata.hierarchyLevel}
-      />
+      {alertsWithDetailsUrl.length > 0 && (
+        <ProductAlert
+          alerts={alertsWithDetailsUrl}
+          hierarchyLevel={metadata.hierarchyLevel}
+        />
+      )}
       <div className={styles.metaRow}>
         <ProductThumbnail thumbnailUrl={metadata.thumbnailUrl} />
         <ProductMeta
