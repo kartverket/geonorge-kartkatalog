@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Get commit message
         id: get_commit_message
@@ -61,7 +61,7 @@ jobs:
           echo "email=$(git log -1 --pretty=%ae)" >> "$GITHUB_OUTPUT"
 
       - name: Login to Docker Hardened Images
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: dhi.io
           username: ${{ vars.DOCKERHUB_USERNAME  }}
@@ -69,7 +69,7 @@ jobs:
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.NAME }}
           tags: |
@@ -81,7 +81,7 @@ jobs:
         run: echo "value=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - name: Login to Github Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
           username: ${{ github.actor }}
@@ -89,7 +89,7 @@ jobs:
 
       - name: Build docker image and push
         id: build_image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
@@ -138,7 +138,7 @@ jobs:
           identity: kartkatalog
 
       - name: Checkout apps repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: kartverket/geonorge-apps
           ref: main
