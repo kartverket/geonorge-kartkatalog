@@ -20,6 +20,7 @@ import {
   createDownloadOrderItem,
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
+  filterSelectionForProduct,
   getMissingDownloadSelectionFields,
 } from "@/app/nedlasting/downloadUtils";
 import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
@@ -60,13 +61,12 @@ export function DownloadPageContentClient({
     setSelections((current) => ({ ...current, [uuid]: selection }));
   }
 
-  function applyToAllProducts(
-    update: (selection: DownloadSelection) => DownloadSelection,
-  ) {
+  function applyToAllProducts(bulkSelection: DownloadSelection) {
     setSelections((current) => {
       const next = { ...current };
       for (const card of cards) {
-        next[card.uuid] = update(next[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION);
+        const options = optionsByUuid[card.uuid]?.options ?? null;
+        next[card.uuid] = filterSelectionForProduct(options, bulkSelection);
       }
       return next;
     });

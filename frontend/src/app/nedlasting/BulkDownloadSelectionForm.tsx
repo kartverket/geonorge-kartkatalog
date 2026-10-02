@@ -1,13 +1,19 @@
 "use client";
 
-import { Field, Heading, Label } from "@kv-designsystem/react";
+import {
+  Field,
+  Heading,
+  Label,
+  ValidationMessage,
+} from "@kv-designsystem/react";
 import { useState } from "react";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
 import {
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
-  resolveCommonDownloadAvailability,
+  getDownloadSelectionGapCounts,
+  resolveUnionDownloadAvailability,
   selectDownloadAreas,
   selectDownloadFormats,
   selectDownloadProjections,
@@ -18,9 +24,7 @@ type BulkDownloadSelectionFormProps = {
   optionsList: (DownloadOptions | null)[];
   isLoading: boolean;
   isOrdering?: boolean;
-  onApplyToAllAction: (
-    update: (selection: DownloadSelection) => DownloadSelection,
-  ) => void;
+  onApplyToAllAction: (bulkSelection: DownloadSelection) => void;
 };
 
 export function BulkDownloadSelectionForm({
@@ -32,30 +36,25 @@ export function BulkDownloadSelectionForm({
   const [selection, setSelection] = useState<DownloadSelection>(
     EMPTY_DOWNLOAD_SELECTION,
   );
-  const availability = resolveCommonDownloadAvailability(
-    optionsList,
-    selection,
-  );
+  const availability = resolveUnionDownloadAvailability(optionsList, selection);
+  const gapCounts = getDownloadSelectionGapCounts(optionsList, selection);
 
   function changeArea(areaCodes: string[]) {
-    const update = (current: DownloadSelection) =>
-      selectDownloadAreas(current, areaCodes);
-    setSelection(update);
-    onApplyToAllAction(update);
+    const next = selectDownloadAreas(selection, areaCodes);
+    setSelection(next);
+    onApplyToAllAction(next);
   }
 
   function changeProjection(projectionCodes: string[]) {
-    const update = (current: DownloadSelection) =>
-      selectDownloadProjections(current, projectionCodes);
-    setSelection(update);
-    onApplyToAllAction(update);
+    const next = selectDownloadProjections(selection, projectionCodes);
+    setSelection(next);
+    onApplyToAllAction(next);
   }
 
   function changeFormat(formatNames: string[]) {
-    const update = (current: DownloadSelection) =>
-      selectDownloadFormats(current, formatNames);
-    setSelection(update);
-    onApplyToAllAction(update);
+    const next = selectDownloadFormats(selection, formatNames);
+    setSelection(next);
+    onApplyToAllAction(next);
   }
 
   return (
@@ -82,9 +81,13 @@ export function BulkDownloadSelectionForm({
               isOrdering={isOrdering}
             />
             {availability.areaOptions.length === 0 ? (
-              <p className={styles.emptyMessage}>
-                Ingen felles geografiske områder for alle valgte produkter.
-              </p>
+              <ValidationMessage data-color="warning">
+                Ingen geografiske områder tilgjengelig for valgte produkter.
+              </ValidationMessage>
+            ) : selection.areaCodes.length > 0 && gapCounts.areas > 0 ? (
+              <ValidationMessage data-color="warning">
+                {gapCounts.areas} datasett har ikke valgte områder.
+              </ValidationMessage>
             ) : null}
           </Field>
           {selection.areaCodes.length > 0 ? (
@@ -101,9 +104,14 @@ export function BulkDownloadSelectionForm({
                 isOrdering={isOrdering}
               />
               {availability.projectionOptions.length === 0 ? (
-                <p className={styles.emptyMessage}>
-                  Ingen felles projeksjoner for valgte områder i alle produkter.
-                </p>
+                <ValidationMessage data-color="warning">
+                  Ingen projeksjoner tilgjengelig for valgte områder.
+                </ValidationMessage>
+              ) : selection.projectionCodes.length > 0 &&
+                gapCounts.projections > 0 ? (
+                <ValidationMessage data-color="warning">
+                  {gapCounts.projections} datasett har ikke valgte projeksjoner.
+                </ValidationMessage>
               ) : null}
             </Field>
           ) : null}
@@ -111,21 +119,27 @@ export function BulkDownloadSelectionForm({
             <Field className={styles.selectionField}>
               <Label>Format</Label>
               {availability.formatOptions.length === 0 ? (
-                <p className={styles.emptyMessage}>
-                  Ingen felles formater for alle valgte produkter med disse
-                  projeksjonene.
-                </p>
+                <ValidationMessage data-color="warning">
+                  Ingen formater tilgjengelig for valgte projeksjoner.
+                </ValidationMessage>
               ) : (
-                <MultiSuggestion
-                  selectedValues={selection.formatNames}
-                  onChangeAction={changeFormat}
-                  options={availability.formatOptions.map((format) => ({
-                    label: format.name,
-                    value: format.name,
-                  }))}
-                  placeholder="Velg format"
-                  isOrdering={isOrdering}
-                />
+                <>
+                  <MultiSuggestion
+                    selectedValues={selection.formatNames}
+                    onChangeAction={changeFormat}
+                    options={availability.formatOptions.map((format) => ({
+                      label: format.name,
+                      value: format.name,
+                    }))}
+                    placeholder="Velg format"
+                    isOrdering={isOrdering}
+                  />
+                  {selection.formatNames.length > 0 && gapCounts.formats > 0 ? (
+                    <ValidationMessage data-color="warning">
+                      {gapCounts.formats} datasett har ikke valgte formater.
+                    </ValidationMessage>
+                  ) : null}
+                </>
               )}
             </Field>
           ) : null}

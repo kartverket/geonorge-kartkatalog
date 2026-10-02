@@ -81,12 +81,14 @@ export function getMissingDownloadSelectionFields(
   return missingFields;
 }
 
-function getSelectedAreas(options: DownloadOptions, areaCodes: string[]) {
+function getMatchingAreas(options: DownloadOptions, areaCodes: string[]) {
   const selectedCodes = new Set(areaCodes);
-  const areas = options.areas.filter((option) =>
-    selectedCodes.has(option.area.code),
-  );
-  return areas.length === selectedCodes.size ? areas : [];
+  return options.areas.filter((option) => selectedCodes.has(option.area.code));
+}
+
+function getSelectedAreas(options: DownloadOptions, areaCodes: string[]) {
+  const areas = getMatchingAreas(options, areaCodes);
+  return areas.length === new Set(areaCodes).size ? areas : [];
 }
 
 function resolveProjectionOptions(areas: DownloadAreaOption[]) {
@@ -140,6 +142,30 @@ export function resolveDownloadAvailability(
       selection.projectionCodes,
     ),
   };
+}
+
+export function filterSelectionForProduct(
+  options: DownloadOptions | null,
+  bulkSelection: DownloadSelection,
+): DownloadSelection {
+  if (!options) return EMPTY_DOWNLOAD_SELECTION;
+
+  const matchingAreas = getMatchingAreas(options, bulkSelection.areaCodes);
+  const areaCodes = matchingAreas.map((area) => area.area.code);
+
+  const projectionOptions = resolveProjectionOptions(matchingAreas);
+  const projectionCodeSet = new Set(bulkSelection.projectionCodes);
+  const projectionCodes = projectionOptions
+    .filter((projection) => projectionCodeSet.has(projection.code))
+    .map((projection) => projection.code);
+
+  const formatOptions = resolveFormatOptions(matchingAreas, projectionCodes);
+  const formatNameSet = new Set(bulkSelection.formatNames);
+  const formatNames = formatOptions
+    .filter((format) => formatNameSet.has(format.name))
+    .map((format) => format.name);
+
+  return { areaCodes, projectionCodes, formatNames };
 }
 
 export function createDownloadOrderItem(
@@ -203,53 +229,88 @@ function intersectByKey<T>(lists: T[][], key: (item: T) => string): T[] {
   });
 }
 
-function getCommonAreas(
-  optionsList: (DownloadOptions | null)[],
-): DownloadAreaOption[] {
-  if (optionsList.length === 0 || optionsList.some((options) => !options)) {
-    return [];
+function unionByKey<T>(lists: T[][], key: (item: T) => string): T[] {
+  const seen = new Set<string>();
+  const result: T[] = [];
+
+  for (const list of lists) {
+    for (const item of list) {
+      const itemKey = key(item);
+      if (seen.has(itemKey)) continue;
+      seen.add(itemKey);
+      result.push(item);
+    }
   }
 
-  return intersectByKey(
-    optionsList.map((options) => options?.areas ?? []),
-    (option) => option.area.code,
-  );
+  return result;
 }
 
-export function resolveCommonDownloadAvailability(
+export type DownloadSelectionGapCounts = {
+  areas: number;
+  projections: number;
+  formats: number;
+};
+
+export function getDownloadSelectionGapCounts(
+  optionsList: (DownloadOptions | null)[],
+  bulkSelection: DownloadSelection,
+): DownloadSelectionGapCounts {
+  const perProductSelections = optionsList.map((options) =>
+    filterSelectionForProduct(options, bulkSelection),
+  );
+
+  function countGaps(
+    bulkField: string[],
+    getField: (selection: DownloadSelection) => string[],
+  ) {
+    if (bulkField.length === 0) return 0;
+    return perProductSelections.filter(
+      (selection) => getField(selection).length === 0,
+    ).length;
+  }
+
+  return {
+    areas: countGaps(bulkSelection.areaCodes, (s) => s.areaCodes),
+    projections: countGaps(
+      bulkSelection.projectionCodes,
+      (s) => s.projectionCodes,
+    ),
+    formats: countGaps(bulkSelection.formatNames, (s) => s.formatNames),
+  };
+}
+
+export function resolveUnionDownloadAvailability(
   optionsList: (DownloadOptions | null)[],
   selection: Pick<DownloadSelection, "areaCodes" | "projectionCodes">,
 ): DownloadAvailability {
-  if (optionsList.length === 0 || optionsList.some((options) => !options)) {
-    return {
-      areaOptions: [],
-      selectedAreaOptions: [],
-      projectionOptions: [],
-      formatOptions: [],
-    };
-  }
-
-  const resolutions = optionsList.map((options) =>
-    resolveDownloadAvailability(options, selection),
+  const presentOptionsList = optionsList.flatMap((options) =>
+    options ? [options] : [],
   );
-  const areaOptions = getCommonAreas(optionsList);
+
+  const areaOptions = unionByKey(
+    presentOptionsList.map((options) => options.areas),
+    (option) => option.area.code,
+  );
   const selectedCodes = new Set(selection.areaCodes);
   const selectedAreaOptions = areaOptions.filter((option) =>
     selectedCodes.has(option.area.code),
   );
 
+  const matchingAreasByProduct = presentOptionsList.map((options) =>
+    getMatchingAreas(options, selection.areaCodes),
+  );
+
   return {
     areaOptions,
-    selectedAreaOptions:
-      selectedAreaOptions.length === selectedCodes.size
-        ? selectedAreaOptions
-        : [],
-    projectionOptions: intersectByKey(
-      resolutions.map((resolution) => resolution.projectionOptions),
+    selectedAreaOptions,
+    projectionOptions: unionByKey(
+      matchingAreasByProduct.map((areas) => resolveProjectionOptions(areas)),
       (projection) => projection.code,
     ),
-    formatOptions: intersectByKey(
-      resolutions.map((resolution) => resolution.formatOptions),
+    formatOptions: unionByKey(
+      matchingAreasByProduct.map((areas) =>
+        resolveFormatOptions(areas, selection.projectionCodes),
+      ),
       (format) => format.name,
     ),
   };

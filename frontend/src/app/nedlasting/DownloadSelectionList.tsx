@@ -26,9 +26,7 @@ type DownloadSelectionListProps = {
     missingFields: MissingDownloadSelectionField[];
   }[];
   onSelectionChange: (uuid: string, selection: DownloadSelection) => void;
-  onApplyToAll: (
-    update: (selection: DownloadSelection) => DownloadSelection,
-  ) => void;
+  onApplyToAll: (bulkSelection: DownloadSelection) => void;
   isOrdering?: boolean;
 };
 
