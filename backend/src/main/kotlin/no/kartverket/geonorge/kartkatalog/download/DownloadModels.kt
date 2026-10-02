@@ -2,6 +2,7 @@ package no.kartverket.geonorge.kartkatalog.download
 
 data class DownloadOrderItem(
     val uuid: String,
+    val capabilitiesUrl: String,
     val areas: List<DownloadOrderArea> = emptyList(),
     val projections: List<DownloadOrderProjection> = emptyList(),
     val formats: List<DownloadOrderFormat> = emptyList(),

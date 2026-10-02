@@ -16,13 +16,13 @@ import {
   removeItemsFromDownloads,
 } from "@/app/_components/addToDownloads/downloadStorage";
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
-import { ChipMultiSelect } from "@/app/nedlasting/ChipMultiSelect";
 import {
   createDownloadOrderItem,
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
   getMissingDownloadSelectionFields,
 } from "@/app/nedlasting/downloadUtils";
+import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import type { DownloadInsightGroups } from "@/lib/schemas/download";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
@@ -91,7 +91,12 @@ export function DownloadPageContentClient({
   const downloadableProducts = cards.flatMap((card) => {
     const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
     const options = optionsByUuid[card.uuid]?.options ?? null;
-    const item = createDownloadOrderItem(card.uuid, options, selection);
+    const item = createDownloadOrderItem(
+      card.uuid,
+      card.distributionUrl,
+      options,
+      selection,
+    );
 
     return item ? [item] : [];
   });
@@ -193,7 +198,7 @@ export function DownloadPageContentClient({
                 </Field>
                 <Field>
                   <Label>Formål</Label>
-                  <ChipMultiSelect
+                  <MultiSuggestion
                     selectedValues={usagePurpose}
                     onChangeAction={setUsagePurpose}
                     options={insightGroups.formal.map((purpose) => ({

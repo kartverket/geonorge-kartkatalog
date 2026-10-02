@@ -3,16 +3,6 @@ package no.kartverket.geonorge.kartkatalog.download
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.AREA_REL
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingArea
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingClient
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingException
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingFormat
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingInsightGroups
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderLine
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingOrderRequest
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.NedlastingProjection
-import no.kartverket.geonorge.kartkatalog.integrations.nedlasting.ORDER_REL
 import org.slf4j.LoggerFactory
 
 class DownloadException(
@@ -25,11 +15,11 @@ private data class ResolvedOrderLine(
     val orderUrl: String,
     val supportsBundling: Boolean,
     val restricted: Boolean,
-    val line: NedlastingOrderLine,
+    val line: DownloadApiOrderLine,
 )
 
 class DownloadService(
-    private val nedlastingClient: NedlastingClient,
+    private val downloadApiClient: DownloadApiClient,
     private val downloadInsightGroupsResolver: DownloadInsightGroupsResolver,
 ) {
     private val log = LoggerFactory.getLogger(DownloadService::class.java)
@@ -49,7 +39,7 @@ class DownloadService(
             }
 
             val (bundlable, individual) = resolved.partition { it.supportsBundling }
-            val groups = bundlable.groupBy { it.orderUrl }.values + individual.map { listOf(it) }
+            val groups = bundlable.groupBy { it.orderUrl to it.restricted }.values + individual.map { listOf(it) }
 
             val results =
                 groups
@@ -69,9 +59,9 @@ class DownloadService(
 
         return try {
             val response =
-                nedlastingClient.order(
+                downloadApiClient.order(
                     group.first().orderUrl,
-                    NedlastingOrderRequest(
+                    DownloadApiOrderRequest(
                         email = request.email,
                         usageGroup = request.usageGroup,
                         orderLines = group.map { it.line },
@@ -103,7 +93,13 @@ class DownloadService(
                         },
                 ),
             )
-        } catch (e: NedlastingException) {
+        } catch (e: DownloadException) {
+            log.warn("Order failed for group with url {}", group.first().orderUrl, e)
+            DownloadOrderGroupResult.Failure(
+                metadataUuids = metadataUuids,
+                message = e.message ?: "Bestillingen feilet",
+            )
+        } catch (e: DownloadApiException) {
             log.warn("Order failed for group with url {}", group.first().orderUrl, e)
             DownloadOrderGroupResult.Failure(
                 metadataUuids = metadataUuids,
@@ -116,7 +112,7 @@ class DownloadService(
         uuid: String,
         capabilitiesUrl: String,
     ): DownloadOptions {
-        val capabilities = nedlastingClient.getCapabilities(capabilitiesUrl, uuid)
+        val capabilities = downloadApiClient.getCapabilities(capabilitiesUrl, uuid)
         val areasUrl = capabilities.linkFor(AREA_REL)
 
         if (areasUrl == null) {
@@ -126,7 +122,7 @@ class DownloadService(
 
         return DownloadOptions(
             areas =
-                nedlastingClient.getAreas(areasUrl).map { area ->
+                downloadApiClient.getAreas(areasUrl).map { area ->
                     DownloadAreaOption(
                         area =
                             DownloadArea(
@@ -152,7 +148,7 @@ class DownloadService(
     }
 
     private suspend fun resolveOrderLine(item: DownloadOrderItem): ResolvedOrderLine {
-        val capabilities = nedlastingClient.getCapabilities(item.uuid)
+        val capabilities = downloadApiClient.getCapabilities(item.capabilitiesUrl, item.uuid)
         val orderUrl =
             capabilities.linkFor(ORDER_REL)
                 ?: throw DownloadException("No order URL found for dataset ${item.uuid}")
@@ -162,11 +158,11 @@ class DownloadService(
             supportsBundling = capabilities.supportsDownloadBundling,
             restricted = !capabilities.accessConstraintRequiredRole.isNullOrBlank(),
             line =
-                NedlastingOrderLine(
+                DownloadApiOrderLine(
                     metadataUuid = item.uuid,
                     areas =
                         item.areas.map { area ->
-                            NedlastingArea(
+                            DownloadApiArea(
                                 code = area.code,
                                 name = area.name,
                                 type = area.type,
@@ -174,7 +170,7 @@ class DownloadService(
                         },
                     projections =
                         item.projections.map { projection ->
-                            NedlastingProjection(
+                            DownloadApiProjection(
                                 code = projection.code,
                                 name = projection.name,
                                 codespace = projection.codespace,
@@ -182,7 +178,7 @@ class DownloadService(
                         },
                     formats =
                         item.formats.map { format ->
-                            NedlastingFormat(
+                            DownloadApiFormat(
                                 code = format.code,
                                 name = format.name,
                                 type = format.type,
@@ -195,11 +191,11 @@ class DownloadService(
         )
     }
 
-    suspend fun getInsightGroups(): NedlastingInsightGroups {
+    suspend fun getInsightGroups(): DownloadInsightGroups {
         val formal = downloadInsightGroupsResolver.getValues("formal")
         val brukergrupper = downloadInsightGroupsResolver.getValues("brukergrupper")
 
-        return NedlastingInsightGroups(
+        return DownloadInsightGroups(
             formal = formal?.toList() ?: emptyList(),
             brukergrupper = brukergrupper?.toList() ?: emptyList(),
         )

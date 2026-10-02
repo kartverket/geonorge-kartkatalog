@@ -3,17 +3,16 @@
 import { Field, Heading, Label } from "@kv-designsystem/react";
 import { useState } from "react";
 import type { DownloadOptions } from "@/lib/schemas/download";
-import { ChipMultiSelect } from "./ChipMultiSelect";
 import styles from "./DownloadOptionsForm.module.css";
 import {
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
-  getAreaOptionGroups,
   resolveCommonDownloadAvailability,
   selectDownloadAreas,
   selectDownloadFormats,
   selectDownloadProjections,
 } from "./downloadUtils";
+import { MultiSuggestion } from "./MultiSuggestion";
 
 type BulkDownloadSelectionFormProps = {
   optionsList: (DownloadOptions | null)[];
@@ -37,7 +36,6 @@ export function BulkDownloadSelectionForm({
     optionsList,
     selection,
   );
-  const areaGroups = getAreaOptionGroups(availability.areaOptions);
 
   function changeArea(areaCodes: string[]) {
     const update = (current: DownloadSelection) =>
@@ -71,15 +69,14 @@ export function BulkDownloadSelectionForm({
         <div className={styles.selectionFields}>
           <Field className={styles.selectionField}>
             <Label>Geografisk område</Label>
-            <ChipMultiSelect
+            <MultiSuggestion
               selectedValues={selection.areaCodes}
               onChangeAction={changeArea}
-              options={areaGroups.map((group) => ({
-                label: group.label,
-                options: group.areas.map((option) => ({
-                  label: option.area.name,
-                  value: option.area.code,
-                })),
+              options={availability.areaOptions.map((option) => ({
+                label: option.area.type
+                  ? `${option.area.name} (${option.area.type})`
+                  : option.area.name,
+                value: option.area.code,
               }))}
               placeholder="Velg geografisk område"
               isOrdering={isOrdering}
@@ -93,7 +90,7 @@ export function BulkDownloadSelectionForm({
           {selection.areaCodes.length > 0 ? (
             <Field className={styles.selectionField}>
               <Label>Projeksjon</Label>
-              <ChipMultiSelect
+              <MultiSuggestion
                 selectedValues={selection.projectionCodes}
                 onChangeAction={changeProjection}
                 options={availability.projectionOptions.map((projection) => ({
@@ -119,7 +116,7 @@ export function BulkDownloadSelectionForm({
                   projeksjonene.
                 </p>
               ) : (
-                <ChipMultiSelect
+                <MultiSuggestion
                   selectedValues={selection.formatNames}
                   onChangeAction={changeFormat}
                   options={availability.formatOptions.map((format) => ({

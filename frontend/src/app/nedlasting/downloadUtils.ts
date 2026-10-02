@@ -144,6 +144,7 @@ export function resolveDownloadAvailability(
 
 export function createDownloadOrderItem(
   uuid: string,
+  capabilitiesUrl: string,
   options: DownloadOptions | null,
   selection: DownloadSelection,
 ): DownloadOrderItemInput | null {
@@ -165,6 +166,7 @@ export function createDownloadOrderItem(
 
   return {
     uuid,
+    capabilitiesUrl,
     areas: availability.selectedAreaOptions.map(toDownloadOrderArea),
     projections: projections.map(toDownloadOrderProjection),
     formats: formats.map((format) => ({ name: format.name })),
@@ -187,38 +189,6 @@ function toDownloadOrderProjection(
 ): DownloadOrderProjectionInput {
   const { code, name, codespace } = projection;
   return { code, name, codespace };
-}
-
-export type AreaOptionGroup = {
-  label: string;
-  areas: DownloadAreaOption[];
-};
-
-const AREA_GROUPS = [
-  { type: "landsdekkende", label: "Hele landet" },
-  { type: "fylke", label: "Fylke" },
-  { type: "kommune", label: "Kommune" },
-  { type: "celle", label: "Celle" },
-] as const;
-
-export function getAreaOptionGroups(
-  areas: DownloadAreaOption[],
-): AreaOptionGroup[] {
-  const knownTypes = new Set<string>(AREA_GROUPS.map((group) => group.type));
-
-  const groups = AREA_GROUPS.flatMap(({ type, label }) => {
-    const groupedAreas = areas.filter((option) => option.area.type === type);
-
-    return groupedAreas.length > 0 ? [{ label, areas: groupedAreas }] : [];
-  });
-
-  const otherAreas = areas.filter(
-    (option) => !option.area.type || !knownTypes.has(option.area.type),
-  );
-
-  return otherAreas.length > 0
-    ? [...groups, { label: "Annet", areas: otherAreas }]
-    : groups;
 }
 
 function intersectByKey<T>(lists: T[][], key: (item: T) => string): T[] {
