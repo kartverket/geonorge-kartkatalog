@@ -89,7 +89,12 @@ export function DownloadPageContentClient({
   const downloadableProducts = cards.flatMap((card) => {
     const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
     const options = optionsByUuid[card.uuid]?.options ?? null;
-    const item = createDownloadOrderItem(card.uuid, options, selection);
+    const item = createDownloadOrderItem(
+      card.uuid,
+      card.distributionUrl,
+      options,
+      selection,
+    );
 
     return item ? [item] : [];
   });

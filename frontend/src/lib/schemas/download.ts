@@ -100,6 +100,7 @@ export const DownloadOrderFormatInputSchema = z
 export const DownloadOrderItemInputSchema = z
   .object({
     uuid: z.string().min(1),
+    capabilitiesUrl: z.string().url(),
     areas: z.array(DownloadOrderAreaInputSchema).min(1),
     projections: z.array(DownloadOrderProjectionInputSchema).min(1),
     formats: z.array(DownloadOrderFormatInputSchema).min(1),

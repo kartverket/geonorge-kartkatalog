@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.integrations.nedlasting
+package no.kartverket.geonorge.kartkatalog.download
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -7,7 +7,7 @@ const val ORDER_REL = "http://rel.geonorge.no/download/order"
 const val AREA_REL = "http://rel.geonorge.no/download/area"
 
 @Serializable
-data class NedlastingCapabilities(
+data class DownloadApiCapabilities(
     val supportsProjectionSelection: Boolean = false,
     val supportsFormatSelection: Boolean = false,
     val supportsPolygonSelection: Boolean = false,
@@ -17,67 +17,67 @@ data class NedlastingCapabilities(
     val deliveryNotificationByEmail: Boolean = false,
     val accessConstraintRequiredRole: String? = null,
     @SerialName("_links")
-    val links: List<NedlastingLink> = emptyList(),
+    val links: List<DownloadApiLink> = emptyList(),
 ) {
     fun linkFor(rel: String): String? = links.firstOrNull { it.rel == rel }?.href
 }
 
 @Serializable
-data class NedlastingLink(
+data class DownloadApiLink(
     val href: String,
     val rel: String,
 )
 
 @Serializable
-data class NedlastingOrderRequest(
+data class DownloadApiOrderRequest(
     val email: String = "",
     val usageGroup: String? = null,
     val softwareClient: String = "Kartkatalogen",
     val softwareClientVersion: String? = null,
-    val orderLines: List<NedlastingOrderLine>,
+    val orderLines: List<DownloadApiOrderLine>,
 )
 
 @Serializable
-data class NedlastingOrderLine(
+data class DownloadApiOrderLine(
     val metadataUuid: String,
-    val areas: List<NedlastingArea> = emptyList(),
-    val projections: List<NedlastingProjection> = emptyList(),
-    val formats: List<NedlastingFormat> = emptyList(),
+    val areas: List<DownloadApiArea> = emptyList(),
+    val projections: List<DownloadApiProjection> = emptyList(),
+    val formats: List<DownloadApiFormat> = emptyList(),
     val usagePurpose: List<String> = emptyList(),
     val coordinates: String? = null,
     val clipperFile: String? = null,
 )
 
 @Serializable
-data class NedlastingArea(
+data class DownloadApiArea(
     val code: String,
     val name: String,
     val type: String? = null,
 )
 
 @Serializable
-data class NedlastingProjection(
+data class DownloadApiProjection(
     val code: String,
     val name: String,
     val codespace: String? = null,
 )
 
 @Serializable
-data class NedlastingFormat(
+data class DownloadApiFormat(
     val code: String? = null,
     val name: String,
     val type: String? = null,
 )
 
 @Serializable
-data class NedlastingOrderResponse(
-    val files: List<NedlastingOrderFile> = emptyList(),
+data class DownloadApiOrderResponse(
+    val files: List<DownloadApiOrderFile> = emptyList(),
     @SerialName("_links")
-    val links: List<NedlastingLink> = emptyList(),
+    val links: List<DownloadApiLink> = emptyList(),
 )
 
 @Serializable
-data class NedlastingOrderFile(
+data class DownloadApiOrderFile(
     val status: String,
     val downloadUrl: String? = null,
     val name: String? = null,
@@ -89,29 +89,29 @@ data class NedlastingOrderFile(
 )
 
 @Serializable
-data class NedlastingAreaCodelistEntry(
+data class DownloadApiAreaCodelistEntry(
     val type: String? = null,
     val name: String,
     val code: String,
-    val projections: List<NedlastingProjectionOption> = emptyList(),
-    val formats: List<NedlastingFormatOption> = emptyList(),
+    val projections: List<DownloadApiProjectionOption> = emptyList(),
+    val formats: List<DownloadApiFormatOption> = emptyList(),
 )
 
 @Serializable
-data class NedlastingProjectionOption(
+data class DownloadApiProjectionOption(
     val code: String,
     val name: String,
     val codespace: String? = null,
-    val formats: List<NedlastingFormatOption>? = null,
+    val formats: List<DownloadApiFormatOption>? = null,
 )
 
 @Serializable
-data class NedlastingFormatOption(
+data class DownloadApiFormatOption(
     val name: String,
 )
 
 @Serializable
-data class NedlastingInsightGroups(
+data class DownloadInsightGroups(
     val formal: List<String> = emptyList(),
     val brukergrupper: List<String> = emptyList(),
 )
