@@ -52,12 +52,15 @@ const DownloadOrderFileSchema = z.object({
   metadataName: z.string().nullable(),
 });
 
-const DownloadOrderResponseSchema = z.object({
+const DownloadOrderGroupResultSchema = z.object({
+  status: z.enum(["ordered", "failed"]),
   files: z.array(DownloadOrderFileSchema),
+  metadataUuids: z.array(z.string()),
+  message: z.string().nullable(),
 });
 
 export const DownloadOrderResultSchema = z.object({
-  orders: z.array(DownloadOrderResponseSchema),
+  orders: z.array(DownloadOrderGroupResultSchema),
 });
 
 export type DownloadOrderResult = z.infer<typeof DownloadOrderResultSchema>;

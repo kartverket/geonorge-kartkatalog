@@ -55,14 +55,17 @@ data class DownloadOrderRequestDto(
 
 @Serializable
 data class DownloadOrderResponseDto(
-    val orders: List<DownloadOrderDto>,
+    val orders: List<DownloadOrderGroupResultDto>,
 )
 
 @Serializable
-data class DownloadOrderDto(
-    val files: List<DownloadOrderFileDto>,
+data class DownloadOrderGroupResultDto(
+    val status: String,
+    val files: List<DownloadOrderFileDto> = emptyList(),
     @SerialName("_links")
-    val links: List<DownloadOrderLinkDto>,
+    val links: List<DownloadOrderLinkDto> = emptyList(),
+    val metadataUuids: List<String> = emptyList(),
+    val message: String? = null,
 )
 
 @Serializable
@@ -156,32 +159,43 @@ private fun DownloadOrderRequestDto.toDomain() =
 
 private fun DownloadOrderResult.toDto() =
     DownloadOrderResponseDto(
-        orders =
-            responses.map { response ->
-                DownloadOrderDto(
-                    files =
-                        response.files.map { file ->
-                            DownloadOrderFileDto(
-                                status = file.status,
-                                downloadUrl = file.downloadUrl,
-                                name = file.name,
-                                areaName = file.areaName,
-                                projectionName = file.projectionName,
-                                format = file.format,
-                                metadataUuid = file.metadataUuid,
-                                metadataName = file.metadataName,
-                            )
-                        },
-                    links =
-                        response.links.map { link ->
-                            DownloadOrderLinkDto(
-                                href = link.href,
-                                rel = link.rel,
-                            )
-                        },
-                )
-            },
+        orders = results.map { it.toDto() },
     )
+
+private fun DownloadOrderGroupResult.toDto(): DownloadOrderGroupResultDto =
+    when (this) {
+        is DownloadOrderGroupResult.Success ->
+            DownloadOrderGroupResultDto(
+                status = "ordered",
+                files =
+                    response.files.map { file ->
+                        DownloadOrderFileDto(
+                            status = file.status,
+                            downloadUrl = file.downloadUrl,
+                            name = file.name,
+                            areaName = file.areaName,
+                            projectionName = file.projectionName,
+                            format = file.format,
+                            metadataUuid = file.metadataUuid,
+                            metadataName = file.metadataName,
+                        )
+                    },
+                links =
+                    response.links.map { link ->
+                        DownloadOrderLinkDto(
+                            href = link.href,
+                            rel = link.rel,
+                        )
+                    },
+            )
+
+        is DownloadOrderGroupResult.Failure ->
+            DownloadOrderGroupResultDto(
+                status = "failed",
+                metadataUuids = metadataUuids,
+                message = message,
+            )
+    }
 
 private fun DownloadOptions.toDto() =
     DownloadOptionsDto(

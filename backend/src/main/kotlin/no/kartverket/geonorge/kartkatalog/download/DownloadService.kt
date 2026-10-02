@@ -41,50 +41,66 @@ class DownloadService(
             val (bundlable, individual) = resolved.partition { it.supportsBundling }
             val groups = bundlable.groupBy { it.orderUrl to it.restricted }.values + individual.map { listOf(it) }
 
-            val responses =
+            val results =
                 groups
-                    .map { group ->
-                        async {
-                            val groupIsRestricted = group.any { it.restricted }
+                    .map { group -> async { orderGroup(request, group, geoIdAccessToken) } }
+                    .awaitAll()
 
-                            downloadApiClient.order(
-                                group.first().orderUrl,
-                                DownloadApiOrderRequest(
-                                    email = request.email,
-                                    usageGroup = request.usageGroup,
-                                    orderLines = group.map { it.line },
-                                ),
-                                if (groupIsRestricted) geoIdAccessToken else null,
-                            )
-                        }
-                    }.awaitAll()
-                    .map { response ->
-                        DownloadOrderResponse(
-                            files =
-                                response.files.map { file ->
-                                    DownloadOrderFile(
-                                        status = file.status,
-                                        downloadUrl = file.downloadUrl,
-                                        name = file.name,
-                                        areaName = file.areaName,
-                                        projectionName = file.projectionName,
-                                        format = file.format,
-                                        metadataUuid = file.metadataUuid,
-                                        metadataName = file.metadataName,
-                                    )
-                                },
-                            links =
-                                response.links.map { link ->
-                                    DownloadOrderLink(
-                                        href = link.href,
-                                        rel = link.rel,
-                                    )
-                                },
-                        )
-                    }
-
-            DownloadOrderResult(responses)
+            DownloadOrderResult(results)
         }
+
+    private suspend fun orderGroup(
+        request: DownloadOrderRequest,
+        group: List<ResolvedOrderLine>,
+        geoIdAccessToken: String?,
+    ): DownloadOrderGroupResult {
+        val metadataUuids = group.map { it.line.metadataUuid }
+        val groupIsRestricted = group.any { it.restricted }
+
+        return try {
+            val response =
+                downloadApiClient.order(
+                    group.first().orderUrl,
+                    DownloadApiOrderRequest(
+                        email = request.email,
+                        usageGroup = request.usageGroup,
+                        orderLines = group.map { it.line },
+                    ),
+                    if (groupIsRestricted) geoIdAccessToken else null,
+                )
+
+            DownloadOrderGroupResult.Success(
+                DownloadOrderResponse(
+                    files =
+                        response.files.map { file ->
+                            DownloadOrderFile(
+                                status = file.status,
+                                downloadUrl = file.downloadUrl,
+                                name = file.name,
+                                areaName = file.areaName,
+                                projectionName = file.projectionName,
+                                format = file.format,
+                                metadataUuid = file.metadataUuid,
+                                metadataName = file.metadataName,
+                            )
+                        },
+                    links =
+                        response.links.map { link ->
+                            DownloadOrderLink(
+                                href = link.href,
+                                rel = link.rel,
+                            )
+                        },
+                ),
+            )
+        } catch (e: DownloadException) {
+            log.warn("Order failed for group with url {}", group.first().orderUrl, e)
+            DownloadOrderGroupResult.Failure(
+                metadataUuids = metadataUuids,
+                message = e.message ?: "Bestillingen feilet",
+            )
+        }
+    }
 
     suspend fun getOptions(
         uuid: String,

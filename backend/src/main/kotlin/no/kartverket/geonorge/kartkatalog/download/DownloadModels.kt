@@ -36,8 +36,19 @@ data class DownloadOrderRequest(
 )
 
 data class DownloadOrderResult(
-    val responses: List<DownloadOrderResponse>,
+    val results: List<DownloadOrderGroupResult>,
 )
+
+sealed class DownloadOrderGroupResult {
+    data class Success(
+        val response: DownloadOrderResponse,
+    ) : DownloadOrderGroupResult()
+
+    data class Failure(
+        val metadataUuids: List<String>,
+        val message: String,
+    ) : DownloadOrderGroupResult()
+}
 
 data class DownloadOrderResponse(
     val files: List<DownloadOrderFile> = emptyList(),

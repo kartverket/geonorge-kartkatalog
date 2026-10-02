@@ -70,7 +70,7 @@ class DownloadServiceTest {
                     geoIdAccessToken = "valid-token",
                 )
 
-            assertEquals(1, result.responses.size)
+            assertEquals(1, result.results.size)
             assertEquals("Bearer valid-token", authorizationHeaders.single())
         }
 

@@ -24,7 +24,7 @@ import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
-import java.util.Collections
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -142,9 +142,9 @@ class DownloadRoutesTest {
     @Test
     fun `orders a download and returns ready-for-download files`() =
         testApplication {
-            val requestedPaths = mutableListOf<String>()
-            val requestedUrls = mutableListOf<String>()
-            val orderRequestBodies = Collections.synchronizedList(mutableListOf<String>())
+            val requestedPaths = CopyOnWriteArrayList<String>()
+            val requestedUrls = CopyOnWriteArrayList<String>()
+            val orderRequestBodies = CopyOnWriteArrayList<String>()
             application {
                 val authentication = configureTestAuthentication()
                 configureSerialization()
@@ -284,7 +284,7 @@ class DownloadRoutesTest {
     @Test
     fun `combines items that share an order url and support bundling into one request`() =
         testApplication {
-            val orderRequestBodies = Collections.synchronizedList(mutableListOf<String>())
+            val orderRequestBodies = CopyOnWriteArrayList<String>()
             application {
                 val authentication = configureTestAuthentication()
                 configureSerialization()
@@ -350,7 +350,7 @@ class DownloadRoutesTest {
     @Test
     fun `keeps items separate when their capability says bundling is unsupported`() =
         testApplication {
-            val orderRequestBodies = Collections.synchronizedList(mutableListOf<String>())
+            val orderRequestBodies = CopyOnWriteArrayList<String>()
             application {
                 val authentication = configureTestAuthentication()
                 configureSerialization()
@@ -421,7 +421,7 @@ class DownloadRoutesTest {
     @Test
     fun `returns formats and projections from areas without requesting the format codelist`() =
         testApplication {
-            val requestedPaths = mutableListOf<String>()
+            val requestedPaths = CopyOnWriteArrayList<String>()
             application {
                 val authentication = configureTestAuthentication()
                 configureSerialization()
@@ -540,5 +540,62 @@ class DownloadRoutesTest {
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()
             assertContains(body, "\"areas\":[]")
+        }
+
+    @Test
+    fun `reports a group as failed without failing the whole request when its order call fails`() =
+        testApplication {
+            application {
+                val authentication = configureTestAuthentication()
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(
+                        MockEngine { request ->
+                            if (request.url.encodedPath.startsWith("/api/capabilities")) {
+                                respond(
+                                    content = capabilitiesJson,
+                                    status = HttpStatusCode.OK,
+                                    headers =
+                                        headersOf(
+                                            HttpHeaders.ContentType,
+                                            ContentType.Application.Json.toString(),
+                                        ),
+                                )
+                            } else {
+                                respond(
+                                    content = "Internal error",
+                                    status = HttpStatusCode.InternalServerError,
+                                )
+                            }
+                        },
+                    ) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val registerClient = RegisterClient(client, "https://register.geonorge.no")
+                val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
+                val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
+                routing { downloadRoutes(downloadService, authentication) }
+            }
+
+            val response =
+                client.post("/api/download/order") {
+                    header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                    setBody(
+                        """
+                        {
+                          "items": [
+                            {"uuid": "uuid-e", "formats": [{"name": "GML"}]}
+                          ]
+                        }
+                        """.trimIndent(),
+                    )
+                }
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val body = response.bodyAsText()
+            assertContains(body, "\"status\":\"failed\"")
+            assertContains(body, "\"metadataUuids\":[\"uuid-e\"]")
         }
 }
