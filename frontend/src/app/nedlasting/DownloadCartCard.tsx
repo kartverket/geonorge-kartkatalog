@@ -128,7 +128,6 @@ export function DownloadCartCard({
               distributionUrl,
             }}
             location={LOCATIONS.DownloadPage}
-            variant="secondary"
             size="sm"
             removeLabel="Fjern fra nedlasting"
           />

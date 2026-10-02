@@ -161,7 +161,6 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 distributionUrl: p.distributionUrl,
               }}
               location={analyticsLocation}
-              variant="primary"
               size="sm"
               addLabel="Last ned"
               removeLabel="Fjern nedlasting"

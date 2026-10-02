@@ -56,7 +56,7 @@ export default function AddToCartButton({
 
   return (
     <Button
-      variant={variant}
+      variant={variant ?? (isInCart ? "secondary" : "primary")}
       data-size={size}
       className={className}
       onClick={handleToggleCart}

@@ -58,7 +58,7 @@ export default function AddSeriesToCartButton({
 
   return (
     <Button
-      variant={variant}
+      variant={variant ?? (areItemsInCart ? "secondary" : "primary")}
       data-size={size}
       className={className}
       onClick={handleToggleCart}

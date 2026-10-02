@@ -54,13 +54,11 @@ export function ProductActions({
         className={styles.actionButton}
         downloadableItems={downloadableSeriesMembers}
         location={LOCATIONS.MetadataPage}
-        variant="secondary"
       />
       <AddToCartButton
         className={styles.actionButton}
         item={cartItem}
         location={LOCATIONS.MetadataPage}
-        variant="primary"
       />
       <AddToMapButton
         variant="primary"
