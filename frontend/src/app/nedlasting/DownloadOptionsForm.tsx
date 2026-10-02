@@ -66,7 +66,9 @@ export function DownloadOptionsForm({
           selectedValues={selection.areaCodes}
           onChangeAction={changeArea}
           options={availability.areaOptions.map((option) => ({
-            label: option.area.name,
+            label: option.area.type
+              ? `${option.area.name} (${option.area.type})`
+              : option.area.name,
             value: option.area.code,
           }))}
           placeholder="Velg geografisk område"
