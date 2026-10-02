@@ -60,7 +60,7 @@ export default function AddSeriesToDownloadsButton({
 
   return (
     <Button
-      variant={variant ?? (areItemsInCart ? "secondary" : "primary")}
+      variant={variant ?? (areItemsSelectedForDownload ? "secondary" : "primary")}
       data-size={size}
       className={className}
       onClick={handleToggleDownloads}
