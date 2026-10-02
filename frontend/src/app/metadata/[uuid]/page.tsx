@@ -41,6 +41,24 @@ function decodeRouteUuid(uuid: string) {
   }
 }
 
+function cleanAlertLabel(label: string) {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+function getAlertDetailsUrl(label: string | null, systemId: string | null) {
+  const registerBaseUrl = process.env.REGISTER_BASE_URL;
+  if (!label || !systemId || !registerBaseUrl) return null;
+
+  const cleanedLabel = cleanAlertLabel(label);
+  if (!cleanedLabel) return null;
+
+  return `${registerBaseUrl.replace(/\/$/, "")}/varsler/${cleanedLabel}/${encodeURIComponent(systemId)}`;
+}
+
 // Setter metadatatittel så det bla vises i faner
 export async function generateMetadata({
   params,
@@ -75,6 +93,10 @@ export default async function ProductPage({
     EMPTY_LINKED_DISTRIBUTIONS,
   );
   const relevantAlerts = getRelevantAlerts(alerts);
+  const alertsWithDetailsUrl = relevantAlerts.map((alert) => ({
+    ...alert,
+    detailsUrl: getAlertDetailsUrl(alert.label, alert.systemId),
+  }));
 
   return (
     <div className={styles.content}>
@@ -84,12 +106,10 @@ export default async function ProductPage({
         organization={metadata.organization}
         access={metadata.accessState}
       />
-      {relevantAlerts.map((alert, index) => (
-        <ProductAlert
-          key={`${alert.alertType ?? "alert"}-${index}`}
-          alert={alert}
-        />
-      ))}
+      <ProductAlert
+        alerts={alertsWithDetailsUrl}
+        hierarchyLevel={metadata.hierarchyLevel}
+      />
       <div className={styles.metaRow}>
         <ProductThumbnail thumbnailUrl={metadata.thumbnailUrl} />
         <ProductMeta
