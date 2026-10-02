@@ -572,7 +572,7 @@ class DownloadRoutesTest {
                     ) {
                         install(ContentNegotiation) { json() }
                     }
-                val nedlastingClient = NedlastingClient(client, "https://nedlasting.geonorge.no")
+                val nedlastingClient = DownloadApiClient(client)
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
@@ -586,7 +586,11 @@ class DownloadRoutesTest {
                         """
                         {
                           "items": [
-                            {"uuid": "uuid-e", "formats": [{"name": "GML"}]}
+                            {
+                              "uuid": "041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+                              "capabilitiesUrl": "https://nedlasting.geonorge.no/api/capabilities",
+                              "formats": [{"name": "GML"}]
+                            }
                           ]
                         }
                         """.trimIndent(),
@@ -596,6 +600,6 @@ class DownloadRoutesTest {
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()
             assertContains(body, "\"status\":\"failed\"")
-            assertContains(body, "\"metadataUuids\":[\"uuid-e\"]")
+            assertContains(body, "\"metadataUuids\":[\"041f1e6e-bdbc-4091-b48f-8a5990f3cc5b\"]")
         }
 }

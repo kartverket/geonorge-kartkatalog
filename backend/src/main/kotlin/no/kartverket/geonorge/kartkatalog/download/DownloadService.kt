@@ -99,6 +99,12 @@ class DownloadService(
                 metadataUuids = metadataUuids,
                 message = e.message ?: "Bestillingen feilet",
             )
+        } catch (e: DownloadApiException) {
+            log.warn("Order failed for group with url {}", group.first().orderUrl, e)
+            DownloadOrderGroupResult.Failure(
+                metadataUuids = metadataUuids,
+                message = e.message ?: "Bestillingen feilet",
+            )
         }
     }
 
