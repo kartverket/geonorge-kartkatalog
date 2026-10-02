@@ -6,6 +6,19 @@ import type { Alerts } from "@/lib/schemas/alerts";
 
 type AlertWithDetailsUrl = Alerts[number] & { detailsUrl: string | null };
 
+function formatEffectiveDate(effectiveDate: string | null) {
+  if (!effectiveDate) return null;
+
+  const date = new Date(effectiveDate);
+  if (Number.isNaN(date.getTime())) return null;
+
+  return date.toLocaleDateString("nb-NO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
+}
+
 export default function ProductAlert({
   alerts,
   hierarchyLevel,
@@ -18,7 +31,13 @@ export default function ProductAlert({
     if (!alert.note) return [];
 
     const parsedAlertNote = parser.parseFromString(alert.note, "text/html");
-    return [{ alert, note: parsedAlertNote.body.textContent || alert.note }];
+    return [
+      {
+        alert,
+        note: parsedAlertNote.body.textContent || alert.note,
+        effectiveDate: formatEffectiveDate(alert.effectiveDate),
+      },
+    ];
   });
 
   if (alertsWithNotes.length === 0) {
@@ -34,7 +53,7 @@ export default function ProductAlert({
         Varsler for {productType}
       </h2>
       <ul>
-        {alertsWithNotes.map(({ alert, note }, index) => (
+        {alertsWithNotes.map(({ alert, note, effectiveDate }, index) => (
           <li key={`${alert.systemId ?? alert.alertType ?? "alert"}-${index}`}>
             {alert.alertType}
             {alert.detailsUrl && (
@@ -47,6 +66,7 @@ export default function ProductAlert({
             <Markdown components={{ p: ({ children }) => <>{children}</> }}>
               {note}
             </Markdown>
+            {effectiveDate && <em> Gjelder fra {effectiveDate}.</em>}
           </li>
         ))}
       </ul>
