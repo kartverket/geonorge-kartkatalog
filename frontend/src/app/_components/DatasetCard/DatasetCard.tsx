@@ -41,7 +41,6 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const analyticsLocation = p.analyticsLocation ?? LOCATIONS.SearchPage;
 
   const isService = p.typeTranslated === "Tjeneste";
-  const isOpen = p.accessState === "open";
   const isDataset = p.hierarchyLevel === "dataset";
   const canDownload = p.distributionProtocol === "GEONORGE:DOWNLOAD";
   const canShowMap = !!p.showMapLink && !!p.mapCapabilitiesUrl;
@@ -140,7 +139,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               icon={<ExternalLinkIcon aria-hidden />}
             />
           )}
-          {canDownload && isOpen && isDataset && p.distributionUrl && (
+          {canDownload && isDataset && p.distributionUrl && (
             <AddToDownloadsButton
               item={{
                 accessType: p.accessState,

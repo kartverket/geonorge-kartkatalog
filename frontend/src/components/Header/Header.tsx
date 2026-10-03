@@ -3,12 +3,12 @@
 import { Avatar, Badge, Button } from "@kv-designsystem/react";
 import {
   DownloadIcon,
-  EnterIcon,
   LocationPinIcon,
   MagnifyingGlassIcon,
   MenuHamburgerIcon,
   XMarkIcon,
 } from "@navikt/aksel-icons";
+import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,6 +20,7 @@ import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
+import { LoginDropdown } from "./LoginDropdown";
 import { ProfileDropdown } from "./ProfileDropdown";
 
 export function Header() {
@@ -36,8 +37,7 @@ export function Header() {
   };
 
   // Midlertidig til vi har innlogging koblet på
-  const user = { name: "Frodo Baggins" };
-  // const user = null; // test utlogget tilstand
+  const user = null as { name: string } | null;
 
   const mapCount = useMapItems().length;
   const downloadCount = useSelectedDownloadUuids().length;
@@ -49,6 +49,9 @@ export function Header() {
   const downloadHref = isBeta
     ? "https://kartkatalog.geonorge.no/nedlasting"
     : "/nedlasting";
+  const geoIdLoginHref = `${basePath}/api/auth/geoid/login` as Route;
+  const ansattportenLoginHref =
+    `${basePath}/api/auth/ansattporten/login` as Route;
 
   const rootRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -165,14 +168,16 @@ export function Header() {
                   </Button>
                 </>
               ) : (
-                <Button
-                  variant="tertiary"
+                <LoginDropdown
+                  id="header-login-dropdown"
                   className={styles.showFromSm}
-                  onClick={() => trackHeaderClick("login")}
-                >
-                  <EnterIcon aria-hidden />
-                  Logg inn
-                </Button>
+                  geoIdHref={geoIdLoginHref}
+                  ansattportenHref={ansattportenLoginHref}
+                  onOpen={() => trackHeaderClick("login")}
+                  onNavigate={(provider) =>
+                    trackHeaderClick(`login-${provider}`)
+                  }
+                />
               ))}
             <Button
               ref={menuButtonRef}
@@ -201,6 +206,8 @@ export function Header() {
           findDataHref={findDataHref}
           mapHref={mapHref}
           downloadHref={downloadHref}
+          geoIdLoginHref={geoIdLoginHref}
+          ansattportenLoginHref={ansattportenLoginHref}
           posthogClickAction={trackHeaderClick}
         />
       )}

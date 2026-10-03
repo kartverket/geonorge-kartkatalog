@@ -2,6 +2,7 @@
 
 import { Avatar, Button, Divider, Dropdown } from "@kv-designsystem/react";
 import { Buildings2Icon, LeaveIcon } from "@navikt/aksel-icons";
+import { basePath } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 
 export function ProfileDropdown({
@@ -53,12 +54,14 @@ export function ProfileDropdown({
         <Divider />
         <Dropdown.List>
           <Dropdown.Item>
-            <Dropdown.Button
-              data-color="danger"
-              onClick={() => trackClick("logout", LOCATIONS.HeaderDropdown)}
-            >
-              <LeaveIcon aria-hidden />
-              Logg ut
+            <Dropdown.Button asChild data-color="danger">
+              <a
+                href={`${basePath}/api/auth/logout`}
+                onClick={() => trackClick("logout", LOCATIONS.HeaderDropdown)}
+              >
+                <LeaveIcon aria-hidden />
+                Logg ut
+              </a>
             </Dropdown.Button>
           </Dropdown.Item>
         </Dropdown.List>

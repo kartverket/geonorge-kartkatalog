@@ -10,7 +10,6 @@ import {
 } from "@kv-designsystem/react";
 import {
   DownloadIcon,
-  EnterIcon,
   LanguageIcon,
   LocationPinIcon,
   MagnifyingGlassIcon,
@@ -21,6 +20,7 @@ import { type MouseEvent, useState } from "react";
 import { isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick, trackEvent } from "@/posthog/posthog";
 import styles from "./HeaderMenu.module.css";
+import { LoginDropdown } from "./LoginDropdown";
 import { ProfileContent } from "./ProfileContent";
 
 type MenuLink = { label: string; href: Route };
@@ -153,6 +153,8 @@ export function HeaderMenu({
   findDataHref,
   mapHref,
   downloadHref,
+  geoIdLoginHref,
+  ansattportenLoginHref,
   posthogClickAction,
 }: {
   closePanel: () => void;
@@ -162,6 +164,8 @@ export function HeaderMenu({
   findDataHref: Route;
   mapHref: string;
   downloadHref: string;
+  geoIdLoginHref: Route;
+  ansattportenLoginHref: Route;
   posthogClickAction: (clickItem: string) => void;
 }) {
   const [view, setView] = useState<"nav" | "profile">("nav");
@@ -240,14 +244,14 @@ export function HeaderMenu({
                 {userName}
               </Button>
             ) : (
-              <Button
-                variant="tertiary"
+              <LoginDropdown
+                id="header-menu-login-dropdown"
                 className={styles.inMenuFromSm}
-                onClick={() => posthogClickAction("login")}
-              >
-                <EnterIcon aria-hidden />
-                Logg inn
-              </Button>
+                geoIdHref={geoIdLoginHref}
+                ansattportenHref={ansattportenLoginHref}
+                onOpen={() => posthogClickAction("login")}
+                onNavigate={(provider) => onActionNavigate(`login-${provider}`)}
+              />
             ))}
         </div>
         <Divider className={!isBeta ? styles.divider : styles.dividerHidden} />

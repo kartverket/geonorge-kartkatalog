@@ -6,7 +6,10 @@ import { parseDownloadOrderRequest } from "@/lib/schemas/download";
 export async function POST(request: Request) {
   try {
     const body = parseDownloadOrderRequest(await request.json());
-    const result = await orderDownload(body);
+    const result = await orderDownload(
+      body,
+      request.headers.get("cookie") ?? undefined,
+    );
     return NextResponse.json(result);
   } catch (error) {
     if (error instanceof SyntaxError || error instanceof ZodError) {

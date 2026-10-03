@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import type { AuthProvider } from "@/lib/authProvider";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import {
   type DownloadInsightGroups,
@@ -47,6 +48,37 @@ export class HttpError extends Error {
     this.status = status;
     this.body = body;
   }
+}
+
+async function startAuthAction(
+  provider: AuthProvider,
+  action: "login" | "logout",
+  cookie?: string,
+) {
+  return fetch(`${API_BASE}/auth/${provider}/${action}`, {
+    method: "GET",
+    headers: {
+      Origin: KATALOG_ORIGIN,
+      ...(cookie ? { Cookie: cookie } : {}),
+    },
+    redirect: "manual",
+    cache: "no-store",
+  });
+}
+
+export async function startGeoIdLogin(): Promise<Response> {
+  return startAuthAction("geoid", "login");
+}
+
+export async function startAnsattportenLogin(): Promise<Response> {
+  return startAuthAction("ansattporten", "login");
+}
+
+export async function startLogout(
+  provider: AuthProvider,
+  cookie?: string,
+): Promise<Response> {
+  return startAuthAction(provider, "logout", cookie);
 }
 
 async function fetchJson(
@@ -281,6 +313,7 @@ export async function getDownloadOptions(
 
 export async function orderDownload(
   request: DownloadOrderRequest,
+  cookie?: string,
 ): Promise<DownloadOrderResult> {
   const url = `${API_BASE}/api/download/order`;
   const body = await fetchJson(url, {
@@ -288,6 +321,7 @@ export async function orderDownload(
     headers: {
       "Content-Type": "application/json",
       Origin: KATALOG_ORIGIN,
+      ...(cookie ? { Cookie: cookie } : {}),
     },
     body: JSON.stringify(request),
   });
