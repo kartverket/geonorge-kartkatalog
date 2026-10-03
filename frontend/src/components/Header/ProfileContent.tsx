@@ -6,6 +6,7 @@ import {
   LeaveIcon,
   PersonCircleIcon,
 } from "@navikt/aksel-icons";
+import { basePath } from "@/lib/basePath";
 import { type Location, trackClick } from "@/posthog/posthog";
 import styles from "./ProfileContent.module.css";
 
@@ -40,13 +41,14 @@ export function ProfileContent({ location }: { location: Location }) {
           <PersonCircleIcon aria-hidden />
           Min side
         </Button>
-        <Button
-          variant="tertiary"
-          data-color="danger"
-          onClick={() => trackClick("logout", location)}
-        >
-          <LeaveIcon aria-hidden />
-          Logg ut
+        <Button asChild variant="tertiary" data-color="danger">
+          <a
+            href={`${basePath}/api/auth/logout`}
+            onClick={() => trackClick("logout", location)}
+          >
+            <LeaveIcon aria-hidden />
+            Logg ut
+          </a>
         </Button>
       </div>
     </div>
