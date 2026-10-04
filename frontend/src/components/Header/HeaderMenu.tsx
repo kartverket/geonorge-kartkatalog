@@ -148,6 +148,7 @@ function trackAccordionClick(
 export function HeaderMenu({
   closePanel,
   userName,
+  authReady,
   mapCount,
   downloadCount,
   findDataHref,
@@ -159,6 +160,7 @@ export function HeaderMenu({
 }: {
   closePanel: () => void;
   userName?: string;
+  authReady: boolean;
   mapCount: number;
   downloadCount: number;
   findDataHref: Route;
@@ -230,6 +232,7 @@ export function HeaderMenu({
             </Button>
           )}
           {!isBeta &&
+            authReady &&
             (userName ? (
               <Button
                 variant="tertiary"
@@ -255,8 +258,8 @@ export function HeaderMenu({
             ))}
         </div>
         <Divider className={!isBeta ? styles.divider : styles.dividerHidden} />
-        {view === "profile" ? (
-          <ProfileContent location={LOCATIONS.HeaderMenu} />
+        {view === "profile" && userName ? (
+          <ProfileContent location={LOCATIONS.HeaderMenu} userName={userName} />
         ) : (
           <nav aria-label="Hovedmeny">
             <ul className={styles.section}>
