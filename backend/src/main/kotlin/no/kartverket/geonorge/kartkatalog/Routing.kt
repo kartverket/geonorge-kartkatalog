@@ -25,6 +25,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 import no.kartverket.geonorge.kartkatalog.search.SearchService
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
+import no.kartverket.geonorge.kartkatalog.auth.authRoutes
 
 fun Application.configureRouting(
     appConfig: AppConfig,
@@ -54,5 +55,6 @@ fun Application.configureRouting(
         searchRoutes(searchService)
         metadataRoutes(metadataService, linkedDistributionsService)
         downloadRoutes(downloadService, authentication)
+        authRoutes(authentication)
     }
 }

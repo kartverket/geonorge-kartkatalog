@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, Button, Divider, Dropdown } from "@kv-designsystem/react";
-import { Buildings2Icon, LeaveIcon } from "@navikt/aksel-icons";
+import { LeaveIcon } from "@navikt/aksel-icons";
 import { basePath } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 
@@ -26,7 +26,7 @@ export function ProfileDropdown({
         {userName}
       </Button>
       <Dropdown id="profile-dropdown">
-        <Dropdown.Heading>Velg profil</Dropdown.Heading>
+        <Dropdown.Heading>Profil</Dropdown.Heading>
         <Dropdown.List>
           <Dropdown.Item>
             <Dropdown.Button
@@ -35,19 +35,7 @@ export function ProfileDropdown({
               }
             >
               <Avatar aria-hidden data-size="xs" />
-              Frodo Baggins
-            </Dropdown.Button>
-          </Dropdown.Item>
-          <Dropdown.Item>
-            <Dropdown.Button
-              onClick={() =>
-                trackClick("organization-profile", LOCATIONS.HeaderDropdown)
-              }
-            >
-              <Avatar aria-hidden data-size="xs" variant="square">
-                <Buildings2Icon />
-              </Avatar>
-              Oslo kommune
+              {userName}
             </Dropdown.Button>
           </Dropdown.Item>
         </Dropdown.List>

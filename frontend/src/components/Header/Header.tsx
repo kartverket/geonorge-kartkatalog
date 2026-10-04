@@ -22,10 +22,15 @@ import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
 import { LoginDropdown } from "./LoginDropdown";
 import { ProfileDropdown } from "./ProfileDropdown";
+import { useAuthInfo } from "./useAuthInfo";
 
 export function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const authState = useAuthInfo();
+  const user = authState.status === "authenticated" ? authState.user : null;
+  const authReady =
+    authState.status === "authenticated" || authState.status === "anonymous";
 
   const [openPanel, setOpenPanel] = useState<"menu" | "profile" | null>(null);
 
@@ -35,9 +40,6 @@ export function Header() {
     setOpenPanel((prev) => (prev === panel ? null : panel));
     trackHeaderClick(panel);
   };
-
-  // Midlertidig til vi har innlogging koblet på
-  const user = null as { name: string } | null;
 
   const mapCount = useMapItems().length;
   const downloadCount = useSelectedDownloadUuids().length;
@@ -148,6 +150,7 @@ export function Header() {
               </Link>
             </Button>
             {!isBeta &&
+              authReady &&
               (user ? (
                 <>
                   <ProfileDropdown
@@ -201,6 +204,7 @@ export function Header() {
         <HeaderMenu
           closePanel={() => setOpenPanel(null)}
           userName={user?.name}
+          authReady={authReady}
           mapCount={mapCount}
           downloadCount={downloadCount}
           findDataHref={findDataHref}
@@ -211,7 +215,9 @@ export function Header() {
           posthogClickAction={trackHeaderClick}
         />
       )}
-      {openPanel === "profile" && <HeaderProfile />}
+      {openPanel === "profile" && user && (
+        <HeaderProfile userName={user.name} />
+      )}
     </div>
   );
 }
