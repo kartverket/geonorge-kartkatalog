@@ -36,26 +36,27 @@ export default function AddSeriesToDownloadsButton({
       item.accessType?.toLocaleLowerCase() === "open" ||
       authState.status === "authenticated",
   );
-  const areItemsSelectedForDownload =
+  const areAllValidItemsSelected =
+    useAreAllItemsSelectedForDownload(validItems);
+  const areAllAddableItemsSelected =
     useAreAllItemsSelectedForDownload(addableItems);
+  const isRemoving = areAllValidItemsSelected || areAllAddableItemsSelected;
 
   if (validItems.length === 0) return null;
 
   const handleToggleDownloads = () => {
     trackClick(
-      areItemsSelectedForDownload
-        ? "remove-all-from-downloads"
-        : "add-all-to-downloads",
+      isRemoving ? "remove-all-from-downloads" : "add-all-to-downloads",
       location,
       {
         itemName: item.title,
         itemUuid: item.uuid,
-        numberOfItems: addableItems.length,
+        numberOfItems: isRemoving ? validItems.length : addableItems.length,
       },
     );
 
-    if (areItemsSelectedForDownload) {
-      removeItemsFromDownloads(addableItems);
+    if (isRemoving) {
+      removeItemsFromDownloads(validItems);
       return;
     }
 
@@ -64,15 +65,13 @@ export default function AddSeriesToDownloadsButton({
 
   return (
     <Button
-      variant={
-        variant ?? (areItemsSelectedForDownload ? "secondary" : "primary")
-      }
+      variant={variant ?? (isRemoving ? "secondary" : "primary")}
       data-size={size}
       className={className}
-      disabled={addableItems.length === 0}
+      disabled={!isRemoving && addableItems.length === 0}
       onClick={handleToggleDownloads}
     >
-      {areItemsSelectedForDownload ? (
+      {isRemoving ? (
         <>
           <TrashIcon aria-hidden />
           Fjern alle fra nedlasting

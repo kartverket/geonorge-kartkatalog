@@ -29,8 +29,7 @@ export function Header() {
   const isHome = pathname === "/";
   const authState = useAuthInfo();
   const user = authState.status === "authenticated" ? authState.user : null;
-  const authReady =
-    authState.status === "authenticated" || authState.status === "anonymous";
+  const authReady = authState.status !== "loading";
 
   const [openPanel, setOpenPanel] = useState<"menu" | "profile" | null>(null);
 

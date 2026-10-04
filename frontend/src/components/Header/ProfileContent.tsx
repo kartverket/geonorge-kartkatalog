@@ -34,15 +34,21 @@ export function ProfileContent({
           <PersonCircleIcon aria-hidden />
           Min side
         </Button>
-        <Button asChild variant="tertiary" data-color="danger">
-          <a
-            href={`${basePath}/api/auth/logout`}
+        <form
+          action={`${basePath}/api/auth/logout`}
+          method="post"
+          className={styles.logoutForm}
+        >
+          <Button
+            type="submit"
+            variant="tertiary"
+            data-color="danger"
             onClick={() => trackClick("logout", location)}
           >
             <LeaveIcon aria-hidden />
             Logg ut
-          </a>
-        </Button>
+          </Button>
+        </form>
       </div>
     </div>
   );

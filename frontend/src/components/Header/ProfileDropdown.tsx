@@ -42,15 +42,16 @@ export function ProfileDropdown({
         <Divider />
         <Dropdown.List>
           <Dropdown.Item>
-            <Dropdown.Button asChild data-color="danger">
-              <a
-                href={`${basePath}/api/auth/logout`}
+            <form action={`${basePath}/api/auth/logout`} method="post">
+              <Dropdown.Button
+                type="submit"
+                data-color="danger"
                 onClick={() => trackClick("logout", LOCATIONS.HeaderDropdown)}
               >
                 <LeaveIcon aria-hidden />
                 Logg ut
-              </a>
-            </Dropdown.Button>
+              </Dropdown.Button>
+            </form>
           </Dropdown.Item>
         </Dropdown.List>
       </Dropdown>
