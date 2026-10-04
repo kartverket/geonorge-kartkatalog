@@ -1,4 +1,13 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { basePath } from "@/lib/basePath";
 import { type AuthInfo, AuthSessionSchema } from "@/lib/schemas/auth";
 
@@ -8,8 +17,23 @@ export type AuthState =
   | { status: "authenticated"; user: AuthInfo }
   | { status: "error" };
 
-export function useAuthInfo(): AuthState {
-  const [state, setState] = useState<AuthState>({ status: "loading" });
+const AuthContext = createContext<AuthState | null>(null);
+const LOADING_AUTH_STATE: AuthState = { status: "loading" };
+
+function subscribeToHydration() {
+  return () => {};
+}
+
+function getClientHydrationSnapshot() {
+  return true;
+}
+
+function getServerHydrationSnapshot() {
+  return false;
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<AuthState>(LOADING_AUTH_STATE);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -45,5 +69,19 @@ export function useAuthInfo(): AuthState {
     return () => controller.abort();
   }, []);
 
-  return state;
+  return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;
+}
+
+export function useAuthInfo(): AuthState {
+  const state = useContext(AuthContext);
+  const isHydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getClientHydrationSnapshot,
+    getServerHydrationSnapshot,
+  );
+
+  if (!state) {
+    throw new Error("useAuthInfo must be used within AuthProvider");
+  }
+  return isHydrated ? state : LOADING_AUTH_STATE;
 }

@@ -15,6 +15,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import { useMapItems } from "@/app/_components/addToMap/useMap";
+import { useAuthInfo } from "@/components/AuthProvider";
 import { basePath, isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./Header.module.css";
@@ -22,7 +23,6 @@ import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
 import { LoginDropdown } from "./LoginDropdown";
 import { ProfileDropdown } from "./ProfileDropdown";
-import { useAuthInfo } from "./useAuthInfo";
 
 export function Header() {
   const pathname = usePathname();
