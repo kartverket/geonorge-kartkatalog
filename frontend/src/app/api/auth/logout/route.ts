@@ -6,7 +6,15 @@ import {
   resolveAuthProvider,
 } from "../providerCookie";
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
+  const origin = request.headers.get("origin");
+  if (!origin || origin !== request.nextUrl.origin) {
+    return NextResponse.json(
+      { error: "Invalid logout origin." },
+      { status: 403 },
+    );
+  }
+
   const provider = resolveAuthProvider(request);
 
   if (!provider) {
