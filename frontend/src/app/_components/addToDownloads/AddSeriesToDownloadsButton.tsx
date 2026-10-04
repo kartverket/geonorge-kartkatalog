@@ -9,9 +9,9 @@ import {
   removeItemsFromDownloads,
 } from "@/app/_components/addToDownloads/downloadStorage";
 import { useAreAllItemsSelectedForDownload } from "@/app/_components/addToDownloads/useDownloads";
+import { useAuthInfo } from "@/components/AuthProvider";
 import { type Location, trackClick } from "@/posthog/posthog";
 
-//Note, can only add open data here. In future, handle closed datasets when login is ok.
 export default function AddSeriesToDownloadsButton({
   item,
   downloadableItems,
@@ -27,15 +27,19 @@ export default function AddSeriesToDownloadsButton({
   size?: "sm" | "md" | "lg";
   location: Location;
 }) {
-  const addableItems = downloadableItems.filter((i) => i.accessType === "open");
+  const authState = useAuthInfo();
+  const validItems = downloadableItems.filter(
+    (item) => item.uuid && item.distributionUrl,
+  );
+  const addableItems = validItems.filter(
+    (item) =>
+      item.accessType?.toLocaleLowerCase() === "open" ||
+      authState.status === "authenticated",
+  );
   const areItemsSelectedForDownload =
     useAreAllItemsSelectedForDownload(addableItems);
 
-  const hasDownloadableItems = addableItems.some(
-    (item) => item.uuid && item.distributionUrl,
-  );
-
-  if (!hasDownloadableItems) return null;
+  if (validItems.length === 0) return null;
 
   const handleToggleDownloads = () => {
     trackClick(
@@ -65,6 +69,7 @@ export default function AddSeriesToDownloadsButton({
       }
       data-size={size}
       className={className}
+      disabled={addableItems.length === 0}
       onClick={handleToggleDownloads}
     >
       {areItemsSelectedForDownload ? (
