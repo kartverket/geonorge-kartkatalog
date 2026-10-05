@@ -1,6 +1,11 @@
 "use client";
 
-import { Button, Heading, Paragraph } from "@kv-designsystem/react";
+import {
+  Button,
+  Heading,
+  Pagination,
+  usePagination,
+} from "@kv-designsystem/react";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import { Suspense, useState } from "react";
 import type { SearchResult } from "@/lib/schemas/search";
@@ -12,52 +17,48 @@ import styles from "./SearchResults.module.css";
 import { Sidebar } from "./Sidebar";
 import { SortDropdown } from "./SortDropdown";
 import { ToTopButton } from "./ToTopButton";
-import { usePaginatedSearchResults } from "./usePaginatedSearchResults";
 import { usePersistedViewMode } from "./usePersistedViewMode";
+import { useUpdateUrlProp } from "./useUpdateUrlProp";
 import { ViewToggle } from "./ViewToggle";
 import type { ViewMode } from "./viewMode";
 
 type SearchResultsProps = {
   initialViewMode?: ViewMode;
   initialResults: DatasetCardData[];
+  pageSize: number;
+  currentPage: number;
   totalCount: number;
   searchText: string;
   orderby: string;
-  initialLimit: number;
-  initialOffset: number;
   facets: SearchResult["facets"];
 };
 
 export function SearchResults({
   initialViewMode = "grid",
   initialResults,
+  currentPage,
+  pageSize,
   totalCount,
-  searchText,
   orderby,
-  initialLimit,
-  initialOffset,
   facets,
 }: SearchResultsProps) {
   const [viewMode, setViewMode] = usePersistedViewMode(initialViewMode);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const {
-    results,
-    isLoadingMore,
-    loadMoreError,
-    hasMoreResults,
-    handleLoadMore,
-  } = usePaginatedSearchResults({
-    initialResults,
-    totalCount,
-    searchText,
-    orderby,
-    initialLimit,
-    initialOffset,
-  });
+  const updateUrlProp = useUpdateUrlProp();
+  const handlePageChange = (page: number) => {
+    updateUrlProp("page", page.toString());
+  };
 
   const resultsClassName = `${styles.results} ${
     viewMode === "list" ? styles.list : styles.grid
   }`;
+
+  const { pages, prevButtonProps, nextButtonProps } = usePagination({
+    currentPage,
+    setCurrentPage: handlePageChange,
+    totalPages: Math.ceil(totalCount / pageSize),
+    showPages: 7,
+  });
 
   return (
     <main className={styles.page}>
@@ -108,38 +109,38 @@ export function SearchResults({
               </Button>
             </div>
             <div className={resultsClassName}>
-              {results.map((r) => (
+              {initialResults.map((r) => (
                 <DatasetCard key={r.uuid} viewMode={viewMode} {...r} />
               ))}
             </div>
 
             <div className={styles.loadMoreSection}>
-              {loadMoreError ? (
-                <Paragraph
-                  className={styles.loadMoreMessage}
-                  aria-live="polite"
-                >
-                  {loadMoreError}
-                </Paragraph>
-              ) : null}
+              <Pagination>
+                <Pagination.List>
+                  <Pagination.Item>
+                    <Pagination.Button {...prevButtonProps} />
+                  </Pagination.Item>
 
-              {hasMoreResults ? (
-                <Button
-                  variant="secondary"
-                  data-size="sm"
-                  onClick={handleLoadMore}
-                  disabled={isLoadingMore}
-                >
-                  {isLoadingMore ? "Laster flere treff..." : "Vis mer"}
-                </Button>
-              ) : results.length > 0 ? (
-                <Paragraph
-                  className={styles.loadMoreMessage}
-                  aria-live="polite"
-                >
-                  Alle treff er vist.
-                </Paragraph>
-              ) : null}
+                  {pages.map(({ page, itemKey, buttonProps }) => (
+                    <Pagination.Item key={itemKey}>
+                      {typeof page === "number" && (
+                        <Pagination.Button
+                          asChild
+                          aria-label={`Side ${page}`}
+                          {...buttonProps}
+                        >
+                          <p>{page}</p>
+                        </Pagination.Button>
+                      )}
+                    </Pagination.Item>
+                  ))}
+
+                  <Pagination.Item>
+                    <Pagination.Button {...nextButtonProps} />
+                  </Pagination.Item>
+                </Pagination.List>
+              </Pagination>
+
               <div className={styles.toTopButton}>
                 <ToTopButton />
               </div>
