@@ -68,7 +68,9 @@ object MetadataParser {
                 extensionResources = parseExtensionResources(),
                 applicationSchemaInfos = parseApplicationSchemaInfos(),
                 title = titleNode?.preferredText(anchorExpr = "gmx:Anchor") ?: "",
+                englishTitle = titleNode?.englishText(),
                 abstract = idInfo?.node("gmd:abstract")?.preferredText(),
+                englishAbstract = idInfo?.node("gmd:abstract")?.englishText(),
                 purpose = idInfo?.node("gmd:purpose")?.preferredText(),
                 status = idInfo?.attr("gmd:status/gmd:MD_ProgressCode", "codeListValue"),
                 maintenanceFrequency =
@@ -100,6 +102,16 @@ object MetadataParser {
                         ?.nodes("gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date")
                         ?.map { parseDate(it) }
                         ?: emptyList(),
+                resourceReferenceCode =
+                    idInfo?.text(
+                        "gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier" +
+                            "/gmd:code/gco:CharacterString",
+                    ),
+                resourceReferenceCodespace =
+                    idInfo?.text(
+                        "gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier" +
+                            "/gmd:codeSpace/gco:CharacterString",
+                    ),
                 thumbnails =
                     idInfo
                         ?.nodes("gmd:graphicOverview/gmd:MD_BrowseGraphic")
@@ -268,11 +280,16 @@ object MetadataParser {
         private fun parseLegalConstraints(idInfo: Node?): LegalConstraints? {
             if (idInfo == null) return null
             var accessConstraints: String? = null
+            var accessConstraintsLink: String? = null
+            var accessConstraintsLinkText: String? = null
             var useConstraints: String? = null
             val useLimitations = mutableListOf<String>()
             var otherConstraintsLink: String? = null
             var otherConstraintsLinkText: String? = null
             var otherConstraintsAccess: String? = null
+            var otherConstraints: String? = null
+            var useConstraintsLicenseLink: String? = null
+            var useConstraintsLicenseLinkText: String? = null
 
             idInfo.nodes("gmd:resourceConstraints/gmd:MD_Constraints").forEach { c ->
                 c.nodes("gmd:useLimitation").forEach { n ->
@@ -285,6 +302,8 @@ object MetadataParser {
                 val anchor = c.node("gmd:otherConstraints/gmx:Anchor")
                 if (ac != null) {
                     accessConstraints = ac
+                    accessConstraintsLink = anchor?.attr("xlink:href")
+                    accessConstraintsLinkText = anchor?.textContent?.trim()?.takeIf { it.isNotEmpty() }
                     otherConstraintsAccess = anchor?.attr("xlink:href")
                 }
                 if (uc != null) {
@@ -292,19 +311,34 @@ object MetadataParser {
                     otherConstraintsLink = anchor?.attr("xlink:href")
                     otherConstraintsLinkText =
                         anchor?.textContent?.trim()?.takeIf { it.isNotEmpty() }
+                    useConstraintsLicenseLink = anchor?.attr("xlink:href")
+                    useConstraintsLicenseLinkText =
+                        anchor?.textContent?.trim()?.takeIf { it.isNotEmpty() }
                 }
+                val otherConstraintsNode = c.node("gmd:otherConstraints")
+                otherConstraintsNode?.preferredText()?.let { otherConstraints = it }
             }
 
-            if (accessConstraints == null && useConstraints == null && useLimitations.isEmpty()) {
+            if (
+                accessConstraints == null &&
+                useConstraints == null &&
+                useLimitations.isEmpty() &&
+                otherConstraints == null
+            ) {
                 return null
             }
             return LegalConstraints(
                 accessConstraints = accessConstraints,
+                accessConstraintsLink = accessConstraintsLink,
+                accessConstraintsLinkText = accessConstraintsLinkText,
                 useConstraints = useConstraints,
                 useLimitations = useLimitations,
                 otherConstraintsLink = otherConstraintsLink,
                 otherConstraintsLinkText = otherConstraintsLinkText,
                 otherConstraintsAccess = otherConstraintsAccess,
+                otherConstraints = otherConstraints,
+                useConstraintsLicenseLink = useConstraintsLicenseLink,
+                useConstraintsLicenseLinkText = useConstraintsLicenseLinkText,
             )
         }
 
@@ -378,10 +412,15 @@ object MetadataParser {
             val formats =
                 dist.nodes("gmd:distributionFormat/gmd:MD_Format").map { f ->
                     val ownOnlineResources =
-                        f.nodes(
-                            "gmd:formatDistributor/gmd:MD_Distributor/gmd:distributorTransf" +
-                                "erOptions/gmd:MD_DigitalTransferOptions",
-                        ).flatMap { parseOnlineResources(it) }
+                        f.nodes("gmd:formatDistributor/gmd:MD_Distributor").flatMap { distributor ->
+                            val organization =
+                                distributor.node(
+                                    "gmd:distributorContact/gmd:CI_ResponsibleParty/gmd:organisationName",
+                                )?.preferredText()
+                            distributor
+                                .nodes("gmd:distributorTransferOptions/gmd:MD_DigitalTransferOptions")
+                                .flatMap { parseOnlineResources(it, organization) }
+                        }
 
                     DistributionFormat(
                         name = f.text("gmd:name/gco:CharacterString") ?: "",
@@ -399,9 +438,13 @@ object MetadataParser {
             return DistributionInfo(formats = formats + fallbackFormats)
         }
 
-        private fun parseOnlineResources(dto: Node): List<OnlineResource> {
-            val units =
-                dto.node("gmd:unitsOfDistribution")?.preferredText()
+        private fun parseOnlineResources(
+            dto: Node,
+            organization: String? = null,
+        ): List<OnlineResource> {
+            val unitsNode = dto.node("gmd:unitsOfDistribution")
+            val units = unitsNode?.preferredText()
+            val englishUnits = unitsNode?.englishText()
             return dto.nodes("gmd:onLine/gmd:CI_OnlineResource").map {
                     or ->
                 OnlineResource(
@@ -412,6 +455,8 @@ object MetadataParser {
                     description =
                         or.node("gmd:description")?.preferredText(),
                     unitsOfDistribution = units,
+                    englishUnitsOfDistribution = englishUnits,
+                    organization = organization,
                     applicationProfile =
                         or.node("gmd:applicationProfile")?.preferredText(),
                     function =
@@ -569,6 +614,17 @@ object MetadataParser {
                 ?: localized.firstOrNull { !it.locale.isEnglishLocale() }?.value
                 ?: localized.firstOrNull()?.value
         }
+
+        private fun Node.englishText(
+            localizedExpr: String = "gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString",
+        ): String? =
+            nodes(localizedExpr)
+                .mapNotNull { localizedNode ->
+                    localizedNode.textContent?.trim()?.takeIf { it.isNotEmpty() }?.let {
+                        LocalizedText(localizedNode.attr("locale"), it)
+                    }
+                }.firstOrNull { it.locale.isEnglishLocale() }
+                ?.value
 
         private fun Node.node(expr: String): Node? = xpath.node(expr, this)
 

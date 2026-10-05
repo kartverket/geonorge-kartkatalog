@@ -2,6 +2,7 @@ package no.kartverket.geonorge.kartkatalog.metadata
 
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProduktarkItem
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProduktspesifikasjonItem
@@ -14,6 +15,7 @@ class MetadataService(
     private val geonetworkClient: GeonetworkClient,
     private val metadataMapper: MetadataMapper,
     private val registerClient: RegisterClient,
+    private val solrClient: SolrClient? = null,
 ) {
     suspend fun getMetadata(uuid: String): ProductMetadata {
         val record =
@@ -21,6 +23,14 @@ class MetadataService(
                 ?: throw MetadataRecordNotFoundException(uuid)
         return metadataMapper.toProductMetadata(record)
     }
+
+    suspend fun getLegacyMetadata(uuid: String) =
+        metadataMapper.toLegacyMetadataViewModel(
+            record =
+                geonetworkClient.getRecordByUuid(uuid)
+                    ?: throw MetadataRecordNotFoundException(uuid),
+            solrDocument = solrClient?.getMetadataByUuid(uuid)?.response?.docs?.firstOrNull(),
+        )
 
     suspend fun getTegneregler(uuid: String): TegnereglerItem? {
         val tegnereglerPath = getExtensionUrl(uuid, "tegnforklaring")

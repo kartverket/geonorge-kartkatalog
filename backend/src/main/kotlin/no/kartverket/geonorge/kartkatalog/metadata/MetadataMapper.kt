@@ -8,6 +8,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Metadata
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductConstraints
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionEntry
@@ -21,6 +22,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.ProductReferenceSystem
 class MetadataMapper(
     private val codeListTranslator: CodeListTranslator,
     private val staticNorgeskartUrl: String,
+    private val mapOnlyWms: Boolean = false,
 ) {
     private data class ResourceContribution(
         val formatName: String,
@@ -98,6 +100,12 @@ class MetadataMapper(
                 ),
         )
     }
+
+    suspend fun toLegacyMetadataViewModel(
+        record: MetadataRecord,
+        solrDocument: SolrDocument? = null,
+    ) = LegacyMetadataMapper(staticNorgeskartUrl, codeListTranslator, mapOnlyWms)
+        .toLegacyMetadata(record, solrDocument)
 
     private fun describeAccessConstraints(
         recordAccessConstraints: String?,

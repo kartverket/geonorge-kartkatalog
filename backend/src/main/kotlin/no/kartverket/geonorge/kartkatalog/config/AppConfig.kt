@@ -15,6 +15,7 @@ class AppConfig(
     val registerBaseUrl: String = env("REGISTER_BASE_URL")
     val solrBaseUrl: String = env("SOLR_BASE_URL")
     val staticNorgeskartUrl: String = env("NORGESKART_BASE_URL")
+    val mapOnlyWms: Boolean = optionalEnv("MAP_ONLY_WMS")?.toBoolean() ?: false
 
     val geoIdIssuer: String = env("GEOID_ISSUER")
     val geoIdClientId: String = env("GEOID_CLIENT_ID")

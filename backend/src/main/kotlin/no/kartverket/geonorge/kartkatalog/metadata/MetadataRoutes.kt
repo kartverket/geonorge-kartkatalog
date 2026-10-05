@@ -1,15 +1,33 @@
 package no.kartverket.geonorge.kartkatalog.metadata
 
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import kotlinx.serialization.json.Json
 
 fun Route.metadataRoutes(
     metadataService: MetadataService,
     linkedDistributionsService: LinkedDistributionsService,
 ) {
+    route("/api") {
+        get("getdata/{uuid}") {
+            val uuid = call.parameters["uuid"] ?: return@get call.respond(HttpStatusCode.NotFound)
+            try {
+                call.respondText(
+                    legacyJson.encodeToString(metadataService.getLegacyMetadata(uuid)),
+                    ContentType.Application.Json,
+                )
+            } catch (_: MetadataRecordNotFoundException) {
+                call.respond(HttpStatusCode.NotFound)
+            } catch (_: Exception) {
+                call.respond(HttpStatusCode.InternalServerError)
+            }
+        }
+    }
     route("/metadata/") {
         get("{uuid}") {
             val uuid =
@@ -70,3 +88,9 @@ fun Route.metadataRoutes(
         }
     }
 }
+
+private val legacyJson =
+    Json {
+        encodeDefaults = true
+        explicitNulls = false
+    }
