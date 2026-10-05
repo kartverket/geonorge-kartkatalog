@@ -11,6 +11,7 @@ import {
 import { getSearchResults } from "./api";
 
 export const instant = false;
+const PAGE_SIZE = 12;
 
 export default async function Home({
   searchParams,
@@ -27,8 +28,7 @@ export default async function Home({
   // TODO: kan man skrive noe sånt som dette? const { text, orderby } = await searchParams;
   const sp = await searchParams;
   const text = typeof sp.text === "string" ? sp.text : undefined;
-  const offset = typeof sp.offset === "string" ? sp.offset : undefined;
-  const limit = typeof sp.limit === "string" ? sp.limit : undefined;
+  const page = typeof sp.page === "string" ? parseInt(sp.page, 10) : 1; 
   const orderby = typeof sp.orderby === "string" ? sp.orderby : undefined;
 
   const filters: Record<string, string[]> = {};
@@ -36,11 +36,10 @@ export default async function Home({
     if (RESERVED_SEARCH_PARAMS.has(key) || value == null) continue;
     filters[key] = Array.isArray(value) ? value : [value];
   }
-  const initialOffset = Number(offset) || 1;
   const searchResult = await getSearchResults({
     text,
-    offset: initialOffset,
-    limit: Number(limit) || 12,
+    offset: (page - 1) * PAGE_SIZE,
+    limit: PAGE_SIZE,
     orderby: orderby || "score",
     filters: filters,
   });
@@ -53,10 +52,9 @@ export default async function Home({
         initialViewMode={isViewMode(storedViewMode) ? storedViewMode : "grid"}
         initialResults={results}
         totalCount={searchResult.numFound}
+        pageSize={PAGE_SIZE}
         searchText={text ?? ""}
         orderby={orderby || "score"}
-        initialLimit={searchResult.limit}
-        initialOffset={initialOffset}
         facets={searchResult.facets}
       />
     </>

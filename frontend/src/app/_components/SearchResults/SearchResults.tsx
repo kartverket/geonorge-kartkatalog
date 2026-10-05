@@ -18,7 +18,6 @@ import styles from "./SearchResults.module.css";
 import { Sidebar } from "./Sidebar";
 import { SortDropdown } from "./SortDropdown";
 import { ToTopButton } from "./ToTopButton";
-import { usePaginatedSearchResults } from "./usePaginatedSearchResults";
 import { usePersistedViewMode } from "./usePersistedViewMode";
 import { ViewToggle } from "./ViewToggle";
 import type { ViewMode } from "./viewMode";
@@ -27,40 +26,24 @@ import { useRouter } from "next/navigation";
 type SearchResultsProps = {
   initialViewMode?: ViewMode;
   initialResults: DatasetCardData[];
+  pageSize: number;
   totalCount: number;
   searchText: string;
   orderby: string;
-  initialLimit: number;
-  initialOffset: number;
+
   facets: SearchResult["facets"];
 };
 
 export function SearchResults({
   initialViewMode = "grid",
   initialResults,
+  pageSize,
   totalCount,
-  searchText,
   orderby,
-  initialLimit,
-  initialOffset,
   facets,
 }: SearchResultsProps) {
   const [viewMode, setViewMode] = usePersistedViewMode(initialViewMode);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const {
-    results,
-    isLoadingMore,
-    loadMoreError,
-    hasMoreResults,
-    handleLoadMore,
-  } = usePaginatedSearchResults({
-    initialResults,
-    totalCount,
-    searchText,
-    orderby,
-    initialLimit,
-    initialOffset,
-  });
 
   const router = useRouter();
   const handlePageChange = (page: number) => {
@@ -82,7 +65,7 @@ export function SearchResults({
     currentPage,
     setCurrentPage,
     onChange: onPageChange,
-    totalPages: 10,
+    totalPages: Math.ceil(totalCount / pageSize),
     showPages: 7,
   });
 
@@ -135,7 +118,7 @@ export function SearchResults({
               </Button>
             </div>
             <div className={resultsClassName}>
-              {results.map((r) => (
+              {initialResults.map((r) => (
                 <DatasetCard key={r.uuid} viewMode={viewMode} {...r} />
               ))}
             </div>
@@ -166,32 +149,7 @@ export function SearchResults({
                   </Pagination.Item>
                 </Pagination.List>
               </Pagination>
-              {loadMoreError ? (
-                <Paragraph
-                  className={styles.loadMoreMessage}
-                  aria-live="polite"
-                >
-                  {loadMoreError}
-                </Paragraph>
-              ) : null}
 
-              {hasMoreResults ? (
-                <Button
-                  variant="secondary"
-                  data-size="sm"
-                  onClick={handleLoadMore}
-                  disabled={isLoadingMore}
-                >
-                  {isLoadingMore ? "Laster flere treff..." : "Vis mer"}
-                </Button>
-              ) : results.length > 0 ? (
-                <Paragraph
-                  className={styles.loadMoreMessage}
-                  aria-live="polite"
-                >
-                  Alle treff er vist.
-                </Paragraph>
-              ) : null}
               <div className={styles.toTopButton}>
                 <ToTopButton />
               </div>
