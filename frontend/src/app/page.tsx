@@ -28,7 +28,7 @@ export default async function Home({
   // TODO: kan man skrive noe sånt som dette? const { text, orderby } = await searchParams;
   const sp = await searchParams;
   const text = typeof sp.text === "string" ? sp.text : undefined;
-  const page = typeof sp.page === "string" ? parseInt(sp.page, 10) : 1; 
+  const page = typeof sp.page === "string" ? parseInt(sp.page, 10) : 1;
   const orderby = typeof sp.orderby === "string" ? sp.orderby : undefined;
 
   const filters: Record<string, string[]> = {};
@@ -51,6 +51,7 @@ export default async function Home({
       <SearchResults
         initialViewMode={isViewMode(storedViewMode) ? storedViewMode : "grid"}
         initialResults={results}
+        currentPage={page}
         totalCount={searchResult.numFound}
         pageSize={PAGE_SIZE}
         searchText={text ?? ""}

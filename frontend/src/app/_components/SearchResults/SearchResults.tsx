@@ -21,22 +21,23 @@ import { ToTopButton } from "./ToTopButton";
 import { usePersistedViewMode } from "./usePersistedViewMode";
 import { ViewToggle } from "./ViewToggle";
 import type { ViewMode } from "./viewMode";
-import { useRouter } from "next/navigation";
+import { useUpdateUrlProp } from "./useUpdateUrlProp";
 
 type SearchResultsProps = {
   initialViewMode?: ViewMode;
   initialResults: DatasetCardData[];
   pageSize: number;
+  currentPage: number;
   totalCount: number;
   searchText: string;
   orderby: string;
-
   facets: SearchResult["facets"];
 };
 
 export function SearchResults({
   initialViewMode = "grid",
   initialResults,
+  currentPage,
   pageSize,
   totalCount,
   orderby,
@@ -44,27 +45,18 @@ export function SearchResults({
 }: SearchResultsProps) {
   const [viewMode, setViewMode] = usePersistedViewMode(initialViewMode);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-
-  const router = useRouter();
+  const updateUrlProp = useUpdateUrlProp();
   const handlePageChange = (page: number) => {
-    router.push(`?page=${page}`);
+    updateUrlProp("page", page.toString());
   };
 
-  const onPageChange = (
-    _event: React.MouseEvent<HTMLElement, MouseEvent>,
-    page: number,
-  ) => {
-    handlePageChange(page);
-  };
   const resultsClassName = `${styles.results} ${
     viewMode === "list" ? styles.list : styles.grid
   }`;
-  const [currentPage, setCurrentPage] = useState(1);
 
   const { pages, prevButtonProps, nextButtonProps } = usePagination({
     currentPage,
-    setCurrentPage,
-    onChange: onPageChange,
+    setCurrentPage: handlePageChange,
     totalPages: Math.ceil(totalCount / pageSize),
     showPages: 7,
   });
