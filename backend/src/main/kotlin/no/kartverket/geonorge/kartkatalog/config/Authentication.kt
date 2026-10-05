@@ -62,6 +62,7 @@ suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuth
                 redirectUri = {
                     protocol = if (publicBaseUri.scheme == "https") URLProtocol.HTTPS else URLProtocol.HTTP
                     path("auth", "geoid", "callback")
+                    log.info("GeoID callback URL: {}", buildString())
                 }
 
                 sessions {
