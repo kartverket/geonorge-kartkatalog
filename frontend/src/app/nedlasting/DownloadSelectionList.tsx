@@ -1,6 +1,6 @@
 "use client";
 
-import { Heading, Paragraph } from "@kv-designsystem/react";
+import { Heading, List, Paragraph } from "@kv-designsystem/react";
 import { BulkDownloadSelectionForm } from "./BulkDownloadSelectionForm";
 import { DownloadSelectionCard } from "./DownloadSelectionCard";
 import styles from "./DownloadSelectionList.module.css";
@@ -54,15 +54,23 @@ export function DownloadSelectionList({
       <Heading data-size={"lg"} level={1}>
         Filnedlasting - bestilling
       </Heading>
-      <Heading level={2} data-size={"sm"}>
-        Dine valgte produkter ({selectedDownloadCount})
-      </Heading>
       {selectedDownloadCount > 0 ? (
-        <Paragraph data-size="sm">
-          Ditt nedlastingsvalg lagres i nettleseren, brukes når du laster ned
-          filer, og glemmes når fanen lukkes. Du kan bytte nedlastingsvalg når
-          som helst.
-        </Paragraph>
+        <div>
+          <Heading level={2} data-size={"sm"}>
+            Slik bestiller du for å laste ned:
+          </Heading>
+          <List.Unordered>
+            <List.Item>
+              Velg område, projeksjoner og formater. Fellesvalg fylles ut
+              automatisk når datasettet er tilgjengelig for de valgte
+              geografiske områdene, projeksjonene og formatene.
+            </List.Item>
+            <List.Item>
+              Dersom et fellesvalg ikke kan benyttes for alle de valgte
+              datasettene, må verdiene angis manuelt. Det vises da et varsel.
+            </List.Item>
+          </List.Unordered>
+        </div>
       ) : null}
       {selectedDownloadCount === 0 ? (
         <Paragraph>Ingen datasett lagt til nedlasting</Paragraph>

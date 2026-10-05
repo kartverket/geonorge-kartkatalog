@@ -279,6 +279,26 @@ export function getDownloadSelectionGapCounts(
   };
 }
 
+function unionProjectionsAcrossAreas(
+  areas: DownloadAreaOption[],
+): DownloadProjectionOption[] {
+  return unionByKey(
+    areas.map((area) => area.projections),
+    (projection) => projection.code,
+  );
+}
+
+function unionFormatsAcrossAreas(
+  areas: DownloadAreaOption[],
+): DownloadFormat[] {
+  return unionByKey(
+    areas.flatMap((area) =>
+      area.projections.map((projection) => projection.formats),
+    ),
+    (format) => format.name,
+  );
+}
+
 export function resolveUnionDownloadAvailability(
   optionsList: (DownloadOptions | null)[],
   selection: Pick<DownloadSelection, "areaCodes" | "projectionCodes">,
@@ -296,20 +316,28 @@ export function resolveUnionDownloadAvailability(
     selectedCodes.has(option.area.code),
   );
 
-  const matchingAreasByProduct = presentOptionsList.map((options) =>
-    getMatchingAreas(options, selection.areaCodes),
+  const displayAreasByProduct = presentOptionsList.map((options) =>
+    selection.areaCodes.length === 0
+      ? options.areas
+      : getMatchingAreas(options, selection.areaCodes),
   );
 
   return {
     areaOptions,
     selectedAreaOptions,
     projectionOptions: unionByKey(
-      matchingAreasByProduct.map((areas) => resolveProjectionOptions(areas)),
+      displayAreasByProduct.map((areas) =>
+        selection.areaCodes.length === 0
+          ? unionProjectionsAcrossAreas(areas)
+          : resolveProjectionOptions(areas),
+      ),
       (projection) => projection.code,
     ),
     formatOptions: unionByKey(
-      matchingAreasByProduct.map((areas) =>
-        resolveFormatOptions(areas, selection.projectionCodes),
+      displayAreasByProduct.map((areas) =>
+        selection.projectionCodes.length === 0
+          ? unionFormatsAcrossAreas(areas)
+          : resolveFormatOptions(areas, selection.projectionCodes),
       ),
       (format) => format.name,
     ),
