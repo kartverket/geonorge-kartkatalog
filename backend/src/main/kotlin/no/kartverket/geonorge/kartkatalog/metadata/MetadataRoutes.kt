@@ -8,6 +8,9 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import kotlinx.serialization.json.Json
+import org.slf4j.LoggerFactory
+
+private val log = LoggerFactory.getLogger("MetadataRoutes")
 
 fun Route.metadataRoutes(
     metadataService: MetadataService,
@@ -21,9 +24,11 @@ fun Route.metadataRoutes(
                     legacyJson.encodeToString(metadataService.getLegacyMetadata(uuid)),
                     ContentType.Application.Json,
                 )
-            } catch (_: MetadataRecordNotFoundException) {
+            } catch (cause: MetadataRecordNotFoundException) {
+                log.warn("Metadata record not found for getdata UUID: {}", uuid, cause)
                 call.respond(HttpStatusCode.NotFound)
-            } catch (_: Exception) {
+            } catch (cause: Exception) {
+                log.error("Failed to fetch getdata for UUID: {}", uuid, cause)
                 call.respond(HttpStatusCode.InternalServerError)
             }
         }

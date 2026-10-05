@@ -1,5 +1,9 @@
 package no.kartverket.geonorge.kartkatalog.routes
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -25,9 +29,11 @@ import no.kartverket.geonorge.kartkatalog.metadata.LinkedDistributionsService
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
+import org.slf4j.LoggerFactory
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class MetadataRoutesTest {
     private val emptyGeonetworkXml =
@@ -296,6 +302,20 @@ class MetadataRoutesTest {
         block()
     }
 
+    private fun captureRouteLogs(block: () -> Unit): List<ILoggingEvent> {
+        val logger = LoggerFactory.getLogger("MetadataRoutes") as Logger
+        val appender = ListAppender<ILoggingEvent>()
+        appender.start()
+        logger.addAppender(appender)
+        return try {
+            block()
+            appender.list.toList()
+        } finally {
+            logger.detachAppender(appender)
+            appender.stop()
+        }
+    }
+
     @Test
     fun `returns 200 with dataset metadata for valid uuid`() {
         val (metadataService, linkedDistributionsService) =
@@ -332,13 +352,20 @@ class MetadataRoutesTest {
     @Test
     fun `legacy getdata returns empty 404 when record is absent`() {
         val (metadataService, linkedDistributionsService) = createMetadataService(emptyGeonetworkXml)
+        val uuid = "00000000-0000-0000-0000-000000000000"
 
-        testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/api/getdata/00000000-0000-0000-0000-000000000000")
+        val logs =
+            captureRouteLogs {
+                testApp(metadataService, linkedDistributionsService) {
+                    val response = client.get("/api/getdata/$uuid")
 
-            assertEquals(HttpStatusCode.NotFound, response.status)
-            assertEquals("", response.bodyAsText())
-        }
+                    assertEquals(HttpStatusCode.NotFound, response.status)
+                    assertEquals("", response.bodyAsText())
+                }
+            }
+        assertEquals(Level.WARN, logs.single().level)
+        assertContains(logs.single().formattedMessage, uuid)
+        assertNotNull(logs.single().throwableProxy)
     }
 
     @Test
@@ -361,13 +388,20 @@ class MetadataRoutesTest {
     fun `legacy getdata returns empty 500 when metadata lookup fails`() {
         val (metadataService, linkedDistributionsService) =
             createMetadataService(responseXml, geonetworkFails = true)
+        val uuid = "c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689"
 
-        testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/api/getdata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
+        val logs =
+            captureRouteLogs {
+                testApp(metadataService, linkedDistributionsService) {
+                    val response = client.get("/api/getdata/$uuid")
 
-            assertEquals(HttpStatusCode.InternalServerError, response.status)
-            assertEquals("", response.bodyAsText())
-        }
+                    assertEquals(HttpStatusCode.InternalServerError, response.status)
+                    assertEquals("", response.bodyAsText())
+                }
+            }
+        assertEquals(Level.ERROR, logs.single().level)
+        assertContains(logs.single().formattedMessage, uuid)
+        assertNotNull(logs.single().throwableProxy)
     }
 
     @Test
