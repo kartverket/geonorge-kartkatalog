@@ -11,7 +11,7 @@ import {
 import { getSearchResults } from "./api";
 
 export const instant = false;
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 20;
 
 export default async function Home({
   searchParams,
