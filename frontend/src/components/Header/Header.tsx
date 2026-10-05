@@ -148,8 +148,7 @@ export function Header() {
                 Nedlasting
               </Link>
             </Button>
-            {!isBeta &&
-              authReady &&
+            {authReady &&
               (user ? (
                 <>
                   <ProfileDropdown

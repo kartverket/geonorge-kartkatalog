@@ -231,8 +231,7 @@ export function HeaderMenu({
               <span>EN</span>
             </Button>
           )}
-          {!isBeta &&
-            authReady &&
+          {authReady &&
             (userName ? (
               <Button
                 variant="tertiary"
