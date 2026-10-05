@@ -1,6 +1,12 @@
 "use client";
 
-import { Button, Heading, Paragraph } from "@kv-designsystem/react";
+import {
+  Button,
+  Heading,
+  Pagination,
+  Paragraph,
+  usePagination,
+} from "@kv-designsystem/react";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import { Suspense, useState } from "react";
 import type { SearchResult } from "@/lib/schemas/search";
@@ -16,6 +22,7 @@ import { usePaginatedSearchResults } from "./usePaginatedSearchResults";
 import { usePersistedViewMode } from "./usePersistedViewMode";
 import { ViewToggle } from "./ViewToggle";
 import type { ViewMode } from "./viewMode";
+import { useRouter } from "next/navigation";
 
 type SearchResultsProps = {
   initialViewMode?: ViewMode;
@@ -55,9 +62,29 @@ export function SearchResults({
     initialOffset,
   });
 
+  const router = useRouter();
+  const handlePageChange = (page: number) => {
+    router.push(`?page=${page}`);
+  };
+
+  const onPageChange = (
+    _event: React.MouseEvent<HTMLElement, MouseEvent>,
+    page: number,
+  ) => {
+    handlePageChange(page);
+  };
   const resultsClassName = `${styles.results} ${
     viewMode === "list" ? styles.list : styles.grid
   }`;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const { pages, prevButtonProps, nextButtonProps } = usePagination({
+    currentPage,
+    setCurrentPage,
+    onChange: onPageChange,
+    totalPages: 10,
+    showPages: 7,
+  });
 
   return (
     <main className={styles.page}>
@@ -114,6 +141,31 @@ export function SearchResults({
             </div>
 
             <div className={styles.loadMoreSection}>
+              <Pagination>
+                <Pagination.List>
+                  <Pagination.Item>
+                    <Pagination.Button {...prevButtonProps} />
+                  </Pagination.Item>
+
+                  {pages.map(({ page, itemKey, buttonProps }) => (
+                    <Pagination.Item key={itemKey}>
+                      {typeof page === "number" && (
+                        <Pagination.Button
+                          asChild
+                          aria-label={`Side ${page}`}
+                          {...buttonProps}
+                        >
+                          <p>{page}</p>
+                        </Pagination.Button>
+                      )}
+                    </Pagination.Item>
+                  ))}
+
+                  <Pagination.Item>
+                    <Pagination.Button {...nextButtonProps} />
+                  </Pagination.Item>
+                </Pagination.List>
+              </Pagination>
               {loadMoreError ? (
                 <Paragraph
                   className={styles.loadMoreMessage}
