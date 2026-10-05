@@ -41,3 +41,7 @@ If the server starts successfully, you'll see the following output:
 `ALLOWED_DOWNLOAD_CLIENTS` is an optional, comma-separated allowlist of download API origins that may receive a user's GeoID access token for a restricted download order:
 
 Each value must be an HTTPS origin (scheme, host, and optional port), without a path, query, fragment, or user info. HTTP origins are rejected so a GeoID access token cannot be sent over plaintext. When the variable is absent or empty, the allowlist is empty: open downloads still work, while restricted orders are rejected before the token is sent to an unapproved destination.
+
+## Authentication URLs
+
+`PUBLIC_BASE_URL` is the public frontend URL used after login and logout. `AUTH_PUBLIC_BASE_URL` is the externally reachable backend ingress used to build the GeoID login and callback URLs. For local development these are typically `http://localhost:3000` and `http://localhost:8080`, respectively.
