@@ -8,6 +8,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import kotlinx.serialization.json.Json
+import no.kartverket.geonorge.kartkatalog.metadata.models.LegacyMetadataViewModel
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("MetadataRoutes")
@@ -21,7 +22,10 @@ fun Route.metadataRoutes(
             val uuid = call.parameters["uuid"] ?: return@get call.respond(HttpStatusCode.NotFound)
             try {
                 call.respondText(
-                    legacyJson.encodeToString(metadataService.getLegacyMetadata(uuid)),
+                    legacyJson.encodeToString(
+                        LegacyMetadataViewModel.serializer(),
+                        metadataService.getLegacyMetadata(uuid),
+                    ),
                     ContentType.Application.Json,
                 )
             } catch (cause: MetadataRecordNotFoundException) {
