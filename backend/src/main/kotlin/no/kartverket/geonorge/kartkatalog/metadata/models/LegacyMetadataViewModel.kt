@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:max-line-length", "ktlint:standard:no-consecutive-blank-lines")
-
 package no.kartverket.geonorge.kartkatalog.metadata.models
 
 import kotlinx.serialization.SerialName
@@ -348,7 +346,3 @@ data class LegacyMetadataViewModel(
     @SerialName("SerieDatasets") val serieDatasets: List<LegacyDataset>? = null,
     @SerialName("Serie") val serie: LegacySerie? = null,
 )
-
-
-
-

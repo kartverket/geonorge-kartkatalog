@@ -1,11 +1,10 @@
-@file:Suppress("ktlint:standard:max-line-length", "ktlint:standard:no-consecutive-blank-lines")
-
 package no.kartverket.geonorge.kartkatalog.metadata
 
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterCodeListItem
 import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
@@ -99,7 +98,8 @@ class LegacyMetadataMapper(
                     (_, resource) ->
                 resource.protocol?.contains("OGC:WMS") == true
             }?.second
-        val serviceDistributionProtocol = solrDocument?.serviceDistributionProtocolForDataset ?: ownViewService?.protocol
+        val serviceDistributionProtocol =
+            solrDocument?.serviceDistributionProtocolForDataset ?: ownViewService?.protocol
         val serviceDistributionUrl = solrDocument?.serviceDistributionUrlForDataset ?: ownViewService?.url
         val serviceDistributionName = solrDocument?.serviceDistributionNameForDataset ?: ownViewService?.name
 
@@ -217,7 +217,8 @@ class LegacyMetadataMapper(
                 record.keywordGroups.toLegacyKeywords {
                     it.thesaurusHref?.contains("data.europa.eu/bna", true) == true
                 },
-            keywordsNationalInitiative = record.keywordGroups.toLegacyKeywords { it.thesaurus?.contains("nasjonal", true) == true },
+            keywordsNationalInitiative =
+                record.keywordGroups.toLegacyKeywords { it.thesaurus?.contains("nasjonal", true) == true },
             keywordsNationalTheme =
                 record.keywordGroups.toLegacyKeywords {
                     it.thesaurus?.contains("nasjonal tematisk", true) == true
@@ -250,8 +251,10 @@ class LegacyMetadataMapper(
             processHistory = record.processHistory,
             productPageUrl = solrDocument?.productPageUrl ?: extensionUrl(record, "produktside"),
             productSheetUrl = solrDocument?.productSheetUrl ?: extensionUrl(record, "produktark"),
-            productSpecificationUrl = solrDocument?.productSpecificationUrl ?: extensionUrl(record, "produktspesifikasjon"),
-            coverageUrl = getCoverageLink(record.extensionResources, staticNorgeskartUrl = staticNorgeskartUrl) ?: coverageRaw,
+            productSpecificationUrl =
+                solrDocument?.productSpecificationUrl ?: extensionUrl(record, "produktspesifikasjon"),
+            coverageUrl =
+                getCoverageLink(record.extensionResources, staticNorgeskartUrl = staticNorgeskartUrl) ?: coverageRaw,
             coverageGridUrl = coverageGrid,
             coverageCellUrl = extensionUrl(record, "dekningsoversikt celle"),
             surveyAreaMapUrl = extensionUrl(record, "fullstendighetsdekningskart"),
@@ -293,7 +296,13 @@ class LegacyMetadataMapper(
             serviceDistributionUrlForDataset = serviceDistributionUrl,
             serviceDistributionProtocolForDataset = serviceDistributionProtocol,
             serviceDistributionAccessConstraint = solrDocument?.serviceDistributionAccessConstraint,
-            serviceUuid = solrDocument?.serviceDistributionUuidForDataset ?: if (record.hierarchyLevel == "service" && !record.parentIdentifier.isNullOrBlank()) record.parentIdentifier else record.uuid,
+            serviceUuid =
+                solrDocument?.serviceDistributionUuidForDataset
+                    ?: if (record.hierarchyLevel == "service" && !record.parentIdentifier.isNullOrBlank()) {
+                        record.parentIdentifier
+                    } else {
+                        record.uuid
+                    },
             accessIsOpendata = open,
             accessIsRestricted = restricted,
             accessIsProtected = protected,
@@ -351,7 +360,8 @@ class LegacyMetadataMapper(
                     ignoreCase = true,
                 ) -> "$INSPIRE_LIMITATIONS_ON_PUBLIC_ACCESS/INSPIRE_Directive_Article13_1b"
                 normalized.equals("no restrictions", ignoreCase = true) ||
-                    otherConstraintsAccess.equals("no restrictions", ignoreCase = true) -> "$INSPIRE_LIMITATIONS_ON_PUBLIC_ACCESS/noLimitations"
+                    otherConstraintsAccess.equals("no restrictions", ignoreCase = true) ->
+                    "$INSPIRE_LIMITATIONS_ON_PUBLIC_ACCESS/noLimitations"
                 normalized.equals("norway digital restricted", ignoreCase = true) ||
                     otherConstraintsAccess.equals("norway digital restricted", ignoreCase = true) ->
                     "$INSPIRE_LIMITATIONS_ON_PUBLIC_ACCESS/INSPIRE_Directive_Article13_1d"
@@ -390,7 +400,9 @@ class LegacyMetadataMapper(
         url: String?,
         name: String?,
     ): String? {
-        if (hierarchyLevel !in setOf("dataset", "series") || protocol.isNullOrBlank() || url.isNullOrBlank()) return null
+        if (hierarchyLevel !in setOf("dataset", "series") || protocol.isNullOrBlank() || url.isNullOrBlank()) {
+            return null
+        }
 
         val serviceType =
             when {
@@ -457,12 +469,11 @@ class LegacyMetadataMapper(
             this?.contains("concept", true) == true ||
             this?.contains("administrative", true) == true
 
-    private suspend fun no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem.toLegacyReferenceSystem(
-        translator: CodeListTranslator,
-    ) = LegacyReferenceSystem(
-        coordinateSystem = translator.translate(CodeList.COORDINATE_SYSTEMS, code) ?: code,
-        coordinateSystemUrl = codeSpace,
-    )
+    private suspend fun ReferenceSystem.toLegacyReferenceSystem(translator: CodeListTranslator) =
+        LegacyReferenceSystem(
+            coordinateSystem = translator.translate(CodeList.COORDINATE_SYSTEMS, code) ?: code,
+            coordinateSystemUrl = codeSpace,
+        )
 
     private fun Double.toLegacyCoordinate(): String = toString().replace('.', ',')
 
@@ -472,7 +483,13 @@ class LegacyMetadataMapper(
         }
 
     private fun String.toLegacyType() =
-        mapOf("dataset" to "Datasett", "service" to "Tjeneste", "series" to "Datasettserie", "software" to "Applikasjon", "dimensionGroup" to "Datapakke")[this] ?: this
+        mapOf(
+            "dataset" to "Datasett",
+            "service" to "Tjeneste",
+            "series" to "Datasettserie",
+            "software" to "Applikasjon",
+            "dimensionGroup" to "Datapakke",
+        )[this] ?: this
 
     private fun extensionUrl(
         record: MetadataRecord,
@@ -487,8 +504,3 @@ class LegacyMetadataMapper(
         val downloadProtocols = setOf("GEONORGE:DOWNLOAD", "WWW:DOWNLOAD-1.0-http--download", "GEONORGE:FILEDOWNLOAD")
     }
 }
-
-
-
-
-
