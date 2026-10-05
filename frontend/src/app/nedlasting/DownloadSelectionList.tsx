@@ -51,9 +51,6 @@ export function DownloadSelectionList({
 
   return (
     <div className={styles.pageInner}>
-      <Heading data-size={"lg"} level={1}>
-        Filnedlasting - bestilling
-      </Heading>
       {selectedDownloadCount > 0 ? (
         <div>
           <Heading level={2} data-size={"sm"}>

@@ -27,6 +27,7 @@ import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import type { DownloadInsightGroups } from "@/lib/schemas/download";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
+import { type DownloadStep, DownloadStepper } from "./DownloadStepper";
 import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
@@ -56,6 +57,7 @@ export function DownloadPageContentClient({
   const [email, setEmail] = useState("");
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
+  const [step, setStep] = useState<DownloadStep>("bestilling");
 
   function handleSelectionChange(uuid: string, selection: DownloadSelection) {
     setSelections((current) => ({ ...current, [uuid]: selection }));
@@ -135,6 +137,7 @@ export function DownloadPageContentClient({
       })),
     }).then((result) => {
       if (!result) return;
+      setStep("last-ned");
 
       const successfulUuids = new Set(
         result.orders
@@ -161,98 +164,123 @@ export function DownloadPageContentClient({
 
   return (
     <>
-      <DownloadSelectionList
-        selectedDownloadCount={selectedDownloadUuids.length}
-        cards={cards}
-        isLoading={isLoading}
-        hasLoadError={hasLoadError}
-        optionsByUuid={optionsByUuid}
-        selections={selections}
-        productsWithMissingFields={productsWithMissingFields}
-        onSelectionChange={handleSelectionChange}
-        onApplyToAll={applyToAllProducts}
-        isOrdering={isOrdering}
-      />
-      {selectedDownloadUuids.length > 0 || orderResult ? (
+      <Heading data-size={"lg"} level={1}>
+        Filnedlastning - {step === "bestilling" ? "Bestilling" : "Oppsummering"}
+      </Heading>
+      <DownloadStepper step={step} />
+
+      {step === "bestilling" ? (
+        <>
+          <DownloadSelectionList
+            selectedDownloadCount={selectedDownloadUuids.length}
+            cards={cards}
+            isLoading={isLoading}
+            hasLoadError={hasLoadError}
+            optionsByUuid={optionsByUuid}
+            selections={selections}
+            productsWithMissingFields={productsWithMissingFields}
+            onSelectionChange={handleSelectionChange}
+            onApplyToAll={applyToAllProducts}
+            isOrdering={isOrdering}
+          />
+          {selectedDownloadUuids.length > 0 ? (
+            <section className={styles.orderSectionWrapper}>
+              <section className={styles.orderSection}>
+                <Heading level={2} data-size={"sm"}>
+                  Vennligst fyll ut
+                </Heading>
+                <form onSubmit={handleSubmit}>
+                  <div className={styles.userInputs}>
+                    <Field>
+                      <Label>Brukergruppe</Label>
+                      <Select
+                        value={usageGroup}
+                        onChange={(event) => setUsageGroup(event.target.value)}
+                        disabled={isOrdering}
+                      >
+                        <Select.Option value="">
+                          Velg brukergruppe
+                        </Select.Option>
+                        {insightGroups.brukergrupper.map((group) => (
+                          <Select.Option key={group} value={group}>
+                            {group}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Field>
+                    <Field>
+                      <Label>Formål</Label>
+                      <MultiSuggestion
+                        selectedValues={usagePurpose}
+                        onChangeAction={setUsagePurpose}
+                        options={insightGroups.formal.map((purpose) => ({
+                          label: purpose,
+                          value: purpose,
+                        }))}
+                        placeholder="Velg formål"
+                        isOrdering={isOrdering}
+                      />
+                    </Field>
+                    <Field>
+                      <Label>E-post</Label>
+                      <Input
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        disabled={isOrdering}
+                        required
+                      />
+                    </Field>
+                  </div>
+
+                  {!hasInsightGroupOptions ? (
+                    <Paragraph aria-live="polite">
+                      Kunne ikke hente brukergrupper og formål for bestilling.
+                    </Paragraph>
+                  ) : null}
+
+                  <div className={styles.buttonContainer}>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      disabled={!canOrder}
+                    >
+                      {!isOrdering && <DownloadIcon aria-hidden />}
+                      {isOrdering
+                        ? "Bestiller..."
+                        : "Gå videre til oppsummering"}
+                    </Button>
+                    <Button
+                      type="button"
+                      data-color="danger"
+                      variant="secondary"
+                      onClick={() => {
+                        clearDownloads();
+                        setSelections({});
+                        setStep("bestilling");
+                      }}
+                      disabled={
+                        isOrdering || selectedDownloadUuids.length === 0
+                      }
+                    >
+                      <TrashIcon aria-hidden />
+                      Fjern alle nedlastinger
+                    </Button>
+                  </div>
+                </form>
+
+                {orderError ? (
+                  <Paragraph aria-live="polite">{orderError}</Paragraph>
+                ) : null}
+              </section>
+            </section>
+          ) : null}
+        </>
+      ) : (
         <section className={styles.orderSectionWrapper}>
           <section className={styles.orderSection}>
-            <Heading level={2} data-size={"sm"}>
-              Vennligst fyll ut
-            </Heading>
-            <form onSubmit={handleSubmit}>
-              <div className={styles.userInputs}>
-                <Field>
-                  <Label>Brukergruppe</Label>
-                  <Select
-                    value={usageGroup}
-                    onChange={(event) => setUsageGroup(event.target.value)}
-                    disabled={isOrdering}
-                  >
-                    <Select.Option value="">Velg brukergruppe</Select.Option>
-                    {insightGroups.brukergrupper.map((group) => (
-                      <Select.Option key={group} value={group}>
-                        {group}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Field>
-                <Field>
-                  <Label>Formål</Label>
-                  <MultiSuggestion
-                    selectedValues={usagePurpose}
-                    onChangeAction={setUsagePurpose}
-                    options={insightGroups.formal.map((purpose) => ({
-                      label: purpose,
-                      value: purpose,
-                    }))}
-                    placeholder="Velg formål"
-                    isOrdering={isOrdering}
-                  />
-                </Field>
-                <Field>
-                  <Label>E-post</Label>
-                  <Input
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    disabled={isOrdering}
-                    required
-                  />
-                </Field>
-              </div>
-
-              {!hasInsightGroupOptions ? (
-                <Paragraph aria-live="polite">
-                  Kunne ikke hente brukergrupper og formål for bestilling.
-                </Paragraph>
-              ) : null}
-
-              <div className={styles.buttonContainer}>
-                <Button type="submit" variant="primary" disabled={!canOrder}>
-                  {!isOrdering && <DownloadIcon aria-hidden />}
-                  {isOrdering ? "Bestiller..." : "Last ned produkter"}
-                </Button>
-                <Button
-                  type="button"
-                  data-color="danger"
-                  variant="secondary"
-                  onClick={() => {
-                    clearDownloads();
-                    setSelections({});
-                  }}
-                  disabled={isOrdering || selectedDownloadUuids.length === 0}
-                >
-                  <TrashIcon aria-hidden />
-                  Fjern alt fra nedlasting
-                </Button>
-              </div>
-            </form>
-
-            {orderError ? (
-              <Paragraph aria-live="polite">{orderError}</Paragraph>
-            ) : null}
             {orderResult ? (
               <div className={styles.resultList}>
                 {orderResult.orders.map((order, orderIndex) =>
@@ -293,9 +321,18 @@ export function DownloadPageContentClient({
                 )}
               </div>
             ) : null}
+            <div className={styles.buttonContainer}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setStep("bestilling")}
+              >
+                ← Gå tilbake til bestilling
+              </Button>
+            </div>
           </section>
         </section>
-      ) : null}
+      )}
     </>
   );
 }
