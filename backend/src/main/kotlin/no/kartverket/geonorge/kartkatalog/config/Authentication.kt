@@ -1,6 +1,5 @@
 package no.kartverket.geonorge.kartkatalog.config
 
-import io.ktor.http.path
 import io.ktor.http.takeFrom
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -19,6 +18,7 @@ private val log = LoggerFactory.getLogger("Authentication")
 
 suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuthentication {
     val publicBaseUri = URI(appConfig.publicBaseUrl)
+    val authPublicBaseUrl = appConfig.authPublicBaseUrl.trimEnd('/')
     val publicOrigin =
         URI(
             publicBaseUri.scheme,
@@ -55,11 +55,11 @@ suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuth
                     )
 
                 loginUri = {
-                    path("auth", "geoid", "login")
+                    takeFrom("$authPublicBaseUrl/auth/geoid/login")
                 }
 
                 redirectUri = {
-                    path("auth", "geoid", "callback")
+                    takeFrom("$authPublicBaseUrl/auth/geoid/callback")
                 }
 
                 sessions {
