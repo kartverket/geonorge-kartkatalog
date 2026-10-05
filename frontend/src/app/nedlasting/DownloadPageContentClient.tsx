@@ -10,6 +10,7 @@ import {
   Select,
 } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
+import Link from "next/link";
 import { type SubmitEventHandler, useEffect, useState } from "react";
 import {
   clearDownloads,
@@ -18,6 +19,7 @@ import {
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import {
   createDownloadOrderItem,
+  type DownloadCard,
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
   filterSelectionForProduct,
@@ -25,6 +27,7 @@ import {
 } from "@/app/nedlasting/downloadUtils";
 import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import type { DownloadInsightGroups } from "@/lib/schemas/download";
+import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
 import { type DownloadStep, DownloadStepper } from "./DownloadStepper";
@@ -58,6 +61,7 @@ export function DownloadPageContentClient({
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
   const [step, setStep] = useState<DownloadStep>("bestilling");
+  const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
 
   function handleSelectionChange(uuid: string, selection: DownloadSelection) {
     setSelections((current) => ({ ...current, [uuid]: selection }));
@@ -138,29 +142,24 @@ export function DownloadPageContentClient({
     }).then((result) => {
       if (!result) return;
       setStep("last-ned");
-
-      const successfulUuids = new Set(
-        result.orders
-          .filter((order) => order.status === "ordered")
-          .flatMap((order) => order.files)
-          .flatMap((file) => (file.metadataUuid ? [file.metadataUuid] : [])),
-      );
-
-      const successfulItems = cards
-        .filter((card) => successfulUuids.has(card.uuid))
-        .map((card) => ({
-          accessType: card.accessState,
-          distributionUrl: card.distributionUrl,
-          name: card.title,
-          organizationName: card.organization,
-          uuid: card.uuid,
-        }));
-
-      if (successfulItems.length > 0) {
-        removeItemsFromDownloads(successfulItems);
-      }
+      setOrderedCards(cards);
     });
   };
+
+  function handleProductDownloaded(uuid: string) {
+    const card = orderedCards.find((c) => c.uuid === uuid);
+    if (!card) return;
+
+    removeItemsFromDownloads([
+      {
+        accessType: card.accessState,
+        distributionUrl: card.distributionUrl,
+        name: card.title,
+        organizationName: card.organization,
+        uuid: card.uuid,
+      },
+    ]);
+  }
 
   return (
     <>
@@ -282,9 +281,10 @@ export function DownloadPageContentClient({
         <section className={styles.orderSectionWrapper}>
           <section className={styles.orderSection}>
             {orderResult ? (
-              <div className={styles.resultList}>
-                {orderResult.orders.map((order, orderIndex) =>
-                  order.status === "failed" ? (
+              <>
+                {orderResult.orders
+                  .filter((order) => order.status === "failed")
+                  .map((order) => (
                     <Paragraph
                       key={`failed-${order.metadataUuids.join("-")}`}
                       aria-live="polite"
@@ -299,27 +299,13 @@ export function DownloadPageContentClient({
                         .join(", ")}
                       : {order.message ?? "Ukjent feil"}. Du kan prøve på nytt.
                     </Paragraph>
-                  ) : (
-                    order.files.map((file, fileIndex) => (
-                      <Paragraph
-                        key={`${file.metadataUuid}-${orderIndex}-${fileIndex}`}
-                      >
-                        {file.status === "ReadyForDownload" &&
-                        file.downloadUrl ? (
-                          <a href={file.downloadUrl}>
-                            Last ned {file.name ?? file.metadataName}
-                          </a>
-                        ) : (
-                          <>
-                            {file.name ?? file.metadataName} er under
-                            behandling. Du får beskjed når den er klar.
-                          </>
-                        )}
-                      </Paragraph>
-                    ))
-                  ),
-                )}
-              </div>
+                  ))}
+                <DownloadOrderSummary
+                  orderResult={orderResult}
+                  cards={orderedCards}
+                  onProductDownloaded={handleProductDownloaded}
+                />
+              </>
             ) : null}
             <div className={styles.buttonContainer}>
               <Button
@@ -328,6 +314,9 @@ export function DownloadPageContentClient({
                 onClick={() => setStep("bestilling")}
               >
                 ← Gå tilbake til bestilling
+              </Button>
+              <Button type="button" variant="secondary" asChild>
+                <Link href="/">Gå til Kartkatalogen</Link>
               </Button>
             </div>
           </section>

@@ -3,6 +3,7 @@ import type {
   DownloadOrderAreaInput,
   DownloadOrderItemInput,
   DownloadOrderProjectionInput,
+  DownloadOrderResult,
 } from "@/lib/schemas/download";
 
 export type DownloadCard = {
