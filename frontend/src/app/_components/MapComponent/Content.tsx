@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { type BackgroundLayerName, getBackgroundLayer } from "./map/layers";
 import { map } from "./map/map";
-import { BackgroundLayerName, getBackgroundLayer } from "./map/layers";
 
 export interface MapComponentProps {
   backgroundLayerName: BackgroundLayerName;
@@ -14,11 +14,24 @@ const Content = (props: MapComponentProps) => {
   useEffect(() => {
     if (targetRef.current) {
       map.setTarget(targetRef.current);
-      const backgroundLayer = getBackgroundLayer(props.backgroundLayerName);
-      if (backgroundLayer) {
-        map.addLayer(backgroundLayer);
-      }
     }
+    return () => {
+      if (targetRef.current) {
+        map.setTarget(null);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const backgroundLayer = getBackgroundLayer(props.backgroundLayerName);
+    if (backgroundLayer) {
+      map.addLayer(backgroundLayer);
+    }
+    return () => {
+      if (backgroundLayer) {
+        map.removeLayer(backgroundLayer);
+      }
+    };
   }, [props.backgroundLayerName]);
 
   return <div ref={targetRef} style={{ width: "100%", height: "100%" }} />;

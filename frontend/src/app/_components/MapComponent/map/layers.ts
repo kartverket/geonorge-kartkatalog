@@ -1,4 +1,3 @@
-import BaseLayer from "ol/layer/Base";
 import TileLayer from "ol/layer/Tile";
 import { XYZ } from "ol/source";
 
