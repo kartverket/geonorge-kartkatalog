@@ -88,14 +88,8 @@ export function DownloadSelectionList({
             isOrdering={isOrdering}
           />
 
-          {productsWithMissingFields.length > 0 ? (
-            <MissingInputSummary
-              productsWithMissingFields={productsWithMissingFields}
-            />
-          ) : null}
-
           <Heading level={2} data-size={"sm"}>
-            Velg pr produkt
+            Dine valgte datasett ({selectedDownloadCount})
           </Heading>
           <div className={styles.results}>
             {cards.map((card) => (
@@ -111,6 +105,12 @@ export function DownloadSelectionList({
               />
             ))}
           </div>
+
+          {productsWithMissingFields.length > 0 ? (
+            <MissingInputSummary
+              productsWithMissingFields={productsWithMissingFields}
+            />
+          ) : null}
         </>
       )}
     </div>

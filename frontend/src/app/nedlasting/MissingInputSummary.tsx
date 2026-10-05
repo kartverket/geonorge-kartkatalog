@@ -26,7 +26,7 @@ export function MissingInputSummary({
   return (
     <ErrorSummary>
       <ErrorSummary.Heading>
-        Følgende produkter mangler valg:
+        For å gå videre må du rette opp følgende feil:
       </ErrorSummary.Heading>
       <ErrorSummary.List>
         {productsWithMissingFields.map(({ uuid, title, missingFields }) => (
