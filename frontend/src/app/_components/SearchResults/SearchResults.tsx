@@ -4,7 +4,6 @@ import {
   Button,
   Heading,
   Pagination,
-  Paragraph,
   usePagination,
 } from "@kv-designsystem/react";
 import { FunnelIcon } from "@navikt/aksel-icons";
@@ -19,9 +18,9 @@ import { Sidebar } from "./Sidebar";
 import { SortDropdown } from "./SortDropdown";
 import { ToTopButton } from "./ToTopButton";
 import { usePersistedViewMode } from "./usePersistedViewMode";
+import { useUpdateUrlProp } from "./useUpdateUrlProp";
 import { ViewToggle } from "./ViewToggle";
 import type { ViewMode } from "./viewMode";
-import { useUpdateUrlProp } from "./useUpdateUrlProp";
 
 type SearchResultsProps = {
   initialViewMode?: ViewMode;

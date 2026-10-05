@@ -1,7 +1,7 @@
 "use client";
 
 import type { Route } from "next";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export const useUpdateUrlProp = () => {
   const searchParams = useSearchParams();

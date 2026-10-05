@@ -36,22 +36,24 @@ export function ActiveFilters({ facets }: { facets: SearchFacet[] }) {
 
   return (
     <div className={styles.activeFilters}>
-      {chips.filter(([f,_v]) => f !=='page').map(([field, value]) => {
-        const facet = facetByField.get(field);
-        const valueLabel =
-          facet?.values.find((v) => v.name === value)?.label ?? value;
-        return (
-          <Button
-            key={`${field}-${value}`}
-            variant="tertiary"
-            className={styles.filterChip}
-            onClick={() => removeChip(field, value)}
-          >
-            <XMarkIcon aria-hidden />
-            {valueLabel}
-          </Button>
-        );
-      })}
+      {chips
+        .filter(([f, _v]) => f !== "page")
+        .map(([field, value]) => {
+          const facet = facetByField.get(field);
+          const valueLabel =
+            facet?.values.find((v) => v.name === value)?.label ?? value;
+          return (
+            <Button
+              key={`${field}-${value}`}
+              variant="tertiary"
+              className={styles.filterChip}
+              onClick={() => removeChip(field, value)}
+            >
+              <XMarkIcon aria-hidden />
+              {valueLabel}
+            </Button>
+          );
+        })}
     </div>
   );
 }
