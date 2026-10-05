@@ -1,7 +1,9 @@
 package no.kartverket.geonorge.kartkatalog
 
+import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.config.configureAuthentication
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
@@ -12,6 +14,7 @@ fun main() {
     val config = AppConfig()
 
     embeddedServer(Netty, port = 8080) {
+        install(XForwardedHeaders)
         configureHttp()
         configureSerialization()
         configureStatusPages()
