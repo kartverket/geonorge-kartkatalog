@@ -1,34 +1,28 @@
 "use client";
 
 import { Avatar, Button, Divider, Heading } from "@kv-designsystem/react";
-import {
-  Buildings2Icon,
-  LeaveIcon,
-  PersonCircleIcon,
-} from "@navikt/aksel-icons";
+import { LeaveIcon, PersonCircleIcon } from "@navikt/aksel-icons";
+import { basePath } from "@/lib/basePath";
 import { type Location, trackClick } from "@/posthog/posthog";
 import styles from "./ProfileContent.module.css";
 
-export function ProfileContent({ location }: { location: Location }) {
+export function ProfileContent({
+  location,
+  userName,
+}: {
+  location: Location;
+  userName: string;
+}) {
   return (
     <div className={styles.content}>
       <div className={styles.profiles}>
-        <Heading data-size="2xs">Velg profil</Heading>
+        <Heading data-size="2xs">Profil</Heading>
         <Button
           variant="tertiary"
           onClick={() => trackClick("personal-profile", location)}
         >
           <Avatar aria-hidden data-size="xs" />
-          Frodo Baggins
-        </Button>
-        <Button
-          variant="tertiary"
-          onClick={() => trackClick("organization-profile", location)}
-        >
-          <Avatar aria-hidden data-size="xs" variant="square">
-            <Buildings2Icon />
-          </Avatar>
-          Oslo kommune
+          {userName}
         </Button>
       </div>
       <Divider />
@@ -40,14 +34,21 @@ export function ProfileContent({ location }: { location: Location }) {
           <PersonCircleIcon aria-hidden />
           Min side
         </Button>
-        <Button
-          variant="tertiary"
-          data-color="danger"
-          onClick={() => trackClick("logout", location)}
+        <form
+          action={`${basePath}/api/auth/logout`}
+          method="post"
+          className={styles.logoutForm}
         >
-          <LeaveIcon aria-hidden />
-          Logg ut
-        </Button>
+          <Button
+            type="submit"
+            variant="tertiary"
+            data-color="danger"
+            onClick={() => trackClick("logout", location)}
+          >
+            <LeaveIcon aria-hidden />
+            Logg ut
+          </Button>
+        </form>
       </div>
     </div>
   );

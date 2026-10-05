@@ -1,7 +1,9 @@
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import type { AuthProvider } from "@/lib/authProvider";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
+import { type AuthInfo, parseAuthInfo } from "@/lib/schemas/auth";
 import {
   type DownloadInsightGroups,
   type DownloadOptions,
@@ -47,6 +49,37 @@ export class HttpError extends Error {
     this.status = status;
     this.body = body;
   }
+}
+
+async function startAuthAction(
+  provider: AuthProvider,
+  action: "login" | "logout",
+  cookie?: string,
+) {
+  return fetch(`${API_BASE}/auth/${provider}/${action}`, {
+    method: action === "logout" ? "POST" : "GET",
+    headers: {
+      Origin: KATALOG_ORIGIN,
+      ...(cookie ? { Cookie: cookie } : {}),
+    },
+    redirect: "manual",
+    cache: "no-store",
+  });
+}
+
+export async function startGeoIdLogin(): Promise<Response> {
+  return startAuthAction("geoid", "login");
+}
+
+export async function startAnsattportenLogin(): Promise<Response> {
+  return startAuthAction("ansattporten", "login");
+}
+
+export async function startLogout(
+  provider: AuthProvider,
+  cookie?: string,
+): Promise<Response> {
+  return startAuthAction(provider, "logout", cookie);
 }
 
 async function fetchJson(
@@ -281,6 +314,7 @@ export async function getDownloadOptions(
 
 export async function orderDownload(
   request: DownloadOrderRequest,
+  cookie?: string,
 ): Promise<DownloadOrderResult> {
   const url = `${API_BASE}/api/download/order`;
   const body = await fetchJson(url, {
@@ -288,6 +322,7 @@ export async function orderDownload(
     headers: {
       "Content-Type": "application/json",
       Origin: KATALOG_ORIGIN,
+      ...(cookie ? { Cookie: cookie } : {}),
     },
     body: JSON.stringify(request),
   });
@@ -303,4 +338,22 @@ export async function getDownloadInsightGroups(): Promise<DownloadInsightGroups>
     method: "GET",
   });
   return parseDownloadInsightGroups(body);
+}
+
+export async function getAuthInfo(
+  provider: AuthProvider,
+  cookie?: string,
+): Promise<AuthInfo> {
+  const path = provider === "geoid" ? "/api/me/geoid" : "/api/me";
+  const body = await fetchJson(`${API_BASE}${path}`, {
+    method: "GET",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      Origin: KATALOG_ORIGIN,
+      ...(cookie ? { Cookie: cookie } : {}),
+    },
+  });
+
+  return parseAuthInfo(body);
 }

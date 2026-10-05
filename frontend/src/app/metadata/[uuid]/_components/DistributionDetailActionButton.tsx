@@ -43,8 +43,7 @@ export function DistributionDetailActionButton({
 
   if (
     isGeonorgeDownloadProtocol(group.protocol) &&
-    hierarchyLevel === "dataset" &&
-    accessState === "open"
+    hierarchyLevel === "dataset"
   ) {
     return (
       <AddToDownloadsButton

@@ -68,7 +68,9 @@ export function useAreAllItemsSelectedForDownload(
 ): boolean {
   return useSyncExternalStore(
     subscribeToDownloads,
-    () => items.every((item) => isItemSelectedForDownload(item.uuid)),
+    () =>
+      items.length > 0 &&
+      items.every((item) => isItemSelectedForDownload(item.uuid)),
     getServerSnapshot,
   );
 }

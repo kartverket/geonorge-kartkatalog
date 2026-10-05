@@ -9,9 +9,9 @@ import {
   removeItemsFromDownloads,
 } from "@/app/_components/addToDownloads/downloadStorage";
 import { useAreAllItemsSelectedForDownload } from "@/app/_components/addToDownloads/useDownloads";
+import { useAuthInfo } from "@/components/AuthProvider";
 import { type Location, trackClick } from "@/posthog/posthog";
 
-//Note, can only add open data here. In future, handle closed datasets when login is ok.
 export default function AddSeriesToDownloadsButton({
   item,
   downloadableItems,
@@ -27,31 +27,36 @@ export default function AddSeriesToDownloadsButton({
   size?: "sm" | "md" | "lg";
   location: Location;
 }) {
-  const addableItems = downloadableItems.filter((i) => i.accessType === "open");
-  const areItemsSelectedForDownload =
-    useAreAllItemsSelectedForDownload(addableItems);
-
-  const hasDownloadableItems = addableItems.some(
+  const authState = useAuthInfo();
+  const validItems = downloadableItems.filter(
     (item) => item.uuid && item.distributionUrl,
   );
+  const addableItems = validItems.filter(
+    (item) =>
+      item.accessType?.toLocaleLowerCase() === "open" ||
+      authState.status === "authenticated",
+  );
+  const areAllValidItemsSelected =
+    useAreAllItemsSelectedForDownload(validItems);
+  const areAllAddableItemsSelected =
+    useAreAllItemsSelectedForDownload(addableItems);
+  const isRemoving = areAllValidItemsSelected || areAllAddableItemsSelected;
 
-  if (!hasDownloadableItems) return null;
+  if (validItems.length === 0) return null;
 
   const handleToggleDownloads = () => {
     trackClick(
-      areItemsSelectedForDownload
-        ? "remove-all-from-downloads"
-        : "add-all-to-downloads",
+      isRemoving ? "remove-all-from-downloads" : "add-all-to-downloads",
       location,
       {
         itemName: item.title,
         itemUuid: item.uuid,
-        numberOfItems: addableItems.length,
+        numberOfItems: isRemoving ? validItems.length : addableItems.length,
       },
     );
 
-    if (areItemsSelectedForDownload) {
-      removeItemsFromDownloads(addableItems);
+    if (isRemoving) {
+      removeItemsFromDownloads(validItems);
       return;
     }
 
@@ -60,14 +65,13 @@ export default function AddSeriesToDownloadsButton({
 
   return (
     <Button
-      variant={
-        variant ?? (areItemsSelectedForDownload ? "secondary" : "primary")
-      }
+      variant={variant ?? (isRemoving ? "secondary" : "primary")}
       data-size={size}
       className={className}
+      disabled={!isRemoving && addableItems.length === 0}
       onClick={handleToggleDownloads}
     >
-      {areItemsSelectedForDownload ? (
+      {isRemoving ? (
         <>
           <TrashIcon aria-hidden />
           Fjern alle fra nedlasting
