@@ -35,7 +35,7 @@ const KONTAKT = [
   { prefix: "Org. nr.: ", label: "971 040 238" },
 ];
 
-export function Footer() {
+export async function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
