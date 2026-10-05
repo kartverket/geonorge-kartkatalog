@@ -31,8 +31,7 @@ export function FacetSidebar({
     next.forEach((v) => {
       params.append(field, v);
     });
-    params.delete("offset");
-
+    params.delete("page");
     router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
   };
 
