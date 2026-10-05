@@ -31,7 +31,6 @@ class ServerTest {
                             "GEOID_CLIENT_ID" to "kartkatalog-test",
                             "GEOID_CLIENT_SECRET" to "test-secret",
                             "PUBLIC_BASE_URL" to "https://test.example.com/kartkatalog",
-                            "AUTH_PUBLIC_BASE_URL" to "https://api.test.example.com",
                         ),
                     ),
                     authentication,

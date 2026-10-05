@@ -20,7 +20,6 @@ class AppConfig(
     val geoIdClientId: String = env("GEOID_CLIENT_ID")
     val geoIdClientSecret: String = env("GEOID_CLIENT_SECRET")
     val publicBaseUrl: String = env("PUBLIC_BASE_URL")
-    val authPublicBaseUrl: String = env("AUTH_PUBLIC_BASE_URL")
     val allowedDownloadClients: DownloadTokenAllowlist =
         DownloadTokenAllowlist.fromCommaSeparated(optionalEnv("ALLOWED_DOWNLOAD_CLIENTS"))
 
