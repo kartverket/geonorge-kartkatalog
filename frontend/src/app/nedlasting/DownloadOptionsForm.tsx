@@ -45,7 +45,10 @@ export function DownloadOptionsForm({
     <div className={styles.areaBlocks}>
       {selection.areaBlocks.map((block, blockIndex) => (
         <AreaBlockFields
-          // biome-ignore lint/suspicious/noArrayIndexKey: blokker har ingen annen stabil id, og innholdet styres fullt ut av selection-data via props
+          // biome-ignore lint/suspicious/noArrayIndexKey:
+          // blokker har ingen stabil id; trygt fordi blokker
+          // kun legges til bakerst og fjernes via klikk
+          // (ingen aktiv input-state som kan havne på feil blokk)
           key={blockIndex}
           block={block}
           options={options}
