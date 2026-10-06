@@ -1,6 +1,14 @@
 "use client";
 
-import { Button, Card, Heading, Paragraph, Tag } from "@kv-designsystem/react";
+import {
+  Button,
+  Card,
+  Field,
+  Heading,
+  Input,
+  Label,
+  Tag,
+} from "@kv-designsystem/react";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -287,9 +295,20 @@ export function DownloadOrderSummary({
               />
             ))}
           </div>
-          <Paragraph data-size="sm">
-            Du får beskjed på e-post når disse filene er klare for nedlasting.
-          </Paragraph>
+          <div className={styles.notifyBox}>
+            <Heading level={3} data-size="xs">
+              Få varsel og nedlastingslenke når filene er ferdig behandlet
+            </Heading>
+            <Field className={styles.notifyField}>
+              <Label>Oppgi en e-post</Label>
+              <div className={styles.notifyRow}>
+                <Input type="email" disabled />
+                <Button type="button" variant="primary" disabled>
+                  Send til e-post
+                </Button>
+              </div>
+            </Field>
+          </div>
         </section>
       ) : null}
     </div>

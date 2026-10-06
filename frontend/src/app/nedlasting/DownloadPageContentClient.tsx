@@ -4,12 +4,13 @@ import {
   Button,
   Field,
   Heading,
-  Input,
   Label,
   Paragraph,
   Select,
+  Tag,
+  ValidationMessage,
 } from "@kv-designsystem/react";
-import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
+import { ArrowRightIcon, TrashIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import { type SubmitEventHandler, useEffect, useState } from "react";
 import {
@@ -58,7 +59,6 @@ export function DownloadPageContentClient({
     useDownloadOrder();
 
   const [selections, setSelections] = usePersistedDownloadSelections();
-  const [email, setEmail] = useState("");
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
   const [step, setStep] = useState<DownloadStep>("bestilling");
@@ -124,7 +124,6 @@ export function DownloadPageContentClient({
     cards.length > 0 &&
     cards.length === selectedDownloadUuids.length &&
     productsWithMissingFields.length === 0 &&
-    email.trim() !== "" &&
     usageGroup !== "" &&
     usagePurpose.length > 0 &&
     !isOrdering;
@@ -139,7 +138,6 @@ export function DownloadPageContentClient({
     }
 
     void submitOrder({
-      email: email.trim(),
       usageGroup,
       items: downloadableProducts.map((item) => ({
         ...item,
@@ -202,10 +200,19 @@ export function DownloadPageContentClient({
                 <Heading level={2} data-size={"sm"}>
                   Vennligst fyll ut
                 </Heading>
+                <div className={styles.infoRow}>
+                  <ValidationMessage data-color="info">
+                    Opplysningene brukes kun til å gi oss oversikt over bruken
+                    av produktene, og knyttes ikke til deg som person.
+                  </ValidationMessage>
+                </div>
                 <form onSubmit={handleSubmit}>
                   <div className={styles.userInputs}>
                     <Field>
-                      <Label>Brukergruppe</Label>
+                      <Label>
+                        Brukergruppe{" "}
+                        <Tag data-color="warning">Må fylles ut</Tag>
+                      </Label>
                       <Select
                         value={usageGroup}
                         onChange={(event) => setUsageGroup(event.target.value)}
@@ -222,7 +229,9 @@ export function DownloadPageContentClient({
                       </Select>
                     </Field>
                     <Field>
-                      <Label>Formål</Label>
+                      <Label>
+                        Formål <Tag data-color="warning">Må fylles ut</Tag>
+                      </Label>
                       <MultiSuggestion
                         selectedValues={usagePurpose}
                         onChangeAction={setUsagePurpose}
@@ -234,18 +243,6 @@ export function DownloadPageContentClient({
                         isOrdering={isOrdering}
                       />
                     </Field>
-                    <Field>
-                      <Label>E-post</Label>
-                      <Input
-                        type="email"
-                        inputMode="email"
-                        autoComplete="email"
-                        value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                        disabled={isOrdering}
-                        required
-                      />
-                    </Field>
                   </div>
 
                   {!hasInsightGroupOptions ? (
@@ -255,32 +252,34 @@ export function DownloadPageContentClient({
                   ) : null}
 
                   <div className={styles.buttonContainer}>
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      disabled={!canOrder}
-                    >
-                      {!isOrdering && <DownloadIcon aria-hidden />}
-                      {isOrdering
-                        ? "Bestiller..."
-                        : "Gå videre til oppsummering"}
-                    </Button>
-                    <Button
-                      type="button"
-                      data-color="danger"
-                      variant="secondary"
-                      onClick={() => {
-                        clearDownloads();
-                        setSelections({});
-                        setStep("bestilling");
-                      }}
-                      disabled={
-                        isOrdering || selectedDownloadUuids.length === 0
-                      }
-                    >
-                      <TrashIcon aria-hidden />
-                      Fjern alle nedlastinger
-                    </Button>
+                    <div className={styles.buttonContainer}>
+                      <Button
+                        type="button"
+                        data-color="danger"
+                        variant="secondary"
+                        onClick={() => {
+                          clearDownloads();
+                          setSelections({});
+                          setStep("bestilling");
+                        }}
+                        disabled={
+                          isOrdering || selectedDownloadUuids.length === 0
+                        }
+                      >
+                        <TrashIcon aria-hidden />
+                        Fjern alle nedlastinger
+                      </Button>
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        disabled={!canOrder}
+                      >
+                        {!isOrdering && <ArrowRightIcon aria-hidden />}
+                        {isOrdering
+                          ? "Bestiller..."
+                          : "Gå videre til oppsummering"}
+                      </Button>
+                    </div>
                   </div>
                 </form>
 
