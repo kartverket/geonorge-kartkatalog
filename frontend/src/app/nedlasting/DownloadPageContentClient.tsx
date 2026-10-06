@@ -165,6 +165,14 @@ export function DownloadPageContentClient({
         uuid: card.uuid,
       },
     ]);
+
+    setSelections((current) => {
+      const next: Record<string, DownloadSelection> = {};
+      for (const key of Object.keys(current)) {
+        if (key !== uuid) next[key] = current[key];
+      }
+      return next;
+    });
   }
 
   return (
