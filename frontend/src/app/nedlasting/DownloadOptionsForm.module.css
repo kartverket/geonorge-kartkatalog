@@ -1,37 +1,3 @@
-.selectionFields {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-size-5);
-}
-
-.selectionField,
-.formatField {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-size-2);
-}
-
-.formatField {
-  border: 0;
-  margin: 0;
-  padding: 0;
-}
-
-.fieldLabel {
-  font-weight: 600;
-}
-
-.formatOptions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-size-2);
-}
-
-.emptyMessage {
-  color: var(--ds-color-text-subtle);
-  font-size: 0.875rem;
-}
-
 .areaBlocks {
   display: flex;
   flex-direction: column;
@@ -51,24 +17,23 @@
   right: var(--ds-size-2);
 }
 
+.selectionFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-5);
+}
+
+.selectionField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+}
+
 .areaInputButtons {
   display: flex;
   gap: var(--ds-size-2);
 }
 
 .addAreaBlockButton {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ds-size-2);
   align-self: flex-start;
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--ds-color-accent-text-default);
-  font-size: var(--ds-body-sm-font-size);
-  cursor: pointer;
-}
-
-.addAreaBlockButton:hover {
-  text-decoration: underline;
 }

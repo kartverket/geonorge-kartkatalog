@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@kv-designsystem/react";
 import { PlusIcon } from "@navikt/aksel-icons";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import { AreaBlockFields } from "./AreaBlockFields";
@@ -78,14 +79,16 @@ export function DownloadOptionsForm({
           }
         />
       ))}
-      <button
-        type="button"
-        className={styles.addAreaBlockButton}
-        onClick={() => onSelectionChangeAction(addAreaBlock(selection))}
-      >
-        <PlusIcon aria-hidden />
-        Legg til nytt område
-      </button>
+      <div className={styles.addAreaBlockButton}>
+        <Button
+          type="button"
+          variant="tertiary"
+          onClick={() => onSelectionChangeAction(addAreaBlock(selection))}
+        >
+          <PlusIcon aria-hidden />
+          Legg til nytt område
+        </Button>
+      </div>
     </div>
   );
 }

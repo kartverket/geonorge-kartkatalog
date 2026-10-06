@@ -1,9 +1,3 @@
-.resultList {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
 .userInputs {
   display: flex;
   align-items: flex-end;
