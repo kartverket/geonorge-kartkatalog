@@ -1,6 +1,5 @@
 package no.kartverket.geonorge.kartkatalog.config
 
-import io.ktor.http.URLProtocol
 import io.ktor.http.path
 import io.ktor.http.takeFrom
 import io.ktor.server.application.Application
@@ -60,9 +59,7 @@ suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuth
                 }
 
                 redirectUri = {
-                    protocol = if (publicBaseUri.scheme == "https") URLProtocol.HTTPS else URLProtocol.HTTP
                     path("auth", "geoid", "callback")
-                    log.info("GeoID callback URL: {}", buildString())
                 }
 
                 sessions {
