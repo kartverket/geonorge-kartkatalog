@@ -45,6 +45,7 @@ export function DownloadOptionsForm({
     <div className={styles.areaBlocks}>
       {selection.areaBlocks.map((block, blockIndex) => (
         <AreaBlockFields
+          // biome-ignore lint/suspicious/noArrayIndexKey: blokker har ingen annen stabil id, og innholdet styres fullt ut av selection-data via props
           key={blockIndex}
           block={block}
           options={options}
