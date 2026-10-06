@@ -185,6 +185,7 @@ class MetadataParserTest {
         assertTrue(lc.accessConstraintsLink!!.contains("noLimitations"))
         assertEquals("https://creativecommons.org/licenses/by/4.0/", lc.otherConstraintsLink)
         assertEquals("Creative Commons BY 4.0 (CC BY 4.0)", lc.otherConstraintsLinkText)
+        assertNull(lc.otherConstraints)
     }
 
     @Test

@@ -315,8 +315,9 @@ object MetadataParser {
                     useConstraintsLicenseLinkText =
                         anchor?.textContent?.trim()?.takeIf { it.isNotEmpty() }
                 }
-                val otherConstraintsNode = c.node("gmd:otherConstraints")
-                otherConstraintsNode?.preferredText()?.let { otherConstraints = it }
+                if (ac == null && uc == null) {
+                    c.node("gmd:otherConstraints")?.preferredText()?.let { otherConstraints = it }
+                }
             }
 
             if (
