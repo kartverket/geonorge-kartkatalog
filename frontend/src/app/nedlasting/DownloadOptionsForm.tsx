@@ -1,16 +1,17 @@
 "use client";
 
-import { Field, Label, Tag } from "@kv-designsystem/react";
+import { PlusIcon } from "@navikt/aksel-icons";
 import type { DownloadOptions } from "@/lib/schemas/download";
+import { AreaBlockFields } from "./AreaBlockFields";
 import styles from "./DownloadOptionsForm.module.css";
-import type { DownloadSelection } from "./downloadUtils";
 import {
-  resolveDownloadAvailability,
-  selectDownloadAreas,
-  selectDownloadFormats,
-  selectDownloadProjections,
+  addAreaBlock,
+  type DownloadSelection,
+  removeAreaBlock,
+  selectAreaBlockArea,
+  selectAreaBlockFormats,
+  selectAreaBlockProjections,
 } from "./downloadUtils";
-import { MultiSuggestion } from "./MultiSuggestion";
 
 type DownloadOptionsFormProps = {
   error: string | null;
@@ -29,22 +30,6 @@ export function DownloadOptionsForm({
   selection,
   onSelectionChangeAction,
 }: DownloadOptionsFormProps) {
-  const availability = resolveDownloadAvailability(options, selection);
-
-  function changeArea(areaCodes: string[]) {
-    onSelectionChangeAction(selectDownloadAreas(selection, areaCodes));
-  }
-
-  function changeProjection(projectionCodes: string[]) {
-    onSelectionChangeAction(
-      selectDownloadProjections(selection, projectionCodes),
-    );
-  }
-
-  function changeFormat(formatNames: string[]) {
-    onSelectionChangeAction(selectDownloadFormats(selection, formatNames));
-  }
-
   if (isLoading) return <p>Henter nedlastingsvalg...</p>;
 
   if (!options) {
@@ -57,60 +42,46 @@ export function DownloadOptionsForm({
   }
 
   return (
-    <div className={styles.selectionFields}>
-      <Field className={styles.selectionField}>
-        <Label>
-          Geografisk område <Tag data-color="warning">Påkrevd</Tag>
-        </Label>
-        <MultiSuggestion
-          selectedValues={selection.areaCodes}
-          onChangeAction={changeArea}
-          options={availability.areaOptions.map((option) => ({
-            label: option.area.type
-              ? `${option.area.name} (${option.area.type})`
-              : option.area.name,
-            value: option.area.code,
-          }))}
-          placeholder="Velg geografisk område"
+    <div className={styles.areaBlocks}>
+      {selection.areaBlocks.map((block, blockIndex) => (
+        <AreaBlockFields
+          key={blockIndex}
+          block={block}
+          options={options}
           isOrdering={isOrdering}
+          canRemove={selection.areaBlocks.length > 1}
+          onChangeAreaAction={(areaCode) =>
+            onSelectionChangeAction(
+              selectAreaBlockArea(selection, blockIndex, areaCode),
+            )
+          }
+          onChangeProjectionsAction={(projectionCodes) =>
+            onSelectionChangeAction(
+              selectAreaBlockProjections(
+                selection,
+                blockIndex,
+                projectionCodes,
+              ),
+            )
+          }
+          onChangeFormatsAction={(formatNames) =>
+            onSelectionChangeAction(
+              selectAreaBlockFormats(selection, blockIndex, formatNames),
+            )
+          }
+          onRemoveAction={() =>
+            onSelectionChangeAction(removeAreaBlock(selection, blockIndex))
+          }
         />
-      </Field>
-      {selection.areaCodes.length > 0 ? (
-        <Field className={styles.selectionField}>
-          <Label>
-            Projeksjon <Tag data-color="warning">Påkrevd</Tag>
-          </Label>
-          <MultiSuggestion
-            selectedValues={selection.projectionCodes}
-            onChangeAction={changeProjection}
-            options={availability.projectionOptions.map((projection) => ({
-              label: projection.name,
-              value: projection.code,
-            }))}
-            placeholder="Velg projeksjon"
-            noOptionsLabel="Ingen felles projeksjoner for valgte områder"
-            isOrdering={isOrdering}
-          />
-        </Field>
-      ) : null}
-      {selection.projectionCodes.length > 0 ? (
-        <Field className={styles.selectionField}>
-          <Label>
-            Format <Tag data-color="warning">Påkrevd</Tag>
-          </Label>
-          <MultiSuggestion
-            selectedValues={selection.formatNames}
-            onChangeAction={changeFormat}
-            options={availability.formatOptions.map((format) => ({
-              label: format.name,
-              value: format.name,
-            }))}
-            placeholder="Velg format"
-            noOptionsLabel="Ingen formater tilgjengelig for valgte projeksjoner"
-            isOrdering={isOrdering}
-          />
-        </Field>
-      ) : null}
+      ))}
+      <button
+        type="button"
+        className={styles.addAreaBlockButton}
+        onClick={() => onSelectionChangeAction(addAreaBlock(selection))}
+      >
+        <PlusIcon aria-hidden />
+        Legg til nytt område
+      </button>
     </div>
   );
 }

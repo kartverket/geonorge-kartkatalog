@@ -11,21 +11,19 @@ import type { DownloadOptions } from "@/lib/schemas/download";
 import boxStyles from "./BulkDownloadSelectionForm.module.css";
 import styles from "./DownloadOptionsForm.module.css";
 import {
-  type DownloadSelection,
-  EMPTY_DOWNLOAD_SELECTION,
+  type DownloadAreaBlock,
+  EMPTY_AREA_BLOCK,
   getDownloadSelectionGapCounts,
   resolveUnionDownloadAvailability,
-  selectDownloadAreas,
-  selectDownloadFormats,
-  selectDownloadProjections,
 } from "./downloadUtils";
 import { MultiSuggestion } from "./MultiSuggestion";
+import { SingleSuggestion } from "./SingleSuggestion";
 
 type BulkDownloadSelectionFormProps = {
   optionsList: (DownloadOptions | null)[];
   isLoading: boolean;
   isOrdering?: boolean;
-  onApplyToAllAction: (bulkSelection: DownloadSelection) => void;
+  onApplyToAllAction: (bulkBlock: DownloadAreaBlock) => void;
 };
 
 export function BulkDownloadSelectionForm({
@@ -34,27 +32,33 @@ export function BulkDownloadSelectionForm({
   isOrdering = false,
   onApplyToAllAction,
 }: BulkDownloadSelectionFormProps) {
-  const [selection, setSelection] = useState<DownloadSelection>(
-    EMPTY_DOWNLOAD_SELECTION,
-  );
-  const availability = resolveUnionDownloadAvailability(optionsList, selection);
-  const gapCounts = getDownloadSelectionGapCounts(optionsList, selection);
+  const [block, setBlock] = useState<DownloadAreaBlock>(EMPTY_AREA_BLOCK);
+  const availability = resolveUnionDownloadAvailability(optionsList, block);
+  const gapCounts = getDownloadSelectionGapCounts(optionsList, block);
 
-  function changeArea(areaCodes: string[]) {
-    const next = selectDownloadAreas(selection, areaCodes);
-    setSelection(next);
+  function changeArea(areaCode: string | null) {
+    const next: DownloadAreaBlock = {
+      areaCode,
+      projectionCodes: [],
+      formatNames: [],
+    };
+    setBlock(next);
     onApplyToAllAction(next);
   }
 
   function changeProjection(projectionCodes: string[]) {
-    const next = selectDownloadProjections(selection, projectionCodes);
-    setSelection(next);
+    const next: DownloadAreaBlock = {
+      ...block,
+      projectionCodes,
+      formatNames: [],
+    };
+    setBlock(next);
     onApplyToAllAction(next);
   }
 
   function changeFormat(formatNames: string[]) {
-    const next = selectDownloadFormats(selection, formatNames);
-    setSelection(next);
+    const next: DownloadAreaBlock = { ...block, formatNames };
+    setBlock(next);
     onApplyToAllAction(next);
   }
 
@@ -69,8 +73,8 @@ export function BulkDownloadSelectionForm({
         <div className={boxStyles.fieldsRow}>
           <Field className={styles.selectionField}>
             <Label>Geografisk område</Label>
-            <MultiSuggestion
-              selectedValues={selection.areaCodes}
+            <SingleSuggestion
+              selectedValue={block.areaCode}
               onChangeAction={changeArea}
               options={availability.areaOptions.map((option) => ({
                 label: option.area.type
@@ -85,7 +89,7 @@ export function BulkDownloadSelectionForm({
               <ValidationMessage data-color="warning">
                 Ingen geografiske områder tilgjengelig for valgte produkter.
               </ValidationMessage>
-            ) : selection.areaCodes.length > 0 && gapCounts.areas > 0 ? (
+            ) : block.areaCode && gapCounts.areas > 0 ? (
               <ValidationMessage data-color="warning">
                 {gapCounts.areas} datasett har ikke valgte områder.
               </ValidationMessage>
@@ -94,7 +98,7 @@ export function BulkDownloadSelectionForm({
           <Field className={styles.selectionField}>
             <Label>Projeksjon</Label>
             <MultiSuggestion
-              selectedValues={selection.projectionCodes}
+              selectedValues={block.projectionCodes}
               onChangeAction={changeProjection}
               options={availability.projectionOptions.map((projection) => ({
                 label: projection.name,
@@ -107,7 +111,7 @@ export function BulkDownloadSelectionForm({
               <ValidationMessage data-color="warning">
                 Ingen projeksjoner tilgjengelig for valgte områder.
               </ValidationMessage>
-            ) : selection.projectionCodes.length > 0 &&
+            ) : block.projectionCodes.length > 0 &&
               gapCounts.projections > 0 ? (
               <ValidationMessage data-color="warning">
                 {gapCounts.projections} datasett har ikke valgte projeksjoner.
@@ -123,7 +127,7 @@ export function BulkDownloadSelectionForm({
             ) : (
               <>
                 <MultiSuggestion
-                  selectedValues={selection.formatNames}
+                  selectedValues={block.formatNames}
                   onChangeAction={changeFormat}
                   options={availability.formatOptions.map((format) => ({
                     label: format.name,
@@ -132,7 +136,7 @@ export function BulkDownloadSelectionForm({
                   placeholder="Velg format"
                   isOrdering={isOrdering}
                 />
-                {selection.formatNames.length > 0 && gapCounts.formats > 0 ? (
+                {block.formatNames.length > 0 && gapCounts.formats > 0 ? (
                   <ValidationMessage data-color="warning">
                     {gapCounts.formats} datasett har ikke valgte formater.
                   </ValidationMessage>

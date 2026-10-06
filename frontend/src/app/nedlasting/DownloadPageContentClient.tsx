@@ -18,11 +18,12 @@ import {
 } from "@/app/_components/addToDownloads/downloadStorage";
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import {
-  createDownloadOrderItem,
+  createDownloadOrderItems,
+  type DownloadAreaBlock,
   type DownloadCard,
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
-  filterSelectionForProduct,
+  filterAreaBlockForProduct,
   getMissingDownloadSelectionFields,
 } from "@/app/nedlasting/downloadUtils";
 import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
@@ -67,12 +68,19 @@ export function DownloadPageContentClient({
     setSelections((current) => ({ ...current, [uuid]: selection }));
   }
 
-  function applyToAllProducts(bulkSelection: DownloadSelection) {
+  function applyToAllProducts(bulkBlock: DownloadAreaBlock) {
     setSelections((current) => {
       const next = { ...current };
       for (const card of cards) {
         const options = optionsByUuid[card.uuid]?.options ?? null;
-        next[card.uuid] = filterSelectionForProduct(options, bulkSelection);
+        const existing = current[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
+        const filteredFirstBlock = filterAreaBlockForProduct(
+          options,
+          bulkBlock,
+        );
+        next[card.uuid] = {
+          areaBlocks: [filteredFirstBlock, ...existing.areaBlocks.slice(1)],
+        };
       }
       return next;
     });
@@ -97,14 +105,12 @@ export function DownloadPageContentClient({
   const downloadableProducts = cards.flatMap((card) => {
     const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
     const options = optionsByUuid[card.uuid]?.options ?? null;
-    const item = createDownloadOrderItem(
+    return createDownloadOrderItems(
       card.uuid,
       card.distributionUrl,
       options,
       selection,
     );
-
-    return item ? [item] : [];
   });
 
   const productsWithMissingFields = cards.flatMap((card) => {
@@ -117,7 +123,7 @@ export function DownloadPageContentClient({
   const canOrder =
     cards.length > 0 &&
     cards.length === selectedDownloadUuids.length &&
-    downloadableProducts.length === cards.length &&
+    productsWithMissingFields.length === 0 &&
     email.trim() !== "" &&
     usageGroup !== "" &&
     usagePurpose.length > 0 &&

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { DownloadSelection } from "./downloadUtils";
+import type { DownloadAreaBlock, DownloadSelection } from "./downloadUtils";
 
 const STORAGE_KEY = "downloadSelections";
 
@@ -11,14 +11,24 @@ function isStringArray(value: unknown): value is string[] {
   );
 }
 
+function isDownloadAreaBlock(value: unknown): value is DownloadAreaBlock {
+  if (typeof value !== "object" || value === null) return false;
+
+  const candidate = value as Record<string, unknown>;
+  return (
+    (candidate.areaCode === null || typeof candidate.areaCode === "string") &&
+    isStringArray(candidate.projectionCodes) &&
+    isStringArray(candidate.formatNames)
+  );
+}
+
 function isDownloadSelection(value: unknown): value is DownloadSelection {
   if (typeof value !== "object" || value === null) return false;
 
   const candidate = value as Record<string, unknown>;
   return (
-    isStringArray(candidate.areaCodes) &&
-    isStringArray(candidate.projectionCodes) &&
-    isStringArray(candidate.formatNames)
+    Array.isArray(candidate.areaBlocks) &&
+    candidate.areaBlocks.every(isDownloadAreaBlock)
   );
 }
 

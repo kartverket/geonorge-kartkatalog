@@ -3,7 +3,6 @@ import type {
   DownloadOrderAreaInput,
   DownloadOrderItemInput,
   DownloadOrderProjectionInput,
-  DownloadOrderResult,
 } from "@/lib/schemas/download";
 
 export type DownloadCard = {
@@ -23,73 +22,113 @@ export type DownloadOptionsState = {
 
 export type DownloadOptionsByUuid = Record<string, DownloadOptionsState>;
 
-export type DownloadSelection = {
-  areaCodes: string[];
-  formatNames: string[];
+export type DownloadAreaBlock = {
+  areaCode: string | null;
   projectionCodes: string[];
+  formatNames: string[];
+};
+
+export type DownloadSelection = {
+  areaBlocks: DownloadAreaBlock[];
+};
+
+export const EMPTY_AREA_BLOCK: DownloadAreaBlock = {
+  areaCode: null,
+  projectionCodes: [],
+  formatNames: [],
 };
 
 export const EMPTY_DOWNLOAD_SELECTION: DownloadSelection = {
-  areaCodes: [],
-  formatNames: [],
-  projectionCodes: [],
+  areaBlocks: [EMPTY_AREA_BLOCK],
 };
 
-export function selectDownloadAreas(
+export function selectAreaBlockArea(
   selection: DownloadSelection,
-  areaCodes: string[],
+  blockIndex: number,
+  areaCode: string | null,
 ): DownloadSelection {
   return {
-    ...selection,
-    areaCodes,
-    projectionCodes: [],
-    formatNames: [],
+    areaBlocks: selection.areaBlocks.map((block, index) =>
+      index === blockIndex
+        ? { areaCode, projectionCodes: [], formatNames: [] }
+        : block,
+    ),
   };
 }
 
-export function selectDownloadProjections(
+export function selectAreaBlockProjections(
   selection: DownloadSelection,
+  blockIndex: number,
   projectionCodes: string[],
 ): DownloadSelection {
   return {
-    ...selection,
-    projectionCodes,
-    formatNames: [],
+    areaBlocks: selection.areaBlocks.map((block, index) =>
+      index === blockIndex
+        ? { ...block, projectionCodes, formatNames: [] }
+        : block,
+    ),
   };
 }
 
-export function selectDownloadFormats(
+export function selectAreaBlockFormats(
   selection: DownloadSelection,
+  blockIndex: number,
   formatNames: string[],
 ): DownloadSelection {
   return {
-    ...selection,
-    formatNames,
+    areaBlocks: selection.areaBlocks.map((block, index) =>
+      index === blockIndex ? { ...block, formatNames } : block,
+    ),
+  };
+}
+
+export function addAreaBlock(selection: DownloadSelection): DownloadSelection {
+  return { areaBlocks: [...selection.areaBlocks, { ...EMPTY_AREA_BLOCK }] };
+}
+
+export function removeAreaBlock(
+  selection: DownloadSelection,
+  blockIndex: number,
+): DownloadSelection {
+  return {
+    areaBlocks: selection.areaBlocks.filter((_, index) => index !== blockIndex),
   };
 }
 
 export type MissingDownloadSelectionField = "area" | "projection" | "format";
 
-export function getMissingDownloadSelectionFields(
-  selection: DownloadSelection,
+function getMissingAreaBlockFields(
+  block: DownloadAreaBlock,
 ): MissingDownloadSelectionField[] {
   const missingFields: MissingDownloadSelectionField[] = [];
 
-  if (selection.areaCodes.length === 0) missingFields.push("area");
-  if (selection.projectionCodes.length === 0) missingFields.push("projection");
-  if (selection.formatNames.length === 0) missingFields.push("format");
+  if (!block.areaCode) missingFields.push("area");
+  if (block.projectionCodes.length === 0) missingFields.push("projection");
+  if (block.formatNames.length === 0) missingFields.push("format");
 
   return missingFields;
 }
 
-function getMatchingAreas(options: DownloadOptions, areaCodes: string[]) {
-  const selectedCodes = new Set(areaCodes);
-  return options.areas.filter((option) => selectedCodes.has(option.area.code));
+export function getMissingDownloadSelectionFields(
+  selection: DownloadSelection,
+): MissingDownloadSelectionField[] {
+  const missingFields = new Set<MissingDownloadSelectionField>();
+
+  for (const block of selection.areaBlocks) {
+    for (const field of getMissingAreaBlockFields(block)) {
+      missingFields.add(field);
+    }
+  }
+
+  return Array.from(missingFields);
 }
 
-function getSelectedAreas(options: DownloadOptions, areaCodes: string[]) {
-  const areas = getMatchingAreas(options, areaCodes);
-  return areas.length === new Set(areaCodes).size ? areas : [];
+function getMatchingArea(
+  options: DownloadOptions,
+  areaCode: string | null,
+): DownloadAreaOption | null {
+  if (!areaCode) return null;
+  return options.areas.find((option) => option.area.code === areaCode) ?? null;
 }
 
 function resolveProjectionOptions(areas: DownloadAreaOption[]) {
@@ -118,86 +157,94 @@ function resolveFormatOptions(
   return intersectByKey(formatLists, (format) => format.name);
 }
 
-export type DownloadAvailability = {
+export type DownloadAreaBlockAvailability = {
   areaOptions: DownloadAreaOption[];
-  selectedAreaOptions: DownloadAreaOption[];
+  selectedArea: DownloadAreaOption | null;
   projectionOptions: DownloadProjectionOption[];
   formatOptions: DownloadFormat[];
 };
 
-export function resolveDownloadAvailability(
+export function resolveAreaBlockAvailability(
   options: DownloadOptions | null,
-  selection: Pick<DownloadSelection, "areaCodes" | "projectionCodes">,
-): DownloadAvailability {
+  block: Pick<DownloadAreaBlock, "areaCode" | "projectionCodes">,
+): DownloadAreaBlockAvailability {
   const areaOptions = options?.areas ?? [];
-  const selectedAreaOptions = options
-    ? getSelectedAreas(options, selection.areaCodes)
-    : [];
+  const selectedArea = options
+    ? getMatchingArea(options, block.areaCode)
+    : null;
+  const selectedAreas = selectedArea ? [selectedArea] : [];
 
   return {
     areaOptions,
-    selectedAreaOptions,
-    projectionOptions: resolveProjectionOptions(selectedAreaOptions),
-    formatOptions: resolveFormatOptions(
-      selectedAreaOptions,
-      selection.projectionCodes,
-    ),
+    selectedArea,
+    projectionOptions: resolveProjectionOptions(selectedAreas),
+    formatOptions: resolveFormatOptions(selectedAreas, block.projectionCodes),
   };
 }
 
-export function filterSelectionForProduct(
+function createOrderItemForBlock(
+  uuid: string,
+  capabilitiesUrl: string,
   options: DownloadOptions | null,
-  bulkSelection: DownloadSelection,
-): DownloadSelection {
-  if (!options) return EMPTY_DOWNLOAD_SELECTION;
+  block: DownloadAreaBlock,
+): DownloadOrderItemInput | null {
+  const availability = resolveAreaBlockAvailability(options, block);
+  if (!availability.selectedArea) return null;
 
-  const matchingAreas = getMatchingAreas(options, bulkSelection.areaCodes);
-  const areaCodes = matchingAreas.map((area) => area.area.code);
+  const projectionCodeSet = new Set(block.projectionCodes);
+  const projections = availability.projectionOptions.filter((candidate) =>
+    projectionCodeSet.has(candidate.code),
+  );
+  const formats = availability.formatOptions.filter((format) =>
+    block.formatNames.includes(format.name),
+  );
 
+  if (projections.length === 0 || formats.length === 0) return null;
+
+  return {
+    uuid,
+    capabilitiesUrl,
+    areas: [toDownloadOrderArea(availability.selectedArea)],
+    projections: projections.map(toDownloadOrderProjection),
+    formats: formats.map((format) => ({ name: format.name })),
+  };
+}
+
+export function createDownloadOrderItems(
+  uuid: string,
+  capabilitiesUrl: string,
+  options: DownloadOptions | null,
+  selection: DownloadSelection,
+): DownloadOrderItemInput[] {
+  return selection.areaBlocks.flatMap((block) => {
+    const item = createOrderItemForBlock(uuid, capabilitiesUrl, options, block);
+    return item ? [item] : [];
+  });
+}
+
+export function filterAreaBlockForProduct(
+  options: DownloadOptions | null,
+  bulkBlock: DownloadAreaBlock,
+): DownloadAreaBlock {
+  if (!options || !bulkBlock.areaCode) return { ...EMPTY_AREA_BLOCK };
+
+  const matchingArea = getMatchingArea(options, bulkBlock.areaCode);
+  if (!matchingArea) return { ...EMPTY_AREA_BLOCK };
+
+  const matchingAreas = [matchingArea];
   const projectionOptions = resolveProjectionOptions(matchingAreas);
-  const projectionCodeSet = new Set(bulkSelection.projectionCodes);
+  const projectionCodeSet = new Set(bulkBlock.projectionCodes);
   const projectionCodes = projectionOptions
     .filter((projection) => projectionCodeSet.has(projection.code))
     .map((projection) => projection.code);
 
   const formatOptions = resolveFormatOptions(matchingAreas, projectionCodes);
-  const formatNameSet = new Set(bulkSelection.formatNames);
+  const formatNameSet = new Set(bulkBlock.formatNames);
   const formatNames = formatOptions
     .filter((format) => formatNameSet.has(format.name))
     .map((format) => format.name);
 
-  return { areaCodes, projectionCodes, formatNames };
-}
-
-export function createDownloadOrderItem(
-  uuid: string,
-  capabilitiesUrl: string,
-  options: DownloadOptions | null,
-  selection: DownloadSelection,
-): DownloadOrderItemInput | null {
-  const availability = resolveDownloadAvailability(options, selection);
-  const projectionCodeSet = new Set(selection.projectionCodes);
-  const projections = availability.projectionOptions.filter((candidate) =>
-    projectionCodeSet.has(candidate.code),
-  );
-  const formats = availability.formatOptions.filter((format) =>
-    selection.formatNames.includes(format.name),
-  );
-
-  if (
-    availability.selectedAreaOptions.length === 0 ||
-    projections.length === 0 ||
-    formats.length === 0
-  )
-    return null;
-
-  return {
-    uuid,
-    capabilitiesUrl,
-    areas: availability.selectedAreaOptions.map(toDownloadOrderArea),
-    projections: projections.map(toDownloadOrderProjection),
-    formats: formats.map((format) => ({ name: format.name })),
-  };
+  return { areaCode: matchingArea.area.code, projectionCodes, formatNames };
 }
 
 export type DownloadAreaOption = DownloadOptions["areas"][number];
@@ -254,29 +301,27 @@ export type DownloadSelectionGapCounts = {
 
 export function getDownloadSelectionGapCounts(
   optionsList: (DownloadOptions | null)[],
-  bulkSelection: DownloadSelection,
+  bulkBlock: DownloadAreaBlock,
 ): DownloadSelectionGapCounts {
-  const perProductSelections = optionsList.map((options) =>
-    filterSelectionForProduct(options, bulkSelection),
+  const perProductBlocks = optionsList.map((options) =>
+    filterAreaBlockForProduct(options, bulkBlock),
   );
 
   function countGaps(
     bulkField: string[],
-    getField: (selection: DownloadSelection) => string[],
+    getField: (block: DownloadAreaBlock) => string[],
   ) {
     if (bulkField.length === 0) return 0;
-    return perProductSelections.filter(
-      (selection) => getField(selection).length === 0,
-    ).length;
+    return perProductBlocks.filter((block) => getField(block).length === 0)
+      .length;
   }
 
   return {
-    areas: countGaps(bulkSelection.areaCodes, (s) => s.areaCodes),
-    projections: countGaps(
-      bulkSelection.projectionCodes,
-      (s) => s.projectionCodes,
-    ),
-    formats: countGaps(bulkSelection.formatNames, (s) => s.formatNames),
+    areas: bulkBlock.areaCode
+      ? perProductBlocks.filter((block) => !block.areaCode).length
+      : 0,
+    projections: countGaps(bulkBlock.projectionCodes, (b) => b.projectionCodes),
+    formats: countGaps(bulkBlock.formatNames, (b) => b.formatNames),
   };
 }
 
@@ -302,8 +347,8 @@ function unionFormatsAcrossAreas(
 
 export function resolveUnionDownloadAvailability(
   optionsList: (DownloadOptions | null)[],
-  selection: Pick<DownloadSelection, "areaCodes" | "projectionCodes">,
-): DownloadAvailability {
+  bulkBlock: Pick<DownloadAreaBlock, "areaCode" | "projectionCodes">,
+): DownloadAreaBlockAvailability {
   const presentOptionsList = optionsList.flatMap((options) =>
     options ? [options] : [],
   );
@@ -312,33 +357,32 @@ export function resolveUnionDownloadAvailability(
     presentOptionsList.map((options) => options.areas),
     (option) => option.area.code,
   );
-  const selectedCodes = new Set(selection.areaCodes);
-  const selectedAreaOptions = areaOptions.filter((option) =>
-    selectedCodes.has(option.area.code),
-  );
+  const selectedArea =
+    areaOptions.find((option) => option.area.code === bulkBlock.areaCode) ??
+    null;
 
-  const displayAreasByProduct = presentOptionsList.map((options) =>
-    selection.areaCodes.length === 0
-      ? options.areas
-      : getMatchingAreas(options, selection.areaCodes),
-  );
+  const displayAreasByProduct = presentOptionsList.map((options) => {
+    if (!bulkBlock.areaCode) return options.areas;
+    const matchingArea = getMatchingArea(options, bulkBlock.areaCode);
+    return matchingArea ? [matchingArea] : [];
+  });
 
   return {
     areaOptions,
-    selectedAreaOptions,
+    selectedArea,
     projectionOptions: unionByKey(
       displayAreasByProduct.map((areas) =>
-        selection.areaCodes.length === 0
-          ? unionProjectionsAcrossAreas(areas)
-          : resolveProjectionOptions(areas),
+        bulkBlock.areaCode
+          ? resolveProjectionOptions(areas)
+          : unionProjectionsAcrossAreas(areas),
       ),
       (projection) => projection.code,
     ),
     formatOptions: unionByKey(
       displayAreasByProduct.map((areas) =>
-        selection.projectionCodes.length === 0
+        bulkBlock.projectionCodes.length === 0
           ? unionFormatsAcrossAreas(areas)
-          : resolveFormatOptions(areas, selection.projectionCodes),
+          : resolveFormatOptions(areas, bulkBlock.projectionCodes),
       ),
       (format) => format.name,
     ),
