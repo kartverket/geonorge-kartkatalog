@@ -2,7 +2,7 @@
 
 import { Avatar, Button, Divider, Heading } from "@kv-designsystem/react";
 import { LeaveIcon, PersonCircleIcon } from "@navikt/aksel-icons";
-import { basePath } from "@/lib/basePath";
+import { bffPath } from "@/lib/basePath";
 import { type Location, trackClick } from "@/posthog/posthog";
 import styles from "./ProfileContent.module.css";
 
@@ -35,7 +35,7 @@ export function ProfileContent({
           Min side
         </Button>
         <form
-          action={`${basePath}/api/auth/logout`}
+          action={`${bffPath}/auth/logout`}
           method="post"
           className={styles.logoutForm}
         >

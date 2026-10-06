@@ -8,7 +8,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { basePath } from "@/lib/basePath";
+import { bffPath } from "@/lib/basePath";
 import { type AuthInfo, AuthSessionSchema } from "@/lib/schemas/auth";
 
 export type AuthState =
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function loadAuthInfo() {
       try {
-        const response = await fetch(`${basePath}/api/me`, {
+        const response = await fetch(`${bffPath}/me`, {
           cache: "no-store",
           headers: { Accept: "application/json" },
           signal: controller.signal,
