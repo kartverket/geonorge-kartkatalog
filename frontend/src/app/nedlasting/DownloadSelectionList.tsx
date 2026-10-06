@@ -7,6 +7,7 @@ import styles from "./DownloadSelectionList.module.css";
 import {
   type DownloadCard,
   type DownloadOptionsByUuid,
+  type DownloadAreaBlock,
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
   type MissingDownloadSelectionField,
@@ -26,7 +27,7 @@ type DownloadSelectionListProps = {
     missingFields: MissingDownloadSelectionField[];
   }[];
   onSelectionChange: (uuid: string, selection: DownloadSelection) => void;
-  onApplyToAll: (bulkSelection: DownloadSelection) => void;
+  onApplyToAll: (bulkBlock: DownloadAreaBlock) => void;
   isOrdering?: boolean;
 };
 
