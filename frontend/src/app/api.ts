@@ -69,9 +69,6 @@ async function startAuthAction(
 }
 
 function geoIdRequestHeaders(cookie?: string) {
-  if (!katalogBaseUrl) {
-    throw new Error("KATALOG_BASE_URL is required for GeoID authentication");
-  }
   const publicUrl = new URL(KATALOG_ORIGIN);
   return {
     Origin: KATALOG_ORIGIN,
