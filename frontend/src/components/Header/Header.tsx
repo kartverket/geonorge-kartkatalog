@@ -51,8 +51,7 @@ export function Header() {
     ? "https://kartkatalog.geonorge.no/nedlasting"
     : "/nedlasting";
   const geoIdLoginHref = `${bffPath}/auth/geoid/login` as Route;
-  const ansattportenLoginHref =
-    `${bffPath}/auth/ansattporten/login` as Route;
+  const ansattportenLoginHref = `${bffPath}/auth/ansattporten/login` as Route;
 
   const rootRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
