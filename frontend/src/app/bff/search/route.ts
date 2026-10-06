@@ -37,9 +37,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(
-      {
-        error: "Could not fetch search results.",
-      },
+      { error: "Could not fetch search results." },
       { status: 500 },
     );
   }
