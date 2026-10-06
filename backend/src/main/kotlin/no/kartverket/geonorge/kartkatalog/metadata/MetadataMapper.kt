@@ -9,6 +9,9 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineRe
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
+import no.kartverket.geonorge.kartkatalog.metadata.models.CoverageData
+import no.kartverket.geonorge.kartkatalog.metadata.models.CoverageDataSource
+import no.kartverket.geonorge.kartkatalog.metadata.models.CoverageDataType
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductConstraints
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionEntry
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
@@ -96,9 +99,37 @@ class MetadataMapper(
                     record.extensionResources,
                     staticNorgeskartUrl = staticNorgeskartUrl,
                 ),
+            coverageData = getCoverageLinks(record.extensionResources)
         )
     }
-
+//    private fun getCoverageData(record: MetadataRecord): CoverageData {
+//        val coverageOverviewData = record.extensionResources.firstOrNull{it.applicationProfile.equals("dekningsoversikt", ignoreCase = true)}
+//            .let { CoverageDataSource(url = it.url, type = CoverageDataType.WMS) }
+//
+//
+//        val coverageUrl =
+//            record.extensionResources.firstOrNull {
+//                it.applicationProfile.trim().equals("dekningsoversikt", ignoreCase = true)
+//            }?.url
+//        val coverageGridUrl =
+//            record.extensionResources.firstOrNull {
+//                it.applicationProfile.trim().equals("dekningsoversikt rutenett", ignoreCase = true)
+//            }?.url
+//        val coverageCellUrl =
+//            record.extensionResources.firstOrNull {
+//                it.applicationProfile.trim().equals("dekningsoversikt celle", ignoreCase = true)
+//            }?.url
+//
+//        return CoverageData(
+//            coverageOverviewWMSUrl = coverageUrl?.let { CoverageDataSource(url = it, type = CoverageDataType.WMS) },
+//            completenessCoverageWMSUrl = coverageGridUrl?.let { CoverageDataSource(url = it, type = CoverageDataType.GEOJSON) }
+//        )
+//    }
+//
+//    private fun parseApplicationProfile(url: String): String? {
+//        val regex = Regex(".*/(\\w+)(?:/|$)")
+//        return regex.find(url)?.groupValues?.get(1)
+//    }
     private fun describeAccessConstraints(
         recordAccessConstraints: String?,
         accessState: AccessState?,
