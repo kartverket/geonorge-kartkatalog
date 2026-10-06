@@ -2,7 +2,7 @@
 
 import { Avatar, Button, Divider, Dropdown } from "@kv-designsystem/react";
 import { LeaveIcon } from "@navikt/aksel-icons";
-import { basePath } from "@/lib/basePath";
+import { bffPath } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 
 export function ProfileDropdown({
@@ -42,7 +42,7 @@ export function ProfileDropdown({
         <Divider />
         <Dropdown.List>
           <Dropdown.Item>
-            <form action={`${basePath}/api/auth/logout`} method="post">
+            <form action={`${bffPath}/auth/logout`} method="post">
               <Dropdown.Button
                 type="submit"
                 data-color="danger"

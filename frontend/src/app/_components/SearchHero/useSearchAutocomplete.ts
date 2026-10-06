@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { basePath } from "@/lib/basePath";
+import { bffPath } from "@/lib/basePath";
 import { parseSearchResult, type SearchResult } from "@/lib/schemas/search";
 
 const MINIMUM_SEARCH_LENGTH = 2;
@@ -33,7 +33,7 @@ export function useSearchAutocomplete(searchText: string) {
           offset: "1",
           orderby: "score",
         });
-        const response = await fetch(`${basePath}/api/search?${params}`, {
+        const response = await fetch(`${bffPath}/search?${params}`, {
           method: "GET",
           signal: controller.signal,
           cache: "no-store",
