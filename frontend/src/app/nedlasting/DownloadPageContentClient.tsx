@@ -6,7 +6,6 @@ import {
   Heading,
   Label,
   Paragraph,
-  Select,
   Tag,
   ValidationMessage,
 } from "@kv-designsystem/react";
@@ -33,6 +32,7 @@ import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
 import { type DownloadStep, DownloadStepper } from "./DownloadStepper";
+import { SingleSuggestion } from "./SingleSuggestion";
 import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
@@ -213,20 +213,16 @@ export function DownloadPageContentClient({
                         Brukergruppe{" "}
                         <Tag data-color="warning">Må fylles ut</Tag>
                       </Label>
-                      <Select
-                        value={usageGroup}
-                        onChange={(event) => setUsageGroup(event.target.value)}
-                        disabled={isOrdering}
-                      >
-                        <Select.Option value="">
-                          Velg brukergruppe
-                        </Select.Option>
-                        {insightGroups.brukergrupper.map((group) => (
-                          <Select.Option key={group} value={group}>
-                            {group}
-                          </Select.Option>
-                        ))}
-                      </Select>
+                      <SingleSuggestion
+                        selectedValue={usageGroup || null}
+                        onChangeAction={(value) => setUsageGroup(value ?? "")}
+                        options={insightGroups.brukergrupper.map((group) => ({
+                          label: group,
+                          value: group,
+                        }))}
+                        placeholder="Velg brukergruppe"
+                        isOrdering={isOrdering}
+                      />
                     </Field>
                     <Field>
                       <Label>
