@@ -5,9 +5,9 @@ import { BulkDownloadSelectionForm } from "./BulkDownloadSelectionForm";
 import { DownloadSelectionCard } from "./DownloadSelectionCard";
 import styles from "./DownloadSelectionList.module.css";
 import {
+  type DownloadAreaBlock,
   type DownloadCard,
   type DownloadOptionsByUuid,
-  type DownloadAreaBlock,
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
   type MissingDownloadSelectionField,
