@@ -59,7 +59,7 @@ suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuth
                 }
 
                 redirectUri = {
-                    path("auth", "geoid", "callback")
+                    takeFrom("${appConfig.publicBaseUrl}/api/auth/geoid/callback")
                 }
 
                 sessions {
