@@ -171,6 +171,7 @@ class MetadataMapperTest {
                                 listOf(
                                     DistributionFormat(
                                         name = "HTML",
+                                        version = "5.0",
                                         onlineResources =
                                             listOf(
                                                 OnlineResource(
@@ -198,6 +199,9 @@ class MetadataMapperTest {
 
             assertEquals("WWW:LINK-1.0-http--link", distribution.protocol)
             assertEquals("Webside", distribution.protocolName)
+            assertEquals("5.0", mapped.distributionFormat?.version)
+            assertEquals("5.0", distribution.formatVersion)
+            assertEquals("5.0", group.formats.single().formatVersion)
             assertEquals("", group.organization)
             assertEquals("", group.unitsOfDistribution)
             assertEquals("", group.englishUnitsOfDistribution)

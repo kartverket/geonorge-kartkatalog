@@ -38,7 +38,7 @@ class LegacyMetadataMapper(
     ): LegacyMetadataViewModel {
         val resources =
             record.distributionInfo?.formats.orEmpty().flatMap { format ->
-                format.onlineResources.map { format.name to it }
+                format.onlineResources.map { format to it }
             }
         val primary =
             resources.firstOrNull { (_, resource) ->
@@ -153,7 +153,10 @@ class LegacyMetadataMapper(
                 ),
             distributionProtocol = primaryResource?.protocol,
             protocol = translateDistribution(primaryResource?.protocol)?.label,
-            distributionFormat = primary?.first?.let { LegacyDistributionFormat(it) },
+            distributionFormat =
+                primary?.first?.let { format ->
+                    LegacyDistributionFormat(format.name, format.version)
+                },
             distributionFormats =
                 record.distributionInfo?.formats?.map {
                     LegacyDistributionFormat(
@@ -164,7 +167,11 @@ class LegacyMetadataMapper(
             distributionsFormats =
                 resources.map {
                         (format, resource) ->
-                    resource.toLegacyDistribution(format, translateDistribution(resource.protocol)?.label)
+                    resource.toLegacyDistribution(
+                        format.name,
+                        format.version,
+                        translateDistribution(resource.protocol)?.label,
+                    )
                 },
             distributionFormatsGrouped =
                 resources.groupBy { it.second.protocol to it.second.organization }.map { (key, grouped) ->
@@ -179,7 +186,11 @@ class LegacyMetadataMapper(
                         englishUnitsOfDistribution = first.englishUnitsOfDistribution.orEmpty(),
                         formats =
                             grouped.map {
-                                LegacyDistributionFormatItem(it.first, url = it.second.url)
+                                LegacyDistributionFormatItem(
+                                    formatName = it.first.name,
+                                    formatVersion = it.first.version,
+                                    url = it.second.url,
+                                )
                             },
                         url = grouped.map { it.second.url }.distinct(),
                     )
@@ -381,10 +392,12 @@ class LegacyMetadataMapper(
         LegacyDistributionDetails(name, protocol, protocolName, url)
 
     private fun OnlineResource.toLegacyDistribution(
-        format: String,
+        formatName: String,
+        formatVersion: String?,
         protocolName: String?,
     ) = LegacyDistributionViewModel(
-        formatName = format,
+        formatName = formatName,
+        formatVersion = formatVersion,
         url = url,
         protocol = protocol,
         protocolName = protocolName,
