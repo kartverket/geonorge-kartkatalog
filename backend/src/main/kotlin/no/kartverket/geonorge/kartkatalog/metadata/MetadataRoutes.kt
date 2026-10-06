@@ -10,6 +10,7 @@ import io.ktor.server.routing.route
 import kotlinx.serialization.json.Json
 import no.kartverket.geonorge.kartkatalog.metadata.models.LegacyMetadataViewModel
 import org.slf4j.LoggerFactory
+import kotlin.coroutines.cancellation.CancellationException
 
 private val log = LoggerFactory.getLogger("MetadataRoutes")
 
@@ -28,6 +29,8 @@ fun Route.metadataRoutes(
                     ),
                     ContentType.Application.Json,
                 )
+            } catch (cause: CancellationException) {
+                throw cause
             } catch (cause: MetadataRecordNotFoundException) {
                 log.warn("Metadata record not found for getdata UUID: {}", uuid, cause)
                 call.respond(HttpStatusCode.NotFound)
