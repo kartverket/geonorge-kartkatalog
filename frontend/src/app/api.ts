@@ -103,7 +103,7 @@ export async function geoIdCallback(
   search: string,
   cookie?: string,
 ): Promise<Response> {
-  const callbackUrl = new URL(`${basePath}/api/auth/geoid/callback`, API_BASE);
+  const callbackUrl = new URL(`${basePath}/bff/auth/geoid/callback`, API_BASE);
   callbackUrl.search = search;
 
   return fetch(callbackUrl, {
