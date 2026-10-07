@@ -20,9 +20,6 @@ export interface DekningkartProps {
 
 export const Dekningskart = (props: DekningkartProps) => {
   const coverageData = props.metadata.coverageData;
-  const [layerVisibility, setLayerVisibility] = useState<
-    Record<string, boolean>
-  >({});
   const layers = useMemo(() => {
     const result: CoverageLayer[] = [];
     if (!coverageData) return result;
@@ -60,7 +57,11 @@ export const Dekningskart = (props: DekningkartProps) => {
     }
     return result;
   }, [coverageData]);
+  const [layerVisibility, setLayerVisibility] = useState<
+    Record<string, boolean>
+  >(() => Object.fromEntries(layers.map(({ id }) => [id, true])));
   const mapLayers = useMemo(() => layers.map(({ layer }) => layer), [layers]);
+  const layerIds = useMemo(() => layers.map(({ id }) => id), [layers]);
 
   useEffect(() => {
     layers.forEach(({ id, layer }) => {
@@ -79,8 +80,11 @@ export const Dekningskart = (props: DekningkartProps) => {
       />
       <DekningskartOverlay
         layerVisibility={layerVisibility}
+        layerIds={layerIds}
         onVisibilityChange={(id, visible) =>
-          setLayerVisibility((current) => ({ ...current, [id]: visible }))
+          setLayerVisibility((current) =>
+            layerIds.includes(id) ? { ...current, [id]: visible } : current,
+          )
         }
       />
     </div>

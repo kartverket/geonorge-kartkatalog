@@ -4,7 +4,7 @@ import Map from "ol/Map";
 import { get as getProjection } from "ol/proj";
 import View from "ol/View";
 
-const projection = getProjection("EPSG:25833")!!;
+const projection = getProjection("EPSG:25833") || "EPSG:25833"; //Fix this better
 
 export const map = new Map({
   view: new View({

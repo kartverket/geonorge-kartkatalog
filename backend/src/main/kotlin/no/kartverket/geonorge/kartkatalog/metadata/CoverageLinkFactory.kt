@@ -7,12 +7,10 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.CoverageDataType
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-const val coverageBaseUrl = "https://wms.geonorge.no/skwms1/wms.geonorge_dekningskart?datasett="
-const val gridBaseUrl = "https://wms.geonorge.no/skwms1/wms.gp_dek_oversikt?datasett="
+const val COVERAGE_BASE_URL = "https://wms.geonorge.no/skwms1/wms.geonorge_dekningskart?datasett="
+const val GRID_BASE_URL = "https://wms.geonorge.no/skwms1/wms.gp_dek_oversikt?datasett="
 
-fun getCoverageLinks(
-    extensionResources: List<ExtensionResource>,
-): CoverageData {
+fun getCoverageLinks(extensionResources: List<ExtensionResource>): CoverageData {
     val coverageUrl =
         extensionResources.firstOrNull {
             it.applicationProfile.trim().equals("dekningsoversikt", ignoreCase = true)
@@ -20,10 +18,6 @@ fun getCoverageLinks(
     val coverageGridUrl =
         extensionResources.firstOrNull {
             it.applicationProfile.trim().equals("dekningsoversikt rutenett", ignoreCase = true)
-        }?.url
-    val coverageCellUrl =
-        extensionResources.firstOrNull {
-            it.applicationProfile.trim().equals("dekningsoversikt celle", ignoreCase = true)
         }?.url
     val surveyAreaMapUrl =
         extensionResources
@@ -40,14 +34,24 @@ fun getCoverageLinks(
     val cov = parseCoverage(coverageUrl)
     val grid = parseCoverage(coverageGridUrl)
 
-
-    val fullCoverageUrl = cov ?.let { "${coverageBaseUrl}${it.layer}" }
-    val fullCoverageGridUrl = grid?.let { "${gridBaseUrl}${it.layer}" }
+    val fullCoverageUrl = cov ?.let { "${COVERAGE_BASE_URL}${it.layer}" }
+    val fullCoverageGridUrl = grid?.let { "${GRID_BASE_URL}${it.layer}" }
     return CoverageData(
-        coverageWMSUrl = fullCoverageUrl?.let { CoverageDataSource(it, CoverageDataType.WMS, layers = "geonorgedekningskart") },
-        coverageOverviewWMSUrl = fullCoverageGridUrl?.let { CoverageDataSource(it, CoverageDataType.WMS, layers = "gp_dek_oversikt_wms") },
-        completenessCoverageWMSUrl = surveyAreaMapUrl?.let { CoverageDataSource(it, CoverageDataType.GEOJSON) }
-            ?: surveyAreaMapUrlWms?.let { CoverageDataSource(it, CoverageDataType.WMS) },
+        coverageWMSUrl =
+            fullCoverageUrl?.let {
+                CoverageDataSource(
+                    it,
+                    CoverageDataType.WMS,
+                    layers = "geonorgedekningskart",
+                )
+            },
+        coverageOverviewWMSUrl =
+            fullCoverageGridUrl?.let {
+                CoverageDataSource(it, CoverageDataType.WMS, layers = "gp_dek_oversikt_wms")
+            },
+        completenessCoverageWMSUrl =
+            surveyAreaMapUrl?.let { CoverageDataSource(it, CoverageDataType.GEOJSON) }
+                ?: surveyAreaMapUrlWms?.let { CoverageDataSource(it, CoverageDataType.WMS) },
     )
 }
 

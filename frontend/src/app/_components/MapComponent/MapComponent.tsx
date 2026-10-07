@@ -1,11 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Suspense } from "react";
-import type { MapComponentProps } from "./Content";
-
 import { register } from "ol/proj/proj4";
 import proj4 from "proj4";
+import { Suspense } from "react";
+import type { MapComponentProps } from "./Content";
 
 proj4.defs(
   "EPSG:25833",

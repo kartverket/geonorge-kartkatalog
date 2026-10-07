@@ -1,6 +1,6 @@
+import WMTSCapabilities from "ol/format/WMTSCapabilities.js";
 import TileLayer from "ol/layer/Tile";
 import type { ProjectionLike } from "ol/proj";
-import WMTSCapabilities from "ol/format/WMTSCapabilities.js";
 import WMTS, { optionsFromCapabilities } from "ol/source/WMTS";
 
 export type BackgroundLayerName = "topograyscale"; // Add more as needed

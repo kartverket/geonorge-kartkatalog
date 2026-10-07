@@ -7,7 +7,7 @@ import type { ProductMetadata } from "@/lib/schemas/product";
 
 export const getWMSLayerFromUrl = (
   url: string,
-  params?: Record<string, any>,
+  params?: Record<string, string | boolean | number>,
 ): TileLayer => {
   const wmsLayer = new TileLayer({
     source: new TileWMS({

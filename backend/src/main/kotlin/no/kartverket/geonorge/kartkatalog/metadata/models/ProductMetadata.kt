@@ -41,11 +41,13 @@ data class ProductMetadata(
 
 @Serializable
 data class CoverageData(
-    val coverageWMSUrl: CoverageDataSource? = null, // dekningskart
-    val coverageOverviewWMSUrl: CoverageDataSource? = null, // dekningsoversikt
-    val completenessCoverageWMSUrl: CoverageDataSource? = null, // fullstendighetsdekningskart
+    // dekningskart
+    val coverageWMSUrl: CoverageDataSource? = null,
+    // dekningsoversikt
+    val coverageOverviewWMSUrl: CoverageDataSource? = null,
+    // fullstendighetsdekningskart
+    val completenessCoverageWMSUrl: CoverageDataSource? = null,
 )
-
 
 @Serializable
 data class CoverageDataSource(
@@ -55,7 +57,7 @@ data class CoverageDataSource(
 )
 
 @Serializable
-enum class CoverageDataType{
+enum class CoverageDataType {
     WMS,
     GEOJSON,
 }

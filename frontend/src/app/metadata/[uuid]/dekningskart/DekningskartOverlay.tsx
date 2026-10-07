@@ -11,53 +11,65 @@ import styles from "./DekningskartOverlay.module.css";
 
 interface DekningskartOverlayProps {
   layerVisibility: Record<string, boolean>;
+  layerIds: string[];
   onVisibilityChange: (id: string, visible: boolean) => void;
 }
 
 export const DekningskartOverlay = ({
   layerVisibility,
+  layerIds,
   onVisibilityChange,
 }: DekningskartOverlayProps) => {
-  console.log(layerVisibility);
   return (
     <div className={styles.overlay}>
       <div className={styles.leftColumn}>
         <div className={styles.columnContent}>
           <Card className={styles.mapControlCard}>
             <Heading>Valg for visningen</Heading>
-            <Details data-color="accent" variant="tinted" defaultOpen>
-              <Details.Summary>Se dekningskart</Details.Summary>
-              <Details.Content>
-                <Label>Velg detaljeringsnivå</Label>
-                <fieldset>
-                  <LayerCheckbox
-                    id="overview"
-                    label="Kommune"
-                    visible={layerVisibility.overview ?? true}
-                    onVisibilityChange={onVisibilityChange}
-                  />
-                  <LayerCheckbox
-                    id="coverage"
-                    label="Rutenett"
-                    visible={layerVisibility.coverage ?? true}
-                    onVisibilityChange={onVisibilityChange}
-                  />
-                </fieldset>
-              </Details.Content>
-            </Details>
-            <Details data-color="accent" variant="tinted" defaultOpen>
-              <Details.Summary>Se fullstendighetsdekningskart</Details.Summary>
-              <Details.Content>
-                <fieldset>
-                  <LayerCheckbox
-                    id="completeness"
-                    label="Fullstendighetsdekning"
-                    visible={layerVisibility.completeness ?? true}
-                    onVisibilityChange={onVisibilityChange}
-                  />
-                </fieldset>
-              </Details.Content>
-            </Details>
+            {(layerIds.includes("overview") ||
+              layerIds.includes("coverage")) && (
+              <Details data-color="accent" variant="tinted" defaultOpen>
+                <Details.Summary>Se dekningskart</Details.Summary>
+                <Details.Content>
+                  <Label>Velg detaljeringsnivå</Label>
+                  <fieldset>
+                    {layerIds.includes("overview") ? (
+                      <LayerCheckbox
+                        id="overview"
+                        label="Kommune"
+                        visible={layerVisibility.overview}
+                        onVisibilityChange={onVisibilityChange}
+                      />
+                    ) : null}
+                    {layerIds.includes("coverage") ? (
+                      <LayerCheckbox
+                        id="coverage"
+                        label="Rutenett"
+                        visible={layerVisibility.coverage}
+                        onVisibilityChange={onVisibilityChange}
+                      />
+                    ) : null}
+                  </fieldset>
+                </Details.Content>
+              </Details>
+            )}
+            {layerIds.includes("completeness") && (
+              <Details data-color="accent" variant="tinted" defaultOpen>
+                <Details.Summary>
+                  Se fullstendighetsdekningskart
+                </Details.Summary>
+                <Details.Content>
+                  <fieldset>
+                    <LayerCheckbox
+                      id="completeness"
+                      label="Fullstendighetsdekning"
+                      visible={layerVisibility.completeness}
+                      onVisibilityChange={onVisibilityChange}
+                    />
+                  </fieldset>
+                </Details.Content>
+              </Details>
+            )}
           </Card>
           <Card className={styles.mapControlCard}>
             <Heading level={3}>Tegnforklaring</Heading>
