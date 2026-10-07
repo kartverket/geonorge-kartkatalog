@@ -1,10 +1,16 @@
 "use client";
 
-import { Button } from "@kv-designsystem/react";
-import MapComponent from "@/app/_components/MapComponent/MapComponent";
-import type { ProductMetadata } from "@/lib/schemas/product";
+import {
+  Card,
+  Checkbox,
+  Details,
+  Heading,
+  Label,
+} from "@kv-designsystem/react";
 import type BaseLayer from "ol/layer/Base";
 import { useEffect, useMemo, useState } from "react";
+import MapComponent from "@/app/_components/MapComponent/MapComponent";
+import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./Dekningskart.module.css";
 import { getGEOJSONLayerFromUrl, getWMSLayerFromUrl } from "./utils";
 
@@ -74,33 +80,76 @@ export const Dekningskart = (props: DekningkartProps) => {
     <div className={styles.container}>
       <MapComponent backgroundLayerName="topograyscale" layers={mapLayers} />
       <div className={styles.overlay}>
-        <footer className={styles.overlayFooter}>
-          {layers.length > 0 ? (
-            <fieldset className={styles.layerControls} aria-label="Kartlag">
-              {layers.map(({ id, label }) => {
-                const visible = layerVisibility[id] ?? true;
-                return (
-                  <Button
-                    key={id}
-                    type="button"
-                    data-size="sm"
-                    variant={visible ? "primary" : "secondary"}
-                    aria-pressed={visible}
-                    onClick={() =>
-                      setLayerVisibility((current) => ({
-                        ...current,
-                        [id]: !(current[id] ?? true),
-                      }))
-                    }
-                  >
-                    {label}
-                  </Button>
-                );
-              })}
-            </fieldset>
-          ) : null}
-        </footer>
+        <div className={styles.leftColumn}>
+          <div className={styles.columnContent}>
+            <Card className={styles.mapSelectCard}>
+              <Heading>Valg for visningen</Heading>
+              <Details data-color="accent" variant="tinted">
+                <Details.Summary>Se dekningskart</Details.Summary>
+                <Details.Content>
+                  <Label>Velg detaljeringsnivå</Label>
+                  <fieldset>
+                    <LayerCheckbox
+                      id={"overview"}
+                      label={"Kommune"}
+                      layerVisibility={layerVisibility}
+                      setLayerVisibility={setLayerVisibility}
+                    />
+                    <LayerCheckbox
+                      id={"coverage"}
+                      label={"Rutenett"}
+                      layerVisibility={layerVisibility}
+                      setLayerVisibility={setLayerVisibility}
+                    />
+                  </fieldset>
+                </Details.Content>
+              </Details>
+              <Details data-color="accent" variant="tinted">
+                <Details.Summary>
+                  Se fullstendighetsdekningskart
+                </Details.Summary>
+                <Details.Content>
+                  <fieldset>
+                    <LayerCheckbox
+                      id={"completeness"}
+                      label={"Fullstendighetsdekning"}
+                      layerVisibility={layerVisibility}
+                      setLayerVisibility={setLayerVisibility}
+                    />
+                  </fieldset>
+                </Details.Content>
+              </Details>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
+  );
+};
+
+const LayerCheckbox = ({
+  id,
+  label,
+  layerVisibility,
+  setLayerVisibility,
+}: {
+  id: string;
+  label: string;
+  layerVisibility: Record<string, boolean>;
+  setLayerVisibility: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
+}) => {
+  return (
+    <Checkbox
+      checked={layerVisibility[id] ?? true}
+      label={label}
+      onChange={(c) =>
+        setLayerVisibility((current) => ({
+          ...current,
+          [id]: c.target.checked,
+        }))
+      }
+    />
   );
 };

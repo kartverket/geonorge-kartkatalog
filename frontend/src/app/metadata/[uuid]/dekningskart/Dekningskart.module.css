@@ -14,6 +14,37 @@
   pointer-events: none;
 }
 
+.leftColumn {
+  grid-column: 1;
+  grid-row: 1 / -1;
+}
+.mapSelectCard {
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  user-select: none;
+  max-width: 400px;
+
+  fieldset {
+    border: none;
+  }
+}
+.middleColumn {
+  grid-column: 2;
+  grid-row: 1 / -1;
+}
+.rightColumn {
+  grid-column: 3;
+  grid-row: 1 / -1;
+}
+
+.columnContent {
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+
 .overlayFooter {
   grid-column: 1 / -1;
   grid-row: 2;
