@@ -13,13 +13,14 @@ proj4.defs(
 );
 register(proj4);
 
+const MapContentDynamic = dynamic(() => import("./Content"), {
+  ssr: false,
+});
+
 const MapComponent = (props: MapComponentProps) => {
-  const MapContentDynamic = dynamic(() => import("./Content"), {
-    ssr: false,
-  });
   return (
     <Suspense fallback={<p>Laster kartet...</p>}>
-      <MapContentDynamic {...props}  />
+      <MapContentDynamic {...props} />
     </Suspense>
   );
 };
