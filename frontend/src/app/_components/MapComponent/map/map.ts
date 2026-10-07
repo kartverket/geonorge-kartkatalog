@@ -4,7 +4,7 @@ import Map from "ol/Map";
 import View from "ol/View";
 import { register } from "ol/proj/proj4";
 import proj4 from "proj4";
-import { get as getProjection } from 'ol/proj';
+import { get as getProjection } from "ol/proj";
 
 // proj4.defs(
 //   "EPSG:25833",
@@ -21,4 +21,5 @@ export const map = new Map({
     center: [500000, 7200000],
     zoom: 5,
   }),
+  controls: [],
 });

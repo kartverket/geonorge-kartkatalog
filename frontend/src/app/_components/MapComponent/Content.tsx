@@ -39,7 +39,24 @@ const Content = (props: MapComponentProps) => {
           map.addLayer(layer);
         }
       } catch (error) {
-        if (!cancelled) console.error("Failed to load background layer:", error);
+        if (!cancelled)
+          console.error("Failed to load background layer:", error);
+      }
+
+      try {
+        if (!props.layers) {
+          return;
+        }
+        props.layers.forEach((layer) => {
+          const maxZIndex = Math.max(
+            ...map.getAllLayers().map((l) => l.getZIndex() || 0),
+          );
+          layer.setZIndex(maxZIndex + 1);
+          map.addLayer(layer);
+        });
+      } catch (error) {
+        if (!cancelled)
+          console.error("Failed to load additional layers:", error);
       }
     };
     void loadBackgroundLayer();
@@ -47,26 +64,33 @@ const Content = (props: MapComponentProps) => {
     return () => {
       cancelled = true;
       if (backgroundLayer) map.removeLayer(backgroundLayer);
-    };
-  }, [props.backgroundLayerName]);
-
-  useEffect(() => {
-    if (!props.layers) {
-      return;
-    }
-    props.layers.forEach((layer) => {
-      const maxZIndex = Math.max(...map.getAllLayers().map(l=> l.getZIndex() || 0));
-      layer.setZIndex(maxZIndex + 1);
-      map.addLayer(layer);
-    });
-    return () => {
       if (props.layers) {
         props.layers.forEach((layer) => {
           map.removeLayer(layer);
         });
       }
     };
-  }, [props.layers]);
+  }, [props.backgroundLayerName, props.layers]);
+
+  // useEffect(() => {
+  //   if (!props.layers) {
+  //     return;
+  //   }
+  //   props.layers.forEach((layer) => {
+  //     const maxZIndex = Math.max(
+  //       ...map.getAllLayers().map((l) => l.getZIndex() || 0),
+  //     );
+  //     layer.setZIndex(maxZIndex + 1);
+  //     map.addLayer(layer);
+  //   });
+  //   return () => {
+  //     if (props.layers) {
+  //       props.layers.forEach((layer) => {
+  //         map.removeLayer(layer);
+  //       });
+  //     }
+  //   };
+  // }, [props.layers]);
 
   return <div ref={targetRef} style={{ width: "100%", height: "100%" }} />;
 };
