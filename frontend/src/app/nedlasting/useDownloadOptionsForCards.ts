@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { basePath } from "@/lib/basePath";
+import { bffPath } from "@/lib/basePath";
 import { parseDownloadOptions } from "@/lib/schemas/download";
 import type { DownloadOptionsByUuid } from "./downloadUtils";
 
@@ -27,7 +27,7 @@ function buildOptionsUrl(uuid: string, capabilitiesUrl: string): string {
   const params = new URLSearchParams();
   if (capabilitiesUrl) params.set("capabilitiesUrl", capabilitiesUrl);
   const query = params.toString();
-  return `${basePath}/api/download/options/${encodeURIComponent(uuid)}${
+  return `${bffPath}/download/options/${encodeURIComponent(uuid)}${
     query ? `?${query}` : ""
   }`;
 }

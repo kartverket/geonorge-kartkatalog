@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { basePath } from "@/lib/basePath";
+import { bffPath } from "@/lib/basePath";
 import {
   type DownloadOrderRequest,
   type DownloadOrderResult,
@@ -25,7 +25,7 @@ export function useDownloadOrder() {
 
     try {
       const payload = parseDownloadOrderRequest(request);
-      const response = await fetch(`${basePath}/api/download/order`, {
+      const response = await fetch(`${bffPath}/download/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

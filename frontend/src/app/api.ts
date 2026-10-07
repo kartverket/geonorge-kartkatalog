@@ -2,6 +2,7 @@ import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { AuthProvider } from "@/lib/authProvider";
+import { basePath } from "@/lib/basePath";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import { type AuthInfo, parseAuthInfo } from "@/lib/schemas/auth";
 import {
@@ -67,8 +68,24 @@ async function startAuthAction(
   });
 }
 
+function geoIdRequestHeaders(cookie?: string) {
+  const publicUrl = new URL(KATALOG_ORIGIN);
+  return {
+    Origin: KATALOG_ORIGIN,
+    "X-Forwarded-Host": publicUrl.host,
+    "X-Forwarded-Proto": publicUrl.protocol.slice(0, -1),
+    "X-Forwarded-Port":
+      publicUrl.port || (publicUrl.protocol === "https:" ? "443" : "80"),
+    ...(cookie ? { Cookie: cookie } : {}),
+  };
+}
+
 export async function startGeoIdLogin(): Promise<Response> {
-  return startAuthAction("geoid", "login");
+  return fetch(`${API_BASE}/auth/geoid/login`, {
+    headers: geoIdRequestHeaders(),
+    redirect: "manual",
+    cache: "no-store",
+  });
 }
 
 export async function startAnsattportenLogin(): Promise<Response> {
@@ -80,6 +97,21 @@ export async function startLogout(
   cookie?: string,
 ): Promise<Response> {
   return startAuthAction(provider, "logout", cookie);
+}
+
+export async function geoIdCallback(
+  search: string,
+  cookie?: string,
+): Promise<Response> {
+  const callbackUrl = new URL(`${basePath}/bff/auth/geoid/callback`, API_BASE);
+  callbackUrl.search = search;
+
+  return fetch(callbackUrl, {
+    method: "GET",
+    headers: geoIdRequestHeaders(cookie),
+    redirect: "manual",
+    cache: "no-store",
+  });
 }
 
 async function fetchJson(

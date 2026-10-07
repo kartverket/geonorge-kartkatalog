@@ -6,9 +6,11 @@ import {
   resolveAuthProvider,
 } from "../providerCookie";
 
+const katalogBaseUrl = process.env.KATALOG_BASE_URL;
+
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin");
-  if (!origin || origin !== request.nextUrl.origin) {
+  if (origin !== new URL(katalogBaseUrl ?? "https://dummy.org").origin) {
     return NextResponse.json(
       { error: "Invalid logout origin." },
       { status: 403 },

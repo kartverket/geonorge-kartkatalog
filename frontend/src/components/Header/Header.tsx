@@ -16,7 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import { useMapItems } from "@/app/_components/addToMap/useMap";
 import { useAuthInfo } from "@/components/AuthProvider";
-import { basePath, isBeta } from "@/lib/basePath";
+import { basePath, bffPath, isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
@@ -50,9 +50,8 @@ export function Header() {
   const downloadHref = isBeta
     ? "https://kartkatalog.geonorge.no/nedlasting"
     : "/nedlasting";
-  const geoIdLoginHref = `${basePath}/api/auth/geoid/login` as Route;
-  const ansattportenLoginHref =
-    `${basePath}/api/auth/ansattporten/login` as Route;
+  const geoIdLoginHref = `${bffPath}/auth/geoid/login` as Route;
+  const ansattportenLoginHref = `${bffPath}/auth/ansattporten/login` as Route;
 
   const rootRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);

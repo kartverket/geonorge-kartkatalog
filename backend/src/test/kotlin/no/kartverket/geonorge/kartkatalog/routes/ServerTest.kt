@@ -40,6 +40,29 @@ class ServerTest {
         }
 
     @Test
+    fun `oidc login uses forwarded frontend port for callback`() =
+        testApplication {
+            application {
+                install(XForwardedHeaders)
+                configureTestAuthentication("http://localhost:8080/beta/api/auth/geoid/callback")
+            }
+            val noRedirectClient = createClient { followRedirects = false }
+            val response =
+                noRedirectClient.get("/oidc/test-geoid/login") {
+                    header(HttpHeaders.XForwardedProto, "http")
+                    header(HttpHeaders.XForwardedHost, "localhost:3000")
+                    header(HttpHeaders.XForwardedPort, "3000")
+                }
+
+            assertEquals(HttpStatusCode.Found, response.status)
+            val location = requireNotNull(response.headers[HttpHeaders.Location])
+            assertEquals(
+                "http://localhost:3000/beta/api/auth/geoid/callback",
+                Url(location).parameters["redirect_uri"],
+            )
+        }
+
+    @Test
     fun `test root endpoint`() =
         testApplication {
             application {
