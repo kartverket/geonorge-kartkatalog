@@ -4,7 +4,7 @@
   justify-content: center;
   list-style: none;
   padding: 0;
-  margin: var(--ds-size-6) 0;
+  margin: var(--ds-size-10) 0;
 }
 
 .step {

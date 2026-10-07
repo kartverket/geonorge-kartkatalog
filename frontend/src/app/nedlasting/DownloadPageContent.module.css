@@ -1,7 +1,7 @@
 .userInputs {
   display: flex;
   align-items: flex-end;
-  gap: 0.5rem;
+  gap: var(--ds-size-2);
   margin-top: var(--ds-size-8);
   margin-bottom: var(--ds-size-8);
 }
@@ -21,9 +21,14 @@
 
 .buttonContainer {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--ds-size-2);
   justify-content: flex-end;
-  margin-top: 1rem;
+  margin-top: var(--ds-size-4);
+}
+
+.removeAllButton.removeAllButton {
+  --dsc-button-color: var(--ds-color-danger-text-subtle);
+  --dsc-button-border-color: var(--ds-color-danger-border-strong);
 }
 
 .orderSectionWrapper {

@@ -248,34 +248,32 @@ export function DownloadPageContentClient({
                   ) : null}
 
                   <div className={styles.buttonContainer}>
-                    <div className={styles.buttonContainer}>
-                      <Button
-                        type="button"
-                        data-color="danger"
-                        variant="secondary"
-                        onClick={() => {
-                          clearDownloads();
-                          setSelections({});
-                          setStep("bestilling");
-                        }}
-                        disabled={
-                          isOrdering || selectedDownloadUuids.length === 0
-                        }
-                      >
-                        <TrashIcon aria-hidden />
-                        Fjern alle nedlastinger
-                      </Button>
-                      <Button
-                        type="submit"
-                        variant="primary"
-                        disabled={!canOrder}
-                      >
-                        {!isOrdering && <ArrowRightIcon aria-hidden />}
-                        {isOrdering
-                          ? "Bestiller..."
-                          : "Gå videre til oppsummering"}
-                      </Button>
-                    </div>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className={styles.removeAllButton}
+                      onClick={() => {
+                        clearDownloads();
+                        setSelections({});
+                        setStep("bestilling");
+                      }}
+                      disabled={
+                        isOrdering || selectedDownloadUuids.length === 0
+                      }
+                    >
+                      <TrashIcon aria-hidden />
+                      Fjern alle nedlastinger
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      disabled={!canOrder}
+                    >
+                      {!isOrdering && <ArrowRightIcon aria-hidden />}
+                      {isOrdering
+                        ? "Bestiller..."
+                        : "Gå videre til oppsummering"}
+                    </Button>
                   </div>
                 </form>
 

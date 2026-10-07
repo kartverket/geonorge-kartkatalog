@@ -53,8 +53,8 @@ export function DownloadSelectionList({
   return (
     <div className={styles.pageInner}>
       {selectedDownloadCount > 0 ? (
-        <div>
-          <Heading level={2} data-size={"sm"}>
+        <div className={styles.infoSection}>
+          <Heading level={2} data-size={"xs"}>
             Slik bestiller du for å laste ned:
           </Heading>
           <List.Unordered>
@@ -89,7 +89,11 @@ export function DownloadSelectionList({
             isOrdering={isOrdering}
           />
 
-          <Heading level={2} data-size={"sm"}>
+          <Heading
+            level={2}
+            data-size={"sm"}
+            className={styles.selectedDatasetsHeading}
+          >
             Dine valgte datasett ({selectedDownloadCount})
           </Heading>
           <div className={styles.results}>
@@ -110,6 +114,7 @@ export function DownloadSelectionList({
           {productsWithMissingFields.length > 0 ? (
             <MissingInputSummary
               productsWithMissingFields={productsWithMissingFields}
+              className={styles.missingSummary}
             />
           ) : null}
         </>

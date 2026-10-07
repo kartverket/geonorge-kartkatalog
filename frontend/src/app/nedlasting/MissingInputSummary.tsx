@@ -3,12 +3,14 @@ import type { MissingDownloadSelectionField } from "@/app/nedlasting/downloadUti
 
 export function MissingInputSummary({
   productsWithMissingFields,
+  className,
 }: {
   productsWithMissingFields: {
     uuid: string;
     title: string;
     missingFields: MissingDownloadSelectionField[];
   }[];
+  className?: string;
 }) {
   function formatMissingFields(fields: MissingDownloadSelectionField[]) {
     const FIELD_LABELS = {
@@ -24,7 +26,7 @@ export function MissingInputSummary({
     return `${labels.slice(0, -1).join(", ")} og ${labels.at(-1)}`;
   }
   return (
-    <ErrorSummary>
+    <ErrorSummary className={className}>
       <ErrorSummary.Heading>
         For å gå videre må du rette opp følgende feil:
       </ErrorSummary.Heading>
