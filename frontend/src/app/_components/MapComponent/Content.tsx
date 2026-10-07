@@ -4,10 +4,12 @@ import { type BackgroundLayerName, getBackgroundLayer } from "./map/layers";
 import { map } from "./map/map";
 import type BaseLayer from "ol/layer/Base";
 import { useEffect, useRef } from "react";
+import styles from "./Content.module.css";
 
 export interface MapComponentProps {
   backgroundLayerName: BackgroundLayerName;
   layers?: BaseLayer[] | undefined;
+  showLayerControls?: boolean | undefined;
 }
 
 const Content = (props: MapComponentProps) => {
@@ -92,7 +94,12 @@ const Content = (props: MapComponentProps) => {
   //   };
   // }, [props.layers]);
 
-  return <div ref={targetRef} style={{ width: "100%", height: "100%" }} />;
+  return (
+    <div className={styles.container}>
+      <div id="map-content" ref={targetRef} className={styles.map} />
+      <div id="map-overlay" className={styles.overlay} />
+    </div>
+  );
 };
 
 export default Content;
