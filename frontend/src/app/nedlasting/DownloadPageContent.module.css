@@ -29,6 +29,8 @@
 .removeAllButton.removeAllButton {
   --dsc-button-color: var(--ds-color-danger-text-subtle);
   --dsc-button-border-color: var(--ds-color-danger-border-strong);
+  --dsc-button-color--hover: var(--ds-color-danger-text-subtle);
+  --dsc-button-background--hover: var(--ds-color-danger-surface-hover);
 }
 
 .orderSectionWrapper {
