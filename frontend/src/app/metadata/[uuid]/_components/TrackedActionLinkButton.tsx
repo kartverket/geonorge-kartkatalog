@@ -8,17 +8,19 @@ export function TrackedActionLinkButton({
   href,
   icon,
   title,
+  target = "_blank",
   eventName,
 }: {
   href: string;
   icon: ReactNode;
   title: string;
+  target?: string | "_blank";
   eventName: string;
 }) {
   return (
     <a
       data-variant="secondary"
-      target="_blank"
+      target={target}
       rel="noreferrer"
       href={href}
       className={`ds-button ${styles.actionButton}`}

@@ -1,4 +1,5 @@
 import {
+  EarthIcon,
   ExternalLinkIcon,
   FileTextIcon,
   PencilIcon,
@@ -65,6 +66,15 @@ export function ProductActions({
           href={metadata.coverageUrl}
           icon={<ExternalLinkIcon aria-hidden />}
           title="Vis dekningskart"
+        />
+      )}
+      {metadata.coverageData && (
+        <TrackedActionLinkButton
+          eventName="show-coverage-data"
+          href={`/metadata/${uuid}/dekningskart`}
+          target="_self"
+          icon={<EarthIcon aria-hidden />}
+          title="Vis dekningskart NY"
         />
       )}
       <TrackedActionLinkButton
