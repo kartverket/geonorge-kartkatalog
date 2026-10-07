@@ -1,5 +1,5 @@
 import { getMetadata } from "@/app/api";
-import MapComponent from "@/app/_components/MapComponent/MapComponent";
+import { Dekningskart } from "./Dekningskart";
 
 export const instant = false;
 export default async function DekningskartPage({
@@ -13,7 +13,7 @@ export default async function DekningskartPage({
   if (metadata.coverageUrl) {
     return (
       <div style={{ width: "100%", height: "80vh" }}>
-        <MapComponent />
+        <Dekningskart metadata={metadata} />
       </div>
     );
   } else {

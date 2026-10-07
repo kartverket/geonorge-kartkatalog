@@ -46,6 +46,19 @@ export const DistributionGroupSchema = z.object({
   unitsOfDistribution: z.string().nullable(),
 });
 
+export const CoverageDataSourceSchema = z.object({
+  url: z.string().nullable(),
+  type: z.string().nullable(),
+  layers: z.string().nullable(),
+});
+export const CoverageDataSchema = z.object({
+  coverageWMSUrl: CoverageDataSourceSchema.nullable(),
+  coverageOverviewWMSUrl: CoverageDataSourceSchema.nullable(),
+  completenessCoverageWMSUrl: CoverageDataSourceSchema.nullable(),
+});
+
+export type CoverageData = z.infer<typeof CoverageDataSchema>;
+export type CoverageDataSource = z.infer<typeof CoverageDataSourceSchema>;
 export type ReferenceSystem = z.infer<typeof ReferenceSystemSchema>;
 export type DistributionGroup = z.infer<typeof DistributionGroupSchema>;
 
@@ -86,6 +99,7 @@ export const ProductMetadataSchema = z.object({
   referenceSystems: z.array(ReferenceSystemSchema),
   distributionGroups: z.array(DistributionGroupSchema),
   coverageUrl: z.string().nullable(),
+  coverageData: CoverageDataSchema.nullable(),
 });
 
 export type ProductConstraints = Partial<ProductLegalConstraints> & {
@@ -95,6 +109,7 @@ export type ProductConstraints = Partial<ProductLegalConstraints> & {
 export type ProductMetadata = z.infer<typeof ProductMetadataSchema>;
 
 export function parseProductMetadata(body: unknown): ProductMetadata {
+  console.log("Parsing product metadata:", body);
   const res = ProductMetadataSchema.safeParse(body);
   if (!res.success) {
     throw new Error("Invalid metadata from server", {
