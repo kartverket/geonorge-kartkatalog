@@ -21,6 +21,7 @@ import type {
   ProductMetadata,
 } from "@/lib/schemas/product";
 import { LOCATIONS } from "@/posthog/posthog";
+import { shouldShowCoverageMap } from "../dekningskart/utils";
 import styles from "./ProductActions.module.css";
 import { TrackedActionLinkButton } from "./TrackedActionLinkButton";
 
@@ -68,7 +69,7 @@ export function ProductActions({
           title="Vis dekningskart"
         />
       )}
-      {metadata.coverageData && (
+      {shouldShowCoverageMap(metadata) && (
         <TrackedActionLinkButton
           eventName="show-coverage-data"
           href={`/metadata/${uuid}/dekningskart`}

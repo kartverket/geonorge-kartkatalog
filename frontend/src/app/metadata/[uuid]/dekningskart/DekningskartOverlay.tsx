@@ -17,54 +17,57 @@ interface DekningskartOverlayProps {
 export const DekningskartOverlay = ({
   layerVisibility,
   onVisibilityChange,
-}: DekningskartOverlayProps) => (
-  <div className={styles.overlay}>
-    <div className={styles.leftColumn}>
-      <div className={styles.columnContent}>
-        <Card className={styles.mapControlCard}>
-          <Heading>Valg for visningen</Heading>
-          <Details data-color="accent" variant="tinted" defaultOpen>
-            <Details.Summary>Se dekningskart</Details.Summary>
-            <Details.Content>
-              <Label>Velg detaljeringsnivå</Label>
-              <fieldset>
-                <LayerCheckbox
-                  id="overview"
-                  label="Kommune"
-                  visible={layerVisibility.overview ?? true}
-                  onVisibilityChange={onVisibilityChange}
-                />
-                <LayerCheckbox
-                  id="coverage"
-                  label="Rutenett"
-                  visible={layerVisibility.coverage ?? true}
-                  onVisibilityChange={onVisibilityChange}
-                />
-              </fieldset>
-            </Details.Content>
-          </Details>
-          <Details data-color="accent" variant="tinted" defaultOpen>
-            <Details.Summary>Se fullstendighetsdekningskart</Details.Summary>
-            <Details.Content>
-              <fieldset>
-                <LayerCheckbox
-                  id="completeness"
-                  label="Fullstendighetsdekning"
-                  visible={layerVisibility.completeness ?? true}
-                  onVisibilityChange={onVisibilityChange}
-                />
-              </fieldset>
-            </Details.Content>
-          </Details>
-        </Card>
-        <Card className={styles.mapControlCard}>
-          <Heading level={3}>Tegnforklaring</Heading>
-          <p>soon ™️</p>
-        </Card>
+}: DekningskartOverlayProps) => {
+  console.log(layerVisibility);
+  return (
+    <div className={styles.overlay}>
+      <div className={styles.leftColumn}>
+        <div className={styles.columnContent}>
+          <Card className={styles.mapControlCard}>
+            <Heading>Valg for visningen</Heading>
+            <Details data-color="accent" variant="tinted" defaultOpen>
+              <Details.Summary>Se dekningskart</Details.Summary>
+              <Details.Content>
+                <Label>Velg detaljeringsnivå</Label>
+                <fieldset>
+                  <LayerCheckbox
+                    id="overview"
+                    label="Kommune"
+                    visible={layerVisibility.overview ?? true}
+                    onVisibilityChange={onVisibilityChange}
+                  />
+                  <LayerCheckbox
+                    id="coverage"
+                    label="Rutenett"
+                    visible={layerVisibility.coverage ?? true}
+                    onVisibilityChange={onVisibilityChange}
+                  />
+                </fieldset>
+              </Details.Content>
+            </Details>
+            <Details data-color="accent" variant="tinted" defaultOpen>
+              <Details.Summary>Se fullstendighetsdekningskart</Details.Summary>
+              <Details.Content>
+                <fieldset>
+                  <LayerCheckbox
+                    id="completeness"
+                    label="Fullstendighetsdekning"
+                    visible={layerVisibility.completeness ?? true}
+                    onVisibilityChange={onVisibilityChange}
+                  />
+                </fieldset>
+              </Details.Content>
+            </Details>
+          </Card>
+          <Card className={styles.mapControlCard}>
+            <Heading level={3}>Tegnforklaring</Heading>
+            <p>soon ™️</p>
+          </Card>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 interface LayerCheckboxProps {
   id: string;

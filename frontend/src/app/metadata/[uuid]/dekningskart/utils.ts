@@ -1,8 +1,9 @@
+import GeoJSON from "ol/format/GeoJSON";
 import TileLayer from "ol/layer/Tile";
 import VectorLayer from "ol/layer/Vector";
 import { TileWMS } from "ol/source";
 import VectorSource from "ol/source/Vector";
-import GeoJSON from "ol/format/GeoJSON";
+import type { ProductMetadata } from "@/lib/schemas/product";
 
 export const getWMSLayerFromUrl = (
   url: string,
@@ -29,4 +30,12 @@ export const getGEOJSONLayerFromUrl = (url: string): VectorLayer => {
       url,
     }),
   });
+};
+
+export const shouldShowCoverageMap = (m: ProductMetadata) => {
+  return (
+    m.coverageData?.completenessCoverageWMSUrl != null ||
+    m.coverageData?.coverageOverviewWMSUrl != null ||
+    m.coverageData?.coverageWMSUrl != null
+  );
 };

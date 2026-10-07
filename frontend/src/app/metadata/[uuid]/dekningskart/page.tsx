@@ -1,5 +1,6 @@
 import { getMetadata } from "@/app/api";
 import { Dekningskart } from "./Dekningskart";
+import { shouldShowCoverageMap } from "./utils";
 
 export const instant = false;
 export default async function DekningskartPage({
@@ -9,14 +10,13 @@ export default async function DekningskartPage({
 }) {
   const uuid = (await params).uuid;
   const metadata = await getMetadata(uuid);
-
-  if (metadata.coverageUrl) {
-    return (
-      <div style={{ width: "100%", height: "80vh" }}>
-        <Dekningskart metadata={metadata} />
-      </div>
-    );
-  } else {
+  if (!shouldShowCoverageMap(metadata)) {
     return <p>No coverage available</p>;
   }
+
+  return (
+    <div style={{ width: "100%", height: "80vh" }}>
+      <Dekningskart metadata={metadata} />
+    </div>
+  );
 }
