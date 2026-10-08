@@ -24,6 +24,7 @@ Brukes via composes fra de andre Header-filene */
 
 .inner {
   max-width: 1440px;
+  height: var(--header-height);
   margin-inline: auto;
   display: flex;
   align-items: center;
@@ -83,6 +84,5 @@ Brukes via composes fra de andre Header-filene */
   .inner {
     padding-inline: var(--ds-size-4);
     padding-block: 0;
-    height: var(--header-height-mobile);
   }
 }

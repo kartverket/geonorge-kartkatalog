@@ -4,10 +4,18 @@
   /* Headerens faste høyde på mobil (≤480px).
   Brukes av Header.module.css (.inner) og
   HeaderMenu.module.css (panelhøyde). */
+  --header-height: var(--ds-size-22);
   --header-height-mobile: var(--ds-size-18);
   --page-content-max-width: 1440px;
   --page-content-padding-inline: var(--ds-size-8);
   --page-content-padding-inline-mobile: var(--ds-size-5);
+}
+
+/* Variabler for mobil */
+@media (max-width: 800px) {
+  :root {
+    --header-height: var(--header-height-mobile);
+  }
 }
 
 * {
@@ -20,6 +28,7 @@ a {
 
 html {
   height: 100%;
+  scroll-padding-top: var(--header-height);
 }
 
 body {
