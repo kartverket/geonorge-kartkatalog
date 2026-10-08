@@ -85,6 +85,7 @@ export const Dekningskart = (props: DekningkartProps) => {
         controls={["scale"]}
       />
       <DekningskartOverlay
+        metadata={props.metadata}
         layerVisibility={layerVisibility}
         layerIds={layerIds}
         onVisibilityChange={(id, visible) =>

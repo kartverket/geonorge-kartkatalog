@@ -7,15 +7,18 @@ import {
   Heading,
   Label,
 } from "@kv-designsystem/react";
+import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./DekningskartOverlay.module.css";
 
 interface DekningskartOverlayProps {
+  metadata: ProductMetadata;
   layerVisibility: Record<string, boolean>;
   layerIds: string[];
   onVisibilityChange: (id: string, visible: boolean) => void;
 }
 
 export const DekningskartOverlay = ({
+  metadata,
   layerVisibility,
   layerIds,
   onVisibilityChange,
@@ -25,7 +28,9 @@ export const DekningskartOverlay = ({
       <div className={styles.leftColumn}>
         <div className={styles.columnContent}>
           <Card className={styles.mapControlCard}>
-            <Heading>Valg for visningen</Heading>
+            <Heading level={4} data-size={"xs"}>
+              {metadata.title}
+            </Heading>
             {(layerIds.includes("overview") ||
               layerIds.includes("coverage")) && (
               <Details data-color="accent" variant="tinted" defaultOpen>
