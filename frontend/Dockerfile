@@ -1,5 +1,7 @@
 FROM node:26-alpine AS build
 
+ARG RUN_VERIFICATIONS=true
+
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
@@ -16,6 +18,10 @@ ENV NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=$NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN
 ARG NEXT_PUBLIC_POSTHOG_HOST=""
 ENV NEXT_PUBLIC_POSTHOG_HOST=$NEXT_PUBLIC_POSTHOG_HOST
 
+RUN if [ "$RUN_VERIFICATIONS" = "true" ]; then \
+    npm run ts-check && \
+    npm run lint-strict; \
+fi
 RUN npm run build
 
 FROM dhi.io/node:26-alpine AS runtime

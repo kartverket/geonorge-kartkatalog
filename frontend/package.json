@@ -9,7 +9,8 @@
     "start": "next start",
     "ts-check": "tsc --noEmit",
     "next-compile": "next build --experimental-build-mode compile",
-    "lint": "biome check",
+    "lint": "biome check --error-on-warnings",
+    "lint-strict": "biome check --error-on-warnings",
     "lint-fix": "biome check --write ./src",
     "format": "biome format --write"
   },
