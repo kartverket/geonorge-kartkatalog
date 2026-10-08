@@ -7,7 +7,7 @@ import {
   usePagination,
 } from "@kv-designsystem/react";
 import { FunnelIcon } from "@navikt/aksel-icons";
-import { Suspense, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import type { SearchResult } from "@/lib/schemas/search";
 import type { DatasetCardData } from "@/lib/types/dataset";
 import { DatasetCard } from "../DatasetCard/DatasetCard";
@@ -44,14 +44,15 @@ export function SearchResults({
 }: SearchResultsProps) {
   const [viewMode, setViewMode] = usePersistedViewMode(initialViewMode);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const topRef = useRef<HTMLElement>(null);
+
   const updateUrlProp = useUpdateUrlProp();
+
   const handlePageChange = (page: number) => {
+    if (page === currentPage) return;
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     updateUrlProp("page", page.toString());
   };
-
-  const resultsClassName = `${styles.results} ${
-    viewMode === "list" ? styles.list : styles.grid
-  }`;
 
   const { pages, prevButtonProps, nextButtonProps } = usePagination({
     currentPage,
@@ -60,8 +61,12 @@ export function SearchResults({
     showPages: 7,
   });
 
+  const resultsClassName = `${styles.results} ${
+    viewMode === "list" ? styles.list : styles.grid
+  }`;
+
   return (
-    <main className={styles.page}>
+    <main className={styles.page} ref={topRef}>
       <div className={styles.pageInner}>
         <div className={styles.layout}>
           <Sidebar facets={facets} />
@@ -73,7 +78,7 @@ export function SearchResults({
             </Suspense>
             <div className={styles.header}>
               <Heading level={2} data-size="sm">
-                {totalCount} treff
+                Viser {initialResults.length} av {totalCount} treff
               </Heading>
               <div className={styles.headerControls}>
                 <ViewToggle value={viewMode} onChange={setViewMode} />
