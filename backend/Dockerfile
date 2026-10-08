@@ -1,17 +1,20 @@
 FROM eclipse-temurin:21-jdk-noble AS build
 
+ARG RUN_VERIFICATIONS=true
+
 WORKDIR /workspace
 
 COPY --chmod=0755 gradlew .
 COPY gradle/ ./gradle/
 COPY src/ ./src/
-COPY settings.gradle.kts build.gradle.kts gradle.properties ./
+COPY settings.gradle.kts build.gradle.kts gradle.properties .editorconfig ./
 
 RUN --mount=type=cache,id=kartkatalog-backend-gradle-cache,target=/root/.gradle \
-    ./gradlew buildFatJar --no-daemon \
-    && test -s build/libs/application.jar
-
-
+    if [ "$RUN_VERIFICATIONS" = "true" ]; then \
+        ./gradlew ktlintCheck test --no-daemon; \
+    fi && \
+    ./gradlew buildFatJar --no-daemon
+    
 FROM dhi.io/eclipse-temurin:21-alpine3.24 AS runtime
 
 WORKDIR /app
