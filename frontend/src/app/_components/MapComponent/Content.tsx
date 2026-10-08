@@ -19,13 +19,13 @@ const Content = (props: MapComponentProps) => {
   const targetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (targetRef.current) {
-      map.setTarget(targetRef.current);
+    const target = targetRef.current;
+    if (!target) {
+      return;
     }
+    map.setTarget(target);
     return () => {
-      if (targetRef.current) {
-        map.setTarget(null);
-      }
+      map.setTarget(undefined);
     };
   }, []);
 
