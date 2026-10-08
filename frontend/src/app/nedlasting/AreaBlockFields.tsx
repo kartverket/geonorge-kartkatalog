@@ -14,6 +14,7 @@ import { SingleSuggestion } from "./SingleSuggestion";
 type AreaBlockFieldsProps = {
   block: DownloadAreaBlock;
   options: DownloadOptions | null;
+  excludedAreaCodes: string[];
   isOrdering?: boolean;
   canRemove: boolean;
   onChangeAreaAction: (areaCode: string | null) => void;
@@ -25,6 +26,7 @@ type AreaBlockFieldsProps = {
 export function AreaBlockFields({
   block,
   options,
+  excludedAreaCodes,
   isOrdering = false,
   canRemove,
   onChangeAreaAction,
@@ -33,6 +35,9 @@ export function AreaBlockFields({
   onRemoveAction,
 }: AreaBlockFieldsProps) {
   const availability = resolveAreaBlockAvailability(options, block);
+  const areaOptions = availability.areaOptions.filter(
+    (option) => !excludedAreaCodes.includes(option.area.code),
+  );
 
   return (
     <div className={styles.areaBlock}>
@@ -55,7 +60,7 @@ export function AreaBlockFields({
           <SingleSuggestion
             selectedValue={block.areaCode}
             onChangeAction={onChangeAreaAction}
-            options={availability.areaOptions.map((option) => ({
+            options={areaOptions.map((option) => ({
               label: option.area.type
                 ? `${option.area.name} (${option.area.type})`
                 : option.area.name,

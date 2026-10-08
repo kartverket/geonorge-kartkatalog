@@ -44,42 +44,51 @@ export function DownloadOptionsForm({
 
   return (
     <div className={styles.areaBlocks}>
-      {selection.areaBlocks.map((block, blockIndex) => (
-        <AreaBlockFields
-          // Blokker har ingen stabil id. Trygt fordi blokker kun legges til
-          // bakerst og fjernes via klikk (ingen aktiv input-state som kan
-          // havne på feil blokk).
-          // biome-ignore lint/suspicious/noArrayIndexKey: se kommentar over
-          key={blockIndex}
-          block={block}
-          options={options}
-          isOrdering={isOrdering}
-          canRemove={selection.areaBlocks.length > 1}
-          onChangeAreaAction={(areaCode) =>
-            onSelectionChangeAction(
-              selectAreaBlockArea(selection, blockIndex, areaCode),
-            )
-          }
-          onChangeProjectionsAction={(projectionCodes) =>
-            onSelectionChangeAction(
-              selectAreaBlockProjections(
-                selection,
-                blockIndex,
-                projectionCodes,
-              ),
-            )
-          }
-          onChangeFormatsAction={(formatNames) =>
-            onSelectionChangeAction(
-              selectAreaBlockFormats(selection, blockIndex, formatNames),
-            )
-          }
-          onRemoveAction={() =>
-            onSelectionChangeAction(removeAreaBlock(selection, blockIndex))
-          }
-        />
-      ))}
-      <div className={styles.addAreaBlockButton}>
+      {selection.areaBlocks.map((block, blockIndex) => {
+        const excludedAreaCodes = selection.areaBlocks
+          .filter((_, index) => index !== blockIndex)
+          .flatMap((otherBlock) =>
+            otherBlock.areaCode ? [otherBlock.areaCode] : [],
+          );
+
+        return (
+          <AreaBlockFields
+            // Blokker har ingen stabil id. Trygt fordi blokker kun legges til
+            // bakerst og fjernes via klikk (ingen aktiv input-state som kan
+            // havne på feil blokk).
+            // biome-ignore lint/suspicious/noArrayIndexKey: se kommentar over
+            key={blockIndex}
+            block={block}
+            options={options}
+            excludedAreaCodes={excludedAreaCodes}
+            isOrdering={isOrdering}
+            canRemove={selection.areaBlocks.length > 1}
+            onChangeAreaAction={(areaCode) =>
+              onSelectionChangeAction(
+                selectAreaBlockArea(selection, blockIndex, areaCode),
+              )
+            }
+            onChangeProjectionsAction={(projectionCodes) =>
+              onSelectionChangeAction(
+                selectAreaBlockProjections(
+                  selection,
+                  blockIndex,
+                  projectionCodes,
+                ),
+              )
+            }
+            onChangeFormatsAction={(formatNames) =>
+              onSelectionChangeAction(
+                selectAreaBlockFormats(selection, blockIndex, formatNames),
+              )
+            }
+            onRemoveAction={() =>
+              onSelectionChangeAction(removeAreaBlock(selection, blockIndex))
+            }
+          />
+        );
+      })}
+      <div data-color="accent" className={styles.addAreaBlockButton}>
         <Button
           type="button"
           variant="tertiary"
