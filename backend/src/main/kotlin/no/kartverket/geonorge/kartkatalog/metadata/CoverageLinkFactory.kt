@@ -31,28 +31,78 @@ fun getCoverageLinks(extensionResources: List<ExtensionResource>): CoverageData 
                 )
             }?.url
 
-    val cov = parseCoverage(coverageUrl)
+    val parsedCoverage = parseCoverage(coverageUrl)
+    val parsedCoverageGrid = parseCoverage(coverageGridUrl)
 
-    val grid = parseCoverage(coverageGridUrl)
+    var coverage: ParsedCoverage? = null
+    var coverageGrid: ParsedCoverage? = null
 
-    val fullCoverageUrl = cov ?.let { "${COVERAGE_BASE_URL}${it.layer}" }
-    val fullCoverageGridUrl = grid?.let { "${GRID_BASE_URL}${it.layer}" }
-    return CoverageData(
-        coverageData =
-            fullCoverageUrl?.let {
+    if (parsedCoverage != null && parsedCoverageGrid != null)
+        {
+            coverage = parsedCoverage
+            coverageGrid = parsedCoverageGrid
+        } else if (parsedCoverage != null) {
+        coverage = null
+        coverageGrid = parsedCoverage
+    }
+
+    val coverageData =
+        when (coverage?.type) {
+            "GEONORGE-WMS" -> {
+                val fullCoverageUrl = "${COVERAGE_BASE_URL}${coverage.layer}"
                 CoverageDataSource(
-                    it,
+                    fullCoverageUrl,
                     CoverageDataType.WMS,
                     layers = "geonorgedekningskart",
                 )
-            },
-        coverageOverviewData =
-            fullCoverageGridUrl?.let {
-                CoverageDataSource(it, CoverageDataType.WMS, layers = "gp_dek_oversikt_wms")
-            },
-        completenessCoverageData =
-            surveyAreaMapUrl?.let { CoverageDataSource(it, CoverageDataType.GEOJSON) }
-                ?: surveyAreaMapUrlWms?.let { CoverageDataSource(it, CoverageDataType.WMS) },
+            }
+            "WMS" -> {
+                null
+            }
+            "WFS" -> {
+                null
+            }
+            "GeoJSON" -> {
+                null
+            }
+            null -> {
+                null
+            }
+            else -> throw IllegalArgumentException("Unsupported coverage type: ${coverage.type}")
+        }
+
+    val coverageOverviewData =
+        when (coverageGrid?.type) {
+            "GEONORGE-WMS" -> {
+                val fullCoverageGridUrl = "${GRID_BASE_URL}${coverageGrid.layer}"
+                CoverageDataSource(
+                    fullCoverageGridUrl,
+                    CoverageDataType.WMS,
+                    layers = "gp_dek_oversikt_wms",
+                )
+            }
+            "WMS" -> {
+                null
+            }
+            "WFS" -> {
+                null
+            }
+            "GeoJSON" -> {
+                null
+            }
+            null -> {
+                null
+            }
+            else -> throw IllegalArgumentException("Unsupported coverage type: ${coverageGrid.type}")
+        }
+
+    val completenessCoverageData =
+        surveyAreaMapUrl?.let { CoverageDataSource(it, CoverageDataType.GEOJSON) }
+            ?: surveyAreaMapUrlWms?.let { CoverageDataSource(it, CoverageDataType.WMS) }
+    return CoverageData(
+        coverageData = coverageData,
+        coverageOverviewData = coverageOverviewData,
+        completenessCoverageData = completenessCoverageData,
     )
 }
 
