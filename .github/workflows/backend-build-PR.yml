@@ -29,15 +29,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6
+      - name: Build docker image and test it
+        id: build_image
+        uses: docker/build-push-action@v7
         with:
-          java-version: '21'
-          distribution: temurin
-
-      - uses: gradle/actions/setup-gradle@v6
-
-      - run: ./gradlew build --build-cache
-
-      - run: ./gradlew ktlintCheck
-
-      - run: ./gradlew test
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false

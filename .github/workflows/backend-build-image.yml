@@ -9,6 +9,12 @@ on:
       - ".github/agents/**"
       - "frontend/**"
   workflow_dispatch:
+    inputs:
+      run_verifications:
+        description: Run backend lint and tests during the Docker build
+        type: boolean
+        required: true
+        default: true
 
 permissions:
   contents: read
@@ -93,6 +99,8 @@ jobs:
         with:
           context: ./backend
           file: ./backend/Dockerfile
+          build-args: |
+            RUN_VERIFICATIONS=${{ github.event_name != 'workflow_dispatch' || inputs.run_verifications }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
