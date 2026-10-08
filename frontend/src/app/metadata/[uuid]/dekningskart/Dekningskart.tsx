@@ -6,7 +6,7 @@ import MapComponent from "@/app/_components/MapComponent/MapComponent";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./Dekningskart.module.css";
 import { DekningskartOverlay } from "./DekningskartOverlay";
-import { getGEOJSONLayerFromUrl, getWMSLayerFromUrl } from "./layerUtils";
+import { getLayerFromCoverageData } from "./layerUtils";
 
 interface CoverageLayer {
   id: string;
@@ -20,45 +20,38 @@ export interface DekningkartProps {
 
 export const Dekningskart = (props: DekningkartProps) => {
   const coverageData = props.metadata.coverageData;
+  console.log(coverageData);
   const layers = useMemo(() => {
     const result: CoverageLayer[] = [];
     if (!coverageData) return result;
-
-    if (
-      coverageData.coverageData?.url != null &&
-      coverageData.coverageData.layers != null
-    ) {
+    if (coverageData.coverageData) {
+      const coverage = getLayerFromCoverageData(coverageData.coverageData);
       result.push({
         id: "coverage",
         label: "Dekning",
-        layer: getWMSLayerFromUrl(coverageData.coverageData.url, {
-          LAYERS: coverageData.coverageData.layers,
-          CRS: "EPSG:25833",
-        }),
+        layer: coverage,
       });
     }
 
-    if (
-      coverageData.coverageOverviewData?.url != null &&
-      coverageData.coverageOverviewData.layers != null
-    ) {
+    if (coverageData.coverageOverviewData) {
+      const overview = getLayerFromCoverageData(
+        coverageData.coverageOverviewData,
+      );
       result.push({
         id: "overview",
         label: "Dekningsoversikt",
-        layer: getWMSLayerFromUrl(coverageData.coverageOverviewData.url, {
-          LAYERS: coverageData.coverageOverviewData.layers,
-          CRS: "EPSG:25833",
-        }),
+        layer: overview,
       });
     }
 
-    if (coverageData.completenessCoverageData?.url) {
+    if (coverageData.completenessCoverageData) {
+      const completenessOverview = getLayerFromCoverageData(
+        coverageData.completenessCoverageData,
+      );
       result.push({
         id: "completeness",
-        label: "Fullstendighet",
-        layer: getGEOJSONLayerFromUrl(
-          coverageData.completenessCoverageData.url,
-        ),
+        label: "Fullstendighetsoversikt",
+        layer: completenessOverview,
       });
     }
     return result;
