@@ -36,3 +36,5 @@ jobs:
           context: .
           file: ./backend/Dockerfile
           push: false
+          build-args: |
+            RUN_VERIFICATIONS=true
