@@ -24,29 +24,29 @@ export const Dekningskart = (props: DekningkartProps) => {
     const result: CoverageLayer[] = [];
     if (!coverageData) return result;
 
-    if (coverageData.coverageWMSUrl?.url) {
+    if (
+      coverageData.coverageWMSUrl?.url != null &&
+      coverageData.coverageWMSUrl.layers != null
+    ) {
       result.push({
         id: "coverage",
         label: "Dekning",
         layer: getWMSLayerFromUrl(coverageData.coverageWMSUrl.url, {
-          LAYERS:
-            coverageData.coverageWMSUrl.layers != null
-              ? coverageData.coverageWMSUrl.layers
-              : "",
+          LAYERS: coverageData.coverageWMSUrl.layers,
           CRS: "EPSG:25833",
         }),
       });
     }
 
-    if (coverageData.coverageOverviewWMSUrl?.url) {
+    if (
+      coverageData.coverageOverviewWMSUrl?.url != null &&
+      coverageData.coverageOverviewWMSUrl.layers != null
+    ) {
       result.push({
         id: "overview",
         label: "Dekningsoversikt",
         layer: getWMSLayerFromUrl(coverageData.coverageOverviewWMSUrl.url, {
-          LAYERS:
-            coverageData.coverageOverviewWMSUrl.layers != null
-              ? coverageData.coverageOverviewWMSUrl.layers
-              : "",
+          LAYERS: coverageData.coverageOverviewWMSUrl.layers,
           CRS: "EPSG:25833",
         }),
       });
