@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Card,
-  Checkbox,
-  Details,
-  Heading,
-  Label,
-} from "@kv-designsystem/react";
+import { Card, Checkbox, Details, Heading } from "@kv-designsystem/react";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./DekningskartOverlay.module.css";
 
@@ -36,7 +30,7 @@ export const DekningskartOverlay = ({
               <Details data-color="accent" variant="tinted" defaultOpen>
                 <Details.Summary>Se dekningskart</Details.Summary>
                 <Details.Content>
-                  <Label>Velg detaljeringsnivå</Label>
+                  <legend>Velg detaljeringsnivå</legend>
                   <fieldset>
                     {layerIds.includes("overview") ? (
                       <LayerCheckbox
