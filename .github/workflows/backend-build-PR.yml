@@ -33,6 +33,6 @@ jobs:
         id: build_image
         uses: docker/build-push-action@v7
         with:
-          context: ./backend
+          context: .
           file: ./backend/Dockerfile
           push: false

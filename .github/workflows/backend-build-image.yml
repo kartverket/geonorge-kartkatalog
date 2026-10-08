@@ -97,7 +97,7 @@ jobs:
         id: build_image
         uses: docker/build-push-action@v7
         with:
-          context: ./backend
+          context: .
           file: ./backend/Dockerfile
           build-args: |
             RUN_VERIFICATIONS=${{ github.event_name != 'workflow_dispatch' || inputs.run_verifications }}
