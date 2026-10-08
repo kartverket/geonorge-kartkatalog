@@ -32,12 +32,13 @@ fun getCoverageLinks(extensionResources: List<ExtensionResource>): CoverageData 
             }?.url
 
     val cov = parseCoverage(coverageUrl)
+
     val grid = parseCoverage(coverageGridUrl)
 
     val fullCoverageUrl = cov ?.let { "${COVERAGE_BASE_URL}${it.layer}" }
     val fullCoverageGridUrl = grid?.let { "${GRID_BASE_URL}${it.layer}" }
     return CoverageData(
-        coverageWMSUrl =
+        coverageData =
             fullCoverageUrl?.let {
                 CoverageDataSource(
                     it,
@@ -45,11 +46,11 @@ fun getCoverageLinks(extensionResources: List<ExtensionResource>): CoverageData 
                     layers = "geonorgedekningskart",
                 )
             },
-        coverageOverviewWMSUrl =
+        coverageOverviewData =
             fullCoverageGridUrl?.let {
                 CoverageDataSource(it, CoverageDataType.WMS, layers = "gp_dek_oversikt_wms")
             },
-        completenessCoverageWMSUrl =
+        completenessCoverageData =
             surveyAreaMapUrl?.let { CoverageDataSource(it, CoverageDataType.GEOJSON) }
                 ?: surveyAreaMapUrlWms?.let { CoverageDataSource(it, CoverageDataType.WMS) },
     )

@@ -52,9 +52,9 @@ export const CoverageDataSourceSchema = z.object({
   layers: z.string().nullable(),
 });
 export const CoverageDataSchema = z.object({
-  coverageWMSUrl: CoverageDataSourceSchema.nullable(),
-  coverageOverviewWMSUrl: CoverageDataSourceSchema.nullable(),
-  completenessCoverageWMSUrl: CoverageDataSourceSchema.nullable(),
+  coverageData: CoverageDataSourceSchema.nullable(),
+  coverageOverviewData: CoverageDataSourceSchema.nullable(),
+  completenessCoverageData: CoverageDataSourceSchema.nullable(),
 });
 
 export type CoverageData = z.infer<typeof CoverageDataSchema>;

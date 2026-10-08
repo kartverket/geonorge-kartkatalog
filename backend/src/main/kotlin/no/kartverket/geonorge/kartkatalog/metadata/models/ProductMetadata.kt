@@ -42,11 +42,11 @@ data class ProductMetadata(
 @Serializable
 data class CoverageData(
     // dekningskart
-    val coverageWMSUrl: CoverageDataSource? = null,
+    val coverageData: CoverageDataSource? = null,
     // dekningsoversikt
-    val coverageOverviewWMSUrl: CoverageDataSource? = null,
+    val coverageOverviewData: CoverageDataSource? = null,
     // fullstendighetsdekningskart
-    val completenessCoverageWMSUrl: CoverageDataSource? = null,
+    val completenessCoverageData: CoverageDataSource? = null,
 )
 
 @Serializable

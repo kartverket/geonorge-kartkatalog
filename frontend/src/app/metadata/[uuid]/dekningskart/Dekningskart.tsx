@@ -25,39 +25,39 @@ export const Dekningskart = (props: DekningkartProps) => {
     if (!coverageData) return result;
 
     if (
-      coverageData.coverageWMSUrl?.url != null &&
-      coverageData.coverageWMSUrl.layers != null
+      coverageData.coverageData?.url != null &&
+      coverageData.coverageData.layers != null
     ) {
       result.push({
         id: "coverage",
         label: "Dekning",
-        layer: getWMSLayerFromUrl(coverageData.coverageWMSUrl.url, {
-          LAYERS: coverageData.coverageWMSUrl.layers,
+        layer: getWMSLayerFromUrl(coverageData.coverageData.url, {
+          LAYERS: coverageData.coverageData.layers,
           CRS: "EPSG:25833",
         }),
       });
     }
 
     if (
-      coverageData.coverageOverviewWMSUrl?.url != null &&
-      coverageData.coverageOverviewWMSUrl.layers != null
+      coverageData.coverageOverviewData?.url != null &&
+      coverageData.coverageOverviewData.layers != null
     ) {
       result.push({
         id: "overview",
         label: "Dekningsoversikt",
-        layer: getWMSLayerFromUrl(coverageData.coverageOverviewWMSUrl.url, {
-          LAYERS: coverageData.coverageOverviewWMSUrl.layers,
+        layer: getWMSLayerFromUrl(coverageData.coverageOverviewData.url, {
+          LAYERS: coverageData.coverageOverviewData.layers,
           CRS: "EPSG:25833",
         }),
       });
     }
 
-    if (coverageData.completenessCoverageWMSUrl?.url) {
+    if (coverageData.completenessCoverageData?.url) {
       result.push({
         id: "completeness",
         label: "Fullstendighet",
         layer: getGEOJSONLayerFromUrl(
-          coverageData.completenessCoverageWMSUrl.url,
+          coverageData.completenessCoverageData.url,
         ),
       });
     }
