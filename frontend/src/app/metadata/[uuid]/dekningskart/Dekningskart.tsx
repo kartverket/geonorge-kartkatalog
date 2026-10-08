@@ -29,7 +29,10 @@ export const Dekningskart = (props: DekningkartProps) => {
         id: "coverage",
         label: "Dekning",
         layer: getWMSLayerFromUrl(coverageData.coverageWMSUrl.url, {
-          LAYERS: coverageData.coverageWMSUrl.layers,
+          LAYERS:
+            coverageData.coverageWMSUrl.layers != null
+              ? coverageData.coverageWMSUrl.layers
+              : "",
           CRS: "EPSG:25833",
         }),
       });
@@ -40,7 +43,10 @@ export const Dekningskart = (props: DekningkartProps) => {
         id: "overview",
         label: "Dekningsoversikt",
         layer: getWMSLayerFromUrl(coverageData.coverageOverviewWMSUrl.url, {
-          LAYERS: coverageData.coverageOverviewWMSUrl.layers,
+          LAYERS:
+            coverageData.coverageOverviewWMSUrl.layers != null
+              ? coverageData.coverageOverviewWMSUrl.layers
+              : "",
           CRS: "EPSG:25833",
         }),
       });
