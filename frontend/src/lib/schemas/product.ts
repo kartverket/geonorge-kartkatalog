@@ -109,7 +109,6 @@ export type ProductConstraints = Partial<ProductLegalConstraints> & {
 export type ProductMetadata = z.infer<typeof ProductMetadataSchema>;
 
 export function parseProductMetadata(body: unknown): ProductMetadata {
-  console.log("Parsing product metadata:", body);
   const res = ProductMetadataSchema.safeParse(body);
   if (!res.success) {
     throw new Error("Invalid metadata from server", {
