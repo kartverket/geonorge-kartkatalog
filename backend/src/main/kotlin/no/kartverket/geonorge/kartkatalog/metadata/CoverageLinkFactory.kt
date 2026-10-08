@@ -37,11 +37,10 @@ fun getCoverageLinks(extensionResources: List<ExtensionResource>): CoverageData 
     var coverage: ParsedCoverage? = null
     var coverageGrid: ParsedCoverage? = null
 
-    if (parsedCoverage != null && parsedCoverageGrid != null)
-        {
-            coverage = parsedCoverage
-            coverageGrid = parsedCoverageGrid
-        } else if (parsedCoverage != null) {
+    if (parsedCoverage != null && parsedCoverageGrid != null) {
+        coverage = parsedCoverage
+        coverageGrid = parsedCoverageGrid
+    } else if (parsedCoverage != null) {
         coverage = null
         coverageGrid = parsedCoverage
     }
