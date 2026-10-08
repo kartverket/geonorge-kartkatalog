@@ -6,7 +6,7 @@ import MapComponent from "@/app/_components/MapComponent/MapComponent";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./Dekningskart.module.css";
 import { DekningskartOverlay } from "./DekningskartOverlay";
-import { getGEOJSONLayerFromUrl, getWMSLayerFromUrl } from "./utils";
+import { getGEOJSONLayerFromUrl, getWMSLayerFromUrl } from "./layerUtils";
 
 interface CoverageLayer {
   id: string;
