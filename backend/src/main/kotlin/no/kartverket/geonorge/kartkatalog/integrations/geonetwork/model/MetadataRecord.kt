@@ -58,7 +58,9 @@ data class MetadataRecord(
     val applicationSchemaInfos: List<ApplicationSchemaInfo> = emptyList(),
     // Identification — common to dataset and service
     val title: String,
+    val englishTitle: String? = null,
     val abstract: String? = null,
+    val englishAbstract: String? = null,
     val purpose: String? = null,
     val status: String? = null,
     val maintenanceFrequency: String? = null,
@@ -68,6 +70,8 @@ data class MetadataRecord(
     val processHistory: String? = null,
     val contacts: List<Contact> = emptyList(),
     val dates: List<MetadataDate> = emptyList(),
+    val resourceReferenceCode: String? = null,
+    val resourceReferenceCodespace: String? = null,
     val thumbnails: List<Thumbnail> = emptyList(),
     val keywordGroups: List<KeywordGroup> = emptyList(),
     val legalConstraints: LegalConstraints? = null,

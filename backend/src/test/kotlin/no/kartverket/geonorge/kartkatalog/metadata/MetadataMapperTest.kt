@@ -19,10 +19,13 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalCon
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class MetadataMapperTest {
     private val registerBaseUrl = "https://test.example.com/register"
@@ -70,6 +73,142 @@ class MetadataMapperTest {
             val mapped = mapper.toProductMetadata(record)
 
             assertEquals("Lisens", mapped.constraints?.useConstraints)
+        }
+
+    @Test
+    fun `legacy mapping maps open-data constraints from no limitations access`() =
+        runBlocking {
+            val mapper =
+                MetadataMapper(
+                    createTranslator(
+                        responseContent =
+                            """{"containeditems": [{"label": "Lisens", "codevalue": "license"}]}""",
+                    ),
+                    staticNorgeskartUrl,
+                )
+            val record =
+                minimalRecord(
+                    legalConstraints =
+                        LegalConstraints(
+                            accessConstraints = "otherRestrictions",
+                            accessConstraintsLink =
+                                "https://inspire.example/LimitationsOnPublicAccess/noLimitations",
+                            otherConstraintsAccess =
+                                "https://inspire.example/LimitationsOnPublicAccess/noLimitations",
+                            useConstraints = "otherRestrictions",
+                            otherConstraintsLink = "https://creativecommons.org/licenses/by/4.0/",
+                            otherConstraints = "Metadata-specific restriction text",
+                            useLimitations = listOf("Ingen begrensninger på bruk er oppgitt."),
+                        ),
+                )
+
+            val mapped = mapper.toLegacyMetadataViewModel(record)
+
+            assertEquals("Åpne data", mapped.constraints?.accessConstraints)
+            assertEquals("Åpne data", mapped.dataAccess)
+            assertEquals("Metadata-specific restriction text", mapped.constraints?.otherConstraints)
+            assertEquals("Lisens", mapped.constraints?.useConstraints)
+            assertEquals("Ingen begrensninger på bruk er oppgitt.", mapped.constraints?.useLimitations)
+            assertFalse(mapped.accessIsRestricted)
+            assertFalse(mapped.accessIsProtected)
+            assertTrue(mapped.accessIsOpendata)
+        }
+
+    @Test
+    fun `legacy mapping maps Norway digital restricted constraints from article 13 access`() =
+        runBlocking {
+            val mapper = MetadataMapper(createTranslator("""{"containeditems": []}"""), staticNorgeskartUrl)
+            val record =
+                minimalRecord(
+                    legalConstraints =
+                        LegalConstraints(
+                            accessConstraints = "otherRestrictions",
+                            accessConstraintsLink =
+                                "https://inspire.example/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1d",
+                            otherConstraintsAccess =
+                                "https://inspire.example/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1d",
+                            otherConstraints = "ingen juridiske begrensninger",
+                        ),
+                )
+
+            val mapped = mapper.toLegacyMetadataViewModel(record)
+
+            assertEquals("Norge digitalt begrenset", mapped.constraints?.accessConstraints)
+            assertEquals("Norge digitalt begrenset", mapped.dataAccess)
+            assertEquals("ingen juridiske begrensninger", mapped.constraints?.otherConstraints)
+            assertTrue(mapped.accessIsRestricted)
+            assertFalse(mapped.accessIsOpendata)
+        }
+
+    @Test
+    fun `legacy mapping emits empty strings for absent constraint text fields`() =
+        runBlocking {
+            val mapper = MetadataMapper(createTranslator("""{"containeditems": []}"""), staticNorgeskartUrl)
+            val mapped =
+                mapper.toLegacyMetadataViewModel(
+                    minimalRecord(legalConstraints = LegalConstraints(accessConstraints = "otherRestrictions")),
+                )
+
+            assertEquals("", mapped.constraints?.otherConstraints)
+            assertEquals("", mapped.constraints?.securityConstraintsNote)
+        }
+
+    @Test
+    fun `legacy mapping preserves distribution protocol fields group details and service link`() =
+        runBlocking {
+            val mapper =
+                MetadataMapper(
+                    createTranslator(
+                        """{"containeditems": [{"label": "Webside", "codevalue": "WWW:LINK-1.0-http--link"}]}""",
+                    ),
+                    staticNorgeskartUrl,
+                )
+            val record =
+                minimalRecord(
+                    distributionInfo =
+                        DistributionInfo(
+                            formats =
+                                listOf(
+                                    DistributionFormat(
+                                        name = "HTML",
+                                        version = "5.0",
+                                        onlineResources =
+                                            listOf(
+                                                OnlineResource(
+                                                    url = "https://example.com/website",
+                                                    protocol = "WWW:LINK-1.0-http--link",
+                                                ),
+                                            ),
+                                    ),
+                                ),
+                        ),
+                )
+
+            val mapped =
+                mapper.toLegacyMetadataViewModel(
+                    record,
+                    SolrDocument(
+                        uuid = record.uuid,
+                        serviceDistributionProtocolForDataset = "OGC:WMS",
+                        serviceDistributionUrlForDataset = "https://example.com/wms?service=WMS",
+                        serviceDistributionNameForDataset = "test-layer",
+                    ),
+                )
+            val distribution = mapped.distributionsFormats!!.single()
+            val group = mapped.distributionFormatsGrouped!!.single()
+
+            assertEquals("WWW:LINK-1.0-http--link", distribution.protocol)
+            assertEquals("Webside", distribution.protocolName)
+            assertEquals("5.0", mapped.distributionFormat?.version)
+            assertEquals("5.0", distribution.formatVersion)
+            assertEquals("5.0", group.formats.single().formatVersion)
+            assertEquals("", group.organization)
+            assertEquals("", group.unitsOfDistribution)
+            assertEquals("", group.englishUnitsOfDistribution)
+            assertEquals(
+                "#!?zoom=3&lon=306722&lat=7197864&wms=https://example.com/wms&addLayers=test-layer",
+                mapped.serviceLink,
+            )
         }
 
     @Test

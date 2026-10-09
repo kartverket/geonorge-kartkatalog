@@ -1,5 +1,9 @@
 package no.kartverket.geonorge.kartkatalog.routes
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -25,9 +29,11 @@ import no.kartverket.geonorge.kartkatalog.metadata.LinkedDistributionsService
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
+import org.slf4j.LoggerFactory
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class MetadataRoutesTest {
     private val emptyGeonetworkXml =
@@ -139,17 +145,34 @@ class MetadataRoutesTest {
         xml: String,
         solrDocJson: String = solrJson,
         solrFails: Boolean = false,
+        geonetworkFails: Boolean = false,
     ): Pair<MetadataService, LinkedDistributionsService> {
         val client =
             HttpClient(
                 MockEngine { request ->
                     when {
                         request.url.encodedPath.endsWith("/srv/nor/csw") -> {
-                            respond(
-                                content = xml,
-                                status = HttpStatusCode.OK,
-                                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Xml.toString()),
-                            )
+                            if (geonetworkFails) {
+                                respond(
+                                    content = "<gmd:MD_Metadata",
+                                    status = HttpStatusCode.OK,
+                                    headers =
+                                        headersOf(
+                                            HttpHeaders.ContentType,
+                                            ContentType.Application.Xml.toString(),
+                                        ),
+                                )
+                            } else {
+                                respond(
+                                    content = xml,
+                                    status = HttpStatusCode.OK,
+                                    headers =
+                                        headersOf(
+                                            HttpHeaders.ContentType,
+                                            ContentType.Application.Xml.toString(),
+                                        ),
+                                )
+                            }
                         }
 
                         request.url.encodedPath == "/api/kodelister/${CodeList.MAINTENANCE_FREQUENCY.systemId}" -> {
@@ -254,6 +277,7 @@ class MetadataRoutesTest {
                 GeonetworkClient(client, geonetworkBaseUrl),
                 metadataMapper,
                 registerClient,
+                SolrClient(client, "https://solr.example.test"),
             )
         val linkedDistributionsService =
             LinkedDistributionsService(
@@ -278,6 +302,20 @@ class MetadataRoutesTest {
         block()
     }
 
+    private fun captureRouteLogs(block: () -> Unit): List<ILoggingEvent> {
+        val logger = LoggerFactory.getLogger("MetadataRoutes") as Logger
+        val appender = ListAppender<ILoggingEvent>()
+        appender.start()
+        logger.addAppender(appender)
+        return try {
+            block()
+            appender.list.toList()
+        } finally {
+            logger.detachAppender(appender)
+            appender.stop()
+        }
+    }
+
     @Test
     fun `returns 200 with dataset metadata for valid uuid`() {
         val (metadataService, linkedDistributionsService) =
@@ -289,6 +327,81 @@ class MetadataRoutesTest {
             assertEquals(HttpStatusCode.OK, response.status)
             assertContains(response.bodyAsText(), "Matrikkelen - Bygningspunkt WFS")
         }
+    }
+
+    @Test
+    fun `legacy getdata returns the PascalCase MetadataViewModel contract`() {
+        val (metadataService, linkedDistributionsService) = createMetadataService(responseXml)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/api/getdata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
+            val body = response.bodyAsText()
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(body, "\"Uuid\":\"c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689\"")
+            assertContains(body, "\"Title\":")
+            assertContains(body, "\"Distributions\":{")
+            assertContains(body, "\"KeywordsTheme\":")
+            assertContains(body, "\"AccessIsOpendata\":")
+            assertContains(body, "\"MapOnlyWms\":false")
+            assertContains(body, "\"DateUpdated\":\"2018-04-26T00:00:00\"")
+            assertEquals(false, body.contains("\"EnglishTitle\":null"))
+        }
+    }
+
+    @Test
+    fun `legacy getdata returns empty 404 when record is absent`() {
+        val (metadataService, linkedDistributionsService) = createMetadataService(emptyGeonetworkXml)
+        val uuid = "00000000-0000-0000-0000-000000000000"
+
+        val logs =
+            captureRouteLogs {
+                testApp(metadataService, linkedDistributionsService) {
+                    val response = client.get("/api/getdata/$uuid")
+
+                    assertEquals(HttpStatusCode.NotFound, response.status)
+                    assertEquals("", response.bodyAsText())
+                }
+            }
+        assertEquals(Level.WARN, logs.single().level)
+        assertContains(logs.single().formattedMessage, uuid)
+        assertNotNull(logs.single().throwableProxy)
+    }
+
+    @Test
+    fun `legacy getdata enriches view services from Solr`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml, solrDocJson = datasetWithViewServiceSolrJson)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/api/getdata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
+            val body = response.bodyAsText()
+            val relatedServiceUuid = "666e4559-60bf-4a1d-9e72-c43502a9a58b"
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(body, "\"RelatedViewServices\":[{\"Uuid\":\"$relatedServiceUuid\"")
+            assertContains(body, "\"DatasetServicesWithShowMapLink\":[{\"Uuid\":\"$relatedServiceUuid\"")
+        }
+    }
+
+    @Test
+    fun `legacy getdata returns empty 500 when metadata lookup fails`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml, geonetworkFails = true)
+        val uuid = "c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689"
+
+        val logs =
+            captureRouteLogs {
+                testApp(metadataService, linkedDistributionsService) {
+                    val response = client.get("/api/getdata/$uuid")
+
+                    assertEquals(HttpStatusCode.InternalServerError, response.status)
+                    assertEquals("", response.bodyAsText())
+                }
+            }
+        assertEquals(Level.ERROR, logs.single().level)
+        assertContains(logs.single().formattedMessage, uuid)
+        assertNotNull(logs.single().throwableProxy)
     }
 
     @Test

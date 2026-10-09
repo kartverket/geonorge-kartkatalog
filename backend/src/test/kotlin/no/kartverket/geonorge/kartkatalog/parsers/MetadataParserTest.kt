@@ -182,8 +182,18 @@ class MetadataParserTest {
         assertEquals(1, lc.useLimitations.size)
         assertTrue(lc.useLimitations[0].startsWith("Ingen begrensninger"))
         assertTrue(lc.otherConstraintsAccess!!.contains("noLimitations"))
+        assertTrue(lc.accessConstraintsLink!!.contains("noLimitations"))
         assertEquals("https://creativecommons.org/licenses/by/4.0/", lc.otherConstraintsLink)
         assertEquals("Creative Commons BY 4.0 (CC BY 4.0)", lc.otherConstraintsLinkText)
+        assertNull(lc.otherConstraints)
+    }
+
+    @Test
+    fun `parses metadata-specific other constraints separately from use limitations`() {
+        val lc = assertNotNull(recordWithQuantitativeResult.legalConstraints)
+
+        assertTrue(lc.otherConstraints!!.startsWith("Data i datasettet er linsensiert av Artsdatabanken."))
+        assertEquals("Ingen begrensninger på bruk er oppgitt.", lc.useLimitations.single())
     }
 
     @Test
@@ -239,6 +249,20 @@ class MetadataParserTest {
         assertEquals("OGC:WFS", dist.formats[0].onlineResources[0].protocol)
         assertTrue(dist.formats[0].onlineResources[0].url.startsWith("https://wfs.geonorge.no/"))
         assertEquals("landsfiler", dist.formats[0].onlineResources[0].unitsOfDistribution)
+    }
+
+    @Test
+    fun `parses distributor organization and English units of distribution`() {
+        val resource =
+            assertNotNull(recordWithQuantitativeResult.distributionInfo)
+                .formats
+                .first { it.name == "SOSI" }
+                .onlineResources
+                .single()
+
+        assertEquals("Miljødirektoratet", resource.organization)
+        assertEquals("kommunevis, fylkesvis, landsfiler", resource.unitsOfDistribution)
+        assertEquals("Municipality, County, Country", resource.englishUnitsOfDistribution)
     }
 
     @Test
