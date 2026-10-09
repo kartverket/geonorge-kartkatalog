@@ -15,7 +15,6 @@ export const getLayerFromCoverageData = (
     });
   }
   if (data.type === "GEOJSON") {
-    console.log(data);
     return getGEOJSONLayerFromUrl(data.url ?? "");
   }
   throw new Error("Unsupported coverage data type");

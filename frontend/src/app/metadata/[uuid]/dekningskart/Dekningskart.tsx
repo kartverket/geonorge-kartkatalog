@@ -20,7 +20,6 @@ export interface DekningkartProps {
 
 export const Dekningskart = (props: DekningkartProps) => {
   const coverageData = props.metadata.coverageData;
-  console.log(coverageData);
   const layers = useMemo(() => {
     const result: CoverageLayer[] = [];
     if (!coverageData) return result;
