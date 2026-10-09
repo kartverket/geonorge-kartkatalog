@@ -1,8 +1,10 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { setAuthProviderCookie } from "../../providerCookie";
 
-export function GET(request: NextRequest) {
-  const response = NextResponse.redirect(new URL("/beta", request.url));
+const BASE_URL = process.env.KATALOG_BASE_URL;
+
+export function GET() {
+  const response = NextResponse.redirect(new URL("/beta", BASE_URL));
   setAuthProviderCookie(response, "ansattporten");
   return response;
 }
