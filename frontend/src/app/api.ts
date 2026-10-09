@@ -38,7 +38,8 @@ import {
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
 const katalogBaseUrl: string | undefined = process.env.KATALOG_BASE_URL;
-const KATALOG_ORIGIN = new URL(katalogBaseUrl ?? "https://dummy.org").origin;
+export const KATALOG_ORIGIN = new URL(katalogBaseUrl ?? "https://dummy.org")
+  .origin;
 
 export function getKatalogUrl(path: string): URL {
   return new URL(path, KATALOG_ORIGIN);

@@ -40,18 +40,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function loadAuthInfo() {
       try {
-        const response = await fetch(`${bffPath}/me`, {
-          cache: "no-store",
+        const requestOptions = {
+          cache: "no-store" as const,
           headers: { Accept: "application/json" },
           signal: controller.signal,
-        });
+        };
+        const ansattportenResponse = await fetch(
+          `${bffPath}/me`,
+          requestOptions,
+        );
+        if (!ansattportenResponse.ok && ansattportenResponse.status !== 401) {
+          setState({ status: "error" });
+          return;
+        }
+        const ansattportenSession = ansattportenResponse.ok
+          ? AuthSessionSchema.parse(await ansattportenResponse.json())
+          : null;
 
-        if (!response.ok) {
+        if (ansattportenSession?.authenticated) {
+          setState({ status: "authenticated", user: ansattportenSession.user });
+          return;
+        }
+
+        const geoIdResponse = await fetch(
+          `${bffPath}/me/geoid`,
+          requestOptions,
+        );
+        if (!geoIdResponse.ok) {
           setState({ status: "error" });
           return;
         }
 
-        const session = AuthSessionSchema.parse(await response.json());
+        const session = AuthSessionSchema.parse(await geoIdResponse.json());
         setState(
           session.authenticated
             ? { status: "authenticated", user: session.user }

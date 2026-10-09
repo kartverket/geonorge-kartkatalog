@@ -1,9 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getGeoIdAuthInfo, HttpError } from "@/app/api";
-import {
-  clearAuthProviderCookie,
-  resolveAuthProvider,
-} from "../auth/providerCookie";
+import { clearAuthProviderCookie } from "../auth/providerCookie";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -53,51 +49,19 @@ function getOrganizationName(authDetailsHeader: string | null): string | null {
 }
 
 export async function GET(request: NextRequest) {
-  const provider = resolveAuthProvider(request);
+  const name = request.headers.get("X-User-Full-Name");
+  const organizationName = getOrganizationName(
+    request.headers.get("X-Auth-Details"),
+  );
 
-  if (!provider) {
-    return NextResponse.json({ authenticated: false });
+  if (!name?.trim() || !organizationName) {
+    const response = NextResponse.json({ authenticated: false });
+    clearAuthProviderCookie(response);
+    return response;
   }
 
-  if (provider === "ansattporten") {
-    const name = request.headers.get("X-User-Full-Name");
-    const organizationName = getOrganizationName(
-      request.headers.get("X-Auth-Details"),
-    );
-
-    if (!name?.trim() || !organizationName) {
-      const response = NextResponse.json({ authenticated: false });
-      clearAuthProviderCookie(response);
-      return response;
-    }
-
-    return NextResponse.json({
-      authenticated: true,
-      user: { name, organizationName },
-    });
-  }
-
-  try {
-    const cookie = request.headers.get("cookie") ?? undefined;
-    const authInfo = await getGeoIdAuthInfo(cookie);
-    return NextResponse.json({ authenticated: true, user: authInfo });
-  } catch (error: unknown) {
-    if (error instanceof HttpError) {
-      if (error.status === 401) {
-        const response = NextResponse.json({ authenticated: false });
-        clearAuthProviderCookie(response);
-        return response;
-      }
-
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Could not fetch authentication information." },
-      { status: 500 },
-    );
-  }
+  return NextResponse.json({
+    authenticated: true,
+    user: { name, organizationName },
+  });
 }

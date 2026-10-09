@@ -1,16 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { startLogout } from "@/app/api";
+import { getKatalogUrl, KATALOG_ORIGIN, startLogout } from "@/app/api";
 import { basePath } from "@/lib/basePath";
 import {
   clearAuthProviderCookie,
   resolveAuthProvider,
 } from "../providerCookie";
 
-const katalogBaseUrl = process.env.KATALOG_BASE_URL;
-
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin");
-  if (origin !== new URL(katalogBaseUrl ?? "https://dummy.org").origin) {
+  if (origin !== KATALOG_ORIGIN) {
     return NextResponse.json(
       { error: "Invalid logout origin." },
       { status: 403 },
@@ -19,9 +17,18 @@ export async function POST(request: NextRequest) {
 
   const provider = resolveAuthProvider(request);
 
-  if (provider !== "geoid") {
+  if (provider === "ansattporten") {
     const response = NextResponse.redirect(
-      new URL(basePath ? `${basePath}/` : "/", request.url),
+      getKatalogUrl(`${basePath}/bff/auth/ansattporten/logout`),
+      303,
+    );
+    clearAuthProviderCookie(response);
+    return response;
+  }
+
+  if (!provider) {
+    const response = NextResponse.redirect(
+      getKatalogUrl(basePath ? `${basePath}/` : "/"),
     );
     clearAuthProviderCookie(response);
     return response;
