@@ -47,9 +47,7 @@ export function Header() {
   const findDataHref = "/";
   const mapHref =
     "https://kartkatalog.geonorge.no/kart?lat=7197860&lon=396722&zoom=4";
-  const downloadHref = isBeta
-    ? "https://kartkatalog.geonorge.no/nedlasting"
-    : "/nedlasting";
+  const downloadHref = "/nedlasting";
   const geoIdLoginHref = `${bffPath}/auth/geoid/login` as Route;
   const ansattportenLoginHref = `${bffPath}/auth/ansattporten/login` as Route;
 
