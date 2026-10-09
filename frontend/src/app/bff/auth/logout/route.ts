@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
   const provider = resolveAuthProvider(request);
 
-  if (!provider) {
+  if (provider !== "geoid") {
     const response = NextResponse.redirect(
       new URL(basePath ? `${basePath}/` : "/", request.url),
     );
@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
   }
 
   const backendResponse = await startLogout(
-    provider,
     request.headers.get("cookie") ?? undefined,
   );
   const location = backendResponse.headers.get("location");

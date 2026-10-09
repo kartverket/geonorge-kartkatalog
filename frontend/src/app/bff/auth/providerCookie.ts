@@ -20,7 +20,11 @@ export function resolveAuthProvider(request: NextRequest): AuthProvider | null {
     return provider;
   }
 
-  return request.cookies.has("GEOID_SESSION") ? "geoid" : null;
+  let providerFromSession = request.cookies.has("GEOID_SESSION") ? "geoid" : null;
+  if (!providerFromSession) {
+    providerFromSession = request.cookies.has("BearerToken") ? "ansattporten" : null;
+  }
+  return (providerFromSession as AuthProvider | null);
 }
 
 export function setAuthProviderCookie(
