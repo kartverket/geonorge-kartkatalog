@@ -41,7 +41,7 @@ const katalogBaseUrl: string | undefined = process.env.KATALOG_BASE_URL;
 const KATALOG_ORIGIN = new URL(katalogBaseUrl ?? "https://dummy.org").origin;
 
 export function getKatalogUrl(path: string): URL {
-  return new URL(path, katalogBaseUrl);
+  return new URL(path, KATALOG_ORIGIN);
 }
 
 export class HttpError extends Error {
