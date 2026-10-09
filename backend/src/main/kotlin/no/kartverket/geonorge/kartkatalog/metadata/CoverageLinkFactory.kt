@@ -96,7 +96,12 @@ fun getCoverageLinks(extensionResources: List<ExtensionResource>): CoverageData 
         }
 
     val completenessCoverageData =
-        surveyAreaMapUrl?.let { CoverageDataSource(it, CoverageDataType.GEOJSON) }
+        surveyAreaMapUrl?.let {
+            CoverageDataSource(
+                url = it,
+                type = CoverageDataType.GEOJSON,
+            )
+        }
             ?: surveyAreaMapUrlWms?.let { CoverageDataSource(it, CoverageDataType.WMS) }
     return CoverageData(
         coverageData = coverageData,

@@ -10,12 +10,12 @@ export const getLayerFromCoverageData = (
   data: CoverageDataSource,
 ): BaseLayer => {
   if (data.type === "WMS") {
-    return getWMSLayerFromUrl(data.url ?? "", {
+    return getWMSLayerFromUrl(data.url, {
       LAYERS: data.layers ?? "",
     });
   }
   if (data.type === "GEOJSON") {
-    return getGEOJSONLayerFromUrl(data.url ?? "");
+    return getGEOJSONLayerFromUrl(data.url);
   }
   throw new Error("Unsupported coverage data type");
 };
@@ -39,10 +39,12 @@ export const getWMSLayerFromUrl = (
 };
 
 export const getGEOJSONLayerFromUrl = (url: string): VectorLayer => {
-  return new VectorLayer({
+  const layer = new VectorLayer({
     source: new VectorSource({
       format: new GeoJSON(),
       url,
     }),
   });
+
+  return layer;
 };

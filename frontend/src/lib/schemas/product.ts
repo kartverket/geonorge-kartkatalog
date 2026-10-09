@@ -47,8 +47,8 @@ export const DistributionGroupSchema = z.object({
 });
 
 export const CoverageDataSourceSchema = z.object({
-  url: z.string().nullable(),
-  type: z.string().nullable(),
+  url: z.string(),
+  type: z.string(),
   layers: z.string().nullable(),
 });
 export const CoverageDataSchema = z.object({
