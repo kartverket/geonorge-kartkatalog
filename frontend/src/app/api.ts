@@ -40,6 +40,10 @@ const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
 const katalogBaseUrl: string | undefined = process.env.KATALOG_BASE_URL;
 const KATALOG_ORIGIN = new URL(katalogBaseUrl ?? "https://dummy.org").origin;
 
+export function getKatalogUrl(path: string): URL {
+  return new URL(path, katalogBaseUrl);
+}
+
 export class HttpError extends Error {
   status: number;
   body: unknown;

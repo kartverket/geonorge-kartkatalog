@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { getKatalogUrl } from "@/app/api";
 import { setAuthProviderCookie } from "../../providerCookie";
 
-const BASE_URL = process.env.KATALOG_BASE_URL;
-
-export function GET() {
-  const response = NextResponse.redirect(new URL("/beta", BASE_URL));
-  setAuthProviderCookie(response, "ansattporten");
+export function GET(request: NextRequest) {
+  const response = NextResponse.redirect(getKatalogUrl("/beta"));
+  if (request.cookies.has("BearerToken")) {
+    setAuthProviderCookie(response, "ansattporten");
+  }
   return response;
 }
