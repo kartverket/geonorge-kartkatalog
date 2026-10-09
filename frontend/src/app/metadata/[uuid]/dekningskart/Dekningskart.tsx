@@ -1,12 +1,14 @@
 "use client";
 
 import type BaseLayer from "ol/layer/Base";
+import VectorLayer from "ol/layer/Vector";
 import { useEffect, useMemo, useState } from "react";
 import MapComponent from "@/app/_components/MapComponent/MapComponent";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./Dekningskart.module.css";
 import { DekningskartOverlay } from "./DekningskartOverlay";
 import { getLayerFromCoverageData } from "./layerUtils";
+import { coverageStatusStyle } from "./styleFunctions";
 
 interface CoverageLayer {
   id: string;
@@ -47,6 +49,10 @@ export const Dekningskart = (props: DekningkartProps) => {
       const completenessOverview = getLayerFromCoverageData(
         coverageData.completenessCoverageData,
       );
+      if (completenessOverview instanceof VectorLayer) {
+        completenessOverview.setStyle(coverageStatusStyle); // instead of using sld from the server
+      }
+
       result.push({
         id: "completeness",
         label: "Fullstendighetsoversikt",
