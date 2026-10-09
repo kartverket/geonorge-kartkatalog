@@ -4,10 +4,10 @@ ARG RUN_VERIFICATIONS=true
 
 WORKDIR /workspace
 
-COPY --chmod=0755 backend/gradlew .
-COPY backend/gradle/ ./gradle/
-COPY backend/src/ ./src/
-COPY backend/settings.gradle.kts backend/build.gradle.kts backend/gradle.properties .editorconfig ./
+COPY --chmod=0755 gradlew .
+COPY gradle/ ./gradle/
+COPY src/ ./src/
+COPY settings.gradle.kts build.gradle.kts gradle.properties .editorconfig ./
 
 RUN --mount=type=cache,id=kartkatalog-backend-gradle-cache,target=/root/.gradle \
     if [ "$RUN_VERIFICATIONS" = "true" ]; then \
