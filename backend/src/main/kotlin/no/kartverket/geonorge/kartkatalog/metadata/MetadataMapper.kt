@@ -96,6 +96,7 @@ class MetadataMapper(
                     record.extensionResources,
                     staticNorgeskartUrl = staticNorgeskartUrl,
                 ),
+            coverageData = getCoverageLinks(record.extensionResources),
         )
     }
 

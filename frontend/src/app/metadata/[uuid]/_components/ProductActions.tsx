@@ -1,4 +1,5 @@
 import {
+  EarthIcon,
   ExternalLinkIcon,
   FileTextIcon,
   PencilIcon,
@@ -20,6 +21,7 @@ import type {
   ProductMetadata,
 } from "@/lib/schemas/product";
 import { LOCATIONS } from "@/posthog/posthog";
+import { shouldShowCoverageMap } from "../dekningskart/utils";
 import styles from "./ProductActions.module.css";
 import { TrackedActionLinkButton } from "./TrackedActionLinkButton";
 
@@ -65,6 +67,15 @@ export function ProductActions({
           href={metadata.coverageUrl}
           icon={<ExternalLinkIcon aria-hidden />}
           title="Vis dekningskart"
+        />
+      )}
+      {shouldShowCoverageMap(metadata) && (
+        <TrackedActionLinkButton
+          eventName="show-coverage-data"
+          href={`/metadata/${uuid}/dekningskart`}
+          target="_self"
+          icon={<EarthIcon aria-hidden />}
+          title="Vis dekningskart NY"
         />
       )}
       <TrackedActionLinkButton
