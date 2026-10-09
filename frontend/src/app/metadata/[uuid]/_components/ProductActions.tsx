@@ -16,6 +16,7 @@ import {
   getEditUrl,
   getMetadataXmlUrl,
 } from "@/app/metadata/[uuid]/_utils/urls";
+import { basePath } from "@/lib/basePath";
 import type {
   LinkedDistributions,
   ProductMetadata,
@@ -72,7 +73,7 @@ export function ProductActions({
       {shouldShowCoverageMap(metadata) && (
         <TrackedActionLinkButton
           eventName="show-coverage-data"
-          href={`/metadata/${uuid}/dekningskart`}
+          href={`${basePath}/metadata/${uuid}/dekningskart`}
           target="_self"
           icon={<EarthIcon aria-hidden />}
           title="Vis dekningskart NY"
