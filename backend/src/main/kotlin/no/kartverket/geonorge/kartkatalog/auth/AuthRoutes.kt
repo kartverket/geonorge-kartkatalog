@@ -3,12 +3,18 @@ package no.kartverket.geonorge.kartkatalog.auth
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticateWith
 import io.ktor.server.auth.principal
-import io.ktor.server.request.header
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import kotlinx.serialization.Serializable
 import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
+
+@Serializable
+data class AuthInfoResponse(
+    val name: String,
+    val organizationName: String? = null,
+)
 
 fun Route.authRoutes(authentication: GeoIdAuthentication) {
     authenticateWith(authentication.provider.session) {
@@ -22,29 +28,6 @@ fun Route.authRoutes(authentication: GeoIdAuthentication) {
                     call.respond(HttpStatusCode.Unauthorized)
                 }
             }
-        }
-    }
-
-    // Ansattporten route, auth enforced by ztoperator
-    route("/api/me") {
-        get {
-            val name = call.request.header(USER_FULL_NAME_HEADER)
-            val organization =
-                runCatching {
-                    decodeAuthorizedOrganization(call.request.header(AUTH_DETAILS_HEADER))
-                }.getOrNull()
-
-            if (name.isNullOrBlank() || organization == null) {
-                call.respond(HttpStatusCode.Unauthorized)
-                return@get
-            }
-
-            call.respond(
-                AuthInfoResponse(
-                    name = name,
-                    organizationName = organization.name,
-                ),
-            )
         }
     }
 }

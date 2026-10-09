@@ -1,7 +1,6 @@
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import type { AuthProvider } from "@/lib/authProvider";
 import { basePath } from "@/lib/basePath";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
 import { type AuthInfo, parseAuthInfo } from "@/lib/schemas/auth";
@@ -52,22 +51,6 @@ export class HttpError extends Error {
   }
 }
 
-async function startAuthAction(
-  provider: AuthProvider,
-  action: "login" | "logout",
-  cookie?: string,
-) {
-  return fetch(`${API_BASE}/auth/${provider}/${action}`, {
-    method: action === "logout" ? "POST" : "GET",
-    headers: {
-      Origin: KATALOG_ORIGIN,
-      ...(cookie ? { Cookie: cookie } : {}),
-    },
-    redirect: "manual",
-    cache: "no-store",
-  });
-}
-
 function geoIdRequestHeaders(cookie?: string) {
   const publicUrl = new URL(KATALOG_ORIGIN);
   return {
@@ -88,15 +71,16 @@ export async function startGeoIdLogin(): Promise<Response> {
   });
 }
 
-export async function startAnsattportenLogin(): Promise<Response> {
-  return startAuthAction("ansattporten", "login");
-}
-
-export async function startLogout(
-  provider: AuthProvider,
-  cookie?: string,
-): Promise<Response> {
-  return startAuthAction(provider, "logout", cookie);
+export async function startLogout(cookie?: string): Promise<Response> {
+  return fetch(`${API_BASE}/auth/geoid/logout`, {
+    method: "POST",
+    headers: {
+      Origin: KATALOG_ORIGIN,
+      ...(cookie ? { Cookie: cookie } : {}),
+    },
+    redirect: "manual",
+    cache: "no-store",
+  });
 }
 
 export async function geoIdCallback(
@@ -112,6 +96,20 @@ export async function geoIdCallback(
     redirect: "manual",
     cache: "no-store",
   });
+}
+
+export async function getGeoIdAuthInfo(cookie?: string): Promise<AuthInfo> {
+  const body = await fetchJson(`${API_BASE}/api/me/geoid`, {
+    method: "GET",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      Origin: KATALOG_ORIGIN,
+      ...(cookie ? { Cookie: cookie } : {}),
+    },
+  });
+
+  return parseAuthInfo(body);
 }
 
 async function fetchJson(
@@ -370,22 +368,4 @@ export async function getDownloadInsightGroups(): Promise<DownloadInsightGroups>
     method: "GET",
   });
   return parseDownloadInsightGroups(body);
-}
-
-export async function getAuthInfo(
-  provider: AuthProvider,
-  cookie?: string,
-): Promise<AuthInfo> {
-  const path = provider === "geoid" ? "/api/me/geoid" : "/api/me";
-  const body = await fetchJson(`${API_BASE}${path}`, {
-    method: "GET",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      Origin: KATALOG_ORIGIN,
-      ...(cookie ? { Cookie: cookie } : {}),
-    },
-  });
-
-  return parseAuthInfo(body);
 }
