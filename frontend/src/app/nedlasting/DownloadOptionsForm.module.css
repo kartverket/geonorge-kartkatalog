@@ -1,33 +1,39 @@
+.areaBlocks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-4);
+}
+
+.areaBlock {
+  position: relative;
+  border: 1px solid var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-md);
+  padding: var(--ds-size-4);
+}
+
+.removeBlockButton {
+  position: absolute;
+  top: var(--ds-size-2);
+  right: var(--ds-size-2);
+}
+
 .selectionFields {
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-5);
 }
 
-.selectionField,
-.formatField {
+.selectionField {
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-2);
 }
 
-.formatField {
-  border: 0;
-  margin: 0;
-  padding: 0;
-}
-
-.fieldLabel {
-  font-weight: 600;
-}
-
-.formatOptions {
+.areaInputButtons {
   display: flex;
-  flex-direction: column;
   gap: var(--ds-size-2);
 }
 
-.emptyMessage {
-  color: var(--ds-color-text-subtle);
-  font-size: 0.875rem;
+.addAreaBlockButton {
+  align-self: flex-start;
 }

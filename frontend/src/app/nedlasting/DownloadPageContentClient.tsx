@@ -4,12 +4,13 @@ import {
   Button,
   Field,
   Heading,
-  Input,
   Label,
   Paragraph,
-  Select,
+  Tag,
+  ValidationMessage,
 } from "@kv-designsystem/react";
-import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
+import { ArrowRightIcon, TrashIcon } from "@navikt/aksel-icons";
+import Link from "next/link";
 import { type SubmitEventHandler, useEffect, useState } from "react";
 import {
   clearDownloads,
@@ -17,15 +18,21 @@ import {
 } from "@/app/_components/addToDownloads/downloadStorage";
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import {
-  createDownloadOrderItem,
+  createDownloadOrderItems,
+  type DownloadAreaBlock,
+  type DownloadCard,
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
+  filterAreaBlockForProduct,
   getMissingDownloadSelectionFields,
 } from "@/app/nedlasting/downloadUtils";
 import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import type { DownloadInsightGroups } from "@/lib/schemas/download";
+import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
+import { type DownloadStep, DownloadStepper } from "./DownloadStepper";
+import { SingleSuggestion } from "./SingleSuggestion";
 import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
@@ -52,21 +59,28 @@ export function DownloadPageContentClient({
     useDownloadOrder();
 
   const [selections, setSelections] = usePersistedDownloadSelections();
-  const [email, setEmail] = useState("");
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
+  const [step, setStep] = useState<DownloadStep>("bestilling");
+  const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
 
   function handleSelectionChange(uuid: string, selection: DownloadSelection) {
     setSelections((current) => ({ ...current, [uuid]: selection }));
   }
 
-  function applyToAllProducts(
-    update: (selection: DownloadSelection) => DownloadSelection,
-  ) {
+  function applyToAllProducts(bulkBlock: DownloadAreaBlock) {
     setSelections((current) => {
       const next = { ...current };
       for (const card of cards) {
-        next[card.uuid] = update(next[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION);
+        const options = optionsByUuid[card.uuid]?.options ?? null;
+        const existing = current[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
+        const filteredFirstBlock = filterAreaBlockForProduct(
+          options,
+          bulkBlock,
+        );
+        next[card.uuid] = {
+          areaBlocks: [filteredFirstBlock, ...existing.areaBlocks.slice(1)],
+        };
       }
       return next;
     });
@@ -91,14 +105,12 @@ export function DownloadPageContentClient({
   const downloadableProducts = cards.flatMap((card) => {
     const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
     const options = optionsByUuid[card.uuid]?.options ?? null;
-    const item = createDownloadOrderItem(
+    return createDownloadOrderItems(
       card.uuid,
       card.distributionUrl,
       options,
       selection,
     );
-
-    return item ? [item] : [];
   });
 
   const productsWithMissingFields = cards.flatMap((card) => {
@@ -111,8 +123,7 @@ export function DownloadPageContentClient({
   const canOrder =
     cards.length > 0 &&
     cards.length === selectedDownloadUuids.length &&
-    downloadableProducts.length === cards.length &&
-    email.trim() !== "" &&
+    productsWithMissingFields.length === 0 &&
     usageGroup !== "" &&
     usagePurpose.length > 0 &&
     !isOrdering;
@@ -127,7 +138,6 @@ export function DownloadPageContentClient({
     }
 
     void submitOrder({
-      email: email.trim(),
       usageGroup,
       items: downloadableProducts.map((item) => ({
         ...item,
@@ -135,128 +145,153 @@ export function DownloadPageContentClient({
       })),
     }).then((result) => {
       if (!result) return;
-
-      const successfulUuids = new Set(
-        result.orders
-          .filter((order) => order.status === "ordered")
-          .flatMap((order) => order.files)
-          .flatMap((file) => (file.metadataUuid ? [file.metadataUuid] : [])),
-      );
-
-      const successfulItems = cards
-        .filter((card) => successfulUuids.has(card.uuid))
-        .map((card) => ({
-          accessType: card.accessState,
-          distributionUrl: card.distributionUrl,
-          name: card.title,
-          organizationName: card.organization,
-          uuid: card.uuid,
-        }));
-
-      if (successfulItems.length > 0) {
-        removeItemsFromDownloads(successfulItems);
-      }
+      setStep("last-ned");
+      setOrderedCards(cards);
     });
   };
 
+  function handleProductDownloaded(uuid: string) {
+    const card = orderedCards.find((c) => c.uuid === uuid);
+    if (!card) return;
+
+    removeItemsFromDownloads([
+      {
+        accessType: card.accessState,
+        distributionUrl: card.distributionUrl,
+        name: card.title,
+        organizationName: card.organization,
+        uuid: card.uuid,
+      },
+    ]);
+
+    setSelections((current) => {
+      const next: Record<string, DownloadSelection> = {};
+      for (const key of Object.keys(current)) {
+        if (key !== uuid) next[key] = current[key];
+      }
+      return next;
+    });
+  }
+
   return (
     <>
-      <DownloadSelectionList
-        selectedDownloadCount={selectedDownloadUuids.length}
-        cards={cards}
-        isLoading={isLoading}
-        hasLoadError={hasLoadError}
-        optionsByUuid={optionsByUuid}
-        selections={selections}
-        productsWithMissingFields={productsWithMissingFields}
-        onSelectionChange={handleSelectionChange}
-        onApplyToAll={applyToAllProducts}
-        isOrdering={isOrdering}
-      />
-      {selectedDownloadUuids.length > 0 || orderResult ? (
+      <Heading data-size={"lg"} level={1}>
+        Filnedlastning - {step === "bestilling" ? "Bestilling" : "Oppsummering"}
+      </Heading>
+      <DownloadStepper step={step} />
+
+      {step === "bestilling" ? (
+        <>
+          <DownloadSelectionList
+            selectedDownloadCount={selectedDownloadUuids.length}
+            cards={cards}
+            isLoading={isLoading}
+            hasLoadError={hasLoadError}
+            optionsByUuid={optionsByUuid}
+            selections={selections}
+            productsWithMissingFields={productsWithMissingFields}
+            onSelectionChange={handleSelectionChange}
+            onApplyToAll={applyToAllProducts}
+            isOrdering={isOrdering}
+          />
+          {selectedDownloadUuids.length > 0 ? (
+            <section className={styles.orderSectionWrapper}>
+              <section className={styles.orderSection}>
+                <Heading level={2} data-size={"sm"}>
+                  Vennligst fyll ut
+                </Heading>
+                <div className={styles.infoRow}>
+                  <ValidationMessage data-color="info">
+                    Opplysningene brukes kun til å gi oss oversikt over bruken
+                    av produktene, og knyttes ikke til deg som person.
+                  </ValidationMessage>
+                </div>
+                <form onSubmit={handleSubmit}>
+                  <div className={styles.userInputs}>
+                    <Field>
+                      <Label>
+                        Brukergruppe{" "}
+                        <Tag data-color="warning">Må fylles ut</Tag>
+                      </Label>
+                      <SingleSuggestion
+                        selectedValue={usageGroup || null}
+                        onChangeAction={(value) => setUsageGroup(value ?? "")}
+                        options={insightGroups.brukergrupper.map((group) => ({
+                          label: group,
+                          value: group,
+                        }))}
+                        placeholder="Velg brukergruppe"
+                        isOrdering={isOrdering}
+                      />
+                    </Field>
+                    <Field>
+                      <Label>
+                        Formål <Tag data-color="warning">Må fylles ut</Tag>
+                      </Label>
+                      <MultiSuggestion
+                        selectedValues={usagePurpose}
+                        onChangeAction={setUsagePurpose}
+                        options={insightGroups.formal.map((purpose) => ({
+                          label: purpose,
+                          value: purpose,
+                        }))}
+                        placeholder="Velg formål"
+                        isOrdering={isOrdering}
+                      />
+                    </Field>
+                  </div>
+
+                  {!hasInsightGroupOptions ? (
+                    <Paragraph aria-live="polite">
+                      Kunne ikke hente brukergrupper og formål for bestilling.
+                    </Paragraph>
+                  ) : null}
+
+                  <div className={styles.buttonContainer}>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className={styles.removeAllButton}
+                      onClick={() => {
+                        clearDownloads();
+                        setSelections({});
+                        setStep("bestilling");
+                      }}
+                      disabled={
+                        isOrdering || selectedDownloadUuids.length === 0
+                      }
+                    >
+                      <TrashIcon aria-hidden />
+                      Fjern alle nedlastinger
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      disabled={!canOrder}
+                    >
+                      {!isOrdering && <ArrowRightIcon aria-hidden />}
+                      {isOrdering
+                        ? "Bestiller..."
+                        : "Gå videre til oppsummering"}
+                    </Button>
+                  </div>
+                </form>
+
+                {orderError ? (
+                  <Paragraph aria-live="polite">{orderError}</Paragraph>
+                ) : null}
+              </section>
+            </section>
+          ) : null}
+        </>
+      ) : (
         <section className={styles.orderSectionWrapper}>
           <section className={styles.orderSection}>
-            <Heading level={2} data-size={"sm"}>
-              Vennligst fyll ut
-            </Heading>
-            <form onSubmit={handleSubmit}>
-              <div className={styles.userInputs}>
-                <Field>
-                  <Label>Brukergruppe</Label>
-                  <Select
-                    value={usageGroup}
-                    onChange={(event) => setUsageGroup(event.target.value)}
-                    disabled={isOrdering}
-                  >
-                    <Select.Option value="">Velg brukergruppe</Select.Option>
-                    {insightGroups.brukergrupper.map((group) => (
-                      <Select.Option key={group} value={group}>
-                        {group}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Field>
-                <Field>
-                  <Label>Formål</Label>
-                  <MultiSuggestion
-                    selectedValues={usagePurpose}
-                    onChangeAction={setUsagePurpose}
-                    options={insightGroups.formal.map((purpose) => ({
-                      label: purpose,
-                      value: purpose,
-                    }))}
-                    placeholder="Velg formål"
-                    isOrdering={isOrdering}
-                  />
-                </Field>
-                <Field>
-                  <Label>E-post</Label>
-                  <Input
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    disabled={isOrdering}
-                    required
-                  />
-                </Field>
-              </div>
-
-              {!hasInsightGroupOptions ? (
-                <Paragraph aria-live="polite">
-                  Kunne ikke hente brukergrupper og formål for bestilling.
-                </Paragraph>
-              ) : null}
-
-              <div className={styles.buttonContainer}>
-                <Button type="submit" variant="primary" disabled={!canOrder}>
-                  {!isOrdering && <DownloadIcon aria-hidden />}
-                  {isOrdering ? "Bestiller..." : "Last ned produkter"}
-                </Button>
-                <Button
-                  type="button"
-                  data-color="danger"
-                  variant="secondary"
-                  onClick={() => {
-                    clearDownloads();
-                    setSelections({});
-                  }}
-                  disabled={isOrdering || selectedDownloadUuids.length === 0}
-                >
-                  <TrashIcon aria-hidden />
-                  Fjern alt fra nedlasting
-                </Button>
-              </div>
-            </form>
-
-            {orderError ? (
-              <Paragraph aria-live="polite">{orderError}</Paragraph>
-            ) : null}
             {orderResult ? (
-              <div className={styles.resultList}>
-                {orderResult.orders.map((order, orderIndex) =>
-                  order.status === "failed" ? (
+              <>
+                {orderResult.orders
+                  .filter((order) => order.status === "failed")
+                  .map((order) => (
                     <Paragraph
                       key={`failed-${order.metadataUuids.join("-")}`}
                       aria-live="polite"
@@ -271,31 +306,29 @@ export function DownloadPageContentClient({
                         .join(", ")}
                       : {order.message ?? "Ukjent feil"}. Du kan prøve på nytt.
                     </Paragraph>
-                  ) : (
-                    order.files.map((file, fileIndex) => (
-                      <Paragraph
-                        key={`${file.metadataUuid}-${orderIndex}-${fileIndex}`}
-                      >
-                        {file.status === "ReadyForDownload" &&
-                        file.downloadUrl ? (
-                          <a href={file.downloadUrl}>
-                            Last ned {file.name ?? file.metadataName}
-                          </a>
-                        ) : (
-                          <>
-                            {file.name ?? file.metadataName} er under
-                            behandling. Du får beskjed når den er klar.
-                          </>
-                        )}
-                      </Paragraph>
-                    ))
-                  ),
-                )}
-              </div>
+                  ))}
+                <DownloadOrderSummary
+                  orderResult={orderResult}
+                  cards={orderedCards}
+                  onProductDownloaded={handleProductDownloaded}
+                />
+              </>
             ) : null}
+            <div className={styles.buttonContainer}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setStep("bestilling")}
+              >
+                ← Gå tilbake til bestilling
+              </Button>
+              <Button type="button" variant="secondary" asChild>
+                <Link href="/">Gå til Kartkatalogen</Link>
+              </Button>
+            </div>
           </section>
         </section>
-      ) : null}
+      )}
     </>
   );
 }
