@@ -5,6 +5,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function decodeUtf8Header(value: string): string {
+  const decoded = Buffer.from(value, "latin1").toString("utf8");
+  return decoded.includes("\uFFFD") ? value : decoded;
+}
+
 function getOrganizationName(authDetailsHeader: string | null): string | null {
   if (!authDetailsHeader?.trim()) return null;
 
@@ -49,7 +54,8 @@ function getOrganizationName(authDetailsHeader: string | null): string | null {
 }
 
 export async function GET(request: NextRequest) {
-  const name = request.headers.get("X-User-Full-Name");
+  const rawName = request.headers.get("X-User-Full-Name");
+  const name = rawName ? decodeUtf8Header(rawName) : rawName;
   const organizationName = getOrganizationName(
     request.headers.get("X-Auth-Details"),
   );
