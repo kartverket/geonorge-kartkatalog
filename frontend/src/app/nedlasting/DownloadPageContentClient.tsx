@@ -216,10 +216,12 @@ export function DownloadPageContentClient({
                       <SingleSuggestion
                         selectedValue={usageGroup || null}
                         onChangeAction={(value) => setUsageGroup(value ?? "")}
-                        options={insightGroups.brukergrupper.map((group) => ({
-                          label: group,
-                          value: group,
-                        }))}
+                        options={[...insightGroups.brukergrupper]
+                          .sort((a, b) => a.localeCompare(b, "nb"))
+                          .map((group) => ({
+                            label: group,
+                            value: group,
+                          }))}
                         placeholder="Velg brukergruppe"
                         isOrdering={isOrdering}
                       />
@@ -231,10 +233,12 @@ export function DownloadPageContentClient({
                       <MultiSuggestion
                         selectedValues={usagePurpose}
                         onChangeAction={setUsagePurpose}
-                        options={insightGroups.formal.map((purpose) => ({
-                          label: purpose,
-                          value: purpose,
-                        }))}
+                        options={[...insightGroups.formal]
+                          .sort((a, b) => a.localeCompare(b, "nb"))
+                          .map((purpose) => ({
+                            label: purpose,
+                            value: purpose,
+                          }))}
                         placeholder="Velg formål"
                         isOrdering={isOrdering}
                       />
