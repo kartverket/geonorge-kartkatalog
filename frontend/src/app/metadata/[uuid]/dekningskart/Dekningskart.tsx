@@ -23,6 +23,7 @@ interface CoverageLayer {
 
 export interface DekningkartProps {
   metadata: ProductMetadata;
+  uuid: string;
 }
 
 export const Dekningskart = (props: DekningkartProps) => {
@@ -101,6 +102,7 @@ export const Dekningskart = (props: DekningkartProps) => {
         controls={["scale"]}
       />
       <DekningskartOverlay
+        uuid={props.uuid}
         metadata={props.metadata}
         layerVisibility={layerVisibility}
         layerIds={layerIds}
