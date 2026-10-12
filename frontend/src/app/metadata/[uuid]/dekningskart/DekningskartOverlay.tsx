@@ -13,7 +13,7 @@ interface DekningskartOverlayProps {
 }
 
 const SymbologyBox = ({ color, label }: { color?: string; label: string }) => (
-  <span className={styles.symbologyBox}>
+  <div className={styles.symbologyBox}>
     <div
       style={{
         backgroundColor: color,
@@ -22,7 +22,7 @@ const SymbologyBox = ({ color, label }: { color?: string; label: string }) => (
       }}
     />
     <span>{label}</span>
-  </span>
+  </div>
 );
 
 export const DekningskartOverlay = ({
@@ -110,25 +110,29 @@ export const DekningskartOverlay = ({
           </Card>
           {showSymbology && (
             <Card className={styles.mapControlCard}>
-              <Heading level={3}>Tegnforklaring</Heading>
-              {layerVisibility.fullstendig && (
-                <SymbologyBox
-                  color={statusColors.get("fullstendig")}
-                  label="Fullstendig"
-                />
-              )}
-              {layerVisibility.ufullstendig && (
-                <SymbologyBox
-                  color={statusColors.get("ufullstendig")}
-                  label="Ufullstendig"
-                />
-              )}
-              {layerVisibility.ikkeKartlagt && (
-                <SymbologyBox
-                  color={statusColors.get("ikkeKartlagt")}
-                  label="Ikke kartlagt"
-                />
-              )}
+              <Heading level={3} data-size="2xs">
+                Tegnforklaring
+              </Heading>
+              <div className={styles.symbologyBoxContainer}>
+                {layerVisibility.fullstendig && (
+                  <SymbologyBox
+                    color={statusColors.get("fullstendig")}
+                    label="Fullstendig"
+                  />
+                )}
+                {layerVisibility.ufullstendig && (
+                  <SymbologyBox
+                    color={statusColors.get("ufullstendig")}
+                    label="Ufullstendig"
+                  />
+                )}
+                {layerVisibility.ikkeKartlagt && (
+                  <SymbologyBox
+                    color={statusColors.get("ikkeKartlagt")}
+                    label="Ikke kartlagt"
+                  />
+                )}
+              </div>
             </Card>
           )}
         </div>
