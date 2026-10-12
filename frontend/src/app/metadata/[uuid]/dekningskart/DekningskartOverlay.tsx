@@ -12,14 +12,17 @@ interface DekningskartOverlayProps {
   onVisibilityChange: (id: string, visible: boolean) => void;
 }
 
-const SymbologyBox = ({ color, label }: { color?: string; label: string }) => (
+const SymbologyBox = ({
+  status,
+  label,
+}: {
+  status?: string;
+  label: string;
+}) => (
   <div className={styles.symbologyBox}>
     <div
-      style={{
-        backgroundColor: color,
-        width: 24,
-        height: 24,
-      }}
+      className={styles.symbologyColorBox}
+      style={{ backgroundColor: statusColors.get(status ?? "") }}
     />
     <span>{label}</span>
   </div>
@@ -115,22 +118,13 @@ export const DekningskartOverlay = ({
               </Heading>
               <div className={styles.symbologyBoxContainer}>
                 {layerVisibility.fullstendig && (
-                  <SymbologyBox
-                    color={statusColors.get("fullstendig")}
-                    label="Fullstendig"
-                  />
+                  <SymbologyBox status={"fullstendig"} label="Fullstendig" />
                 )}
                 {layerVisibility.ufullstendig && (
-                  <SymbologyBox
-                    color={statusColors.get("ufullstendig")}
-                    label="Ufullstendig"
-                  />
+                  <SymbologyBox status={"ufullstendig"} label="Ufullstendig" />
                 )}
                 {layerVisibility.ikkeKartlagt && (
-                  <SymbologyBox
-                    color={statusColors.get("ikkeKartlagt")}
-                    label="Ikke kartlagt"
-                  />
+                  <SymbologyBox status={"ikkeKartlagt"} label="Ikke kartlagt" />
                 )}
               </div>
             </Card>
