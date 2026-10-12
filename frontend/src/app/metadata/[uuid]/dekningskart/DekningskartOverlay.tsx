@@ -2,7 +2,6 @@
 
 import { Card, Checkbox, Details, Heading } from "@kv-designsystem/react";
 import BreadCrumb from "@/app/_components/BreadCrumb/BreadCrumb";
-import { basePath } from "@/lib/basePath";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./DekningskartOverlay.module.css";
 import { statusColors } from "./styleFunctions";
@@ -48,13 +47,13 @@ export const DekningskartOverlay = ({
         <div className={styles.columnContent}>
           <BreadCrumb
             segments={[
-              { label: "Geonorge", href: "/" },
-              { label: "Kartkatalogen", href: "/" },
+              { label: "Geonorge", href: "" },
+              { label: "Kartkatalogen", href: "" },
               {
                 label: metadata.title ?? "-",
-                href: `${basePath}/metadata/${uuid}`,
+                href: `metadata/${uuid}`,
               },
-              { label: "Dekningsoversikt" },
+              { label: "Dekningskart" },
             ]}
           />
           <Card className={styles.mapControlCard}>

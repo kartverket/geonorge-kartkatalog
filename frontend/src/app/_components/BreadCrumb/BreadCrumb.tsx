@@ -13,13 +13,14 @@ export interface BreadCrumbProps {
 }
 
 export default function BreadCrumb({ segments }: BreadCrumbProps) {
+  const base = location.origin;
   return (
     <nav aria-label="Brødsmulesti" className={styles.breadcrumb}>
       {segments.map((segment, index) => (
         <span key={segment.label}>
-          {segment.href ? (
+          {segment.href != null ? (
             <Link
-              href={new URL(segment.href, window.location.origin)}
+              href={new URL(`${segment.href}`, base)}
               className={index === segments.length - 1 ? styles.current : ""}
             >
               {segment.label}
