@@ -14,7 +14,7 @@ export const statusColors = new Map([
   ["fullstendig", "rgba(166, 211, 136, 0.5)"],
   ["ufullstendig", "rgba(232, 211, 138, 0.5)"],
   ["ikkeKartlagt", "rgba(240, 156, 90, 0.5)"],
-  ["ikkeRelevant", "rgba(180, 180, 180, 0.5)"],
+  ["ikkeRelevant", "rgba(180, 180, 180, 0.5)"], //TODO: undersøk om vi skal vise ikkeRelevant noe sted
 ]);
 
 const statusStyles = new Map(
@@ -30,11 +30,6 @@ const statusStyles = new Map(
     }),
   ]),
 );
-
-export const coverageStatusStyle: StyleFunction = (feature) => {
-  const status = feature.get("dekningsstatus");
-  return typeof status === "string" ? statusStyles.get(status) : undefined;
-};
 
 export const getCompletenessStyleFunction = (
   status: CoverageStatus,
