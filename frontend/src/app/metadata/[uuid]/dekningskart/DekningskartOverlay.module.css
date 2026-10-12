@@ -33,3 +33,21 @@
   justify-content: space-between;
   gap: 1rem;
 }
+
+.symbologyBoxContainer {
+  padding-left: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.symbologyBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.symbologyColorBox {
+  width: 24px;
+  height: 24px;
+}

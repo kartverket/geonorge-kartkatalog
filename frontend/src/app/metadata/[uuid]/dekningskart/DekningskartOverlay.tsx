@@ -3,6 +3,7 @@
 import { Card, Checkbox, Details, Heading } from "@kv-designsystem/react";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./DekningskartOverlay.module.css";
+import { statusColors } from "./styleFunctions";
 
 interface DekningskartOverlayProps {
   metadata: ProductMetadata;
@@ -11,12 +12,32 @@ interface DekningskartOverlayProps {
   onVisibilityChange: (id: string, visible: boolean) => void;
 }
 
+const SymbologyBox = ({
+  status,
+  label,
+}: {
+  status?: string;
+  label: string;
+}) => (
+  <div className={styles.symbologyBox}>
+    <div
+      className={styles.symbologyColorBox}
+      style={{ backgroundColor: statusColors.get(status ?? "") }}
+    />
+    <span>{label}</span>
+  </div>
+);
+
 export const DekningskartOverlay = ({
   metadata,
   layerVisibility,
   layerIds,
   onVisibilityChange,
 }: DekningskartOverlayProps) => {
+  const showSymbology =
+    layerVisibility.fullstendig ||
+    layerVisibility.ufullstendig ||
+    layerVisibility.ikkeKartlagt;
   return (
     <div className={styles.overlay}>
       <div className={styles.leftColumn}>
@@ -27,7 +48,7 @@ export const DekningskartOverlay = ({
             </Heading>
             {(layerIds.includes("overview") ||
               layerIds.includes("coverage")) && (
-              <Details data-color="accent" variant="tinted" defaultOpen>
+              <Details defaultOpen>
                 <Details.Summary>Se dekningskart</Details.Summary>
                 <Details.Content>
                   <legend>Velg detaljeringsnivå</legend>
@@ -52,28 +73,62 @@ export const DekningskartOverlay = ({
                 </Details.Content>
               </Details>
             )}
-            {layerIds.includes("completeness") && (
-              <Details data-color="accent" variant="tinted" defaultOpen>
+            {layerIds.includes("fullstendig") ||
+            layerIds.includes("ufullstendig") ||
+            layerIds.includes("ikkeKartlagt") ? (
+              <Details defaultOpen>
                 <Details.Summary>
                   Se fullstendighetsdekningskart
                 </Details.Summary>
                 <Details.Content>
                   <fieldset>
-                    <LayerCheckbox
-                      id="completeness"
-                      label="Fullstendighetsdekning"
-                      visible={layerVisibility.completeness}
-                      onVisibilityChange={onVisibilityChange}
-                    />
+                    {layerIds.includes("fullstendig") && (
+                      <LayerCheckbox
+                        id="fullstendig"
+                        label="Fullstendig"
+                        visible={layerVisibility.fullstendig}
+                        onVisibilityChange={onVisibilityChange}
+                      />
+                    )}
+                    {layerIds.includes("ufullstendig") && (
+                      <LayerCheckbox
+                        id="ufullstendig"
+                        label="Ufullstendig"
+                        visible={layerVisibility.ufullstendig}
+                        onVisibilityChange={onVisibilityChange}
+                      />
+                    )}
+                    {layerIds.includes("ikkeKartlagt") && (
+                      <LayerCheckbox
+                        id="ikkeKartlagt"
+                        label="Ikke kartlagt"
+                        visible={layerVisibility.ikkeKartlagt}
+                        onVisibilityChange={onVisibilityChange}
+                      />
+                    )}
                   </fieldset>
                 </Details.Content>
               </Details>
-            )}
+            ) : null}
           </Card>
-          <Card className={styles.mapControlCard}>
-            <Heading level={3}>Tegnforklaring</Heading>
-            <p>soon ™️</p>
-          </Card>
+          {showSymbology && (
+            <Card className={styles.mapControlCard}>
+              <Heading level={3} data-size="2xs">
+                Tegnforklaring
+              </Heading>
+              <div className={styles.symbologyBoxContainer}>
+                {layerVisibility.fullstendig && (
+                  <SymbologyBox status={"fullstendig"} label="Fullstendig" />
+                )}
+                {layerVisibility.ufullstendig && (
+                  <SymbologyBox status={"ufullstendig"} label="Ufullstendig" />
+                )}
+                {layerVisibility.ikkeKartlagt && (
+                  <SymbologyBox status={"ikkeKartlagt"} label="Ikke kartlagt" />
+                )}
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </div>
