@@ -16,7 +16,7 @@ export default async function DekningskartPage({
 
   return (
     <div style={{ width: "100%", height: "80vh" }}>
-      <Dekningskart metadata={metadata} />
+      <Dekningskart metadata={metadata} uuid={uuid} />
     </div>
   );
 }

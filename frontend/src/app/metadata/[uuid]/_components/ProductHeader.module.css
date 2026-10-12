@@ -3,15 +3,6 @@
   gap: var(--ds-size-6);
 }
 
-.breadcrumb {
-  font-size: var(--ds-body-sm-font-size);
-  margin-bottom: var(--ds-size-10);
-}
-
-.current {
-  color: var(--ds-color-neutral-text-subtle);
-}
-
 .title {
   font-size: var(--ds-heading-md-font-size);
   font-weight: var(--ds-font-weight-regular);
