@@ -3,6 +3,7 @@
 import { Card, Checkbox, Details, Heading } from "@kv-designsystem/react";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./DekningskartOverlay.module.css";
+import { statusColors } from "./styleFunctions";
 
 interface DekningskartOverlayProps {
   metadata: ProductMetadata;
@@ -11,12 +12,29 @@ interface DekningskartOverlayProps {
   onVisibilityChange: (id: string, visible: boolean) => void;
 }
 
+const SymbologyBox = ({ color, label }: { color?: string; label: string }) => (
+  <span className={styles.symbologyBox}>
+    <div
+      style={{
+        backgroundColor: color,
+        width: 24,
+        height: 24,
+      }}
+    />
+    <span>{label}</span>
+  </span>
+);
+
 export const DekningskartOverlay = ({
   metadata,
   layerVisibility,
   layerIds,
   onVisibilityChange,
 }: DekningskartOverlayProps) => {
+  const showSymbology =
+    layerVisibility.fullstendig ||
+    layerVisibility.ufullstendig ||
+    layerVisibility.ikkeKartlagt;
   return (
     <div className={styles.overlay}>
       <div className={styles.leftColumn}>
@@ -90,10 +108,29 @@ export const DekningskartOverlay = ({
               </Details>
             ) : null}
           </Card>
-          <Card className={styles.mapControlCard}>
-            <Heading level={3}>Tegnforklaring</Heading>
-            <p>soon ™️</p>
-          </Card>
+          {showSymbology && (
+            <Card className={styles.mapControlCard}>
+              <Heading level={3}>Tegnforklaring</Heading>
+              {layerVisibility.fullstendig && (
+                <SymbologyBox
+                  color={statusColors.get("fullstendig")}
+                  label="Fullstendig"
+                />
+              )}
+              {layerVisibility.ufullstendig && (
+                <SymbologyBox
+                  color={statusColors.get("ufullstendig")}
+                  label="Ufullstendig"
+                />
+              )}
+              {layerVisibility.ikkeKartlagt && (
+                <SymbologyBox
+                  color={statusColors.get("ikkeKartlagt")}
+                  label="Ikke kartlagt"
+                />
+              )}
+            </Card>
+          )}
         </div>
       </div>
     </div>
