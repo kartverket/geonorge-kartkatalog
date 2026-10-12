@@ -8,11 +8,11 @@ export type BreadCrumbSegment = {
   href?: string;
 };
 
-export interface BreadCrumbProps {
+export interface BreadCrumbsProps {
   segments: BreadCrumbSegment[];
 }
 
-export default function BreadCrumb({ segments }: BreadCrumbProps) {
+export default function BreadCrumbs({ segments }: BreadCrumbsProps) {
   const base = location.origin;
   return (
     <nav aria-label="Brødsmulesti" className={styles.breadcrumb}>

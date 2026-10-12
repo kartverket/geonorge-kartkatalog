@@ -1,4 +1,4 @@
-import Link from "next/link";
+import BreadCrumbs from "@/app/_components/BreadCrumbs/BreadCrumbs";
 import { AccessStateTag } from "@/components/AccessStateTag/AccessStateTag";
 import type { AccessState } from "@/lib/schemas/product";
 import styles from "./ProductHeader.module.css";
@@ -14,10 +14,13 @@ export function ProductHeader({
 }) {
   return (
     <div className={styles.header}>
-      <nav aria-label={"Brødsmulesti"} className={styles.breadcrumb}>
-        <Link href="/">Geonorge</Link> {"›"} <Link href="/">Kartkatalogen</Link>{" "}
-        {"›"} <span className={styles.current}>{title ?? "-"}</span>
-      </nav>
+      <BreadCrumbs
+        segments={[
+          { label: "Geonorge", href: "/" },
+          { label: "Kartkatalogen", href: "/" },
+          { label: title ?? "-" },
+        ]}
+      />
       <div className={styles.badgeRow}>
         <AccessStateTag accessState={access} context="tilgang" />
         {organization && (
