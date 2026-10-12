@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, Checkbox, Details, Heading } from "@kv-designsystem/react";
-import BreadCrumbs from "@/app/_components/BreadCrumbs/BreadCrumbs";
+import Breadcrumbs from "@/app/_components/Breadcrumbs/Breadcrumbs";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./DekningskartOverlay.module.css";
 import { statusColors } from "./styleFunctions";
@@ -45,7 +45,7 @@ export const DekningskartOverlay = ({
     <div className={styles.overlay}>
       <div className={styles.leftColumn}>
         <div className={styles.columnContent}>
-          <BreadCrumbs
+          <Breadcrumbs
             segments={[
               { label: "Geonorge", href: "" },
               { label: "Kartkatalogen", href: "" },

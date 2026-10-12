@@ -1,4 +1,4 @@
-import BreadCrumbs from "@/app/_components/BreadCrumbs/BreadCrumbs";
+import Breadcrumbs from "@/app/_components/Breadcrumbs/Breadcrumbs";
 import { AccessStateTag } from "@/components/AccessStateTag/AccessStateTag";
 import type { AccessState } from "@/lib/schemas/product";
 import styles from "./ProductHeader.module.css";
@@ -14,7 +14,7 @@ export function ProductHeader({
 }) {
   return (
     <div className={styles.header}>
-      <BreadCrumbs
+      <Breadcrumbs
         segments={[
           { label: "Geonorge", href: "/" },
           { label: "Kartkatalogen", href: "/" },

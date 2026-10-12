@@ -1,18 +1,18 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { basePath } from "@/lib/basePath";
-import styles from "./BreadCrumb.module.css";
+import styles from "./Breadcrumbs.module.css";
 
-export type BreadCrumbSegment = {
+export type BreadcrumbSegment = {
   label: string;
   href?: string;
 };
 
-export interface BreadCrumbsProps {
-  segments: BreadCrumbSegment[];
+export interface BreadcrumbsProps {
+  segments: BreadcrumbSegment[];
 }
 
-export default function BreadCrumbs({ segments }: BreadCrumbsProps) {
+export default function Breadcrumbs({ segments }: BreadcrumbsProps) {
   return (
     <nav aria-label="Brødsmulesti" className={styles.breadcrumb}>
       {segments.map((segment, index) => {
