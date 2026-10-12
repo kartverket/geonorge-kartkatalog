@@ -45,17 +45,19 @@ export const DekningskartOverlay = ({
     <div className={styles.overlay}>
       <div className={styles.leftColumn}>
         <div className={styles.columnContent}>
-          <Breadcrumbs
-            segments={[
-              { label: "Geonorge", href: "" },
-              { label: "Kartkatalogen", href: "" },
-              {
-                label: metadata.title ?? "-",
-                href: `metadata/${uuid}`,
-              },
-              { label: "Dekningskart" },
-            ]}
-          />
+          <div className={styles.breadcrumbContainer}>
+            <Breadcrumbs
+              segments={[
+                { label: "Geonorge", href: "" },
+                { label: "Kartkatalogen", href: "" },
+                {
+                  label: metadata.title ?? "-",
+                  href: `metadata/${uuid}`,
+                },
+                { label: "Dekningskart" },
+              ]}
+            />
+          </div>
           <Card className={styles.mapControlCard}>
             <Heading level={4} data-size={"xs"}>
               {metadata.title}

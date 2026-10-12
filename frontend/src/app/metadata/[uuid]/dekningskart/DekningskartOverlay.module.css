@@ -26,6 +26,9 @@
   }
 }
 
+.breadcrumbContainer {
+  pointer-events: auto;
+}
 .columnContent {
   padding: 3rem;
   display: flex;
