@@ -51,7 +51,6 @@ export const Dekningskart = (props: DekningkartProps) => {
       );
 
       if (completenessOverview instanceof VectorLayer) {
-        console.log(completenessOverview.getSource());
         const fullstendigStyleFunction =
           getCompletenessStyleFunction("fullstendig");
 
@@ -90,6 +89,15 @@ export const Dekningskart = (props: DekningkartProps) => {
           id: "fullstendig",
           label: "Fullstendig",
           layer: fullstendigLayer,
+        });
+      } else {
+        console.warn(
+          "completenessOverview is not an instance of VectorLayer. Should not happen, but adding as fallback",
+        );
+        result.push({
+          id: "fullstendig",
+          label: "Fullstendighet",
+          layer: completenessOverview,
         });
       }
     }
