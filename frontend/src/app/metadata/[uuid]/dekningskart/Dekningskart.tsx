@@ -8,7 +8,7 @@ import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./Dekningskart.module.css";
 import { DekningskartOverlay } from "./DekningskartOverlay";
 import { getLayerFromCoverageData } from "./layerUtils";
-import { coverageStatusStyle } from "./styleFunctions";
+import { getCompletenessStyleFunction } from "./styleFunctions";
 
 interface CoverageLayer {
   id: string;
@@ -49,15 +49,49 @@ export const Dekningskart = (props: DekningkartProps) => {
       const completenessOverview = getLayerFromCoverageData(
         coverageData.completenessCoverageData,
       );
-      if (completenessOverview instanceof VectorLayer) {
-        completenessOverview.setStyle(coverageStatusStyle); // instead of using sld from the server
-      }
 
-      result.push({
-        id: "completeness",
-        label: "Fullstendighetsoversikt",
-        layer: completenessOverview,
-      });
+      if (completenessOverview instanceof VectorLayer) {
+        console.log(completenessOverview.getSource());
+        const fullstendigStyleFunction =
+          getCompletenessStyleFunction("fullstendig");
+
+        const fullstendigLayer = new VectorLayer({
+          source: completenessOverview.getSource(),
+          style: fullstendigStyleFunction,
+        });
+
+        const ufullstendigStyleFunction =
+          getCompletenessStyleFunction("ufullstendig");
+
+        const ufullstendigLayer = new VectorLayer({
+          source: completenessOverview.getSource(),
+          style: ufullstendigStyleFunction,
+        });
+
+        const ikkeKartlagtStyleFunction =
+          getCompletenessStyleFunction("ikkeKartlagt");
+
+        const ikkeKartlagtLayer = new VectorLayer({
+          source: completenessOverview.getSource(),
+          style: ikkeKartlagtStyleFunction,
+        });
+
+        result.push({
+          id: "ikkeKartlagt",
+          label: "Ikke kartlagt",
+          layer: ikkeKartlagtLayer,
+        });
+        result.push({
+          id: "ufullstendig",
+          label: "Ufullstendig",
+          layer: ufullstendigLayer,
+        });
+        result.push({
+          id: "fullstendig",
+          label: "Fullstendig",
+          layer: fullstendigLayer,
+        });
+      }
     }
     return result;
   }, [coverageData]);

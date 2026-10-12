@@ -1,7 +1,14 @@
+import type { FeatureLike } from "ol/Feature";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
 import type { StyleFunction } from "ol/style/Style";
 import Style from "ol/style/Style";
+
+export type CoverageStatus =
+  | "fullstendig"
+  | "ufullstendig"
+  | "ikkeKartlagt"
+  | "ikkeRelevant";
 
 const statusStyles = new Map(
   [
@@ -25,4 +32,16 @@ const statusStyles = new Map(
 export const coverageStatusStyle: StyleFunction = (feature) => {
   const status = feature.get("dekningsstatus");
   return typeof status === "string" ? statusStyles.get(status) : undefined;
+};
+
+export const getCompletenessStyleFunction = (
+  status: CoverageStatus,
+): StyleFunction => {
+  return (f: FeatureLike) => {
+    if (f.get("dekningsstatus") === status) {
+      return statusStyles.get(status);
+    } else {
+      return undefined;
+    }
+  };
 };

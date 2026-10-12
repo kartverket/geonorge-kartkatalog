@@ -52,23 +52,43 @@ export const DekningskartOverlay = ({
                 </Details.Content>
               </Details>
             )}
-            {layerIds.includes("completeness") && (
+            {layerIds.includes("fullstendig") ||
+            layerIds.includes("ufullstendig") ||
+            layerIds.includes("ikkeKartlagt") ? (
               <Details data-color="accent" variant="tinted" defaultOpen>
                 <Details.Summary>
                   Se fullstendighetsdekningskart
                 </Details.Summary>
                 <Details.Content>
                   <fieldset>
-                    <LayerCheckbox
-                      id="completeness"
-                      label="Fullstendighetsdekning"
-                      visible={layerVisibility.completeness}
-                      onVisibilityChange={onVisibilityChange}
-                    />
+                    {layerIds.includes("fullstendig") && (
+                      <LayerCheckbox
+                        id="fullstendig"
+                        label="Fullstendig"
+                        visible={layerVisibility.fullstendig}
+                        onVisibilityChange={onVisibilityChange}
+                      />
+                    )}
+                    {layerIds.includes("ufullstendig") && (
+                      <LayerCheckbox
+                        id="ufullstendig"
+                        label="Ufullstendig"
+                        visible={layerVisibility.ufullstendig}
+                        onVisibilityChange={onVisibilityChange}
+                      />
+                    )}
+                    {layerIds.includes("ikkeKartlagt") && (
+                      <LayerCheckbox
+                        id="ikkeKartlagt"
+                        label="Ikke kartlagt"
+                        visible={layerVisibility.ikkeKartlagt}
+                        onVisibilityChange={onVisibilityChange}
+                      />
+                    )}
                   </fieldset>
                 </Details.Content>
               </Details>
-            )}
+            ) : null}
           </Card>
           <Card className={styles.mapControlCard}>
             <Heading level={3}>Tegnforklaring</Heading>
