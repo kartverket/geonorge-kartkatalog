@@ -45,7 +45,7 @@ export const DekningskartOverlay = ({
             </Heading>
             {(layerIds.includes("overview") ||
               layerIds.includes("coverage")) && (
-              <Details data-color="accent" variant="tinted" defaultOpen>
+              <Details defaultOpen>
                 <Details.Summary>Se dekningskart</Details.Summary>
                 <Details.Content>
                   <legend>Velg detaljeringsnivå</legend>
@@ -73,7 +73,7 @@ export const DekningskartOverlay = ({
             {layerIds.includes("fullstendig") ||
             layerIds.includes("ufullstendig") ||
             layerIds.includes("ikkeKartlagt") ? (
-              <Details data-color="accent" variant="tinted" defaultOpen>
+              <Details defaultOpen>
                 <Details.Summary>
                   Se fullstendighetsdekningskart
                 </Details.Summary>

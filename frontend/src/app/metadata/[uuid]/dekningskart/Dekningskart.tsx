@@ -1,14 +1,19 @@
 "use client";
 
+import GeoJSON from "ol/format/GeoJSON";
 import type BaseLayer from "ol/layer/Base";
 import VectorLayer from "ol/layer/Vector";
+import VectorSource from "ol/source/Vector";
 import { useEffect, useMemo, useState } from "react";
 import MapComponent from "@/app/_components/MapComponent/MapComponent";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./Dekningskart.module.css";
 import { DekningskartOverlay } from "./DekningskartOverlay";
 import { getLayerFromCoverageData } from "./layerUtils";
-import { getCompletenessStyleFunction } from "./styleFunctions";
+import {
+  type CoverageStatus,
+  getCompletenessStyleFunction,
+} from "./styleFunctions";
 
 interface CoverageLayer {
   id: string;
@@ -45,62 +50,33 @@ export const Dekningskart = (props: DekningkartProps) => {
       });
     }
 
-    if (coverageData.completenessCoverageData) {
-      const completenessOverview = getLayerFromCoverageData(
-        coverageData.completenessCoverageData,
-      );
+    if (coverageData.completenessCoverageData?.type === "GEOJSON") {
+      const vectorSource = new VectorSource({
+        url: coverageData.completenessCoverageData.url,
+        format: new GeoJSON(),
+      });
 
-      if (completenessOverview instanceof VectorLayer) {
-        const fullstendigStyleFunction =
-          getCompletenessStyleFunction("fullstendig");
+      const splitLayerConfig: { id: CoverageStatus; label: string }[] = [
+        { id: "fullstendig", label: "Fullstendig" },
+        { id: "ufullstendig", label: "Ufullstendig" },
+        { id: "ikkeKartlagt", label: "Ikke kartlagt" },
+      ];
 
-        const fullstendigLayer = new VectorLayer({
-          source: completenessOverview.getSource(),
-          style: fullstendigStyleFunction,
+      const splitLayers = splitLayerConfig.map(({ id, label }) => {
+        const styleFunction = getCompletenessStyleFunction(id);
+        const layer = new VectorLayer({
+          source: vectorSource,
+          style: styleFunction,
         });
-
-        const ufullstendigStyleFunction =
-          getCompletenessStyleFunction("ufullstendig");
-
-        const ufullstendigLayer = new VectorLayer({
-          source: completenessOverview.getSource(),
-          style: ufullstendigStyleFunction,
-        });
-
-        const ikkeKartlagtStyleFunction =
-          getCompletenessStyleFunction("ikkeKartlagt");
-
-        const ikkeKartlagtLayer = new VectorLayer({
-          source: completenessOverview.getSource(),
-          style: ikkeKartlagtStyleFunction,
-        });
-
-        result.push({
-          id: "ikkeKartlagt",
-          label: "Ikke kartlagt",
-          layer: ikkeKartlagtLayer,
-        });
-        result.push({
-          id: "ufullstendig",
-          label: "Ufullstendig",
-          layer: ufullstendigLayer,
-        });
-        result.push({
-          id: "fullstendig",
-          label: "Fullstendig",
-          layer: fullstendigLayer,
-        });
-      } else {
-        console.warn(
-          "completenessOverview is not an instance of VectorLayer. Should not happen, but adding as fallback",
-        );
-        result.push({
-          id: "fullstendig",
-          label: "Fullstendighet",
-          layer: completenessOverview,
-        });
-      }
+        return {
+          id,
+          label,
+          layer,
+        };
+      });
+      result.push(...splitLayers);
     }
+
     return result;
   }, [coverageData]);
   const [layerVisibility, setLayerVisibility] = useState<
