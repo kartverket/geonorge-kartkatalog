@@ -19,8 +19,10 @@ export default function BreadCrumbs({ segments }: BreadCrumbsProps) {
         const route = segment.href?.startsWith("/")
           ? segment.href
           : `/${segment.href}`;
+
+        const key = `breadcrumb-${index}`;
         return (
-          <span key={segment.label}>
+          <span key={key}>
             {segment.href != null ? (
               <Link
                 href={`${basePath}${route}` as Route}
