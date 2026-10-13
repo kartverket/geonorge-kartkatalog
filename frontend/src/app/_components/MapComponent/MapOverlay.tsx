@@ -1,10 +1,14 @@
+"use client";
+
 import { Button, Card } from "@kv-designsystem/react";
 import {
   CompassIcon,
   ExpandIcon,
   MinusIcon,
   PlusIcon,
+  ShrinkIcon,
 } from "@navikt/aksel-icons";
+import { useEffect, useState } from "react";
 import styles from "./MapOverlay.module.css";
 import { map } from "./map/map";
 
@@ -60,21 +64,56 @@ const ControlButton = ({
 );
 
 export const MapOverlay = (props: MapOverlayProps) => {
-  const onFullScreen = () => {
-    const elem = props.fullScreenElementRef?.current ?? map.getTargetElement();
-    if (!elem) {
-      return;
-    }
-    if (!document.fullscreenElement) {
-      elem.requestFullscreen().catch((err) => {
-        console.error(
-          `Error attempting to enable full-screen mode: ${err.message} (${err.name})`,
-        );
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  useEffect(() => {
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "F11") {
+        event.preventDefault();
+        event.stopPropagation();
+        setIsFullscreen(!isFullscreen);
+      }
+    });
+    return () => {
+      document.removeEventListener("keydown", (event) => {
+        if (event.key === "F11") {
+          event.preventDefault();
+          event.stopPropagation();
+          setIsFullscreen(!isFullscreen);
+        }
       });
+    };
+  }, [isFullscreen]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement !== null);
+    };
+
+    if (isFullscreen) {
+      const elem =
+        props.fullScreenElementRef?.current ?? map.getTargetElement();
+      if (elem && !document.fullscreenElement) {
+        elem.requestFullscreen().catch((err) => {
+          console.warn(
+            `Error attempting to enable full-screen mode: ${err.message} (${err.name})`,
+          );
+        });
+      }
     } else {
-      document.exitFullscreen();
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch((err) => {
+          console.warn(
+            `Error attempting to exit full-screen mode: ${err.message} (${err.name})`,
+          );
+        });
+      }
     }
-  };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, [isFullscreen, props.fullScreenElementRef?.current]);
+
   return (
     <div className={styles.mapOverlay}>
       <div className={styles.middleColumn}>
@@ -85,7 +124,10 @@ export const MapOverlay = (props: MapOverlayProps) => {
               <ControlButton icon={<MinusIcon />} onClick={onZoomOut} />
               <ControlButton icon={<PlusIcon />} onClick={onZoomIn} />
             </div>
-            <ControlButton icon={<ExpandIcon />} onClick={onFullScreen} />
+            <ControlButton
+              icon={isFullscreen ? <ShrinkIcon /> : <ExpandIcon />}
+              onClick={() => setIsFullscreen(!isFullscreen)}
+            />
           </Card>
         )}
       </div>
