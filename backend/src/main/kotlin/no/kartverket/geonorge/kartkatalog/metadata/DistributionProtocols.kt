@@ -21,10 +21,11 @@ object DistributionProtocols {
     fun isViewService(protocol: String?): Boolean = protocol != null && protocol in VIEW_SERVICES
 
     fun isDownloadService(protocol: String?): Boolean =
-        protocol != null && (
-            protocol in DOWNLOAD_SERVICES ||
-                protocol.startsWith("OGC:API")
-        )
+        protocol != null &&
+            (
+                protocol in DOWNLOAD_SERVICES ||
+                    protocol.startsWith("OGC:API")
+            )
 
     fun appendUuidForGeonorgeDownload(
         url: String,

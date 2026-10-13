@@ -12,16 +12,19 @@ const val GRID_BASE_URL = "https://wms.geonorge.no/skwms1/wms.gp_dek_oversikt?da
 
 fun getCoverageLinks(extensionResources: List<ExtensionResource>): CoverageData {
     val coverageUrl =
-        extensionResources.firstOrNull {
-            it.applicationProfile.trim().equals("dekningsoversikt", ignoreCase = true)
-        }?.url
+        extensionResources
+            .firstOrNull {
+                it.applicationProfile.trim().equals("dekningsoversikt", ignoreCase = true)
+            }?.url
     val coverageGridUrl =
-        extensionResources.firstOrNull {
-            it.applicationProfile.trim().equals("dekningsoversikt rutenett", ignoreCase = true)
-        }?.url
+        extensionResources
+            .firstOrNull {
+                it.applicationProfile.trim().equals("dekningsoversikt rutenett", ignoreCase = true)
+            }?.url
     val surveyAreaMapUrl =
         extensionResources
-            .firstOrNull { it.applicationProfile.trim().equals("fullstendighetsdekningskart", ignoreCase = true) }?.url
+            .firstOrNull { it.applicationProfile.trim().equals("fullstendighetsdekningskart", ignoreCase = true) }
+            ?.url
     val surveyAreaMapUrlWms =
         extensionResources
             .firstOrNull {
@@ -116,20 +119,24 @@ fun getCoverageLink(
     staticNorgeskartUrl: String,
 ): String? {
     val coverageUrl =
-        extensionResources.firstOrNull {
-            it.applicationProfile.trim().equals("dekningsoversikt", ignoreCase = true)
-        }?.url
+        extensionResources
+            .firstOrNull {
+                it.applicationProfile.trim().equals("dekningsoversikt", ignoreCase = true)
+            }?.url
     val coverageGridUrl =
-        extensionResources.firstOrNull {
-            it.applicationProfile.trim().equals("dekningsoversikt rutenett", ignoreCase = true)
-        }?.url
+        extensionResources
+            .firstOrNull {
+                it.applicationProfile.trim().equals("dekningsoversikt rutenett", ignoreCase = true)
+            }?.url
     val coverageCellUrl =
-        extensionResources.firstOrNull {
-            it.applicationProfile.trim().equals("dekningsoversikt celle", ignoreCase = true)
-        }?.url
+        extensionResources
+            .firstOrNull {
+                it.applicationProfile.trim().equals("dekningsoversikt celle", ignoreCase = true)
+            }?.url
     val surveyAreaMapUrl =
         extensionResources
-            .firstOrNull { it.applicationProfile.trim().equals("fullstendighetsdekningskart", ignoreCase = true) }?.url
+            .firstOrNull { it.applicationProfile.trim().equals("fullstendighetsdekningskart", ignoreCase = true) }
+            ?.url
     val surveyAreaMapUrlWms =
         extensionResources
             .firstOrNull {
@@ -183,7 +190,11 @@ fun getCoverageLink(
     return link
 }
 
-private data class ParsedCoverage(val type: String, val path: String, val layer: String)
+private data class ParsedCoverage(
+    val type: String,
+    val path: String,
+    val layer: String,
+)
 
 private fun String?.removeQueryString(): String = this?.substringBefore('?') ?: ""
 

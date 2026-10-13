@@ -19,8 +19,10 @@ class LinkedDistributionsService(
     suspend fun getLinkedDistributions(uuid: String): LinkedDistributions =
         coroutineScope {
             val solrDoc =
-                solrClient.getMetadataByUuid(uuid)
-                    .response.docs.firstOrNull() ?: return@coroutineScope LinkedDistributions()
+                solrClient
+                    .getMetadataByUuid(uuid)
+                    .response.docs
+                    .firstOrNull() ?: return@coroutineScope LinkedDistributions()
 
             when (solrDoc.type) {
                 "service" -> getServiceLinkedDistributions(solrDoc, uuid)
@@ -36,7 +38,8 @@ class LinkedDistributionsService(
     ): LinkedDistributions =
         coroutineScope {
             val relatedServices =
-                solrClient.parseDatasetServices(solrDoc.datasetservice)
+                solrClient
+                    .parseDatasetServices(solrDoc.datasetservice)
                     .filter { it.uuid != uuid }
 
             val viewRefs =
@@ -49,15 +52,18 @@ class LinkedDistributionsService(
                 }
 
             val applicationDocs =
-                solrClient.searchApplicationsForDataset(uuid)
+                solrClient
+                    .searchApplicationsForDataset(uuid)
                     .filter { it.uuid != uuid }
 
             val seriesMemberRefs =
-                solrClient.parseDatasetServices(solrDoc.seriedatasets)
+                solrClient
+                    .parseDatasetServices(solrDoc.seriedatasets)
                     .filter { it.uuid != uuid }
 
             val parentSeriesRefs =
-                solrClient.parseDatasetServices(listOfNotNull(solrDoc.serie))
+                solrClient
+                    .parseDatasetServices(listOfNotNull(solrDoc.serie))
                     .filter { it.uuid != uuid }
 
             val relatedUuids =
@@ -198,9 +204,10 @@ class LinkedDistributionsService(
             organization = metadataContact.organization,
             typeTranslated = null,
             thumbnailUrl =
-                thumbnails.firstOrNull {
-                    it.type?.equals("medium", ignoreCase = true) == true
-                }?.url
+                thumbnails
+                    .firstOrNull {
+                        it.type?.equals("medium", ignoreCase = true) == true
+                    }?.url
                     ?: thumbnails.firstOrNull()?.url,
             distributionUrl = url,
             distributionProtocol = protocol,

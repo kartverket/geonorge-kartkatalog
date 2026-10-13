@@ -237,7 +237,12 @@ class MetadataParserTest {
         assertEquals("3.2.1", dist.formats[0].version)
         assertEquals(1, dist.formats[0].onlineResources.size)
         assertEquals("OGC:WFS", dist.formats[0].onlineResources[0].protocol)
-        assertTrue(dist.formats[0].onlineResources[0].url.startsWith("https://wfs.geonorge.no/"))
+        assertTrue(
+            dist.formats[0]
+                .onlineResources[0]
+                .url
+                .startsWith("https://wfs.geonorge.no/"),
+        )
         assertEquals("landsfiler", dist.formats[0].onlineResources[0].unitsOfDistribution)
     }
 

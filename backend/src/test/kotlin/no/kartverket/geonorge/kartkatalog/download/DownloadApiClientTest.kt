@@ -44,8 +44,24 @@ class DownloadApiClientTest {
 
                 assertEquals(1, areas.size)
                 assertEquals("42", areas.single().code)
-                assertEquals("25832", areas.single().projections.single().code)
-                assertEquals("GML", areas.single().projections.single().formats?.single()?.name)
+                assertEquals(
+                    "25832",
+                    areas
+                        .single()
+                        .projections
+                        .single()
+                        .code,
+                )
+                assertEquals(
+                    "GML",
+                    areas
+                        .single()
+                        .projections
+                        .single()
+                        .formats
+                        ?.single()
+                        ?.name,
+                )
             } finally {
                 httpClient.close()
             }

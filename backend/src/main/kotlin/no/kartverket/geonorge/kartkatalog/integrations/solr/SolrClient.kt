@@ -115,16 +115,22 @@ class SolrClient(
                     parts.getOrNull(DatasetServiceProperties.PROTOCOL.index),
                 distributionUrl = parts.getOrNull(DatasetServiceProperties.DISTRIBUTION_URL.index),
                 accessIsOpendata =
-                    parts.getOrNull(DatasetServiceProperties.ACCESS_IS_OPENDATA.index)
-                        ?.lowercase()?.toBooleanStrictOrNull() ?: false,
+                    parts
+                        .getOrNull(DatasetServiceProperties.ACCESS_IS_OPENDATA.index)
+                        ?.lowercase()
+                        ?.toBooleanStrictOrNull() ?: false,
                 accessIsRestricted =
-                    parts.getOrNull(DatasetServiceProperties.ACCESS_IS_RESTRICTED.index)
-                        ?.lowercase()?.toBooleanStrictOrNull() ?: false,
+                    parts
+                        .getOrNull(DatasetServiceProperties.ACCESS_IS_RESTRICTED.index)
+                        ?.lowercase()
+                        ?.toBooleanStrictOrNull() ?: false,
             )
         }
 }
 
-private enum class DatasetServiceProperties(val index: Int) {
+private enum class DatasetServiceProperties(
+    val index: Int,
+) {
     UUID(0),
     NAME(1),
     ORGANIZATION_NAME(4),
