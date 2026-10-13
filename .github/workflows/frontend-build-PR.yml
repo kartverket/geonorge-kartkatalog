@@ -9,26 +9,24 @@ on:
       - "backend/**"
 
 permissions:
-    contents: read
+  contents: read
 
 jobs:
-    verify-frontend:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v7
+  verify-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v7
-              with:
-                  node-version: '26'
-
-            - name: Install dependencies
-              run: make ci-frontend
-
-            - name: Check formatting and linting
-              run: make lint-frontend
-              
-            - name: Build most of the frontend                  
-              run: make verify-frontend
-              
+      - name: Build docker image
+        id: build_image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: false
+          build-args: |
+            NEXT_PUBLIC_BASE_PATH=/beta
+            NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=phc_7SSwxHEWr80MdWwKQfAbFKhvn3R1wvr1vK9ndObb21T
+            NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
+            RUN_VERIFICATIONS=true
