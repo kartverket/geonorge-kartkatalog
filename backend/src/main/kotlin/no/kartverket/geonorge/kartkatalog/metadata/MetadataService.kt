@@ -51,9 +51,10 @@ class MetadataService(
         type: String,
     ): String? {
         val record = geonetworkClient.getRecordByUuid(uuid) ?: throw MetadataRecordNotFoundException(uuid)
-        return record.extensionResources.firstOrNull {
-            it.applicationProfile.trim().equals(type, ignoreCase = true)
-        }?.url
+        return record.extensionResources
+            .firstOrNull {
+                it.applicationProfile.trim().equals(type, ignoreCase = true)
+            }?.url
     }
 }
 

@@ -86,10 +86,11 @@ object MetadataParser {
                         )?.preferredText(),
                 supplementalDescription = idInfo?.node("gmd:supplementalInformation")?.preferredText(),
                 processHistory =
-                    md.node(
-                        "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage" +
-                            "/gmd:LI_Lineage/gmd:statement",
-                    )?.preferredText(),
+                    md
+                        .node(
+                            "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage" +
+                                "/gmd:LI_Lineage/gmd:statement",
+                        )?.preferredText(),
                 contacts =
                     idInfo
                         ?.nodes("gmd:pointOfContact/gmd:CI_ResponsibleParty")
@@ -373,15 +374,17 @@ object MetadataParser {
         private fun parseDistributionInfo(): DistributionInfo? {
             val dist = md.node("gmd:distributionInfo/gmd:MD_Distribution") ?: return null
             val sharedOnlineResources =
-                dist.nodes("gmd:transferOptions/gmd:MD_DigitalTransferOptions")
+                dist
+                    .nodes("gmd:transferOptions/gmd:MD_DigitalTransferOptions")
                     .flatMap { parseOnlineResources(it) }
             val formats =
                 dist.nodes("gmd:distributionFormat/gmd:MD_Format").map { f ->
                     val ownOnlineResources =
-                        f.nodes(
-                            "gmd:formatDistributor/gmd:MD_Distributor/gmd:distributorTransf" +
-                                "erOptions/gmd:MD_DigitalTransferOptions",
-                        ).flatMap { parseOnlineResources(it) }
+                        f
+                            .nodes(
+                                "gmd:formatDistributor/gmd:MD_Distributor/gmd:distributorTransf" +
+                                    "erOptions/gmd:MD_DigitalTransferOptions",
+                            ).flatMap { parseOnlineResources(it) }
 
                     DistributionFormat(
                         name = f.text("gmd:name/gco:CharacterString") ?: "",
@@ -402,8 +405,7 @@ object MetadataParser {
         private fun parseOnlineResources(dto: Node): List<OnlineResource> {
             val units =
                 dto.node("gmd:unitsOfDistribution")?.preferredText()
-            return dto.nodes("gmd:onLine/gmd:CI_OnlineResource").map {
-                    or ->
+            return dto.nodes("gmd:onLine/gmd:CI_OnlineResource").map { or ->
                 OnlineResource(
                     url = or.text("gmd:linkage/gmd:URL") ?: "",
                     protocol =
