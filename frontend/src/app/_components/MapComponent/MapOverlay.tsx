@@ -63,7 +63,7 @@ const onShowMyLocation = () => {
       view.animate({
         center: [x, y],
         zoom: 15,
-        duration: 1000,
+        duration: 500,
       });
     });
   }
