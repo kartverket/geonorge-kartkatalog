@@ -12,11 +12,47 @@ export type MapOverlayProps = {
   showMovementControls?: boolean;
 };
 
-const ControlButton = ({ icon }: { icon: React.ReactNode }) => (
+const zoomTo = (zoomLevel: number) => {
+  const view = map.getView();
+  const currentZoom = view.getZoom();
+  if (currentZoom === undefined) {
+    return;
+  }
+
+  view.animate({
+    zoom: zoomLevel,
+    duration: 100,
+  });
+};
+
+const onZoomIn = () => {
+  const currentLevel = map.getView().getZoom();
+  if (currentLevel === undefined) {
+    return;
+  }
+  zoomTo(currentLevel + 1);
+};
+
+const onZoomOut = () => {
+  const currentLevel = map.getView().getZoom();
+  if (currentLevel === undefined) {
+    return;
+  }
+  zoomTo(currentLevel - 1);
+};
+
+const ControlButton = ({
+  icon,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  onClick?: () => void;
+}) => (
   <Button
     variant="secondary"
     data-color="accent"
     className={styles.controlButton}
+    onClick={onClick}
   >
     {icon}
   </Button>
@@ -30,8 +66,8 @@ export const MapOverlay = (props: MapOverlayProps) => {
           <Card className={styles.movementControls}>
             <ControlButton icon={<CompassIcon />} />
             <div className={styles.zoomButtons}>
-              <ControlButton icon={<MinusIcon />} />
-              <ControlButton icon={<PlusIcon />} />
+              <ControlButton icon={<MinusIcon />} onClick={onZoomOut} />
+              <ControlButton icon={<PlusIcon />} onClick={onZoomIn} />
             </div>
             <ControlButton icon={<ExpandIcon />} />
           </Card>
