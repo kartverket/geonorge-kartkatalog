@@ -1,6 +1,5 @@
 import type { Route } from "next";
 import Link from "next/link";
-import { basePath } from "@/lib/basePath";
 import styles from "./Breadcrumbs.module.css";
 
 export type BreadcrumbSegment = {
@@ -25,7 +24,7 @@ export default function Breadcrumbs({ segments }: BreadcrumbsProps) {
           <span key={key}>
             {segment.href != null ? (
               <Link
-                href={`${basePath}${route}` as Route}
+                href={route as Route}
                 className={index === segments.length - 1 ? styles.current : ""}
               >
                 {segment.label}
