@@ -8,12 +8,13 @@ import { MapOverlay } from "./MapOverlay";
 import { type BackgroundLayerName, getBackgroundLayer } from "./map/layers";
 import { map } from "./map/map";
 
-export type MapControls = "scale";
+export type MapControls = "scale" | "movement";
 
 export interface MapComponentProps {
   backgroundLayerName: BackgroundLayerName;
   layers?: BaseLayer[];
   controls?: MapControls[];
+  fullScreenElementRef?: React.RefObject<HTMLElement | null>;
 }
 
 const Content = (props: MapComponentProps) => {
@@ -95,7 +96,10 @@ const Content = (props: MapComponentProps) => {
 
   return (
     <div className={styles.container}>
-      <MapOverlay showMovementControls={true} />
+      <MapOverlay
+        showMovementControls={props.controls?.includes("movement")}
+        fullScreenElementRef={props.fullScreenElementRef}
+      />
       <div id="map-content" ref={targetRef} className={styles.map} />
     </div>
   );

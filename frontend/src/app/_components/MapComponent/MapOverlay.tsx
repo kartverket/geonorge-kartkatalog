@@ -10,6 +10,7 @@ import { map } from "./map/map";
 
 export type MapOverlayProps = {
   showMovementControls?: boolean;
+  fullScreenElementRef?: React.RefObject<HTMLElement | null>;
 };
 
 const zoomTo = (zoomLevel: number) => {
@@ -59,6 +60,21 @@ const ControlButton = ({
 );
 
 export const MapOverlay = (props: MapOverlayProps) => {
+  const onFullScreen = () => {
+    const elem = props.fullScreenElementRef?.current ?? map.getTargetElement();
+    if (!elem) {
+      return;
+    }
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch((err) => {
+        console.error(
+          `Error attempting to enable full-screen mode: ${err.message} (${err.name})`,
+        );
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
   return (
     <div className={styles.mapOverlay}>
       <div className={styles.middleColumn}>
@@ -69,7 +85,7 @@ export const MapOverlay = (props: MapOverlayProps) => {
               <ControlButton icon={<MinusIcon />} onClick={onZoomOut} />
               <ControlButton icon={<PlusIcon />} onClick={onZoomIn} />
             </div>
-            <ControlButton icon={<ExpandIcon />} />
+            <ControlButton icon={<ExpandIcon />} onClick={onFullScreen} />
           </Card>
         )}
       </div>

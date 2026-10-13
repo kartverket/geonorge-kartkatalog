@@ -4,7 +4,7 @@ import GeoJSON from "ol/format/GeoJSON";
 import type BaseLayer from "ol/layer/Base";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import MapComponent from "@/app/_components/MapComponent/MapComponent";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./Dekningskart.module.css";
@@ -28,6 +28,7 @@ export interface DekningkartProps {
 
 export const Dekningskart = (props: DekningkartProps) => {
   const coverageData = props.metadata.coverageData;
+  const componentRef = useRef<HTMLDivElement>(null);
   const layers = useMemo(() => {
     const result: CoverageLayer[] = [];
     if (!coverageData) return result;
@@ -95,11 +96,12 @@ export const Dekningskart = (props: DekningkartProps) => {
   if (!coverageData) return null;
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} ref={componentRef}>
       <MapComponent
         backgroundLayerName="topograyscale"
         layers={mapLayers}
-        controls={["scale"]}
+        controls={["scale", "movement"]}
+        fullScreenElementRef={componentRef}
       />
       <DekningskartOverlay
         uuid={props.uuid}
