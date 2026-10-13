@@ -368,12 +368,15 @@ type Field = { label: string; content: React.ReactNode };
 function FieldList({ fields }: { fields: Field[] }) {
   return (
     <dl className={styles.fieldList}>
-      {fields.map((f, i) => (
-        <div className={styles.fieldRow} key={`${i}-${f.label}`}>
-          <dt className={styles.fieldLabel}>{f.label}</dt>
-          <dd className={styles.fieldValue}>{f.content}</dd>
-        </div>
-      ))}
+      {fields.map((f, i) => {
+        const key = `${i}-${f.label}`;
+        return (
+          <div className={styles.fieldRow} key={key}>
+            <dt className={styles.fieldLabel}>{f.label}</dt>
+            <dd className={styles.fieldValue}>{f.content}</dd>
+          </div>
+        );
+      })}
     </dl>
   );
 }

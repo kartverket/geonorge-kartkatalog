@@ -28,7 +28,7 @@ export const formatDate = (s?: string | null) =>
 export const getRelevantAlerts = (alerts: Alerts | null): Alerts => {
   return (
     alerts?.filter((alert) => {
-      if (!alert || !alert.effectiveDate || !alert.alertDate) return false;
+      if (!alert?.effectiveDate || !alert?.alertDate) return false;
 
       const lengthInDays = 30; // fra gammel frontend
       const alertDate = new Date(alert.alertDate);
