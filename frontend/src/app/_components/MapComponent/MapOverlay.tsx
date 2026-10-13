@@ -8,6 +8,7 @@ import {
   PlusIcon,
   ShrinkIcon,
 } from "@navikt/aksel-icons";
+import { transform } from "ol/proj";
 import { useEffect, useState } from "react";
 import styles from "./MapOverlay.module.css";
 import { map } from "./map/map";
@@ -44,6 +45,28 @@ const onZoomOut = () => {
     return;
   }
   zoomTo(currentLevel - 1);
+};
+
+const onShowMyLocation = () => {
+  const view = map.getView();
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude, longitude } = position.coords;
+
+      const currentProjection = view.getProjection();
+      const [x, y] = transform(
+        [longitude, latitude],
+        "EPSG:4326",
+        currentProjection,
+      );
+
+      view.animate({
+        center: [x, y],
+        zoom: 15,
+        duration: 1000,
+      });
+    });
+  }
 };
 
 const ControlButton = ({
@@ -119,7 +142,7 @@ export const MapOverlay = (props: MapOverlayProps) => {
       <div className={styles.middleColumn}>
         {props.showMovementControls && (
           <Card className={styles.movementControls}>
-            <ControlButton icon={<CompassIcon />} />
+            <ControlButton icon={<CompassIcon />} onClick={onShowMyLocation} />
             <div className={styles.zoomButtons}>
               <ControlButton icon={<MinusIcon />} onClick={onZoomOut} />
               <ControlButton icon={<PlusIcon />} onClick={onZoomIn} />
