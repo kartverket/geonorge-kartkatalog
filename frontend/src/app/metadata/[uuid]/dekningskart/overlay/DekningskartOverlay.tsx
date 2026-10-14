@@ -3,8 +3,8 @@
 import { Card, Checkbox, Details, Heading } from "@kv-designsystem/react";
 import Breadcrumbs from "@/app/_components/Breadcrumbs/Breadcrumbs";
 import type { ProductMetadata } from "@/lib/schemas/product";
+import { statusColors } from "../styleFunctions";
 import styles from "./DekningskartOverlay.module.css";
-import { statusColors } from "./styleFunctions";
 
 interface DekningskartOverlayProps {
   uuid: string;
@@ -12,6 +12,7 @@ interface DekningskartOverlayProps {
   layerVisibility: Record<string, boolean>;
   layerIds: string[];
   onVisibilityChange: (id: string, visible: boolean) => void;
+  featureInfoResults: any[];
 }
 
 const SymbologyBox = ({
@@ -36,6 +37,7 @@ export const DekningskartOverlay = ({
   layerVisibility,
   layerIds,
   onVisibilityChange,
+  featureInfoResults,
 }: DekningskartOverlayProps) => {
   const showSymbology =
     layerVisibility.fullstendig ||
@@ -146,6 +148,12 @@ export const DekningskartOverlay = ({
             </Card>
           )}
         </div>
+      </div>
+      <div className={styles.rightColumn}>
+        <Heading level={3} data-size="2xs">
+          Feature Info Results
+        </Heading>
+        <pre>{JSON.stringify(featureInfoResults, null, 2)}</pre>
       </div>
     </div>
   );

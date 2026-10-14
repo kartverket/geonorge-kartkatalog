@@ -8,8 +8,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import MapComponent from "@/app/_components/MapComponent/MapComponent";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./Dekningskart.module.css";
-import { DekningskartOverlay } from "./DekningskartOverlay";
 import { getLayerFromCoverageData } from "./layerUtils";
+import { DekningskartOverlay } from "./overlay/DekningskartOverlay";
 import {
   type CoverageStatus,
   getCompletenessStyleFunction,
@@ -27,13 +27,17 @@ export interface DekningkartProps {
 }
 
 export const Dekningskart = (props: DekningkartProps) => {
+  const [featureInfoResults, setFeatureInfoResults] = useState<any[]>([]);
   const coverageData = props.metadata.coverageData;
   const componentRef = useRef<HTMLDivElement>(null);
   const layers = useMemo(() => {
     const result: CoverageLayer[] = [];
     if (!coverageData) return result;
     if (coverageData.coverageData) {
-      const coverage = getLayerFromCoverageData(coverageData.coverageData);
+      const coverage = getLayerFromCoverageData(
+        coverageData.coverageData,
+        "coverage",
+      );
       result.push({
         id: "coverage",
         label: "Dekning",
@@ -44,6 +48,7 @@ export const Dekningskart = (props: DekningkartProps) => {
     if (coverageData.coverageOverviewData) {
       const overview = getLayerFromCoverageData(
         coverageData.coverageOverviewData,
+        "overview",
       );
       result.push({
         id: "overview",
@@ -102,6 +107,9 @@ export const Dekningskart = (props: DekningkartProps) => {
         layers={mapLayers}
         controls={["scale", "movement"]}
         fullScreenElementRef={componentRef}
+        onFeatureInfoResultsChange={(results) => {
+          setFeatureInfoResults(results);
+        }}
       />
       <DekningskartOverlay
         uuid={props.uuid}
@@ -113,6 +121,7 @@ export const Dekningskart = (props: DekningkartProps) => {
             layerIds.includes(id) ? { ...current, [id]: visible } : current,
           )
         }
+        featureInfoResults={featureInfoResults}
       />
     </div>
   );

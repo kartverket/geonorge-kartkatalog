@@ -1,8 +1,14 @@
 "use client";
 
 import ScaleLine from "ol/control/ScaleLine";
+import type BaseEvent from "ol/events/Event";
 import type BaseLayer from "ol/layer/Base";
-import { useEffect, useRef } from "react";
+import TileLayer from "ol/layer/Tile";
+import VectorLayer from "ol/layer/Vector";
+import MapBrowserEvent from "ol/MapBrowserEvent";
+import TileWMS from "ol/source/TileWMS";
+import { useCallback, useEffect, useRef } from "react";
+import convert from "xml-js";
 import styles from "./Content.module.css";
 import { MapOverlay } from "./MapOverlay";
 import { type BackgroundLayerName, getBackgroundLayer } from "./map/layers";
@@ -15,10 +21,77 @@ export interface MapComponentProps {
   layers?: BaseLayer[];
   controls?: MapControls[];
   fullScreenElementRef?: React.RefObject<HTMLElement | null>;
+  onFeatureInfoResultsChange?: (results: any[]) => void;
+  onClick?: (event: Event | BaseEvent) => void;
 }
+
+const getFeatureInfo = async (url: string) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch feature info: ${response.statusText}`);
+    }
+    const text = await response.text();
+    const converted = convert.xml2js(text, {
+      compact: true,
+      ignoreComment: true,
+    });
+    return converted;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
 
 const Content = (props: MapComponentProps) => {
   const targetRef = useRef<HTMLDivElement>(null);
+
+  const mapOnClick = useCallback(
+    (event: Event | BaseEvent) => {
+      if (props.onClick) {
+        props.onClick(event);
+      }
+
+      if (!(event instanceof MapBrowserEvent)) return;
+      const currentResolution = map.getView().getResolution();
+      if (currentResolution === undefined) return;
+      const currentProjection = map.getView().getProjection();
+
+      const currentLayers = map
+        .getLayers()
+        .getArray()
+        .filter((layer) => layer.getVisible());
+
+      const featureInfoUrls = currentLayers
+        .map((layer) => {
+          if (layer instanceof VectorLayer || layer instanceof TileLayer) {
+            const source = layer.getSource();
+            if (source instanceof TileWMS) {
+              return source.getFeatureInfoUrl(
+                event.coordinate,
+                currentResolution,
+                currentProjection.getCode(),
+                { INFO_FORMAT: "application/vnd.ogc.gml" },
+              );
+            }
+
+            // Do something with the source
+          }
+          return null;
+        })
+        .filter((url) => url != null);
+      const featureInfoPromises = featureInfoUrls.map((url) =>
+        getFeatureInfo(url),
+      );
+      const featureInfoResults = Promise.all(featureInfoPromises);
+      featureInfoResults.then((results) => {
+        if (props.onFeatureInfoResultsChange) {
+          props.onFeatureInfoResultsChange(results);
+        }
+      });
+    },
+    [props.onClick, props.onFeatureInfoResultsChange],
+  );
 
   useEffect(() => {
     const target = targetRef.current;
@@ -26,10 +99,12 @@ const Content = (props: MapComponentProps) => {
       return;
     }
     map.setTarget(target);
+    map.addEventListener("singleclick", mapOnClick);
     return () => {
       map.setTarget(undefined);
+      map.removeEventListener("singleclick", mapOnClick);
     };
-  }, []);
+  }, [mapOnClick]);
 
   useEffect(() => {
     let cancelled = false;

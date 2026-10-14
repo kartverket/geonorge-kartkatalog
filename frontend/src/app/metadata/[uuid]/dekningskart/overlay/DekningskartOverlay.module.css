@@ -26,6 +26,13 @@
   }
 }
 
+.rightColumn {
+  user-select: none;
+  pointer-events: none;
+  grid-column: 3;
+  grid-row: 1 / -1;
+}
+
 .breadcrumbContainer {
   pointer-events: auto;
 }
