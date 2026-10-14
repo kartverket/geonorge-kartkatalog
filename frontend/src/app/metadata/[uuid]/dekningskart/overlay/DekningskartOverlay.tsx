@@ -1,16 +1,31 @@
 "use client";
 
-import { Card, Checkbox, Details, Heading } from "@kv-designsystem/react";
+import {
+  Button,
+  Card,
+  Checkbox,
+  Details,
+  Heading,
+} from "@kv-designsystem/react";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import { statusColors } from "../styleFunctions";
 import styles from "./DekningskartOverlay.module.css";
+import { FilesIcon, XMarkIcon } from "@navikt/aksel-icons";
+import type { Coordinate } from "ol/coordinate";
+
+export type LocationClickedInfo = {
+  coordinate: Coordinate;
+  featureInfoResults: any[];
+  height: number;
+};
 
 interface DekningskartOverlayProps {
   metadata: ProductMetadata;
   layerVisibility: Record<string, boolean>;
   layerIds: string[];
   onVisibilityChange: (id: string, visible: boolean) => void;
-  featureInfoResults: any[];
+  onFeatureInfoClose: () => void;
+  locationClickedInfo?: LocationClickedInfo | null;
 }
 
 const SymbologyBox = ({
@@ -34,7 +49,8 @@ export const DekningskartOverlay = ({
   layerVisibility,
   layerIds,
   onVisibilityChange,
-  featureInfoResults,
+  onFeatureInfoClose,
+  locationClickedInfo,
 }: DekningskartOverlayProps) => {
   const showSymbology =
     layerVisibility.fullstendig ||
@@ -134,10 +150,59 @@ export const DekningskartOverlay = ({
         </div>
       </div>
       <div className={styles.rightColumn}>
-        <Heading level={3} data-size="2xs">
-          Feature Info Results
-        </Heading>
-        <pre>{JSON.stringify(featureInfoResults, null, 2)}</pre>
+        <div className={styles.columnContent}>
+          {locationClickedInfo != null && (
+            <Card className={styles.mapControlCard}>
+              <div className={styles.featureInfoContainer}>
+                <div className={styles.featureInfoHeader}>
+                  <Heading level={3} data-size="xs">
+                    Informasjon
+                  </Heading>
+
+                  <Button onClick={onFeatureInfoClose} variant="tertiary">
+                    <XMarkIcon></XMarkIcon>
+                  </Button>
+                </div>
+                <div>{locationClickedInfo.height} moh</div>
+                <Details defaultOpen>
+                  <Details.Summary>Koordinater</Details.Summary>
+                  <Details.Content>
+                    <Heading level={4} data-size="2xs">
+                      Koordinater:
+                    </Heading>
+                    <div>
+                      Ø: {locationClickedInfo.coordinate[0].toFixed(2)}, N:{" "}
+                      {locationClickedInfo.coordinate[1].toFixed(2)}
+                    </div>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          `Ø: ${locationClickedInfo.coordinate[0].toFixed(2)}, N: ${locationClickedInfo.coordinate[1].toFixed(2)}`,
+                        );
+                      }}
+                    >
+                      <FilesIcon />
+                      Kopièr koordinatene
+                    </Button>
+                  </Details.Content>
+                </Details>
+                <Details defaultOpen>
+                  <Details.Summary>Objektinformasjon</Details.Summary>
+                  <Details.Content>
+                    <pre>
+                      {JSON.stringify(
+                        locationClickedInfo.featureInfoResults,
+                        null,
+                        2,
+                      )}
+                    </pre>
+                  </Details.Content>
+                </Details>
+              </div>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );

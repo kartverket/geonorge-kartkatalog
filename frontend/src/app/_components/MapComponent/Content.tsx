@@ -2,6 +2,7 @@
 
 import ScaleLine from "ol/control/ScaleLine";
 import type BaseEvent from "ol/events/Event";
+import type { Coordinate } from "ol/coordinate";
 import type BaseLayer from "ol/layer/Base";
 import TileLayer from "ol/layer/Tile";
 import VectorLayer from "ol/layer/Vector";
@@ -21,7 +22,7 @@ export interface MapComponentProps {
   layers?: BaseLayer[];
   controls?: MapControls[];
   fullScreenElementRef?: React.RefObject<HTMLElement | null>;
-  onFeatureInfoResultsChange?: (results: any[]) => void;
+  onFeatureInfoResultsChange?: (results: any[], locationClicked: Coordinate) => void;
   onClick?: (event: Event | BaseEvent) => void;
 }
 
@@ -86,7 +87,7 @@ const Content = (props: MapComponentProps) => {
       const featureInfoResults = Promise.all(featureInfoPromises);
       featureInfoResults.then((results) => {
         if (props.onFeatureInfoResultsChange) {
-          props.onFeatureInfoResultsChange(results);
+          props.onFeatureInfoResultsChange(results, event.coordinate);
         }
       });
     },

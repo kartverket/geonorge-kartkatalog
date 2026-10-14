@@ -7,6 +7,7 @@ import VectorSource from "ol/source/Vector";
 import { useEffect, useMemo, useRef, useState } from "react";
 import MapComponent from "@/app/_components/MapComponent/MapComponent";
 import type { ProductMetadata } from "@/lib/schemas/product";
+import type { LocationClickedInfo } from "./overlay/DekningskartOverlay";
 import styles from "./Dekningskart.module.css";
 import { getLayerFromCoverageData } from "./layerUtils";
 import { DekningskartOverlay } from "./overlay/DekningskartOverlay";
@@ -26,7 +27,7 @@ export interface DekningkartProps {
 }
 
 export const Dekningskart = (props: DekningkartProps) => {
-  const [featureInfoResults, setFeatureInfoResults] = useState<any[]>([]);
+  const [locationClickedInfo, setLocationClickedInfo] = useState<LocationClickedInfo | null>(null);
   const coverageData = props.metadata.coverageData;
   const componentRef = useRef<HTMLDivElement>(null);
   const layers = useMemo(() => {
@@ -106,8 +107,8 @@ export const Dekningskart = (props: DekningkartProps) => {
         layers={mapLayers}
         controls={["scale", "movement"]}
         fullScreenElementRef={componentRef}
-        onFeatureInfoResultsChange={(results) => {
-          setFeatureInfoResults(results);
+        onFeatureInfoResultsChange={(featureInfoResults, coordinate) => {
+          setLocationClickedInfo({ featureInfoResults, coordinate, height: 1337 }); //Fix height later
         }}
       />
       <DekningskartOverlay
@@ -119,7 +120,8 @@ export const Dekningskart = (props: DekningkartProps) => {
             layerIds.includes(id) ? { ...current, [id]: visible } : current,
           )
         }
-        featureInfoResults={featureInfoResults}
+        locationClickedInfo={locationClickedInfo}
+        onFeatureInfoClose={() => setLocationClickedInfo(null)}        
       />
     </div>
   );

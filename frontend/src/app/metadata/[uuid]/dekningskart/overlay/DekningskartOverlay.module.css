@@ -34,7 +34,6 @@
   grid-row: 1 / -1;
 }
 
-
 .columnContent {
   padding: 3rem;
   display: flex;
@@ -59,4 +58,14 @@
 .symbologyColorBox {
   width: 24px;
   height: 24px;
+}
+
+.featureInfoContainer {
+  pointer-events: auto;
+}
+
+.featureInfoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
