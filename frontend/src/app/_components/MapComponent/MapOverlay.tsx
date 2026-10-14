@@ -2,12 +2,12 @@
 
 import { Button, Card } from "@kv-designsystem/react";
 import {
-  CompassIcon,
   ExpandIcon,
   MinusIcon,
   PlusIcon,
   ShrinkIcon,
 } from "@navikt/aksel-icons";
+import { ObiCoordinate } from "@oicl/openbridge-webcomponents-react/icons/icon-coordinate";
 import { transform } from "ol/proj";
 import { useEffect, useState } from "react";
 import styles from "./MapOverlay.module.css";
@@ -117,7 +117,10 @@ export const MapOverlay = (props: MapOverlayProps) => {
       <div className={styles.middleColumn}>
         {props.showMovementControls && (
           <Card className={styles.movementControls}>
-            <ControlButton icon={<CompassIcon />} onClick={onShowMyLocation} />
+            <ControlButton
+              icon={<ObiCoordinate  style={{ width: 'var(--ds-font-size-5)' }}/>}
+              onClick={onShowMyLocation}
+            />
             <div className={styles.zoomButtons}>
               <ControlButton icon={<MinusIcon />} onClick={onZoomOut} />
               <ControlButton icon={<PlusIcon />} onClick={onZoomIn} />
