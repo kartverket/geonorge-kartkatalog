@@ -4,15 +4,17 @@ import ScaleLine from "ol/control/ScaleLine";
 import type BaseLayer from "ol/layer/Base";
 import { useEffect, useRef } from "react";
 import styles from "./Content.module.css";
+import { MapOverlay } from "./MapOverlay";
 import { type BackgroundLayerName, getBackgroundLayer } from "./map/layers";
 import { map } from "./map/map";
 
-export type MapControls = "scale";
+export type MapControls = "scale" | "movement";
 
 export interface MapComponentProps {
   backgroundLayerName: BackgroundLayerName;
   layers?: BaseLayer[];
   controls?: MapControls[];
+  fullScreenElementRef?: React.RefObject<HTMLElement | null>;
 }
 
 const Content = (props: MapComponentProps) => {
@@ -69,7 +71,6 @@ const Content = (props: MapComponentProps) => {
   }, [props.layers]);
 
   useEffect(() => {
-    // Example for handling map controls
     if (props.controls?.includes("scale")) {
       map.getControls().forEach((control) => {
         if (control instanceof ScaleLine) {
@@ -94,6 +95,10 @@ const Content = (props: MapComponentProps) => {
 
   return (
     <div className={styles.container}>
+      <MapOverlay
+        showMovementControls={props.controls?.includes("movement")}
+        fullScreenElementRef={props.fullScreenElementRef}
+      />
       <div id="map-content" ref={targetRef} className={styles.map} />
     </div>
   );
