@@ -12,6 +12,8 @@ import { statusColors } from "../styleFunctions";
 import styles from "./DekningskartOverlay.module.css";
 import { FilesIcon, XMarkIcon } from "@navikt/aksel-icons";
 import type { Coordinate } from "ol/coordinate";
+import { Feature } from "ol";
+import { FeatureInfo } from "./FeatureInfo";
 
 export type LocationClickedInfo = {
   coordinate: Coordinate;
@@ -190,13 +192,9 @@ export const DekningskartOverlay = ({
                 <Details defaultOpen>
                   <Details.Summary>Objektinformasjon</Details.Summary>
                   <Details.Content>
-                    <pre>
-                      {JSON.stringify(
-                        locationClickedInfo.featureInfoResults,
-                        null,
-                        2,
-                      )}
-                    </pre>
+                    <FeatureInfo
+                      results={locationClickedInfo.featureInfoResults}
+                    />
                   </Details.Content>
                 </Details>
               </div>
