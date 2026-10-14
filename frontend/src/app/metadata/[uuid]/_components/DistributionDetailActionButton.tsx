@@ -57,7 +57,7 @@ export function DistributionDetailActionButton({
         size="sm"
         location={LOCATIONS.MetadataPageTabs}
         variant="secondary"
-        addLabel="Last ned"
+        addLabel="Legg til nedlasting"
         removeLabel="Fjern fra nedlasting"
         preventAccordionToggle
       />
