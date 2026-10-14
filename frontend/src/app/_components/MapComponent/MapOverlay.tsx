@@ -88,30 +88,8 @@ const ControlButton = ({
 
 export const MapOverlay = (props: MapOverlayProps) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  useEffect(() => {
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "F11") {
-        event.preventDefault();
-        event.stopPropagation();
-        setIsFullscreen(!isFullscreen);
-      }
-    });
-    return () => {
-      document.removeEventListener("keydown", (event) => {
-        if (event.key === "F11") {
-          event.preventDefault();
-          event.stopPropagation();
-          setIsFullscreen(!isFullscreen);
-        }
-      });
-    };
-  }, [isFullscreen]);
 
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(document.fullscreenElement !== null);
-    };
-
     if (isFullscreen) {
       const elem =
         props.fullScreenElementRef?.current ?? map.getTargetElement();
@@ -131,10 +109,7 @@ export const MapOverlay = (props: MapOverlayProps) => {
         });
       }
     }
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    };
+    return () => {};
   }, [isFullscreen, props.fullScreenElementRef?.current]);
 
   return (

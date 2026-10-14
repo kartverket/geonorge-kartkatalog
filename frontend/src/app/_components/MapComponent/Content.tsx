@@ -71,7 +71,6 @@ const Content = (props: MapComponentProps) => {
   }, [props.layers]);
 
   useEffect(() => {
-    // Example for handling map controls
     if (props.controls?.includes("scale")) {
       map.getControls().forEach((control) => {
         if (control instanceof ScaleLine) {
