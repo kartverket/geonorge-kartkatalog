@@ -27,7 +27,7 @@ const zoomTo = (zoomLevel: number) => {
 
   view.animate({
     zoom: zoomLevel,
-    duration: 100,
+    duration: 300,
   });
 };
 
