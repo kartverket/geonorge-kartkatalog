@@ -139,18 +139,21 @@ function DetailAccordion({ items }: { items: DetailItem[] }) {
 
   return (
     <>
-      {items.map((item, i) => (
-        <Details key={`${i}-${item.title}`}>
-          <Details.Summary
-            onClick={(event) => onAccordionClick(event, item.title)}
-          >
-            <div className={styles.accordionSummary}>
-              {item.title} {item.actionButton}
-            </div>
-          </Details.Summary>
-          <Details.Content>{item.content}</Details.Content>
-        </Details>
-      ))}
+      {items.map((item, i) => {
+        const key = `${i}-${item.title}`;
+        return (
+          <Details key={key}>
+            <Details.Summary
+              onClick={(event) => onAccordionClick(event, item.title)}
+            >
+              <div className={styles.accordionSummary}>
+                {item.title} {item.actionButton}
+              </div>
+            </Details.Summary>
+            <Details.Content>{item.content}</Details.Content>
+          </Details>
+        );
+      })}
     </>
   );
 }
