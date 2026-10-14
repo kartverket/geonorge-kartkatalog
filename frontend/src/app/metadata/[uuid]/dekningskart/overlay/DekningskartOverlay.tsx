@@ -1,13 +1,11 @@
 "use client";
 
 import { Card, Checkbox, Details, Heading } from "@kv-designsystem/react";
-import Breadcrumbs from "@/app/_components/Breadcrumbs/Breadcrumbs";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import { statusColors } from "../styleFunctions";
 import styles from "./DekningskartOverlay.module.css";
 
 interface DekningskartOverlayProps {
-  uuid: string;
   metadata: ProductMetadata;
   layerVisibility: Record<string, boolean>;
   layerIds: string[];
@@ -32,7 +30,6 @@ const SymbologyBox = ({
 );
 
 export const DekningskartOverlay = ({
-  uuid,
   metadata,
   layerVisibility,
   layerIds,
@@ -47,19 +44,6 @@ export const DekningskartOverlay = ({
     <div className={styles.overlay}>
       <div className={styles.leftColumn}>
         <div className={styles.columnContent}>
-          <div className={styles.breadcrumbContainer}>
-            <Breadcrumbs
-              segments={[
-                { label: "Geonorge", href: "" },
-                { label: "Kartkatalogen", href: "" },
-                {
-                  label: metadata.title ?? "-",
-                  href: `metadata/${uuid}`,
-                },
-                { label: "Dekningskart" },
-              ]}
-            />
-          </div>
           <Card className={styles.mapControlCard}>
             <Heading level={4} data-size={"xs"}>
               {metadata.title}
