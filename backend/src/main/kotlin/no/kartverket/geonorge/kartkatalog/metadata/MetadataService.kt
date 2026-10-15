@@ -29,7 +29,12 @@ class MetadataService(
             record =
                 geonetworkClient.getRecordByUuid(uuid)
                     ?: throw MetadataRecordNotFoundException(uuid),
-            solrDocument = solrClient?.getMetadataByUuid(uuid)?.response?.docs?.firstOrNull(),
+            solrDocument =
+                solrClient
+                    ?.getMetadataByUuid(uuid)
+                    ?.response
+                    ?.docs
+                    ?.firstOrNull(),
         )
 
     suspend fun getTegneregler(uuid: String): TegnereglerItem? {

@@ -94,10 +94,10 @@ class LegacyMetadataMapper(
         val viewServices = relatedServices.filter { DistributionProtocols.isViewService(it.protocol) }
         val downloadServices = relatedServices.filter { DistributionProtocols.isDownloadService(it.protocol) }
         val ownViewService =
-            resources.firstOrNull {
-                    (_, resource) ->
-                resource.protocol?.contains("OGC:WMS") == true
-            }?.second
+            resources
+                .firstOrNull { (_, resource) ->
+                    resource.protocol?.contains("OGC:WMS") == true
+                }?.second
         val serviceDistributionProtocol =
             solrDocument?.serviceDistributionProtocolForDataset ?: ownViewService?.protocol
         val serviceDistributionUrl = solrDocument?.serviceDistributionUrlForDataset ?: ownViewService?.url
@@ -140,11 +140,18 @@ class LegacyMetadataMapper(
             contactPublisher = publisher?.toLegacyContact(),
             dateCreated = date("creation").asLegacyDateTime(),
             dateMetadataUpdated = record.dateStamp.asLegacyDateTime(),
-            dateMetadataValidFrom = record.temporalExtents.firstOrNull()?.begin?.asLegacyDateTime(),
+            dateMetadataValidFrom =
+                record.temporalExtents
+                    .firstOrNull()
+                    ?.begin
+                    ?.asLegacyDateTime(),
             dateMetadataValidTo =
-                record.temporalExtents.firstOrNull()?.end?.takeUnless {
-                    it.equals("unknown", true)
-                }?.asLegacyDateTime(),
+                record.temporalExtents
+                    .firstOrNull()
+                    ?.end
+                    ?.takeUnless {
+                        it.equals("unknown", true)
+                    }?.asLegacyDateTime(),
             datePublished = date("publication").asLegacyDateTime(),
             dateUpdated = date("revision").asLegacyDateTime(),
             distributionDetails =
@@ -165,8 +172,7 @@ class LegacyMetadataMapper(
                     )
                 },
             distributionsFormats =
-                resources.map {
-                        (format, resource) ->
+                resources.map { (format, resource) ->
                     resource.toLegacyDistribution(
                         format.name,
                         format.version,
@@ -197,8 +203,7 @@ class LegacyMetadataMapper(
                 },
             unitsOfDistribution = primaryResource?.unitsOfDistribution,
             operations =
-                record.serviceOperations.map {
-                        operation ->
+                record.serviceOperations.map { operation ->
                     LegacyOperation(
                         operation.operationName,
                         operation.dcp.joinToString(",").ifBlank {
@@ -245,9 +250,12 @@ class LegacyMetadataMapper(
                     it.thesaurus?.contains("administrative", true) == true
                 },
             spatialScope =
-                record.keywordGroups.firstOrNull {
-                    it.thesaurus?.equals("Spatial scope", true) == true
-                }?.keywords?.firstOrNull()?.value,
+                record.keywordGroups
+                    .firstOrNull {
+                        it.thesaurus?.equals("Spatial scope", true) == true
+                    }?.keywords
+                    ?.firstOrNull()
+                    ?.value,
             maintenanceFrequency =
                 codeListTranslator.translate(
                     CodeList.MAINTENANCE_FREQUENCY,
@@ -507,9 +515,10 @@ class LegacyMetadataMapper(
     private fun extensionUrl(
         record: MetadataRecord,
         profile: String,
-    ) = record.extensionResources.firstOrNull {
-        it.applicationProfile.trim().equals(profile, true)
-    }?.url
+    ) = record.extensionResources
+        .firstOrNull {
+            it.applicationProfile.trim().equals(profile, true)
+        }?.url
 
     private companion object {
         const val INSPIRE_LIMITATIONS_ON_PUBLIC_ACCESS =

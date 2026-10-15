@@ -417,9 +417,10 @@ object MetadataParser {
                     val ownOnlineResources =
                         f.nodes("gmd:formatDistributor/gmd:MD_Distributor").flatMap { distributor ->
                             val organization =
-                                distributor.node(
-                                    "gmd:distributorContact/gmd:CI_ResponsibleParty/gmd:organisationName",
-                                )?.preferredText()
+                                distributor
+                                    .node(
+                                        "gmd:distributorContact/gmd:CI_ResponsibleParty/gmd:organisationName",
+                                    )?.preferredText()
                             distributor
                                 .nodes("gmd:distributorTransferOptions/gmd:MD_DigitalTransferOptions")
                                 .flatMap { parseOnlineResources(it, organization) }
@@ -448,8 +449,7 @@ object MetadataParser {
             val unitsNode = dto.node("gmd:unitsOfDistribution")
             val units = unitsNode?.preferredText()
             val englishUnits = unitsNode?.englishText()
-            return dto.nodes("gmd:onLine/gmd:CI_OnlineResource").map {
-                    or ->
+            return dto.nodes("gmd:onLine/gmd:CI_OnlineResource").map { or ->
                 OnlineResource(
                     url = or.text("gmd:linkage/gmd:URL") ?: "",
                     protocol =
