@@ -53,7 +53,9 @@ export type DatasetCoverageFeatureInfo = z.infer<
 export type FeatureInfoResult = z.infer<typeof FeatureInfoResultSchema>;
 export type FeatureInfoResults = (FeatureInfoResult | null)[];
 
-export function parseFeatureInfoResult(body: unknown): FeatureInfoResult | null {
+export function parseFeatureInfoResult(
+  body: unknown,
+): FeatureInfoResult | null {
   const result = FeatureInfoResultSchema.safeParse(body);
   if (!result.success) {
     console.log("Invalid feature info result:", result.error);

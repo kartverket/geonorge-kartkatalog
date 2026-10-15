@@ -19,7 +19,6 @@ import { HeightSection } from "./HeightSection";
 export type LocationClickedInfo = {
   coordinate: Coordinate;
   featureInfoResults: FeatureInfo[];
-  height: number;
 };
 
 interface DekningskartOverlayProps {

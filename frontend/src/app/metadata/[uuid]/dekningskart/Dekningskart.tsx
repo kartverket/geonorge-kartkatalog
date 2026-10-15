@@ -26,6 +26,7 @@ interface CoverageLayer {
 export interface DekningkartProps {
   metadata: ProductMetadata;
   kommunerByNummer: Record<string, Kommune>;
+  completenessDataString: string | null;
 }
 
 export const Dekningskart = (props: DekningkartProps) => {
@@ -60,11 +61,8 @@ export const Dekningskart = (props: DekningkartProps) => {
       });
     }
 
-    if (coverageData.completenessCoverageData?.type === "GEOJSON") {
-      const vectorSource = new VectorSource({
-        url: coverageData.completenessCoverageData.url,
-        format: new GeoJSON(),
-      });
+    if (props.completenessDataString) {
+      const features = new GeoJSON().readFeatures(props.completenessDataString);
 
       const splitLayerConfig: { id: CoverageStatus; label: string }[] = [
         { id: "fullstendig", label: "Fullstendig" },
@@ -73,23 +71,32 @@ export const Dekningskart = (props: DekningkartProps) => {
         { id: "ikkeRelevant", label: "Ikke relevant" },
       ];
 
-      const splitLayers = splitLayerConfig.map(({ id, label }) => {
-        const styleFunction = getCompletenessStyleFunction(id);
-        const layer = new VectorLayer({
-          source: vectorSource,
-          style: styleFunction,
-        });
-        return {
-          id,
-          label,
-          layer,
-        };
-      });
+      const splitLayers = splitLayerConfig
+        .map(({ id, label }) => {
+          const styleFunction = getCompletenessStyleFunction(id);
+          const featuresForLayer = features.filter(
+            (feature) => feature.get("dekningsstatus") === id,
+          );
+          if (featuresForLayer.length === 0) return null;
+          const layer = new VectorLayer({
+            source: new VectorSource({
+              features: featuresForLayer,
+              format: new GeoJSON(),
+            }),
+            style: styleFunction,
+          });
+          return {
+            id,
+            label,
+            layer,
+          };
+        })
+        .filter((l) => l != null);
       result.push(...splitLayers);
     }
 
     return result;
-  }, [coverageData]);
+  }, [coverageData, props.completenessDataString]);
   const [layerVisibility, setLayerVisibility] = useState<
     Record<string, boolean>
   >(() => Object.fromEntries(layers.map(({ id }) => [id, true])));
@@ -98,7 +105,7 @@ export const Dekningskart = (props: DekningkartProps) => {
 
   useEffect(() => {
     layers.forEach(({ id, layer }) => {
-      layer.setVisible(layerVisibility[id] ?? true);
+      layer.setVisible(layerVisibility[id] ?? false);
     });
   }, [layers, layerVisibility]);
 
@@ -116,8 +123,7 @@ export const Dekningskart = (props: DekningkartProps) => {
           setLocationClickedInfo({
             featureInfoResults,
             coordinate,
-            height: 1337,
-          }); //Fix height later
+          });
         }}
       />
       <DekningskartOverlay

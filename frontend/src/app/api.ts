@@ -118,6 +118,32 @@ export async function getGeoIdAuthInfo(cookie?: string): Promise<AuthInfo> {
   return parseAuthInfo(body);
 }
 
+async function fetchText(
+  url: string,
+  options: RequestInit = {},
+): Promise<string> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), 8000);
+
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    const body = await res.text();
+
+    if (!res.ok) {
+      throw new HttpError(res.status, res.statusText, body);
+    }
+    return body;
+  } catch (err: unknown) {
+    const maybeErr = err as { name?: string } | undefined;
+    if (maybeErr?.name === "AbortError") {
+      throw new Error(`Request to ${url} timed out after 8000ms`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
 async function fetchJson(
   url: string,
   options: RequestInit = {},
@@ -387,4 +413,9 @@ export async function getKommunerByNummer(): Promise<Record<string, Kommune>> {
   return Object.fromEntries(
     kommuner.map((kommune) => [kommune.kommunenummer, kommune]),
   );
+}
+
+export async function getCoverageData(url: string): Promise<string> {
+  const body = await fetchText(url, { method: "GET" });
+  return body;
 }
