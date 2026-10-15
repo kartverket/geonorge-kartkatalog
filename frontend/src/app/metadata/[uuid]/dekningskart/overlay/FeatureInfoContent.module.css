@@ -1,0 +1,6 @@
+.featureInfoLine {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  width: 50%;
+}

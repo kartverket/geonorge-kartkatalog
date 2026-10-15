@@ -64,7 +64,7 @@ export const DekningskartOverlay = ({
         <div className={styles.columnContent}>
           <Card className={styles.mapControlCard}>
             <Heading level={4} data-size={"xs"}>
-              {metadata.title}
+              Velg hva du ser
             </Heading>
             {(layerIds.includes("overview") ||
               layerIds.includes("coverage")) && (
@@ -101,11 +101,14 @@ export const DekningskartOverlay = ({
                   Se fullstendighetsdekningskart
                 </Details.Summary>
                 <Details.Content>
+                  <Heading level={4} data-size={"2xs"}>
+                    Velg status for kartlegging
+                  </Heading>
                   <fieldset>
                     {layerIds.includes("fullstendig") && (
                       <LayerCheckbox
                         id="fullstendig"
-                        label="Fullstendig"
+                        label="Kartlagte områder"
                         visible={layerVisibility.fullstendig}
                         onVisibilityChange={onVisibilityChange}
                       />
@@ -113,7 +116,7 @@ export const DekningskartOverlay = ({
                     {layerIds.includes("ufullstendig") && (
                       <LayerCheckbox
                         id="ufullstendig"
-                        label="Ufullstendig"
+                        label="Delvis kartlagte områder"
                         visible={layerVisibility.ufullstendig}
                         onVisibilityChange={onVisibilityChange}
                       />
@@ -121,7 +124,7 @@ export const DekningskartOverlay = ({
                     {layerIds.includes("ikkeKartlagt") && (
                       <LayerCheckbox
                         id="ikkeKartlagt"
-                        label="Ikke kartlagt"
+                        label="Ikke kartlagte områder"
                         visible={layerVisibility.ikkeKartlagt}
                         onVisibilityChange={onVisibilityChange}
                       />
