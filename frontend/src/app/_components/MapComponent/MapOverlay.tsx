@@ -78,7 +78,6 @@ const ControlButton = ({
 }) => (
   <Button
     variant="secondary"
-    data-color="accent"
     className={styles.controlButton}
     onClick={onClick}
   >

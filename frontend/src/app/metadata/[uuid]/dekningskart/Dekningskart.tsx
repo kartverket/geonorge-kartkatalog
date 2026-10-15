@@ -70,6 +70,7 @@ export const Dekningskart = (props: DekningkartProps) => {
         { id: "fullstendig", label: "Fullstendig" },
         { id: "ufullstendig", label: "Ufullstendig" },
         { id: "ikkeKartlagt", label: "Ikke kartlagt" },
+        { id: "ikkeRelevant", label: "Ikke relevant" },
       ];
 
       const splitLayers = splitLayerConfig.map(({ id, label }) => {

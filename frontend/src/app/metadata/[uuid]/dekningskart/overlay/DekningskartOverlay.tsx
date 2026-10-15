@@ -6,11 +6,9 @@ import {
   Checkbox,
   Details,
   Heading,
-  Spinner,
 } from "@kv-designsystem/react";
 import { FilesIcon, XMarkIcon } from "@navikt/aksel-icons";
 import type { Coordinate } from "ol/coordinate";
-import { Suspense } from "react";
 import type { FeatureInfo } from "@/app/_components/MapComponent/Content";
 import type { Kommune } from "@/lib/schemas/kommune";
 import { statusColors } from "../styleFunctions";
@@ -60,7 +58,8 @@ export const DekningskartOverlay = ({
   const showSymbology =
     layerVisibility.fullstendig ||
     layerVisibility.ufullstendig ||
-    layerVisibility.ikkeKartlagt;
+    layerVisibility.ikkeKartlagt ||
+    layerVisibility.ikkeRelevant;
   return (
     <div className={styles.overlay}>
       <div className={styles.leftColumn}>
@@ -132,6 +131,14 @@ export const DekningskartOverlay = ({
                         onVisibilityChange={onVisibilityChange}
                       />
                     )}
+                    {layerIds.includes("ikkeRelevant") && (
+                      <LayerCheckbox
+                        id="ikkeRelevant"
+                        label="Ikke relevante områder"
+                        visible={layerVisibility.ikkeRelevant}
+                        onVisibilityChange={onVisibilityChange}
+                      />
+                    )}
                   </fieldset>
                 </Details.Content>
               </Details>
@@ -151,6 +158,9 @@ export const DekningskartOverlay = ({
                 )}
                 {layerVisibility.ikkeKartlagt && (
                   <SymbologyBox status={"ikkeKartlagt"} label="Ikke kartlagt" />
+                )}
+                {layerVisibility.ikkeRelevant && (
+                  <SymbologyBox status={"ikkeRelevant"} label="Ikke relevant" />
                 )}
               </div>
             </Card>
