@@ -39,6 +39,7 @@ dependencies {
     implementation(ktorLibs.server.contentNegotiation)
     implementation(ktorLibs.server.core)
     implementation(ktorLibs.server.cors)
+    implementation(ktorLibs.server.forwardedHeader)
     implementation(ktorLibs.server.netty)
     implementation(ktorLibs.server.statusPages)
     implementation(libs.kotlinx.datetime)
@@ -55,4 +56,8 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)
     testImplementation(ktorLibs.client.mock)
+
+    // INFO: Guide gradle to use jackson 2.22.3 (up from 2.22.0 in our case) to mitigate CVE's
+    // Jackson 2.22.0 was imported by auth.oidc. This line should be removed if auth.oidc updates to a secure version of jackson.
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.22.3"))
 }

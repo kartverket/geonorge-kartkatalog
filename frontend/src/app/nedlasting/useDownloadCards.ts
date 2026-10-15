@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { basePath } from "@/lib/basePath";
+import { bffPath } from "@/lib/basePath";
 import { parseProductMetadata } from "@/lib/schemas/product";
 import type { DownloadCard } from "./downloadUtils";
 
@@ -114,7 +114,7 @@ export function useDownloadCards(selectedDownloadUuids: string[]) {
 
           try {
             const response = await fetch(
-              `${basePath}/api/metadata/${encodeURIComponent(uuid)}`,
+              `${bffPath}/metadata/${encodeURIComponent(uuid)}`,
               { signal: controller.signal, cache: "no-store" },
             );
             if (!response.ok) return { card: null, failed: true };

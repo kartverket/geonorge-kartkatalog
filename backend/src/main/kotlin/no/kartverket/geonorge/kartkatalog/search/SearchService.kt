@@ -50,14 +50,16 @@ class SearchService(
         fylkeNames: Map<String, String>,
         hvdCategories: Set<String>,
     ): List<SearchFacet> =
-        this?.facetFields.orEmpty().map { (facetField, values) ->
-            SearchFacet(
-                facetField = facetField,
-                label = FACET_LABELS[facetField],
-                values = values.toFacetValues(facetField, fylkeNames, hvdCategories),
-            )
-        }
-            .sortedWith(compareBy(nullsLast()) { FACET_ORDER[it.facetField] })
+        this
+            ?.facetFields
+            .orEmpty()
+            .map { (facetField, values) ->
+                SearchFacet(
+                    facetField = facetField,
+                    label = FACET_LABELS[facetField],
+                    values = values.toFacetValues(facetField, fylkeNames, hvdCategories),
+                )
+            }.sortedWith(compareBy(nullsLast()) { FACET_ORDER[it.facetField] })
 
     private fun List<JsonPrimitive>.pairs(): List<Pair<JsonPrimitive, JsonPrimitive>> =
         chunked(2).mapNotNull { chunk ->
@@ -137,19 +139,46 @@ class SearchService(
             "type" to orderOf("dataset", "service", "series", "servicelayer", "software"),
             "theme" to
                 orderOf(
-                    "Basis geodata", "Natur", "Flyfoto", "Høydedata", "Eiendom", "Landskap",
-                    "Samferdsel", "Plan", "Geologi", "Friluftsliv", "Befolkning", "Landbruk",
-                    "Annen", "Samfunnssikkerhet", "Kyst og fiskeri", "Vær og klima",
-                    "Kulturminner", "Energi", "Forurensning",
+                    "Basis geodata",
+                    "Natur",
+                    "Flyfoto",
+                    "Høydedata",
+                    "Eiendom",
+                    "Landskap",
+                    "Samferdsel",
+                    "Plan",
+                    "Geologi",
+                    "Friluftsliv",
+                    "Befolkning",
+                    "Landbruk",
+                    "Annen",
+                    "Samfunnssikkerhet",
+                    "Kyst og fiskeri",
+                    "Vær og klima",
+                    "Kulturminner",
+                    "Energi",
+                    "Forurensning",
                 ),
             "dataaccess" to orderOf("Åpne data", "Norge digitalt begrenset", "Skjermede data"),
             "DistributionProtocols" to
                 orderOf(
-                    "WMS-tjeneste", "WFS-tjeneste", "Geonorge nedlastning", "OGC API-Features",
-                    "REST-API", "Egen nedlastningsside", "WMTS-tjeneste", "OGC:OAPIF",
-                    "Geonorge filnedlastning", "WCS-tjeneste", "Webside",
-                    "OGC Catalogue Service for the Web", "OPeNDAP", "OGC API-Coverages",
-                    "Webservice", "Atom Feed", "Ingen online tilgang",
+                    "WMS-tjeneste",
+                    "WFS-tjeneste",
+                    "Geonorge nedlastning",
+                    "OGC API-Features",
+                    "REST-API",
+                    "Egen nedlastningsside",
+                    "WMTS-tjeneste",
+                    "OGC:OAPIF",
+                    "Geonorge filnedlastning",
+                    "WCS-tjeneste",
+                    "Webside",
+                    "OGC Catalogue Service for the Web",
+                    "OPeNDAP",
+                    "OGC API-Coverages",
+                    "Webservice",
+                    "Atom Feed",
+                    "Ingen online tilgang",
                 ),
             "nationalinitiative" to orderOf(*nationalInitiativeLabels.keys.toTypedArray()),
         )

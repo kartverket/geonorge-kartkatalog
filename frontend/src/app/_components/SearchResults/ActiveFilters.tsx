@@ -30,28 +30,30 @@ export function ActiveFilters({ facets }: { facets: SearchFacet[] }) {
     for (const v of remaining) {
       params.append(field, v);
     }
-    params.delete("offset");
+    params.delete("page");
     router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
   };
 
   return (
     <div className={styles.activeFilters}>
-      {chips.map(([field, value]) => {
-        const facet = facetByField.get(field);
-        const valueLabel =
-          facet?.values.find((v) => v.name === value)?.label ?? value;
-        return (
-          <Button
-            key={`${field}-${value}`}
-            variant="tertiary"
-            className={styles.filterChip}
-            onClick={() => removeChip(field, value)}
-          >
-            <XMarkIcon aria-hidden />
-            {valueLabel}
-          </Button>
-        );
-      })}
+      {chips
+        .filter(([f, _v]) => f !== "page")
+        .map(([field, value]) => {
+          const facet = facetByField.get(field);
+          const valueLabel =
+            facet?.values.find((v) => v.name === value)?.label ?? value;
+          return (
+            <Button
+              key={`${field}-${value}`}
+              variant="tertiary"
+              className={styles.filterChip}
+              onClick={() => removeChip(field, value)}
+            >
+              <XMarkIcon aria-hidden />
+              {valueLabel}
+            </Button>
+          );
+        })}
     </div>
   );
 }

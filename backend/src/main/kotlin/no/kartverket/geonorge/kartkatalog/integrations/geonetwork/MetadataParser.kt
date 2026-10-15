@@ -88,10 +88,11 @@ object MetadataParser {
                         )?.preferredText(),
                 supplementalDescription = idInfo?.node("gmd:supplementalInformation")?.preferredText(),
                 processHistory =
-                    md.node(
-                        "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage" +
-                            "/gmd:LI_Lineage/gmd:statement",
-                    )?.preferredText(),
+                    md
+                        .node(
+                            "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage" +
+                                "/gmd:LI_Lineage/gmd:statement",
+                        )?.preferredText(),
                 contacts =
                     idInfo
                         ?.nodes("gmd:pointOfContact/gmd:CI_ResponsibleParty")
@@ -408,7 +409,8 @@ object MetadataParser {
         private fun parseDistributionInfo(): DistributionInfo? {
             val dist = md.node("gmd:distributionInfo/gmd:MD_Distribution") ?: return null
             val sharedOnlineResources =
-                dist.nodes("gmd:transferOptions/gmd:MD_DigitalTransferOptions")
+                dist
+                    .nodes("gmd:transferOptions/gmd:MD_DigitalTransferOptions")
                     .flatMap { parseOnlineResources(it) }
             val formats =
                 dist.nodes("gmd:distributionFormat/gmd:MD_Format").map { f ->

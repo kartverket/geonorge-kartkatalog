@@ -26,9 +26,12 @@ private fun io.ktor.http.Parameters.toFacetInputs(): List<SearchFacetInput> {
     val facetIndices =
         names()
             .mapNotNull { key ->
-                Regex("""facets\[(\d+)]name""").matchEntire(key)?.groupValues?.get(1)?.toIntOrNull()
-            }
-            .distinct()
+                Regex("""facets\[(\d+)]name""")
+                    .matchEntire(key)
+                    ?.groupValues
+                    ?.get(1)
+                    ?.toIntOrNull()
+            }.distinct()
             .sorted()
 
     return facetIndices.mapNotNull { index ->

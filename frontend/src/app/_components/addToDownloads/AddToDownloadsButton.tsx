@@ -10,6 +10,7 @@ import {
   removeItemsFromDownloads,
 } from "@/app/_components/addToDownloads/downloadStorage";
 import { useIsItemSelectedForDownload } from "@/app/_components/addToDownloads/useDownloads";
+import { useAuthInfo } from "@/components/AuthProvider";
 import { type Location, trackClick } from "@/posthog/posthog";
 
 export default function AddToDownloadsButton({
@@ -31,9 +32,15 @@ export default function AddToDownloadsButton({
   removeLabel?: string;
   preventAccordionToggle?: boolean;
 }) {
+  const authState = useAuthInfo();
   const isSelectedForDownload = useIsItemSelectedForDownload(item?.uuid);
+  const canAdd =
+    item?.accessType?.toLocaleLowerCase() === "open" ||
+    authState.status === "authenticated";
 
-  if (!item?.uuid || !item.distributionUrl) return null;
+  if (!item?.uuid || !item.distributionUrl) {
+    return null;
+  }
 
   const handleToggleDownloads = (event: MouseEvent<HTMLButtonElement>) => {
     if (preventAccordionToggle) {
@@ -63,6 +70,7 @@ export default function AddToDownloadsButton({
       variant={variant ?? (isSelectedForDownload ? "secondary" : "primary")}
       data-size={size}
       className={className}
+      disabled={!isSelectedForDownload && !canAdd}
       onClick={handleToggleDownloads}
     >
       {isSelectedForDownload ? (

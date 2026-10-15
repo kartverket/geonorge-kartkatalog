@@ -1,0 +1,6 @@
+.providerIcon {
+  width: var(--ds-size-6);
+  height: var(--ds-size-6);
+  object-fit: contain;
+  flex: 0 0 auto;
+}

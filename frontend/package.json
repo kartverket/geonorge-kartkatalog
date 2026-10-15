@@ -9,27 +9,31 @@
     "start": "next start",
     "ts-check": "tsc --noEmit",
     "next-compile": "next build --experimental-build-mode compile",
-    "lint": "biome check",
+    "lint": "biome check --error-on-warnings",
+    "lint-strict": "biome check --error-on-warnings",
     "lint-fix": "biome check --write ./src",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "biome-migrate": "biome migrate"
   },
   "dependencies": {
-    "@cookieyes/nextjs": "^0.6.0",
-    "@kv-designsystem/react": "^1.0.0-alpha.4",
-    "@navikt/aksel-icons": "^8.14.0",
+    "@cookieyes/nextjs": "^0.8.1",
+    "@kv-designsystem/react": "^1.0.0-alpha.6",
+    "@navikt/aksel-icons": "^8.19.1",
     "next": "^16.3.8",
-    "posthog-js": "^1.406.2",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "ol": "^10.11.0",
+    "posthog-js": "^1.436.1",
+    "proj4": "^2.22.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "react-markdown": "^10.1.0",
-    "zod": "^3.22.2"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
-    "@types/node": "^20",
+    "@biomejs/biome": "2.5.15",
+    "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
-    "typescript": "^5"
+    "typescript": "^7"
   }
 }

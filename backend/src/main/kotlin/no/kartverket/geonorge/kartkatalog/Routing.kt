@@ -7,6 +7,7 @@ import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import no.kartverket.geonorge.kartkatalog.auth.authRoutes
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
 import no.kartverket.geonorge.kartkatalog.download.DownloadApiClient
@@ -54,5 +55,6 @@ fun Application.configureRouting(
         searchRoutes(searchService)
         metadataRoutes(metadataService, linkedDistributionsService)
         downloadRoutes(downloadService, authentication)
+        authRoutes(authentication)
     }
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthProvider } from "@/components/AuthProvider";
 import { Footer } from "@/components/Footer/Footer";
 import { Header } from "@/components/Header/Header";
 import { LegacyBanner } from "@/components/LegacyBanner/LegacyBanner";
@@ -39,12 +40,14 @@ export default async function RootLayout({
         <CookieYesProvider regulation="GDPR" initialConsent={initialConsent}>
           <CookieYesRoot />
         </CookieYesProvider>
-        <Suspense fallback={null}>
-          <Header />
-        </Suspense>
-        {isBeta && <LegacyBanner />}
-        {children}
-        <Footer />
+        <AuthProvider>
+          <Suspense fallback={null}>
+            <Header />
+          </Suspense>
+          {isBeta && <LegacyBanner />}
+          {children}
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

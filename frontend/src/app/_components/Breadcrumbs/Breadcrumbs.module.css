@@ -1,0 +1,8 @@
+.breadcrumb {
+  margin: var(--ds-size-1) 0;
+  font-size: var(--ds-body-sm-font-size);
+}
+
+.current {
+  color: var(--ds-color-neutral-text-subtle);
+}

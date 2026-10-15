@@ -3,28 +3,33 @@
 import { Avatar, Badge, Button } from "@kv-designsystem/react";
 import {
   DownloadIcon,
-  EnterIcon,
   LocationPinIcon,
   MagnifyingGlassIcon,
   MenuHamburgerIcon,
   XMarkIcon,
 } from "@navikt/aksel-icons";
+import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import { useMapItems } from "@/app/_components/addToMap/useMap";
-import { basePath, isBeta } from "@/lib/basePath";
+import { useAuthInfo } from "@/components/AuthProvider";
+import { basePath, bffPath, isBeta } from "@/lib/basePath";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
+import { LoginDropdown } from "./LoginDropdown";
 import { ProfileDropdown } from "./ProfileDropdown";
 
 export function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const authState = useAuthInfo();
+  const user = authState.status === "authenticated" ? authState.user : null;
+  const authReady = authState.status !== "loading";
 
   const [openPanel, setOpenPanel] = useState<"menu" | "profile" | null>(null);
 
@@ -35,10 +40,6 @@ export function Header() {
     trackHeaderClick(panel);
   };
 
-  // Midlertidig til vi har innlogging koblet på
-  const user = { name: "Frodo Baggins" };
-  // const user = null; // test utlogget tilstand
-
   const mapCount = useMapItems().length;
   const downloadCount = useSelectedDownloadUuids().length;
 
@@ -46,9 +47,9 @@ export function Header() {
   const findDataHref = "/";
   const mapHref =
     "https://kartkatalog.geonorge.no/kart?lat=7197860&lon=396722&zoom=4";
-  const downloadHref = isBeta
-    ? "https://kartkatalog.geonorge.no/nedlasting"
-    : "/nedlasting";
+  const downloadHref = "/nedlasting";
+  const geoIdLoginHref = `${bffPath}/auth/geoid/login` as Route;
+  const ansattportenLoginHref = `${bffPath}/auth/ansattporten/login` as Route;
 
   const rootRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -144,7 +145,7 @@ export function Header() {
                 Nedlasting
               </Link>
             </Button>
-            {!isBeta &&
+            {authReady &&
               (user ? (
                 <>
                   <ProfileDropdown
@@ -165,14 +166,16 @@ export function Header() {
                   </Button>
                 </>
               ) : (
-                <Button
-                  variant="tertiary"
+                <LoginDropdown
+                  id="header-login-dropdown"
                   className={styles.showFromSm}
-                  onClick={() => trackHeaderClick("login")}
-                >
-                  <EnterIcon aria-hidden />
-                  Logg inn
-                </Button>
+                  geoIdHref={geoIdLoginHref}
+                  ansattportenHref={ansattportenLoginHref}
+                  onOpen={() => trackHeaderClick("login")}
+                  onNavigate={(provider) =>
+                    trackHeaderClick(`login-${provider}`)
+                  }
+                />
               ))}
             <Button
               ref={menuButtonRef}
@@ -196,15 +199,20 @@ export function Header() {
         <HeaderMenu
           closePanel={() => setOpenPanel(null)}
           userName={user?.name}
+          authReady={authReady}
           mapCount={mapCount}
           downloadCount={downloadCount}
           findDataHref={findDataHref}
           mapHref={mapHref}
           downloadHref={downloadHref}
+          geoIdLoginHref={geoIdLoginHref}
+          ansattportenLoginHref={ansattportenLoginHref}
           posthogClickAction={trackHeaderClick}
         />
       )}
-      {openPanel === "profile" && <HeaderProfile />}
+      {openPanel === "profile" && user && (
+        <HeaderProfile userName={user.name} />
+      )}
     </div>
   );
 }

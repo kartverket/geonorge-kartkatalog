@@ -53,22 +53,25 @@ export default function ProductAlert({
         Varsler for {productType}
       </h2>
       <ul>
-        {alertsWithNotes.map(({ alert, note, effectiveDate }, index) => (
-          <li key={`${alert.systemId ?? alert.alertType ?? "alert"}-${index}`}>
-            {alert.alertType}
-            {alert.detailsUrl && (
-              <>
-                {" ("}
-                <a href={alert.detailsUrl}>Gå til varsel</a>
-                {"). "}
-              </>
-            )}
-            <Markdown components={{ p: ({ children }) => <>{children}</> }}>
-              {note}
-            </Markdown>
-            {effectiveDate && <em> Gjelder fra {effectiveDate}.</em>}
-          </li>
-        ))}
+        {alertsWithNotes.map(({ alert, note, effectiveDate }, index) => {
+          const key = `${alert.systemId ?? alert.alertType ?? "alert"}-${index}`;
+          return (
+            <li key={key}>
+              {alert.alertType}
+              {alert.detailsUrl && (
+                <>
+                  {" ("}
+                  <a href={alert.detailsUrl}>Gå til varsel</a>
+                  {"). "}
+                </>
+              )}
+              <Markdown components={{ p: ({ children }) => <>{children}</> }}>
+                {note}
+              </Markdown>
+              {effectiveDate && <em> Gjelder fra {effectiveDate}.</em>}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

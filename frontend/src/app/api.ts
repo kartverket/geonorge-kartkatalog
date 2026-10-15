@@ -1,7 +1,9 @@
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { basePath } from "@/lib/basePath";
 import { type Alerts, parseAlert } from "@/lib/schemas/alerts";
+import { type AuthInfo, parseAuthInfo } from "@/lib/schemas/auth";
 import {
   type DownloadInsightGroups,
   type DownloadOptions,
@@ -36,7 +38,12 @@ import {
 const API_BASE = process.env.API_BASE;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
 const katalogBaseUrl: string | undefined = process.env.KATALOG_BASE_URL;
-const KATALOG_ORIGIN = new URL(katalogBaseUrl ?? "https://dummy.org").origin;
+export const KATALOG_ORIGIN = new URL(katalogBaseUrl ?? "https://dummy.org")
+  .origin;
+
+export function getKatalogUrl(path: string): URL {
+  return new URL(path, KATALOG_ORIGIN);
+}
 
 export class HttpError extends Error {
   status: number;
@@ -47,6 +54,67 @@ export class HttpError extends Error {
     this.status = status;
     this.body = body;
   }
+}
+
+function geoIdRequestHeaders(cookie?: string) {
+  const publicUrl = new URL(KATALOG_ORIGIN);
+  return {
+    Origin: KATALOG_ORIGIN,
+    "X-Forwarded-Host": publicUrl.host,
+    "X-Forwarded-Proto": publicUrl.protocol.slice(0, -1),
+    "X-Forwarded-Port":
+      publicUrl.port || (publicUrl.protocol === "https:" ? "443" : "80"),
+    ...(cookie ? { Cookie: cookie } : {}),
+  };
+}
+
+export async function startGeoIdLogin(): Promise<Response> {
+  return fetch(`${API_BASE}/auth/geoid/login`, {
+    headers: geoIdRequestHeaders(),
+    redirect: "manual",
+    cache: "no-store",
+  });
+}
+
+export async function startLogout(cookie?: string): Promise<Response> {
+  return fetch(`${API_BASE}/auth/geoid/logout`, {
+    method: "POST",
+    headers: {
+      Origin: KATALOG_ORIGIN,
+      ...(cookie ? { Cookie: cookie } : {}),
+    },
+    redirect: "manual",
+    cache: "no-store",
+  });
+}
+
+export async function geoIdCallback(
+  search: string,
+  cookie?: string,
+): Promise<Response> {
+  const callbackUrl = new URL(`${basePath}/bff/auth/geoid/callback`, API_BASE);
+  callbackUrl.search = search;
+
+  return fetch(callbackUrl, {
+    method: "GET",
+    headers: geoIdRequestHeaders(cookie),
+    redirect: "manual",
+    cache: "no-store",
+  });
+}
+
+export async function getGeoIdAuthInfo(cookie?: string): Promise<AuthInfo> {
+  const body = await fetchJson(`${API_BASE}/api/me/geoid`, {
+    method: "GET",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      Origin: KATALOG_ORIGIN,
+      ...(cookie ? { Cookie: cookie } : {}),
+    },
+  });
+
+  return parseAuthInfo(body);
 }
 
 async function fetchJson(
@@ -281,6 +349,7 @@ export async function getDownloadOptions(
 
 export async function orderDownload(
   request: DownloadOrderRequest,
+  cookie?: string,
 ): Promise<DownloadOrderResult> {
   const url = `${API_BASE}/api/download/order`;
   const body = await fetchJson(url, {
@@ -288,6 +357,7 @@ export async function orderDownload(
     headers: {
       "Content-Type": "application/json",
       Origin: KATALOG_ORIGIN,
+      ...(cookie ? { Cookie: cookie } : {}),
     },
     body: JSON.stringify(request),
   });

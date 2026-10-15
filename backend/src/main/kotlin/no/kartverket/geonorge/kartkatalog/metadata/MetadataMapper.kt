@@ -98,6 +98,7 @@ class MetadataMapper(
                     record.extensionResources,
                     staticNorgeskartUrl = staticNorgeskartUrl,
                 ),
+            coverageData = getCoverageLinks(record.extensionResources),
         )
     }
 
@@ -110,13 +111,12 @@ class MetadataMapper(
     private fun describeAccessConstraints(
         recordAccessConstraints: String?,
         accessState: AccessState?,
-    ): String {
-        return when {
+    ): String =
+        when {
             accessState == AccessState.OPEN -> "Åpne data"
             accessState == AccessState.RESTRICTED -> "Norge digitalt-begrenset"
             else -> recordAccessConstraints ?: "-"
         }
-    }
 
     private suspend fun describeUseConstraints(
         useConstraints: String?,
@@ -244,7 +244,9 @@ class MetadataMapper(
             thesaurus?.contains("INSPIRE themes", ignoreCase = true) == true
 
     private suspend fun mapDistributionGroups(record: MetadataRecord): List<ProductDistributionGroup> =
-        record.distributionInfo?.formats.orEmpty()
+        record.distributionInfo
+            ?.formats
+            .orEmpty()
             .flatMap { format ->
                 format.onlineResources.map { resource ->
                     ResourceContribution(formatName = format.name, resource = resource)

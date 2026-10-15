@@ -113,7 +113,7 @@ const DownloadOrderRequestItemSchema = DownloadOrderItemInputSchema.extend({
 
 export const DownloadOrderRequestSchema = z
   .object({
-    email: z.string().email(),
+    email: z.string().email().optional(),
     usageGroup: z.string().min(1),
     items: z.array(DownloadOrderRequestItemSchema).min(1),
   })

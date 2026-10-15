@@ -36,7 +36,31 @@ data class ProductMetadata(
     val referenceSystems: List<ProductReferenceSystem> = emptyList(),
     val distributionGroups: List<ProductDistributionGroup> = emptyList(),
     val coverageUrl: String? = null,
+    val coverageData: CoverageData? = null,
 )
+
+@Serializable
+data class CoverageData(
+    // dekningskart
+    val coverageData: CoverageDataSource? = null,
+    // dekningsoversikt
+    val coverageOverviewData: CoverageDataSource? = null,
+    // fullstendighetsdekningskart
+    val completenessCoverageData: CoverageDataSource? = null,
+)
+
+@Serializable
+data class CoverageDataSource(
+    val url: String? = null,
+    val type: CoverageDataType? = null,
+    val layers: String? = null,
+)
+
+@Serializable
+enum class CoverageDataType {
+    WMS,
+    GEOJSON,
+}
 
 @Serializable
 enum class AccessState {

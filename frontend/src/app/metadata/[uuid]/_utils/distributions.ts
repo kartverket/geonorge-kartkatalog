@@ -72,10 +72,7 @@ export function getDownloadItem(
   metadata: ProductMetadata,
   uuid: string,
 ): DownloadItem | null {
-  if (
-    metadata.hierarchyLevel !== "dataset" ||
-    metadata.accessState !== "open"
-  ) {
+  if (metadata.hierarchyLevel !== "dataset") {
     return null;
   }
 

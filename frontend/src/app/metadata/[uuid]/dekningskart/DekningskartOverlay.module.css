@@ -1,0 +1,56 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr) auto;
+  pointer-events: none;
+}
+
+.leftColumn {
+  user-select: none;
+  pointer-events: none;
+  grid-column: 1;
+  grid-row: 1 / -1;
+
+  .mapControlCard {
+    background: rgba(255, 255, 255, 0.94);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    pointer-events: auto;
+    max-width: 400px;
+    fieldset {
+      border: none;
+    }
+  }
+}
+
+.breadcrumbContainer {
+  pointer-events: auto;
+}
+.columnContent {
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.symbologyBoxContainer {
+  padding-left: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.symbologyBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.symbologyColorBox {
+  width: 24px;
+  height: 24px;
+}
