@@ -53,12 +53,11 @@ export type DatasetCoverageFeatureInfo = z.infer<
 export type FeatureInfoResult = z.infer<typeof FeatureInfoResultSchema>;
 export type FeatureInfoResults = (FeatureInfoResult | null)[];
 
-export function parseFeatureInfoResult(body: unknown): FeatureInfoResult {
+export function parseFeatureInfoResult(body: unknown): FeatureInfoResult | null {
   const result = FeatureInfoResultSchema.safeParse(body);
   if (!result.success) {
-    throw new Error("Invalid feature info from map service", {
-      cause: result.error,
-    });
+    console.log("Invalid feature info result:", result.error);
+    return null;
   }
 
   return result.data;

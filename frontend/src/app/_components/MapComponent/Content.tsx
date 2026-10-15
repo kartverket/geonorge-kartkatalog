@@ -54,10 +54,12 @@ const getFeatureInfo = async (
       throw new Error(`Failed to fetch feature info: ${response.statusText}`);
     }
     const text = await response.text();
+    console.log(text);
     const converted = convert.xml2js(text, {
       compact: true,
       ignoreComment: true,
     });
+    console.log(converted);
     return parseFeatureInfoResult(converted);
   } catch (error) {
     console.error(error);

@@ -6,14 +6,17 @@ import {
   Checkbox,
   Details,
   Heading,
+  Spinner,
 } from "@kv-designsystem/react";
 import { FilesIcon, XMarkIcon } from "@navikt/aksel-icons";
 import type { Coordinate } from "ol/coordinate";
+import { Suspense } from "react";
 import type { FeatureInfo } from "@/app/_components/MapComponent/Content";
 import type { Kommune } from "@/lib/schemas/kommune";
 import { statusColors } from "../styleFunctions";
 import styles from "./DekningskartOverlay.module.css";
 import { FeatureInfoContent } from "./FeatureInfoContent";
+import { HeightSection } from "./HeightSection";
 
 export type LocationClickedInfo = {
   coordinate: Coordinate;
@@ -168,7 +171,7 @@ export const DekningskartOverlay = ({
                     <XMarkIcon></XMarkIcon>
                   </Button>
                 </div>
-                <div>{locationClickedInfo.height} moh</div>
+                <HeightSection position={locationClickedInfo.coordinate} />
                 <Details defaultOpen>
                   <Details.Summary>Koordinater</Details.Summary>
                   <Details.Content>
@@ -192,15 +195,17 @@ export const DekningskartOverlay = ({
                     </Button>
                   </Details.Content>
                 </Details>
-                <Details defaultOpen>
-                  <Details.Summary>Objektinformasjon</Details.Summary>
-                  <Details.Content>
-                    <FeatureInfoContent
-                      featureInfos={locationClickedInfo.featureInfoResults}
-                      kommunerByNummer={kommunerByNummer}
-                    />
-                  </Details.Content>
-                </Details>
+                {locationClickedInfo.featureInfoResults.length > 0 && (
+                  <Details defaultOpen>
+                    <Details.Summary>Objektinformasjon</Details.Summary>
+                    <Details.Content>
+                      <FeatureInfoContent
+                        featureInfos={locationClickedInfo.featureInfoResults}
+                        kommunerByNummer={kommunerByNummer}
+                      />
+                    </Details.Content>
+                  </Details>
+                )}
               </div>
             </Card>
           )}
