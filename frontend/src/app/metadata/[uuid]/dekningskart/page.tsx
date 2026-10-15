@@ -16,6 +16,7 @@ export default async function DekningskartPage({
     return <p>No coverage available</p>;
   }
   const coverageCompletenessUrl =
+    metadata.coverageData?.completenessCoverageData?.type === "GEOJSON" &&
     metadata.coverageData?.completenessCoverageData?.url;
   const [kommunerByNummer, completenessData] = await Promise.all([
     getKommunerByNummer(),

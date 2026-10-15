@@ -62,9 +62,12 @@ export const Dekningskart = (props: DekningkartProps) => {
     }
 
     if (props.completenessDataString) {
-      const features = new GeoJSON().readFeatures(props.completenessDataString, {
-        featureProjection: "EPSG:25833",
-      });
+      const features = new GeoJSON().readFeatures(
+        props.completenessDataString,
+        {
+          featureProjection: "EPSG:25833",
+        },
+      );
 
       const splitLayerConfig: { id: CoverageStatus; label: string }[] = [
         { id: "fullstendig", label: "Fullstendig" },
