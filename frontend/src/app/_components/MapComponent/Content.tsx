@@ -1,13 +1,18 @@
 "use client";
 
+import { Feature } from "ol";
 import ScaleLine from "ol/control/ScaleLine";
 import type { Coordinate } from "ol/coordinate";
 import type BaseEvent from "ol/events/Event";
+import { Point } from "ol/geom";
 import type BaseLayer from "ol/layer/Base";
 import TileLayer from "ol/layer/Tile";
 import VectorLayer from "ol/layer/Vector";
 import MapBrowserEvent from "ol/MapBrowserEvent";
 import TileWMS from "ol/source/TileWMS";
+import VectorSource from "ol/source/Vector";
+import Icon from "ol/style/Icon";
+import Style from "ol/style/Style";
 import { useCallback, useEffect, useRef } from "react";
 import convert from "xml-js";
 import {
@@ -28,6 +33,7 @@ export type FeatureInfo = {
 };
 
 export interface MapComponentProps {
+  markerLocation?: Coordinate;
   backgroundLayerName: BackgroundLayerName;
   layers?: BaseLayer[];
   controls?: MapControls[];
@@ -191,6 +197,36 @@ const Content = (props: MapComponentProps) => {
       };
     }
   }, [props.controls]);
+
+  useEffect(() => {
+    if (props.markerLocation) {
+      const [x, y] = props.markerLocation;
+      // Example: Add a marker at the specified coordinates
+      const marker = new Feature({
+        geometry: new Point([x, y]),
+      });
+      const vectorSource = new VectorSource({
+        features: [marker],
+      });
+      const markerLayer = new VectorLayer({
+        source: vectorSource,
+        style: new Style({
+          image: new Icon({
+            src: "/location_red.svg",
+            anchor: [0.5, 1],
+            scale: 1,
+          }),
+          zIndex: 1000,
+        }),
+        zIndex: 1000,
+      });
+      map.addLayer(markerLayer);
+
+      return () => {
+        map.removeLayer(markerLayer);
+      };
+    }
+  }, [props.markerLocation]);
 
   return (
     <div className={styles.container}>

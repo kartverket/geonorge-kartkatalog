@@ -106,6 +106,7 @@ export const Dekningskart = (props: DekningkartProps) => {
   return (
     <div className={styles.container} ref={componentRef}>
       <MapComponent
+        markerLocation={locationClickedInfo?.coordinate}
         backgroundLayerName="topograyscale"
         layers={mapLayers}
         controls={["scale", "movement"]}
