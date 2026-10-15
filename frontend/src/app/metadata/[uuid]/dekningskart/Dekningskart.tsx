@@ -6,10 +6,11 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { useEffect, useMemo, useRef, useState } from "react";
 import MapComponent from "@/app/_components/MapComponent/MapComponent";
+import type { Kommune } from "@/lib/schemas/kommune";
 import type { ProductMetadata } from "@/lib/schemas/product";
-import type { LocationClickedInfo } from "./overlay/DekningskartOverlay";
 import styles from "./Dekningskart.module.css";
 import { getLayerFromCoverageData } from "./layerUtils";
+import type { LocationClickedInfo } from "./overlay/DekningskartOverlay";
 import { DekningskartOverlay } from "./overlay/DekningskartOverlay";
 import {
   type CoverageStatus,
@@ -23,11 +24,13 @@ interface CoverageLayer {
 }
 
 export interface DekningkartProps {
-  metadata: ProductMetadata; 
+  metadata: ProductMetadata;
+  kommunerByNummer: Record<string, Kommune>;
 }
 
 export const Dekningskart = (props: DekningkartProps) => {
-  const [locationClickedInfo, setLocationClickedInfo] = useState<LocationClickedInfo | null>(null);
+  const [locationClickedInfo, setLocationClickedInfo] =
+    useState<LocationClickedInfo | null>(null);
   const coverageData = props.metadata.coverageData;
   const componentRef = useRef<HTMLDivElement>(null);
   const layers = useMemo(() => {
@@ -108,11 +111,15 @@ export const Dekningskart = (props: DekningkartProps) => {
         controls={["scale", "movement"]}
         fullScreenElementRef={componentRef}
         onFeatureInfoResultsChange={(featureInfoResults, coordinate) => {
-          setLocationClickedInfo({ featureInfoResults, coordinate, height: 1337 }); //Fix height later
+          setLocationClickedInfo({
+            featureInfoResults,
+            coordinate,
+            height: 1337,
+          }); //Fix height later
         }}
       />
       <DekningskartOverlay
-        metadata={props.metadata}
+        kommunerByNummer={props.kommunerByNummer}
         layerVisibility={layerVisibility}
         layerIds={layerIds}
         onVisibilityChange={(id, visible) =>
@@ -121,7 +128,7 @@ export const Dekningskart = (props: DekningkartProps) => {
           )
         }
         locationClickedInfo={locationClickedInfo}
-        onFeatureInfoClose={() => setLocationClickedInfo(null)}        
+        onFeatureInfoClose={() => setLocationClickedInfo(null)}
       />
     </div>
   );

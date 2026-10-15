@@ -14,8 +14,6 @@ export const LayerIdToName = new Map<string, string>([
   ["ikkeKartlagt", "Ikke kartlagt"],
 ]);
 
-
-
 export const getLayerFromCoverageData = (
   data: CoverageDataSource,
   internalId?: string,

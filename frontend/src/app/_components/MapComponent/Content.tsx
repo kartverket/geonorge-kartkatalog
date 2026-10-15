@@ -11,7 +11,7 @@ import TileWMS from "ol/source/TileWMS";
 import { useCallback, useEffect, useRef } from "react";
 import convert from "xml-js";
 import {
-  FeatureInfoResult,
+  type FeatureInfoResult,
   type FeatureInfoResults,
   parseFeatureInfoResult,
 } from "@/lib/schemas/feature-info";

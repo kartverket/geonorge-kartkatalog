@@ -10,7 +10,7 @@ import {
 import { FilesIcon, XMarkIcon } from "@navikt/aksel-icons";
 import type { Coordinate } from "ol/coordinate";
 import type { FeatureInfo } from "@/app/_components/MapComponent/Content";
-import type { ProductMetadata } from "@/lib/schemas/product";
+import type { Kommune } from "@/lib/schemas/kommune";
 import { statusColors } from "../styleFunctions";
 import styles from "./DekningskartOverlay.module.css";
 import { FeatureInfoContent } from "./FeatureInfoContent";
@@ -22,7 +22,7 @@ export type LocationClickedInfo = {
 };
 
 interface DekningskartOverlayProps {
-  metadata: ProductMetadata;
+  kommunerByNummer: Record<string, Kommune>;
   layerVisibility: Record<string, boolean>;
   layerIds: string[];
   onVisibilityChange: (id: string, visible: boolean) => void;
@@ -47,7 +47,7 @@ const SymbologyBox = ({
 );
 
 export const DekningskartOverlay = ({
-  metadata,
+  kommunerByNummer,
   layerVisibility,
   layerIds,
   onVisibilityChange,
@@ -197,6 +197,7 @@ export const DekningskartOverlay = ({
                   <Details.Content>
                     <FeatureInfoContent
                       featureInfos={locationClickedInfo.featureInfoResults}
+                      kommunerByNummer={kommunerByNummer}
                     />
                   </Details.Content>
                 </Details>

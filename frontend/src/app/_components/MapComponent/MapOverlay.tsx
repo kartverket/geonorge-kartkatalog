@@ -118,7 +118,9 @@ export const MapOverlay = (props: MapOverlayProps) => {
         {props.showMovementControls && (
           <Card className={styles.movementControls}>
             <ControlButton
-              icon={<ObiCoordinate  style={{ width: 'var(--ds-font-size-5)' }}/>}
+              icon={
+                <ObiCoordinate style={{ width: "var(--ds-font-size-5)" }} />
+              }
               onClick={onShowMyLocation}
             />
             <div className={styles.zoomButtons}>
