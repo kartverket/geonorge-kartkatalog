@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 kotlinx-datetime = "0.8.0"
 ktlint-gradle = "14.2.0"
 logback = "1.6.5"
