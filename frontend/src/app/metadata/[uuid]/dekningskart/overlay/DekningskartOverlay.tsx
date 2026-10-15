@@ -7,17 +7,17 @@ import {
   Details,
   Heading,
 } from "@kv-designsystem/react";
+import { FilesIcon, XMarkIcon } from "@navikt/aksel-icons";
+import type { Coordinate } from "ol/coordinate";
+import type { FeatureInfo } from "@/app/_components/MapComponent/Content";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import { statusColors } from "../styleFunctions";
 import styles from "./DekningskartOverlay.module.css";
-import { FilesIcon, XMarkIcon } from "@navikt/aksel-icons";
-import type { Coordinate } from "ol/coordinate";
-import { Feature } from "ol";
-import { FeatureInfo } from "./FeatureInfo";
+import { FeatureInfoContent } from "./FeatureInfoContent";
 
 export type LocationClickedInfo = {
   coordinate: Coordinate;
-  featureInfoResults: any[];
+  featureInfoResults: FeatureInfo[];
   height: number;
 };
 
@@ -192,8 +192,8 @@ export const DekningskartOverlay = ({
                 <Details defaultOpen>
                   <Details.Summary>Objektinformasjon</Details.Summary>
                   <Details.Content>
-                    <FeatureInfo
-                      results={locationClickedInfo.featureInfoResults}
+                    <FeatureInfoContent
+                      featureInfos={locationClickedInfo.featureInfoResults}
                     />
                   </Details.Content>
                 </Details>

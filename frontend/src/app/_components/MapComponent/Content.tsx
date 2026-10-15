@@ -1,8 +1,8 @@
 "use client";
 
 import ScaleLine from "ol/control/ScaleLine";
-import type BaseEvent from "ol/events/Event";
 import type { Coordinate } from "ol/coordinate";
+import type BaseEvent from "ol/events/Event";
 import type BaseLayer from "ol/layer/Base";
 import TileLayer from "ol/layer/Tile";
 import VectorLayer from "ol/layer/Vector";
@@ -10,6 +10,11 @@ import MapBrowserEvent from "ol/MapBrowserEvent";
 import TileWMS from "ol/source/TileWMS";
 import { useCallback, useEffect, useRef } from "react";
 import convert from "xml-js";
+import {
+  FeatureInfoResult,
+  type FeatureInfoResults,
+  parseFeatureInfoResult,
+} from "@/lib/schemas/feature-info";
 import styles from "./Content.module.css";
 import { MapOverlay } from "./MapOverlay";
 import { type BackgroundLayerName, getBackgroundLayer } from "./map/layers";
@@ -17,16 +22,26 @@ import { map } from "./map/map";
 
 export type MapControls = "scale" | "movement";
 
+export type FeatureInfo = {
+  layerId: string | undefined;
+  result: FeatureInfoResult;
+};
+
 export interface MapComponentProps {
   backgroundLayerName: BackgroundLayerName;
   layers?: BaseLayer[];
   controls?: MapControls[];
   fullScreenElementRef?: React.RefObject<HTMLElement | null>;
-  onFeatureInfoResultsChange?: (results: any[], locationClicked: Coordinate) => void;
+  onFeatureInfoResultsChange?: (
+    results: FeatureInfo[],
+    locationClicked: Coordinate,
+  ) => void;
   onClick?: (event: Event | BaseEvent) => void;
 }
 
-const getFeatureInfo = async (url: string) => {
+const getFeatureInfo = async (
+  url: string,
+): Promise<FeatureInfoResults[number]> => {
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -37,7 +52,7 @@ const getFeatureInfo = async (url: string) => {
       compact: true,
       ignoreComment: true,
     });
-    return converted;
+    return parseFeatureInfoResult(converted);
   } catch (error) {
     console.error(error);
     return null;
@@ -66,28 +81,36 @@ const Content = (props: MapComponentProps) => {
       const featureInfoUrls = currentLayers
         .map((layer) => {
           if (layer instanceof VectorLayer || layer instanceof TileLayer) {
+            console.log(layer.getProperties().id);
             const source = layer.getSource();
             if (source instanceof TileWMS) {
-              return source.getFeatureInfoUrl(
+              const url = source.getFeatureInfoUrl(
                 event.coordinate,
                 currentResolution,
                 currentProjection.getCode(),
                 { INFO_FORMAT: "application/vnd.ogc.gml" },
               );
+              if (url == null) return null;
+              return {
+                url: url,
+                id: layer.getProperties().id as string | undefined,
+              };
             }
-
-            // Do something with the source
           }
           return null;
         })
-        .filter((url) => url != null);
-      const featureInfoPromises = featureInfoUrls.map((url) =>
-        getFeatureInfo(url),
+        .filter((r) => r?.url != null)
+        .filter((r) => r != null);
+      const featureInfoPromises = featureInfoUrls.map(({ url, id }) =>
+        getFeatureInfo(url).then((result) => ({ result, layerId: id })),
       );
       const featureInfoResults = Promise.all(featureInfoPromises);
       featureInfoResults.then((results) => {
         if (props.onFeatureInfoResultsChange) {
-          props.onFeatureInfoResultsChange(results, event.coordinate);
+          const resultsWithData = results.filter(
+            (r) => r.result != null,
+          ) as FeatureInfo[];
+          props.onFeatureInfoResultsChange(resultsWithData, event.coordinate);
         }
       });
     },
