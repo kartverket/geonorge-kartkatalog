@@ -6,20 +6,64 @@ import type {
   FeatureInfoResults,
 } from "@/lib/schemas/feature-info";
 import { Heading } from "@kv-designsystem/react";
+import { LayerIdToName } from "../layerUtils";
 
-const FeatureInfoSection = ({
-  result,
+const FeatureInfoLine = ({
+  label,
+  value,
 }: {
-  title: string;
-  result: FeatureInfo;
+  label: string;
+  value: string;
 }) => (
   <div>
-    <Heading level={4} data-size={"xs"}>
-      noe greier
-    </Heading>
-    <div>{JSON.stringify(result)}</div>
+    <strong>{label}:</strong> {value}
   </div>
 );
+
+const UnknownLayerName = "Ukjent lag";
+const FeatureInfoSection = ({ info }: { info: FeatureInfo }) => {
+  const layerName =
+    info.layerId != null
+      ? (LayerIdToName.get(info.layerId) ?? UnknownLayerName)
+      : UnknownLayerName;
+  console.log(info);
+  return (
+    <div>
+      <Heading level={4} data-size={"xs"}>
+        Fra laget "{layerName}"
+      </Heading>
+      <div>
+        {(() => {
+          switch (info.layerId) {
+            case "overview":
+              return (
+                <FeatureInfoLine
+                  label="Kommunenummer"
+                  value={
+                    info.result.msGMLOutput.datasett_dekning_layer
+                      .datasett_dekning_feature.kommunenr._text
+                  }
+                />
+              );
+            case "coverage":
+              return (
+                <FeatureInfoLine
+                  label="Objektid"
+                  value={
+                    info.result.msGMLOutput.datasett_dekning_layer
+                      .datasett_dekning_feature.objid._text
+                  }
+                />
+              );
+            default:
+              return UnknownLayerName;
+          }
+        })()}
+      </div>
+      
+    </div>
+  );
+};
 
 export interface FeatureInfoProps {
   featureInfos: FeatureInfo[];
@@ -29,16 +73,9 @@ export const FeatureInfoContent = ({ featureInfos }: FeatureInfoProps) => {
   console.log(JSON.stringify(featureInfos));
   return (
     <div>
-      Feature Info Component
-      {featureInfos
-        .filter((r) => r != null)
-        .map((result, index) => (
-          <FeatureInfoSection
-            key={index}
-            title={`Feature Info ${index + 1}`}
-            result={result}
-          />
-        ))}
+      {featureInfos.map((result, index) => (
+        <FeatureInfoSection key={index} info={result} />
+      ))}
     </div>
   );
 };

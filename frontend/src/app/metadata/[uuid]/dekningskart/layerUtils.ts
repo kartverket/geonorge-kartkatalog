@@ -6,6 +6,16 @@ import { TileWMS } from "ol/source";
 import VectorSource from "ol/source/Vector";
 import type { CoverageDataSource } from "@/lib/schemas/product";
 
+export const LayerIdToName = new Map<string, string>([
+  ["overview", "Kommune"],
+  ["coverage", "Rutenett"],
+  ["fullstendig", "Fullstendig"],
+  ["ufullstendig", "Ufullstendig"],
+  ["ikkeKartlagt", "Ikke kartlagt"],
+]);
+
+
+
 export const getLayerFromCoverageData = (
   data: CoverageDataSource,
   internalId?: string,
