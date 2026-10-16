@@ -150,7 +150,7 @@ class LegacySearchRoutesTest {
                     .first()
                     .jsonObject
             assertEquals(
-                "https://kartkatalog.test/metadata/uuid/test-uuid",
+                "https://kartkatalog.test/metadata/test-uuid",
                 result.getValue("ShowDetailsUrl").jsonPrimitive.content,
             )
             assertEquals("Kartverket", result.getValue("Organization").jsonPrimitive.content)
