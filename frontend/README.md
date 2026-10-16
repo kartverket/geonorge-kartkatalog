@@ -6,7 +6,7 @@ Next.js 16 + React 19 frontend for the Geonorge Kartkatalog. This document is me
 
 ## Prerequisites
 
-- **Node.js 20+** (matches `@types/node`)
+- **Node.js 20.20.x or 22.22+** (required by `posthog-node`; production image uses Node 26)
 - **npm** (package-lock is committed with npm)
 
 Optional but recommended:
@@ -88,6 +88,12 @@ Anything with `page.tsx` inside a route folder becomes a page. If a folder start
 ---
 
 ## Conventions
+
+### Server-side PostHog flags
+
+Use `getServerFeatureFlag` from `src/posthog/server.ts` in Server Components. It uses the same `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` and `NEXT_PUBLIC_POSTHOG_HOST` configured for the browser in `instrumentation-client.ts`. Set both at build time for browser flags and at runtime for server evaluation. The helper evaluates flags only with analytics consent and reads the `posthog-js` distinct ID cookie from the current request; do not cache its result across users.
+
+On a first request (or when the browser blocks that cookie), no matching browser identity exists yet. The helper returns `undefined`, so callers should render their existing/default experience. A subsequent request can evaluate the flag once the browser has stored its identity.
 
 ### Server vs client components
 
@@ -194,6 +200,3 @@ Use **[@navikt/aksel-icons](https://aksel.nav.no/ikoner)** for all icons. It's a
 - [Next.js App Router docs](https://nextjs.org/docs/app)
 - [React 19 docs](https://react.dev/)
 - [Biome docs](https://biomejs.dev/)
-
-
-
