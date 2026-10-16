@@ -1,5 +1,5 @@
 import Breadcrumbs from "@/app/_components/Breadcrumbs/Breadcrumbs";
-import { getCoverageData, getKommunerByNummer, getMetadata } from "@/app/api";
+import { getCoverageData, getMetadata } from "@/app/api";
 import { Dekningskart } from "./Dekningskart";
 import styles from "./page.module.css";
 import { shouldShowCoverageMap } from "./utils";
@@ -18,12 +18,9 @@ export default async function DekningskartPage({
   const coverageCompletenessUrl =
     metadata.coverageData?.completenessCoverageData?.type === "GEOJSON" &&
     metadata.coverageData?.completenessCoverageData?.url;
-  const [kommunerByNummer, completenessData] = await Promise.all([
-    getKommunerByNummer(),
-    coverageCompletenessUrl
-      ? getCoverageData(coverageCompletenessUrl)
-      : Promise.resolve(null),
-  ]);
+  const completenessData = await (coverageCompletenessUrl
+    ? getCoverageData(coverageCompletenessUrl)
+    : Promise.resolve(null));
 
   return (
     <div className={styles.dekningskartPage}>
@@ -42,7 +39,6 @@ export default async function DekningskartPage({
       </div>
       <Dekningskart
         metadata={metadata}
-        kommunerByNummer={kommunerByNummer}
         completenessDataString={completenessData}
       />
     </div>

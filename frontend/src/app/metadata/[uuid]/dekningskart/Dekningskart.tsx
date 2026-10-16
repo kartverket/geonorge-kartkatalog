@@ -6,7 +6,6 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { useEffect, useMemo, useRef, useState } from "react";
 import MapComponent from "@/app/_components/MapComponent/MapComponent";
-import type { Kommune } from "@/lib/schemas/kommune";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import styles from "./Dekningskart.module.css";
 import { getLayerFromCoverageData } from "./layerUtils";
@@ -25,7 +24,6 @@ interface CoverageLayer {
 
 export interface DekningkartProps {
   metadata: ProductMetadata;
-  kommunerByNummer: Record<string, Kommune>;
   completenessDataString: string | null;
 }
 
@@ -133,7 +131,6 @@ export const Dekningskart = (props: DekningkartProps) => {
       />
       <DekningskartOverlay
         metadata={props.metadata}
-        kommunerByNummer={props.kommunerByNummer}
         layerVisibility={layerVisibility}
         layerIds={layerIds}
         onVisibilityChange={(id, visible) =>

@@ -23,6 +23,7 @@ const DatasetCoverageFeatureInfoSchema = z.union([
   }),
   FeatureInfoFeatureSchema.extend({
     kommunenr: FeatureInfoTextSchema,
+    navn: FeatureInfoTextSchema,
   }),
 ]);
 
