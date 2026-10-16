@@ -6,11 +6,7 @@ import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
-
-internal data class LegacySearchResult(val json: JsonObject, val hits: SearchHits)
 
 internal class LegacySearchResponse(
     language: String,
@@ -19,9 +15,12 @@ internal class LegacySearchResponse(
 ) {
     private val english = language == "en"
 
-    fun build(request: LegacySearchRequest, hits: SearchHits): LegacySearchResult {
+    fun build(
+        request: LegacySearchRequest,
+        hits: SearchHits,
+    ): JsonObject {
         val rows = hits.documents.map(::metadata)
-        val json = buildJsonObject {
+        return buildJsonObject {
             put("NumFound", hits.numFound)
             put("Limit", request.limit)
             put("Offset", request.offset)
@@ -29,7 +28,6 @@ internal class LegacySearchResponse(
             put("Facets", JsonArray(hits.facets.map { (field, counts) -> facet(field, counts) }))
             if (rows.isNotEmpty()) put("Type", "search")
         }
-        return LegacySearchResult(json, hits)
     }
 
     private fun metadata(doc: SearchHit): JsonObject {

@@ -7,6 +7,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.json.JsonObject
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.metadata.TimedCache
@@ -20,8 +21,11 @@ class LegacySearchService(
     private val log = LoggerFactory.getLogger(LegacySearchService::class.java)
     private val areasCache = TimedCache<String, Map<String, String>>(12 * 60 * 60 * 1000L)
 
-    internal suspend fun search(request: LegacySearchRequest, language: String): LegacySearchResult {
-        val hits = try {
+    internal suspend fun searchHits(
+        request: LegacySearchRequest,
+        language: String,
+    ): SearchHits =
+        try {
             engine.search(LegacySearchQuery.build(request), language == "en")
         } catch (e: CancellationException) {
             throw e
@@ -30,6 +34,12 @@ class LegacySearchService(
             log.warn("Legacy-compatible Solr search failed", e)
             SearchHits.Empty
         }
+
+    internal suspend fun search(
+        request: LegacySearchRequest,
+        language: String,
+    ): JsonObject {
+        val hits = searchHits(request, language)
         // The legacy controller fetches municipality and county names even for empty searches.
         val areas = areasCache.getOrFetch("areas") {
             listOf("fylkesnummer", "kommunenummer").flatMap { list ->
@@ -55,11 +65,10 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
         val request = LegacySearchRequest.fromQuery(params)
         val csv = params.wantsSearchCsv(call.request.headers[HttpHeaders.Accept])
         try {
-            val result = service.search(request, language)
             if (csv) {
-                call.respondSearchCsv(result.hits, language)
+                call.respondSearchCsv(service.searchHits(request, language), language)
             } else {
-                call.respond(result.json)
+                call.respond(service.search(request, language))
             }
         } catch (e: CancellationException) {
             throw e

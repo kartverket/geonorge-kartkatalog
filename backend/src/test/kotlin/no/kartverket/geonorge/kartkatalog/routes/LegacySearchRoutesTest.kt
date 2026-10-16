@@ -56,7 +56,7 @@ class LegacySearchRoutesTest {
         }
     """.trimIndent()
 
-    private fun upstream(solrError: Boolean = false): HttpClient =
+    private fun upstream(solrError: Boolean = false, registerError: Boolean = false): HttpClient =
         HttpClient(MockEngine { request ->
             val path = request.url.encodedPath
             paths += path
@@ -68,8 +68,17 @@ class LegacySearchRoutesTest {
                 path.endsWith("kommunenummer") -> """{"containeditems":[{"label":"Oslo","codevalue":"0301","status":"Gyldig"}]}"""
                 else -> """{"containeditems":[]}"""
             }
-            respond(body, if (isSolr && solrError) HttpStatusCode.InternalServerError else HttpStatusCode.OK,
-                headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()))
+            val status =
+                when {
+                    isSolr && solrError -> HttpStatusCode.InternalServerError
+                    !isSolr && registerError -> HttpStatusCode.InternalServerError
+                    else -> HttpStatusCode.OK
+                }
+            respond(
+                body,
+                status,
+                headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+            )
         })
 
     @Test
@@ -195,6 +204,34 @@ class LegacySearchRoutesTest {
     }
 
     @Test
+    fun `csv skips area register lookup but json still needs it`() =
+        testApplication {
+            val upstream = upstream(registerError = true)
+            application {
+                configureSerialization()
+                val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
+                val register = RegisterClient(upstream, "https://register.example.test")
+                routing {
+                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                }
+            }
+
+            val csv = client.get("/search?mediatype=csv")
+            assertEquals(HttpStatusCode.OK, csv.status)
+            assertTrue(csv.bodyAsText().startsWith("Tittel;Type;Tema;Organisasjon;"))
+            val acceptCsv = client.get("/search") { headers.append(HttpHeaders.Accept, "text/csv") }
+            assertEquals(HttpStatusCode.OK, acceptCsv.status)
+            assertEquals(csv.bodyAsText(), acceptCsv.bodyAsText())
+            assertEquals(2, paths.count { it.startsWith("/solr/") })
+            assertTrue(paths.none { it.startsWith("/api/sosi-kodelister/") })
+
+            val json = client.get("/search")
+            assertEquals(HttpStatusCode.InternalServerError, json.status)
+            assertTrue(paths.any { it.endsWith("/fylkesnummer") })
+            upstream.close()
+        }
+
+    @Test
     fun `Solr failures return an empty successful legacy result`() = testApplication {
         val upstream = upstream(solrError = true)
         application {
@@ -214,6 +251,9 @@ class LegacySearchRoutesTest {
         assertEquals(0, json.getValue("Results").jsonArray.size)
         assertEquals(0, json.getValue("Facets").jsonArray.size)
         assertTrue("Type" !in json)
+        val csv = client.get("/search?mediatype=csv")
+        assertEquals(HttpStatusCode.OK, csv.status)
+        assertEquals("", csv.bodyAsText())
         val modern = client.get("/api/search?offset=2")
         assertEquals(HttpStatusCode.BadGateway, modern.status)
         val modernCsv = client.get("/api/search?mediatype=csv")
