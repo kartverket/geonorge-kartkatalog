@@ -8,18 +8,25 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.SerialName
 
 @Serializable
 data class ExchangeRequest(
+    @SerialName("identity_provider")
     val identityProvider: String,
+    @SerialName("user_token")
     val userToken: String,
+    @SerialName("target")
     val target: String,
 )
 
 @Serializable
 private data class ExchangeResponse(
+    @SerialName("access_token")
     val accessToken: String,
+    @SerialName("expires_in")
     val expiresIn: Int,
+    @SerialName("token_type")
     val tokenType: String,
 )
 
