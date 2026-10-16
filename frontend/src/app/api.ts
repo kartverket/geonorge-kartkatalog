@@ -13,7 +13,6 @@ import {
   parseDownloadOptions,
   parseDownloadOrderResult,
 } from "@/lib/schemas/download";
-import { type Kommune, parseKommuner } from "@/lib/schemas/kommune";
 import {
   type LinkedDistributions,
   type ProductFairStatus,
@@ -403,19 +402,6 @@ export async function getDownloadInsightGroups(): Promise<DownloadInsightGroups>
     method: "GET",
   });
   return parseDownloadInsightGroups(body);
-}
-
-export async function getKommunerByNummer(): Promise<Record<string, Kommune>> {
-  "use cache";
-  cacheLife("days");
-
-  const body = await fetchJson(
-    "https://api.kartverket.no/kommuneinfo/v1/kommuner",
-  );
-  const kommuner = parseKommuner(body);
-  return Object.fromEntries(
-    kommuner.map((kommune) => [kommune.kommunenummer, kommune]),
-  );
 }
 
 export async function getCoverageData(url: string): Promise<string> {
