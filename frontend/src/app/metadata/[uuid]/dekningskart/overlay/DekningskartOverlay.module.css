@@ -26,6 +26,9 @@
     }
   }
 }
+.controlFielsset {
+  padding-left: 0;
+}
 
 .rightColumn {
   user-select: none;

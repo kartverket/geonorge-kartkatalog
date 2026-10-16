@@ -77,7 +77,7 @@ export const DekningskartOverlay = ({
                 <Details.Summary>Se dekningskart</Details.Summary>
                 <Details.Content>
                   <legend>Velg detaljeringsnivå</legend>
-                  <fieldset>
+                  <fieldset className={styles.controlFielsset}>
                     {layerIds.includes("overview") ? (
                       <LayerCheckbox
                         id="overview"
@@ -109,7 +109,7 @@ export const DekningskartOverlay = ({
                   <Heading level={4} data-size={"2xs"}>
                     Velg status for kartlegging
                   </Heading>
-                  <fieldset>
+                  <fieldset className={styles.controlFielsset}>
                     {layerIds.includes("fullstendig") && (
                       <LayerCheckbox
                         id="fullstendig"
