@@ -14,8 +14,10 @@ class SearchService(
     private val areaResolver: AreaResolver,
     private val hvdResolver: HvdResolver,
 ) {
-    internal suspend fun searchHits(request: SearchRequest, english: Boolean = false): SearchHits =
-        engine.search(SearchQueryBuilder.build(request), english)
+    internal suspend fun searchHits(
+        request: SearchRequest,
+        english: Boolean = false,
+    ): SearchHits = engine.search(SearchQueryBuilder.build(request), english)
 
     suspend fun search(request: SearchRequest): SearchResponse =
         coroutineScope {
@@ -64,24 +66,24 @@ class SearchService(
     ): List<SearchFacetValue> {
         val values =
             mapNotNull { (facetName, facetCount) ->
-                    if (isJunkFacetValue(facetField, facetName)) return@mapNotNull null
-                    SearchFacetValue(
-                        name = facetName,
-                        label =
-                            when (facetField) {
-                                "type" -> translateType(facetName)
-                                "area" -> fylkeNames[facetName]
-                                "nationalinitiative" -> nationalInitiativeLabels[facetName]
-                                else -> null
-                            },
-                        category =
-                            if (facetField == "nationalinitiative" && facetName in hvdCategories) {
-                                "High value dataset"
-                            } else {
-                                null
-                            },
-                        count = facetCount,
-                    )
+                if (isJunkFacetValue(facetField, facetName)) return@mapNotNull null
+                SearchFacetValue(
+                    name = facetName,
+                    label =
+                        when (facetField) {
+                            "type" -> translateType(facetName)
+                            "area" -> fylkeNames[facetName]
+                            "nationalinitiative" -> nationalInitiativeLabels[facetName]
+                            else -> null
+                        },
+                    category =
+                        if (facetField == "nationalinitiative" && facetName in hvdCategories) {
+                            "High value dataset"
+                        } else {
+                            null
+                        },
+                    count = facetCount,
+                )
             }
 
         return when (facetField) {
@@ -183,7 +185,13 @@ class SearchService(
         val access = resolveAccess(dataaccess, otherconstraintsaccess, accessconstraint)
 
         val mapCapability =
-            resolveMapCapability(type, distributionProtocol, distributionUrl, datasetservice, serviceDistributionUrlForDataset)
+            resolveMapCapability(
+                type,
+                distributionProtocol,
+                distributionUrl,
+                datasetservice,
+                serviceDistributionUrlForDataset,
+            )
 
         return SearchResultItem(
             uuid = uuid,

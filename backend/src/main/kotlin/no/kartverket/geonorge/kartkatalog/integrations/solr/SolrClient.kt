@@ -60,8 +60,10 @@ class SolrClient(
         return querySolr(applicationPath, query).response.docs
     }
 
-    suspend fun searchMetadataAll(query: MetadataSolrQuery, english: Boolean = false): SolrResponse =
-        querySolr(if (english) metadataAllEnglishPath else metadataAllPath, query)
+    suspend fun searchMetadataAll(
+        query: MetadataSolrQuery,
+        english: Boolean = false,
+    ): SolrResponse = querySolr(if (english) metadataAllEnglishPath else metadataAllPath, query)
 
     private suspend fun querySolr(
         path: String,

@@ -3,12 +3,15 @@ package no.kartverket.geonorge.kartkatalog.search
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
-import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
+import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 
-internal data class SearchFacetCount(val name: String, val count: Int)
+internal data class SearchFacetCount(
+    val name: String,
+    val count: Int,
+)
 
 internal data class SearchHit(
     val uuid: String,
@@ -57,14 +60,24 @@ internal data class SearchHits(
     }
 }
 
-class SearchEngine(private val solrClient: SolrClient) {
-    internal suspend fun search(query: MetadataSolrQuery, english: Boolean = false): SearchHits {
+class SearchEngine(
+    private val solrClient: SolrClient,
+) {
+    internal suspend fun search(
+        query: MetadataSolrQuery,
+        english: Boolean = false,
+    ): SearchHits {
         val response = solrClient.searchMetadataAll(query, english)
-        val facets = response.facetCounts?.facetFields.orEmpty().mapValues { (_, raw) -> raw.toCounts() }
+        val facets =
+            response.facetCounts
+                ?.facetFields
+                .orEmpty()
+                .mapValues { (_, raw) -> raw.toCounts() }
         return SearchHits(response.response.numFound, response.response.docs.map { it.toSearchHit() }, facets)
     }
 
-    fun parseDatasetServices(values: List<String>?): List<RelatedServiceReference> = solrClient.parseDatasetServices(values)
+    fun parseDatasetServices(values: List<String>?): List<RelatedServiceReference> =
+        solrClient.parseDatasetServices(values)
 }
 
 private fun JsonArray.toCounts(): List<SearchFacetCount> =
@@ -111,7 +124,3 @@ private fun SolrDocument.toSearchHit(): SearchHit =
         dateUpdated = dateUpdated?.toString(),
         spatialscope = spatialscope,
     )
-
-
-
-

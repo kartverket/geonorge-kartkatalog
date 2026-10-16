@@ -39,7 +39,8 @@ class LegacySearchRoutesTest {
     private val paths = CopyOnWriteArrayList<String>()
     private val searchForms = CopyOnWriteArrayList<String>()
 
-    private val solrResponse = """
+    private val solrResponse =
+        """
         {
           "responseHeader":{"status":0,"QTime":1},
           "response":{"numFound":1,"start":0,"docs":[{
@@ -54,80 +55,122 @@ class LegacySearchRoutesTest {
             "area":["Norge",1,"0/03",1,"0/03/0301",1]
           }}
         }
-    """.trimIndent()
+        """.trimIndent()
 
-    private fun upstream(solrError: Boolean = false, registerError: Boolean = false): HttpClient =
-        HttpClient(MockEngine { request ->
-            val path = request.url.encodedPath
-            paths += path
-            val isSolr = path.startsWith("/solr/")
-            if (isSolr) searchForms += (request.body as FormDataContent).formData.toString()
-            val body = when {
-                isSolr -> solrResponse
-                path.endsWith("fylkesnummer") -> """{"containeditems":[{"label":"Oslo","codevalue":"03","status":"Gyldig"}]}"""
-                path.endsWith("kommunenummer") -> """{"containeditems":[{"label":"Oslo","codevalue":"0301","status":"Gyldig"}]}"""
-                else -> """{"containeditems":[]}"""
-            }
-            val status =
-                when {
-                    isSolr && solrError -> HttpStatusCode.InternalServerError
-                    !isSolr && registerError -> HttpStatusCode.InternalServerError
-                    else -> HttpStatusCode.OK
-                }
-            respond(
-                body,
-                status,
-                headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-            )
-        })
+    private fun upstream(
+        solrError: Boolean = false,
+        registerError: Boolean = false,
+    ): HttpClient =
+        HttpClient(
+            MockEngine { request ->
+                val path = request.url.encodedPath
+                paths += path
+                val isSolr = path.startsWith("/solr/")
+                if (isSolr) searchForms += (request.body as FormDataContent).formData.toString()
+                val body =
+                    when {
+                        isSolr -> solrResponse
+                        path.endsWith(
+                            "fylkesnummer",
+                        ) -> """{"containeditems":[{"label":"Oslo","codevalue":"03","status":"Gyldig"}]}"""
+                        path.endsWith(
+                            "kommunenummer",
+                        ) -> """{"containeditems":[{"label":"Oslo","codevalue":"0301","status":"Gyldig"}]}"""
+                        else -> """{"containeditems":[]}"""
+                    }
+                val status =
+                    when {
+                        isSolr && solrError -> HttpStatusCode.InternalServerError
+                        !isSolr && registerError -> HttpStatusCode.InternalServerError
+                        else -> HttpStatusCode.OK
+                    }
+                respond(
+                    body,
+                    status,
+                    headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+            },
+        )
 
     @Test
-    fun `returns PascalCase metadata and hierarchical area facets without changing modern search`() = testApplication {
-        val upstream = upstream()
-        application {
-            configureSerialization()
-            val solr = SolrClient(upstream, "https://solr.example.test")
-            val engine = SearchEngine(solr)
-            val register = RegisterClient(upstream, "https://register.example.test")
-            routing {
-                legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test/"))
-                searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+    fun `returns PascalCase metadata and hierarchical area facets without changing modern search`() =
+        testApplication {
+            val upstream = upstream()
+            application {
+                configureSerialization()
+                val solr = SolrClient(upstream, "https://solr.example.test")
+                val engine = SearchEngine(solr)
+                val register = RegisterClient(upstream, "https://register.example.test")
+                routing {
+                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test/"))
+                    searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+                }
             }
+
+            val legacy = client.get("/search?text=Kart&limit=25&offset=2")
+            val json = Json.parseToJsonElement(legacy.bodyAsText()).jsonObject
+            assertEquals(HttpStatusCode.OK, legacy.status)
+            assertEquals("no", legacy.headers[HttpHeaders.ContentLanguage])
+            assertEquals("25", json.getValue("Limit").jsonPrimitive.content)
+            assertEquals("2", json.getValue("Offset").jsonPrimitive.content)
+            val result =
+                json
+                    .getValue("Results")
+                    .jsonArray
+                    .first()
+                    .jsonObject
+            assertEquals(
+                "https://kartkatalog.test/metadata/uuid/test-uuid",
+                result.getValue("ShowDetailsUrl").jsonPrimitive.content,
+            )
+            assertEquals("Kartverket", result.getValue("Organization").jsonPrimitive.content)
+            assertEquals("Datasett", result.getValue("TypeTranslated").jsonPrimitive.content)
+            assertTrue("Abstract" !in result)
+            assertTrue("MapUrl" !in result)
+            val area =
+                json
+                    .getValue("Facets")
+                    .jsonArray
+                    .first {
+                        it.jsonObject["Name"]?.jsonPrimitive?.content == "area"
+                    }.jsonObject
+            val county =
+                area
+                    .getValue("FacetResults")
+                    .jsonArray
+                    .last()
+                    .jsonObject
+            assertEquals("Oslo", county.getValue("NameTranslated").jsonPrimitive.content)
+            assertEquals(
+                "0/03/0301",
+                county
+                    .getValue("FacetResults")
+                    .jsonArray
+                    .first()
+                    .jsonObject
+                    .getValue("Name")
+                    .jsonPrimitive.content,
+            )
+
+            val modern = client.get("/api/search?text=Kart&limit=25&offset=2")
+            assertEquals(HttpStatusCode.OK, modern.status)
+            assertContains(modern.bodyAsText(), "\"numFound\":1")
+            assertFalse(modern.bodyAsText().contains("\"NumFound\""))
+            assertTrue(paths.contains("/solr/metadata_all/select"))
+            assertEquals(2, searchForms.size)
+            // Same engine and core, but modern and legacy retain their own query semantics.
+            assertNotEquals(searchForms[0], searchForms[1])
+            val legacyCsv = client.get("/search?text=Kart&limit=25&offset=2&mediatype=csv")
+            val modernCsv = client.get("/api/search?text=Kart&limit=25&offset=2&mediatype=csv")
+            assertEquals(HttpStatusCode.OK, modernCsv.status)
+            assertContains(modernCsv.headers[HttpHeaders.ContentType].orEmpty(), "text/csv")
+            assertEquals(
+                legacyCsv.headers[HttpHeaders.ContentDisposition],
+                modernCsv.headers[HttpHeaders.ContentDisposition],
+            )
+            assertEquals(legacyCsv.bodyAsText(), modernCsv.bodyAsText())
+            upstream.close()
         }
-
-        val legacy = client.get("/search?text=Kart&limit=25&offset=2")
-        val json = Json.parseToJsonElement(legacy.bodyAsText()).jsonObject
-        assertEquals(HttpStatusCode.OK, legacy.status)
-        assertEquals("no", legacy.headers[HttpHeaders.ContentLanguage])
-        assertEquals("25", json.getValue("Limit").jsonPrimitive.content)
-        assertEquals("2", json.getValue("Offset").jsonPrimitive.content)
-        val result = json.getValue("Results").jsonArray.first().jsonObject
-        assertEquals("https://kartkatalog.test/metadata/uuid/test-uuid", result.getValue("ShowDetailsUrl").jsonPrimitive.content)
-        assertEquals("Kartverket", result.getValue("Organization").jsonPrimitive.content)
-        assertEquals("Datasett", result.getValue("TypeTranslated").jsonPrimitive.content)
-        assertTrue("Abstract" !in result)
-        assertTrue("MapUrl" !in result)
-        val area = json.getValue("Facets").jsonArray.first { it.jsonObject["Name"]?.jsonPrimitive?.content == "area" }.jsonObject
-        val county = area.getValue("FacetResults").jsonArray.last().jsonObject
-        assertEquals("Oslo", county.getValue("NameTranslated").jsonPrimitive.content)
-        assertEquals("0/03/0301", county.getValue("FacetResults").jsonArray.first().jsonObject.getValue("Name").jsonPrimitive.content)
-
-        val modern = client.get("/api/search?text=Kart&limit=25&offset=2")
-        assertEquals(HttpStatusCode.OK, modern.status)
-        assertContains(modern.bodyAsText(), "\"numFound\":1")
-        assertFalse(modern.bodyAsText().contains("\"NumFound\""))
-        assertTrue(paths.contains("/solr/metadata_all/select"))
-        assertEquals(2, searchForms.size)
-        // Same engine and core, but modern and legacy retain their own query semantics.
-        assertNotEquals(searchForms[0], searchForms[1])
-        val legacyCsv = client.get("/search?text=Kart&limit=25&offset=2&mediatype=csv")
-        val modernCsv = client.get("/api/search?text=Kart&limit=25&offset=2&mediatype=csv")
-        assertEquals(HttpStatusCode.OK, modernCsv.status)
-        assertContains(modernCsv.headers[HttpHeaders.ContentType].orEmpty(), "text/csv")
-        assertEquals(legacyCsv.headers[HttpHeaders.ContentDisposition], modernCsv.headers[HttpHeaders.ContentDisposition])
-        assertEquals(legacyCsv.bodyAsText(), modernCsv.bodyAsText())
-        upstream.close()
-    }
 
     @Test
     fun `defaults to Norwegian when no language is provided`() =
@@ -159,49 +202,52 @@ class LegacySearchRoutesTest {
         }
 
     @Test
-    fun `selects English core and localized labels and returns semicolon csv`() = testApplication {
-        val upstream = upstream()
-        application {
-            configureSerialization()
-            val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
-            val register = RegisterClient(upstream, "https://register.example.test")
-            routing {
-                legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
-                searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+    fun `selects English core and localized labels and returns semicolon csv`() =
+        testApplication {
+            val upstream = upstream()
+            application {
+                configureSerialization()
+                val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
+                val register = RegisterClient(upstream, "https://register.example.test")
+                routing {
+                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                    searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+                }
             }
-        }
 
-        val english = client.get("/search?lang=en")
-        assertEquals(HttpStatusCode.OK, english.status)
-        assertEquals("en", english.headers[HttpHeaders.ContentLanguage])
-        assertContains(english.bodyAsText(), "\"TypeTranslated\":\"Dataset\"")
-        assertContains(english.bodyAsText(), "\"NameTranslated\":\"Area\"")
-        assertTrue(paths.contains("/solr/metadata_all_en/select"))
+            val english = client.get("/search?lang=en")
+            assertEquals(HttpStatusCode.OK, english.status)
+            assertEquals("en", english.headers[HttpHeaders.ContentLanguage])
+            assertContains(english.bodyAsText(), "\"TypeTranslated\":\"Dataset\"")
+            assertContains(english.bodyAsText(), "\"NameTranslated\":\"Area\"")
+            assertTrue(paths.contains("/solr/metadata_all_en/select"))
 
-        val csv = client.get("/search?mediatype=csv") { headers.append(HttpHeaders.AcceptLanguage, "en-US") }
-        assertEquals(HttpStatusCode.OK, csv.status)
-        assertContains(csv.headers[HttpHeaders.ContentType].orEmpty(), "text/csv")
-        assertEquals("attachment; filename=kartkatalogen.csv", csv.headers[HttpHeaders.ContentDisposition])
-        assertTrue(csv.bodyAsText().startsWith("Title;Type;Topic;Organization;Open data;DOK-data;Uuid;"))
-        assertContains(csv.bodyAsText(), "\"Kart; \"\"test\"\"\";dataset;Natur;Kartverket;")
-        val modernCsv = client.get("/api/search") {
-            headers.append(HttpHeaders.Accept, "text/csv")
-            headers.append(HttpHeaders.AcceptLanguage, "en-US")
-        }
-        assertEquals("en", modernCsv.headers[HttpHeaders.ContentLanguage])
-        assertEquals(csv.bodyAsText(), modernCsv.bodyAsText())
-        assertTrue(paths.contains("/solr/metadata_all_en/select"))
+            val csv = client.get("/search?mediatype=csv") { headers.append(HttpHeaders.AcceptLanguage, "en-US") }
+            assertEquals(HttpStatusCode.OK, csv.status)
+            assertContains(csv.headers[HttpHeaders.ContentType].orEmpty(), "text/csv")
+            assertEquals("attachment; filename=kartkatalogen.csv", csv.headers[HttpHeaders.ContentDisposition])
+            assertTrue(csv.bodyAsText().startsWith("Title;Type;Topic;Organization;Open data;DOK-data;Uuid;"))
+            assertContains(csv.bodyAsText(), "\"Kart; \"\"test\"\"\";dataset;Natur;Kartverket;")
+            val modernCsv =
+                client.get("/api/search") {
+                    headers.append(HttpHeaders.Accept, "text/csv")
+                    headers.append(HttpHeaders.AcceptLanguage, "en-US")
+                }
+            assertEquals("en", modernCsv.headers[HttpHeaders.ContentLanguage])
+            assertEquals(csv.bodyAsText(), modernCsv.bodyAsText())
+            assertTrue(paths.contains("/solr/metadata_all_en/select"))
 
-        val cookieCsv = client.get("/search") {
-            headers.append(HttpHeaders.Cookie, "_culture=en")
-            headers.append(HttpHeaders.Accept, "text/csv")
+            val cookieCsv =
+                client.get("/search") {
+                    headers.append(HttpHeaders.Cookie, "_culture=en")
+                    headers.append(HttpHeaders.Accept, "text/csv")
+                }
+            assertEquals(HttpStatusCode.OK, cookieCsv.status)
+            assertEquals("en", cookieCsv.headers[HttpHeaders.ContentLanguage])
+            assertContains(cookieCsv.bodyAsText(), "Title;Type;Topic;")
+            assertTrue(cookieCsv.headers[HttpHeaders.SetCookie] == null)
+            upstream.close()
         }
-        assertEquals(HttpStatusCode.OK, cookieCsv.status)
-        assertEquals("en", cookieCsv.headers[HttpHeaders.ContentLanguage])
-        assertContains(cookieCsv.bodyAsText(), "Title;Type;Topic;")
-        assertTrue(cookieCsv.headers[HttpHeaders.SetCookie] == null)
-        upstream.close()
-    }
 
     @Test
     fun `csv skips area register lookup but json still needs it`() =
@@ -232,39 +278,33 @@ class LegacySearchRoutesTest {
         }
 
     @Test
-    fun `Solr failures return an empty successful legacy result`() = testApplication {
-        val upstream = upstream(solrError = true)
-        application {
-            configureSerialization()
-            configureStatusPages()
-            val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
-            val register = RegisterClient(upstream, "https://register.example.test")
-            routing {
-                legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
-                searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+    fun `Solr failures return an empty successful legacy result`() =
+        testApplication {
+            val upstream = upstream(solrError = true)
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
+                val register = RegisterClient(upstream, "https://register.example.test")
+                routing {
+                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                    searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+                }
             }
+            val response = client.get("/search?offset=2")
+            assertEquals(HttpStatusCode.OK, response.status)
+            val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
+            assertEquals("0", json.getValue("NumFound").jsonPrimitive.content)
+            assertEquals(0, json.getValue("Results").jsonArray.size)
+            assertEquals(0, json.getValue("Facets").jsonArray.size)
+            assertTrue("Type" !in json)
+            val csv = client.get("/search?mediatype=csv")
+            assertEquals(HttpStatusCode.OK, csv.status)
+            assertEquals("", csv.bodyAsText())
+            val modern = client.get("/api/search?offset=2")
+            assertEquals(HttpStatusCode.BadGateway, modern.status)
+            val modernCsv = client.get("/api/search?mediatype=csv")
+            assertEquals(HttpStatusCode.BadGateway, modernCsv.status)
+            upstream.close()
         }
-        val response = client.get("/search?offset=2")
-        assertEquals(HttpStatusCode.OK, response.status)
-        val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
-        assertEquals("0", json.getValue("NumFound").jsonPrimitive.content)
-        assertEquals(0, json.getValue("Results").jsonArray.size)
-        assertEquals(0, json.getValue("Facets").jsonArray.size)
-        assertTrue("Type" !in json)
-        val csv = client.get("/search?mediatype=csv")
-        assertEquals(HttpStatusCode.OK, csv.status)
-        assertEquals("", csv.bodyAsText())
-        val modern = client.get("/api/search?offset=2")
-        assertEquals(HttpStatusCode.BadGateway, modern.status)
-        val modernCsv = client.get("/api/search?mediatype=csv")
-        assertEquals(HttpStatusCode.BadGateway, modernCsv.status)
-        upstream.close()
-    }
 }
-
-
-
-
-
-
-

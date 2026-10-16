@@ -19,11 +19,12 @@ fun Route.searchRoutes(searchService: SearchService) {
                     facets = call.request.queryParameters.toFacetInputs(),
                 )
             if (call.request.queryParameters.wantsSearchCsv(call.request.headers[HttpHeaders.Accept])) {
-                val language = searchLanguage(
-                    call.request.queryParameters["lang"],
-                    call.request.cookies["_culture"],
-                    call.request.headers[HttpHeaders.AcceptLanguage],
-                )
+                val language =
+                    searchLanguage(
+                        call.request.queryParameters["lang"],
+                        call.request.cookies["_culture"],
+                        call.request.headers[HttpHeaders.AcceptLanguage],
+                    )
                 call.response.headers.append(HttpHeaders.ContentLanguage, language)
                 call.respondSearchCsv(searchService.searchHits(request, language == "en"), language)
             } else {
