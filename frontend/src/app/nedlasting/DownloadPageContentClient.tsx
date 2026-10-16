@@ -137,13 +137,16 @@ export function DownloadPageContentClient({
       return;
     }
 
-    void submitOrder({
-      usageGroup,
-      items: downloadableProducts.map((item) => ({
-        ...item,
-        usagePurpose,
-      })),
-    }).then((result) => {
+    void submitOrder(
+      {
+        usageGroup,
+        items: downloadableProducts.map((item) => ({
+          ...item,
+          usagePurpose,
+        })),
+      },
+      cards.some((card) => card.accessState === "restricted"),
+    ).then((result) => {
       if (!result) return;
       setStep("last-ned");
       setOrderedCards(cards);

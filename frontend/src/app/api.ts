@@ -377,14 +377,17 @@ export async function getDownloadOptions(
 export async function orderDownload(
   request: DownloadOrderRequest,
   cookie?: string,
+  authorization?: string,
 ): Promise<DownloadOrderResult> {
-  const url = `${API_BASE}/api/download/order`;
+  let url = `${API_BASE}/api/download/order`;
+  if (authorization) url += `-restricted`;
   const body = await fetchJson(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Origin: KATALOG_ORIGIN,
       ...(cookie ? { Cookie: cookie } : {}),
+      ...(authorization ? { Authorization: authorization } : {}),
     },
     body: JSON.stringify(request),
   });

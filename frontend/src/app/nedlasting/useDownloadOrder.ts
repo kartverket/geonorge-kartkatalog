@@ -18,6 +18,7 @@ export function useDownloadOrder() {
 
   async function submitOrder(
     request: DownloadOrderRequest,
+    isRestricted: boolean,
   ): Promise<DownloadOrderResult | null> {
     setIsOrdering(true);
     setOrderError(null);
@@ -25,7 +26,10 @@ export function useDownloadOrder() {
 
     try {
       const payload = parseDownloadOrderRequest(request);
-      const response = await fetch(`${bffPath}/download/order`, {
+      const endpoint = isRestricted
+        ? "/download/order-restricted"
+        : "/download/order";
+      const response = await fetch(`${bffPath}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
