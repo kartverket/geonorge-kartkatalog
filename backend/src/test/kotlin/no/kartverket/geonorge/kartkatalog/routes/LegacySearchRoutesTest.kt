@@ -28,6 +28,7 @@ import no.kartverket.geonorge.kartkatalog.search.SearchService
 import no.kartverket.geonorge.kartkatalog.search.legacySearchRoutes
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -59,7 +60,7 @@ class LegacySearchRoutesTest {
 
     private fun upstream(
         solrError: Boolean = false,
-        registerError: Boolean = false,
+        registerError: (String) -> Boolean = { false },
         solrBody: String = solrResponse,
     ): HttpClient =
         HttpClient(
@@ -82,7 +83,7 @@ class LegacySearchRoutesTest {
                 val status =
                     when {
                         isSolr && solrError -> HttpStatusCode.InternalServerError
-                        !isSolr && registerError -> HttpStatusCode.InternalServerError
+                        !isSolr && registerError(path) -> HttpStatusCode.InternalServerError
                         else -> HttpStatusCode.OK
                     }
                 respond(
@@ -92,6 +93,34 @@ class LegacySearchRoutesTest {
                 )
             },
         )
+
+    private fun areaNames(body: String): Pair<String, String> {
+        val facets =
+            Json
+                .parseToJsonElement(body)
+                .jsonObject
+                .getValue("Facets")
+                .jsonArray
+        val area =
+            facets
+                .first { it.jsonObject["Name"]?.jsonPrimitive?.content == "area" }
+                .jsonObject
+        val county =
+            area
+                .getValue("FacetResults")
+                .jsonArray
+                .last()
+                .jsonObject
+        val municipality =
+            county
+                .getValue("FacetResults")
+                .jsonArray
+                .single()
+                .jsonObject
+        val countyName = county.getValue("NameTranslated").jsonPrimitive.content
+        val municipalityName = municipality.getValue("NameTranslated").jsonPrimitive.content
+        return countyName to municipalityName
+    }
 
     @Test
     fun `returns PascalCase metadata and hierarchical area facets without changing modern search`() =
@@ -319,9 +348,9 @@ class LegacySearchRoutesTest {
         }
 
     @Test
-    fun `csv skips area register lookup but json still needs it`() =
+    fun `csv skips area register lookup and json falls back to raw area codes`() =
         testApplication {
-            val upstream = upstream(registerError = true)
+            val upstream = upstream(registerError = { true })
             application {
                 configureSerialization()
                 val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
@@ -341,17 +370,27 @@ class LegacySearchRoutesTest {
             assertTrue(paths.none { it.startsWith("/api/sosi-kodelister/") })
 
             val json = client.get("/search")
-            assertEquals(HttpStatusCode.InternalServerError, json.status)
-            assertTrue(paths.any { it.endsWith("/fylkesnummer") })
+            assertEquals(HttpStatusCode.OK, json.status)
+            val result = Json.parseToJsonElement(json.bodyAsText()).jsonObject
+            assertEquals("1", result.getValue("NumFound").jsonPrimitive.content)
+            val row =
+                result
+                    .getValue("Results")
+                    .jsonArray
+                    .single()
+                    .jsonObject
+            assertEquals("test-uuid", row.getValue("Uuid").jsonPrimitive.content)
+            assertEquals("0/03" to "0/03/0301", areaNames(json.bodyAsText()))
+            assertEquals(1, paths.count { it.endsWith("/fylkesnummer") })
             upstream.close()
         }
 
     @Test
-    fun `successful empty Solr search still requires Register for json`() =
+    fun `successful empty Solr search still attempts Register but returns json when it fails`() =
         testApplication {
             val upstream =
                 upstream(
-                    registerError = true,
+                    registerError = { true },
                     solrBody =
                         """
                         {
@@ -371,7 +410,12 @@ class LegacySearchRoutesTest {
             }
 
             val json = client.get("/search?limit=25&offset=2")
-            assertEquals(HttpStatusCode.InternalServerError, json.status)
+            assertEquals(HttpStatusCode.OK, json.status)
+            val result = Json.parseToJsonElement(json.bodyAsText()).jsonObject
+            assertEquals("0", result.getValue("NumFound").jsonPrimitive.content)
+            assertEquals("25", result.getValue("Limit").jsonPrimitive.content)
+            assertEquals("2", result.getValue("Offset").jsonPrimitive.content)
+            assertTrue(result.getValue("Results").jsonArray.isEmpty())
             assertEquals(1, paths.count { it.endsWith("/fylkesnummer") })
 
             val csv = client.get("/search?mediatype=csv")
@@ -383,9 +427,49 @@ class LegacySearchRoutesTest {
         }
 
     @Test
+    fun `register failures are retried so area names return when register recovers`() =
+        testApplication {
+            val failingMunicipalities = AtomicBoolean(true)
+            val upstream =
+                upstream(
+                    registerError = { path ->
+                        failingMunicipalities.get() && path.endsWith("/kommunenummer")
+                    },
+                )
+            application {
+                configureSerialization()
+                val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
+                val register = RegisterClient(upstream, "https://register.example.test")
+                routing {
+                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                }
+            }
+
+            val first = client.get("/search")
+            assertEquals(HttpStatusCode.OK, first.status)
+            assertEquals("0/03" to "0/03/0301", areaNames(first.bodyAsText()))
+            assertEquals(1, paths.count { it.endsWith("/fylkesnummer") })
+            assertEquals(1, paths.count { it.endsWith("/kommunenummer") })
+
+            failingMunicipalities.set(false)
+            val recovered = client.get("/search")
+            assertEquals(HttpStatusCode.OK, recovered.status)
+            assertEquals("Oslo" to "Oslo", areaNames(recovered.bodyAsText()))
+            assertEquals(2, paths.count { it.endsWith("/fylkesnummer") })
+            assertEquals(2, paths.count { it.endsWith("/kommunenummer") })
+
+            val cached = client.get("/search")
+            assertEquals(HttpStatusCode.OK, cached.status)
+            assertEquals("Oslo" to "Oslo", areaNames(cached.bodyAsText()))
+            assertEquals(2, paths.count { it.endsWith("/fylkesnummer") })
+            assertEquals(2, paths.count { it.endsWith("/kommunenummer") })
+            upstream.close()
+        }
+
+    @Test
     fun `Solr failures return an empty successful legacy result`() =
         testApplication {
-            val upstream = upstream(solrError = true, registerError = true)
+            val upstream = upstream(solrError = true, registerError = { true })
             application {
                 configureSerialization()
                 configureStatusPages()

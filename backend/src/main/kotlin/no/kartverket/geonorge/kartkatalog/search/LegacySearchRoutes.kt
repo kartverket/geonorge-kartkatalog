@@ -9,6 +9,7 @@ import io.ktor.server.routing.get
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.JsonObject
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.metadata.TimedCache
 import org.slf4j.LoggerFactory
@@ -63,23 +64,31 @@ class LegacySearchService(
 
         // Successful searches still need area names for legacy JSON facets, even with zero hits.
         val areas =
-            areasCache
-                .getOrFetch("areas") {
-                    listOf("fylkesnummer", "kommunenummer")
-                        .flatMap { list ->
-                            registerClient
-                                .getSosiCodeList(
-                                    "inndelinger/inndelingsbase/$list",
-                                ).containedItems
-                                .mapNotNull { item ->
-                                    val code =
-                                        item.codeValue?.takeIf { it.isNotBlank() && item.status == "Gyldig" }
-                                            ?: return@mapNotNull null
-                                    val key = if (list == "fylkesnummer") "0/$code" else "0/${code.take(2)}/$code"
-                                    key to (item.description ?: item.label).substringBefore(" – ").trim()
-                                }
-                        }.toMap()
-                }.orEmpty()
+            try {
+                areasCache
+                    .getOrFetch("areas") {
+                        listOf("fylkesnummer", "kommunenummer")
+                            .flatMap { list ->
+                                registerClient
+                                    .getSosiCodeList(
+                                        "inndelinger/inndelingsbase/$list",
+                                    ).containedItems
+                                    .mapNotNull { item ->
+                                        val code =
+                                            item.codeValue?.takeIf { it.isNotBlank() && item.status == "Gyldig" }
+                                                ?: return@mapNotNull null
+                                        val key = if (list == "fylkesnummer") "0/$code" else "0/${code.take(2)}/$code"
+                                        key to (item.description ?: item.label).substringBefore(" – ").trim()
+                                    }
+                            }.toMap()
+                    }.orEmpty()
+            } catch (e: RegisterException) {
+                val cause = e.cause
+                if (cause is CancellationException) throw cause
+                // Keep Solr results and retry Register next time rather than caching the fallback.
+                log.warn("Failed to fetch legacy area names; using raw facet codes", e)
+                emptyMap()
+            }
         return LegacySearchResponse(language, kartkatalogUrl, areas).build(request, outcome.hits)
     }
 }
