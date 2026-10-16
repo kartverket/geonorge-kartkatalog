@@ -60,6 +60,7 @@ class LegacySearchRoutesTest {
     private fun upstream(
         solrError: Boolean = false,
         registerError: Boolean = false,
+        solrBody: String = solrResponse,
     ): HttpClient =
         HttpClient(
             MockEngine { request ->
@@ -69,7 +70,7 @@ class LegacySearchRoutesTest {
                 if (isSolr) searchForms += (request.body as FormDataContent).formData.toString()
                 val body =
                     when {
-                        isSolr -> solrResponse
+                        isSolr -> solrBody
                         path.endsWith(
                             "fylkesnummer",
                         ) -> """{"containeditems":[{"label":"Oslo","codevalue":"03","status":"Gyldig"}]}"""
@@ -278,9 +279,45 @@ class LegacySearchRoutesTest {
         }
 
     @Test
+    fun `successful empty Solr search still requires Register for json`() =
+        testApplication {
+            val upstream =
+                upstream(
+                    registerError = true,
+                    solrBody =
+                        """
+                        {
+                          "responseHeader":{"status":0,"QTime":1},
+                          "response":{"numFound":0,"start":0,"docs":[]},
+                          "facet_counts":{"facet_fields":{}}
+                        }
+                        """.trimIndent(),
+                )
+            application {
+                configureSerialization()
+                val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
+                val register = RegisterClient(upstream, "https://register.example.test")
+                routing {
+                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                }
+            }
+
+            val json = client.get("/search?limit=25&offset=2")
+            assertEquals(HttpStatusCode.InternalServerError, json.status)
+            assertEquals(1, paths.count { it.endsWith("/fylkesnummer") })
+
+            val csv = client.get("/search?mediatype=csv")
+            assertEquals(HttpStatusCode.OK, csv.status)
+            assertEquals("", csv.bodyAsText())
+            assertEquals(1, paths.count { it.endsWith("/fylkesnummer") })
+            assertEquals(2, paths.count { it.startsWith("/solr/") })
+            upstream.close()
+        }
+
+    @Test
     fun `Solr failures return an empty successful legacy result`() =
         testApplication {
-            val upstream = upstream(solrError = true)
+            val upstream = upstream(solrError = true, registerError = true)
             application {
                 configureSerialization()
                 configureStatusPages()
@@ -295,6 +332,8 @@ class LegacySearchRoutesTest {
             assertEquals(HttpStatusCode.OK, response.status)
             val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
             assertEquals("0", json.getValue("NumFound").jsonPrimitive.content)
+            assertEquals("10", json.getValue("Limit").jsonPrimitive.content)
+            assertEquals("2", json.getValue("Offset").jsonPrimitive.content)
             assertEquals(0, json.getValue("Results").jsonArray.size)
             assertEquals(0, json.getValue("Facets").jsonArray.size)
             assertTrue("Type" !in json)
@@ -305,6 +344,8 @@ class LegacySearchRoutesTest {
             assertEquals(HttpStatusCode.BadGateway, modern.status)
             val modernCsv = client.get("/api/search?mediatype=csv")
             assertEquals(HttpStatusCode.BadGateway, modernCsv.status)
+            assertEquals(4, paths.count { it.startsWith("/solr/") })
+            assertTrue(paths.all { it.startsWith("/solr/") })
             upstream.close()
         }
 }
