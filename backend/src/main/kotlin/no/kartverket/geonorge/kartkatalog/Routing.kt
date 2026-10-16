@@ -7,6 +7,7 @@ import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
 import no.kartverket.geonorge.kartkatalog.auth.authRoutes
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
@@ -45,6 +46,7 @@ fun Application.configureRouting(
     val downloadApiClient = DownloadApiClient(httpClient, appConfig.allowedDownloadClients)
     val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
     val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
+    val tokenExchangeClient = TokenExchangeClient(httpClient, appConfig.tokenExchangeUrl)
 
     monitor.subscribe(ApplicationStopping) { httpClient.close() }
 
@@ -54,7 +56,7 @@ fun Application.configureRouting(
         }
         searchRoutes(searchService)
         metadataRoutes(metadataService, linkedDistributionsService)
-        downloadRoutes(downloadService, authentication)
+        downloadRoutes(downloadService, tokenExchangeClient, authentication)
         authRoutes(authentication)
     }
 }

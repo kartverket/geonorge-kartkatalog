@@ -2,6 +2,7 @@ package no.kartverket.geonorge.kartkatalog.download
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticateWithOptional
+import io.ktor.server.auth.authentication
 import io.ktor.server.auth.principalOrNull
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -11,6 +12,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
 import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
 
 @Serializable
@@ -226,6 +228,7 @@ private fun DownloadOptions.toDto() =
 
 fun Route.downloadRoutes(
     downloadService: DownloadService,
+    tokenExchangeClient: TokenExchangeClient,
     authentication: GeoIdAuthentication,
 ) {
     route("/api/download") {
@@ -240,7 +243,30 @@ fun Route.downloadRoutes(
         }
 
         post("/order-restricted") {
-            call.respond("authorized")
+            val body = call.receive<DownloadOrderRequestDto>()
+            call.request.headers["Authorization"]?.let { authorizationHeader ->
+                if (authorizationHeader.isBlank() || !authorizationHeader.startsWith("Bearer ")) {
+                    call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid authorization header"))
+                    return@post
+                }
+
+                val userToken = authorizationHeader.removePrefix("Bearer ").trim()
+                if (userToken.isBlank()) {
+                    call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid user token"))
+                    return@post
+                }
+
+                val accessToken =
+                    tokenExchangeClient.exchangeToken(
+                        userToken,
+                        "atkv3-dev:datadeling-geonorge:geonorge-nedlasting-api",
+                    )
+
+                val result = downloadService.order(body.toDomain(), accessToken)
+                call.respond(result.toDto())
+                return@post
+            }
+            call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Missing authorization header"))
         }
 
         get("/options/{uuid}") {

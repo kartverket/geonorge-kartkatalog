@@ -23,6 +23,8 @@ class AppConfig(
     val allowedDownloadClients: DownloadTokenAllowlist =
         DownloadTokenAllowlist.fromCommaSeparated(optionalEnv("ALLOWED_DOWNLOAD_CLIENTS"))
 
+    val tokenExchangeUrl: String = env("TOKEN_EXCHANGE_URL")
+
     private fun env(key: String): String =
         optionalEnv(key)
             ?: throw IllegalStateException(
