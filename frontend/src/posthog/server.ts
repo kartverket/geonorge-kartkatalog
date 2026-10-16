@@ -12,6 +12,7 @@ export async function getServerFeatureFlag(
 ): Promise<boolean | string | undefined> {
   const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
   const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+
   if (!token || !host) {
     console.warn(
       "PostHog feature flags unavailable: project token or host is missing",
@@ -22,7 +23,6 @@ export async function getServerFeatureFlag(
   const consent = await getServerConsent({ regulation: "GDPR" });
   if (!consent?.categories.analytics) return defaultValue;
 
-  // Match the default cookie name used by posthog-js in instrumentation-client.ts.
   const cookieName = `ph_${token.replace(/\+/g, "PL").replace(/\//g, "SL").replace(/=/g, "EQ")}_posthog`;
   const persistence = (await cookies()).get(cookieName)?.value;
   if (!persistence) return defaultValue;
@@ -35,6 +35,7 @@ export async function getServerFeatureFlag(
     console.warn("Invalid PostHog identity cookie", error);
     return defaultValue;
   }
+
   if (
     typeof identity !== "object" ||
     identity === null ||
@@ -46,17 +47,19 @@ export async function getServerFeatureFlag(
     return defaultValue;
   }
 
+  // Client is safe to cache – it's stateless
   client ??= new PostHog(token, { host });
+
+  // Flags must be per-request, per-user
+  const flags = await client.evaluateFlags(identity.distinct_id, {
+    personProperties: {
+      // Add properties your flag conditions require
+    },
+  });
+
   try {
-    const value = await client.getFeatureFlag(key, identity.distinct_id, {
-      sendFeatureFlagEvents: false,
-      disableGeoip: true,
-    });
-    if (value === undefined) {
-      console.warn(`PostHog feature flag ${key} could not be evaluated`);
-      return defaultValue;
-    }
-    return value;
+    const flag = flags.getFlag(key);
+    return flag ? (flag.variant ?? flag.enabled) : defaultValue;
   } catch (error) {
     console.error(`Failed to evaluate PostHog feature flag ${key}`, error);
     return defaultValue;
