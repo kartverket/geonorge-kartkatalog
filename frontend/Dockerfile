@@ -23,6 +23,8 @@ RUN if [ "$RUN_VERIFICATIONS" = "true" ]; then \
     npm run lint-strict; \
 fi
 RUN npm run build
+# Standalone output omits empty directories; Next.js writes runtime cache under .next/cache.
+RUN mkdir -p .next/standalone/.next/cache
 
 FROM dhi.io/node:26-alpine AS runtime
 
@@ -40,4 +42,3 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD ["node", "-e", "fetch('http://127.0.0.1:3000/', { redirect: 'manual' }).then((response) => process.exit(response.status < 500 ? 0 : 1)).catch(() => process.exit(1))"]
 
 CMD ["node", "server.js"]
-
