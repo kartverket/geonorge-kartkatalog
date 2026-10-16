@@ -36,6 +36,13 @@ class SearchQueryBuilderTest {
     }
 
     @Test
+    fun `keeps modern popularity sort for an empty search with filters`() {
+        val query = SearchQueryBuilder.build(SearchRequest(facets = listOf(SearchFacetInput("type", "dataset"))))
+
+        assertEquals("popularMetadata desc", query.sort)
+    }
+
+    @Test
     fun `builds grouped facet filters and facet fields`() {
         val query =
             SearchQueryBuilder.build(

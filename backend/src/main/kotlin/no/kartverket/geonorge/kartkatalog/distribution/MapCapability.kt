@@ -1,7 +1,14 @@
 package no.kartverket.geonorge.kartkatalog.distribution
 
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
+
+internal interface MapCapabilityFields {
+    val type: String?
+    val distributionProtocol: String?
+    val distributionUrl: String?
+    val datasetservice: List<String>?
+    val serviceDistributionUrlForDataset: String?
+}
 
 internal data class DatasetServiceReference(
     val uuid: String,
@@ -44,7 +51,7 @@ internal fun canShowMap(
     return hasMappedDatasetView || hasDatasetViewServices || isServiceView
 }
 
-internal fun SolrDocument.resolveMapCapability(): MapCapability {
+internal fun MapCapabilityFields.resolveMapCapability(): MapCapability {
     val datasetServices = parseDatasetServices(datasetservice)
     val viewServices =
         datasetServices.filter {
