@@ -30,6 +30,11 @@ FROM dhi.io/node:26-alpine AS runtime
 
 WORKDIR /app
 
+ARG NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=""
+ENV NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=$NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN
+ARG NEXT_PUBLIC_POSTHOG_HOST=""
+ENV NEXT_PUBLIC_POSTHOG_HOST=$NEXT_PUBLIC_POSTHOG_HOST
+
 COPY --from=build /app/public ./public
 COPY --from=build --chown=150:150 /app/.next/standalone ./
 COPY --from=build --chown=150:150 /app/.next/static ./.next/static

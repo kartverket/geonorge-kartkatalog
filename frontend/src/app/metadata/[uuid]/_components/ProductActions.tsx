@@ -4,7 +4,6 @@ import {
   FileTextIcon,
   PencilIcon,
 } from "@navikt/aksel-icons";
-import { posthog } from "posthog-js";
 import AddSeriesToDownloadsButton from "@/app/_components/addToDownloads/AddSeriesToDownloadsButton";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
@@ -23,11 +22,12 @@ import type {
   ProductMetadata,
 } from "@/lib/schemas/product";
 import { LOCATIONS } from "@/posthog/posthog";
+import { getServerFeatureFlag } from "@/posthog/server";
 import { shouldShowCoverageMap } from "../dekningskart/utils";
 import styles from "./ProductActions.module.css";
 import { TrackedActionLinkButton } from "./TrackedActionLinkButton";
 
-export function ProductActions({
+export async function ProductActions({
   linkedDistributions,
   metadata,
   uuid,
@@ -40,8 +40,9 @@ export function ProductActions({
   const downloadableSeriesMembers =
     getDownloadableSeriesMembers(linkedDistributions);
   const mapItem = getMapItem(metadata, linkedDistributions, uuid);
-  const showNewButton = posthog.getFeatureFlag("new-dekningskart-button") === true;
-
+  const useNewCoverageMap =
+    shouldShowCoverageMap(metadata) &&
+    (await getServerFeatureFlag("new-dekningskart-button")) === true;
 
   return (
     <div className={styles.actions}>
@@ -65,15 +66,15 @@ export function ProductActions({
         item={mapItem}
         location={LOCATIONS.MetadataPage}
       />
-      {metadata.coverageUrl && !showNewButton && (
+      {metadata.coverageUrl && !useNewCoverageMap ? (
         <TrackedActionLinkButton
           eventName="show-coverage-map"
           href={metadata.coverageUrl}
           icon={<ExternalLinkIcon aria-hidden />}
           title="Vis dekningskart"
         />
-      )}
-      {shouldShowCoverageMap(metadata)  && showNewButton && (
+      ) : null}
+      {useNewCoverageMap ? (
         <TrackedActionLinkButton
           eventName="show-coverage-data"
           href={`${basePath}/metadata/${uuid}/dekningskart`}
@@ -81,7 +82,7 @@ export function ProductActions({
           icon={<EarthIcon aria-hidden />}
           title="Vis dekningskart"
         />
-      )}
+      ) : null}
       <TrackedActionLinkButton
         eventName="show-metadata-xml"
         href={getMetadataXmlUrl(uuid)}
