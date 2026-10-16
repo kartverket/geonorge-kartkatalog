@@ -8,6 +8,7 @@ let client: PostHog | undefined;
 
 export async function getServerFeatureFlag(
   key: string,
+  defaultValue?: boolean | string,
 ): Promise<boolean | string | undefined> {
   const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
   const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
@@ -15,16 +16,16 @@ export async function getServerFeatureFlag(
     console.warn(
       "PostHog feature flags unavailable: project token or host is missing",
     );
-    return undefined;
+    return defaultValue;
   }
 
   const consent = await getServerConsent({ regulation: "GDPR" });
-  if (!consent?.categories.analytics) return undefined;
+  if (!consent?.categories.analytics) return defaultValue;
 
   // Match the default cookie name used by posthog-js in instrumentation-client.ts.
   const cookieName = `ph_${token.replace(/\+/g, "PL").replace(/\//g, "SL").replace(/=/g, "EQ")}_posthog`;
   const persistence = (await cookies()).get(cookieName)?.value;
-  if (!persistence) return undefined;
+  if (!persistence) return defaultValue;
 
   let identity: unknown;
   try {
@@ -32,7 +33,7 @@ export async function getServerFeatureFlag(
   } catch (error) {
     if (!(error instanceof SyntaxError)) throw error;
     console.warn("Invalid PostHog identity cookie", error);
-    return undefined;
+    return defaultValue;
   }
   if (
     typeof identity !== "object" ||
@@ -42,7 +43,7 @@ export async function getServerFeatureFlag(
     !identity.distinct_id
   ) {
     console.warn("PostHog identity cookie has no distinct ID");
-    return undefined;
+    return defaultValue;
   }
 
   client ??= new PostHog(token, { host });
@@ -53,10 +54,11 @@ export async function getServerFeatureFlag(
     });
     if (value === undefined) {
       console.warn(`PostHog feature flag ${key} could not be evaluated`);
+      return defaultValue;
     }
     return value;
   } catch (error) {
     console.error(`Failed to evaluate PostHog feature flag ${key}`, error);
-    return undefined;
+    return defaultValue;
   }
 }

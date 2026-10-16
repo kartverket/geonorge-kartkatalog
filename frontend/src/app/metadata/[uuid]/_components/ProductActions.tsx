@@ -40,9 +40,8 @@ export async function ProductActions({
   const downloadableSeriesMembers =
     getDownloadableSeriesMembers(linkedDistributions);
   const mapItem = getMapItem(metadata, linkedDistributions, uuid);
-  const useNewCoverageMap =
-    shouldShowCoverageMap(metadata) &&
-    (await getServerFeatureFlag("new-dekningskart-button")) === true;
+  const useNewMap =
+    (await getServerFeatureFlag("new-dekningskart-button", false)) === true;
 
   return (
     <div className={styles.actions}>
@@ -66,23 +65,25 @@ export async function ProductActions({
         item={mapItem}
         location={LOCATIONS.MetadataPage}
       />
-      {metadata.coverageUrl && !useNewCoverageMap ? (
-        <TrackedActionLinkButton
-          eventName="show-coverage-map"
-          href={metadata.coverageUrl}
-          icon={<ExternalLinkIcon aria-hidden />}
-          title="Vis dekningskart"
-        />
-      ) : null}
-      {useNewCoverageMap ? (
-        <TrackedActionLinkButton
-          eventName="show-coverage-data"
-          href={`${basePath}/metadata/${uuid}/dekningskart`}
-          target="_self"
-          icon={<EarthIcon aria-hidden />}
-          title="Vis dekningskart"
-        />
-      ) : null}
+
+      {useNewMap
+        ? shouldShowCoverageMap(metadata) && (
+            <TrackedActionLinkButton
+              eventName="show-coverage-data"
+              href={`${basePath}/metadata/${uuid}/dekningskart`}
+              target="_self"
+              icon={<EarthIcon aria-hidden />}
+              title="Vis dekningskart"
+            />
+          )
+        : metadata.coverageUrl && (
+            <TrackedActionLinkButton
+              eventName="show-coverage-map"
+              href={metadata.coverageUrl}
+              icon={<ExternalLinkIcon aria-hidden />}
+              title="Vis dekningskart"
+            />
+          )}
       <TrackedActionLinkButton
         eventName="show-metadata-xml"
         href={getMetadataXmlUrl(uuid)}
