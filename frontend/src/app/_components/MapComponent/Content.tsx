@@ -15,6 +15,7 @@ import Icon from "ol/style/Icon";
 import Style from "ol/style/Style";
 import { useCallback, useEffect, useRef } from "react";
 import convert from "xml-js";
+import { basePath } from "@/lib/basePath";
 import {
   type FeatureInfoResult,
   type FeatureInfoResults,
@@ -211,7 +212,7 @@ const Content = (props: MapComponentProps) => {
         source: vectorSource,
         style: new Style({
           image: new Icon({
-            src: "/location_red.svg",
+            src: `${basePath}/location_red.svg`,
             anchor: [0.5, 1],
             scale: 1,
           }),
