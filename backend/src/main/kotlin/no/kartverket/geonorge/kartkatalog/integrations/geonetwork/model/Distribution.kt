@@ -16,6 +16,8 @@ data class OnlineResource(
     val name: String? = null,
     val description: String? = null,
     val unitsOfDistribution: String? = null,
+    val englishUnitsOfDistribution: String? = null,
+    val organization: String? = null,
     val applicationProfile: String? = null,
     val function: String? = null,
 )

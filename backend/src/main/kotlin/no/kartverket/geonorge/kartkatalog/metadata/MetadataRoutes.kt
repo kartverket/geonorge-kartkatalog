@@ -1,15 +1,45 @@
 package no.kartverket.geonorge.kartkatalog.metadata
 
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import kotlinx.serialization.json.Json
+import no.kartverket.geonorge.kartkatalog.metadata.models.LegacyMetadataViewModel
+import org.slf4j.LoggerFactory
+import kotlin.coroutines.cancellation.CancellationException
+
+private val log = LoggerFactory.getLogger("MetadataRoutes")
 
 fun Route.metadataRoutes(
     metadataService: MetadataService,
     linkedDistributionsService: LinkedDistributionsService,
 ) {
+    route("/api") {
+        get("getdata/{uuid}") {
+            val uuid = call.parameters["uuid"] ?: return@get call.respond(HttpStatusCode.NotFound)
+            try {
+                call.respondText(
+                    legacyJson.encodeToString(
+                        LegacyMetadataViewModel.serializer(),
+                        metadataService.getLegacyMetadata(uuid),
+                    ),
+                    ContentType.Application.Json,
+                )
+            } catch (cause: CancellationException) {
+                throw cause
+            } catch (cause: MetadataRecordNotFoundException) {
+                log.warn("Metadata record not found for getdata UUID: {}", uuid, cause)
+                call.respond(HttpStatusCode.NotFound)
+            } catch (cause: Exception) {
+                log.error("Failed to fetch getdata for UUID: {}", uuid, cause)
+                call.respond(HttpStatusCode.InternalServerError)
+            }
+        }
+    }
     route("/metadata/") {
         get("{uuid}") {
             val uuid =
@@ -70,3 +100,9 @@ fun Route.metadataRoutes(
         }
     }
 }
+
+private val legacyJson =
+    Json {
+        encodeDefaults = true
+        explicitNulls = false
+    }
