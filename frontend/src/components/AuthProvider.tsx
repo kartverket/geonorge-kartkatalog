@@ -8,13 +8,14 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import type { AuthProvider as LoginProvider } from "@/lib/authProvider";
 import { bffPath } from "@/lib/basePath";
 import { type AuthInfo, AuthSessionSchema } from "@/lib/schemas/auth";
 
 export type AuthState =
   | { status: "loading" }
   | { status: "anonymous" }
-  | { status: "authenticated"; user: AuthInfo }
+  | { status: "authenticated"; user: AuthInfo; provider: LoginProvider }
   | { status: "error" };
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -58,7 +59,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           : null;
 
         if (ansattportenSession?.authenticated) {
-          setState({ status: "authenticated", user: ansattportenSession.user });
+          setState({
+            status: "authenticated",
+            user: ansattportenSession.user,
+            provider: "ansattporten",
+          });
           return;
         }
 
@@ -74,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const session = AuthSessionSchema.parse(await geoIdResponse.json());
         setState(
           session.authenticated
-            ? { status: "authenticated", user: session.user }
+            ? { status: "authenticated", user: session.user, provider: "geoid" }
             : { status: "anonymous" },
         );
       } catch (error) {

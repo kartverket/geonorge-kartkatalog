@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { clearAuthProviderCookie } from "../auth/providerCookie";
+import { clearAuthProviderCookieIfMatches } from "../auth/providerCookie";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
   if (!name?.trim() || !organizationName) {
     const response = NextResponse.json({ authenticated: false });
-    clearAuthProviderCookie(response);
+    clearAuthProviderCookieIfMatches(request, response, "ansattporten");
     return response;
   }
 
