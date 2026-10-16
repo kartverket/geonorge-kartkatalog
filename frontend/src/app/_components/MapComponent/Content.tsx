@@ -54,15 +54,13 @@ const getFeatureInfo = async (
       throw new Error(`Failed to fetch feature info: ${response.statusText}`);
     }
     const text = await response.text();
-    console.log(text);
     const converted = convert.xml2js(text, {
       compact: true,
       ignoreComment: true,
     });
-    console.log(converted);
     return parseFeatureInfoResult(converted);
   } catch (error) {
-    console.error(error);
+    console.warn(error);
     return null;
   }
 };
@@ -89,7 +87,6 @@ const Content = (props: MapComponentProps) => {
       const featureInfoUrls = currentLayers
         .map((layer) => {
           if (layer instanceof VectorLayer || layer instanceof TileLayer) {
-            console.log(layer.getProperties().id);
             const source = layer.getSource();
             if (source instanceof TileWMS) {
               const url = source.getFeatureInfoUrl(

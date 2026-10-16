@@ -58,7 +58,7 @@ export function parseFeatureInfoResult(
 ): FeatureInfoResult | null {
   const result = FeatureInfoResultSchema.safeParse(body);
   if (!result.success) {
-    console.log("Invalid feature info result:", result.error);
+    console.warn("Invalid feature info result:", result.error);
     return null;
   }
 

@@ -416,6 +416,8 @@ export async function getKommunerByNummer(): Promise<Record<string, Kommune>> {
 }
 
 export async function getCoverageData(url: string): Promise<string> {
+  "use cache";
+  cacheLife("days");
   const body = await fetchText(url, { method: "GET" });
   return body;
 }
