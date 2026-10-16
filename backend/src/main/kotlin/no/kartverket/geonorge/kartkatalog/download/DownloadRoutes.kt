@@ -239,6 +239,10 @@ fun Route.downloadRoutes(
             }
         }
 
+        post("/order-restricted") {
+            call.respond("authorized")
+        }
+
         get("/options/{uuid}") {
             val uuid =
                 call.parameters["uuid"]?.takeIf { it.isNotBlank() }
