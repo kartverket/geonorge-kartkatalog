@@ -25,6 +25,9 @@ import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 import no.kartverket.geonorge.kartkatalog.search.SearchService
+import no.kartverket.geonorge.kartkatalog.search.SearchEngine
+import no.kartverket.geonorge.kartkatalog.search.LegacySearchService
+import no.kartverket.geonorge.kartkatalog.search.legacySearchRoutes
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
 
 fun Application.configureRouting(
@@ -41,7 +44,8 @@ fun Application.configureRouting(
     val metadataService = MetadataService(geonetworkClient, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)
-    val searchService = SearchService(solrClient, areaResolver, hvdResolver)
+    val searchEngine = SearchEngine(solrClient)
+    val searchService = SearchService(searchEngine, areaResolver, hvdResolver)
     val downloadApiClient = DownloadApiClient(httpClient, appConfig.allowedDownloadClients)
     val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
     val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
@@ -53,6 +57,7 @@ fun Application.configureRouting(
             call.respondText("Hello, World!")
         }
         searchRoutes(searchService)
+        legacySearchRoutes(LegacySearchService(searchEngine, registerClient, appConfig.kartkatalogBaseUrl))
         metadataRoutes(metadataService, linkedDistributionsService)
         downloadRoutes(downloadService, authentication)
         authRoutes(authentication)

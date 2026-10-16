@@ -1,5 +1,6 @@
 package no.kartverket.geonorge.kartkatalog.search
 
+import io.ktor.http.HttpHeaders
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -17,7 +18,17 @@ fun Route.searchRoutes(searchService: SearchService) {
                     listHidden = call.request.queryParameters["listhidden"]?.toBooleanStrictOrNull() ?: false,
                     facets = call.request.queryParameters.toFacetInputs(),
                 )
-            call.respond(searchService.search(request))
+            if (call.request.queryParameters.wantsSearchCsv(call.request.headers[HttpHeaders.Accept])) {
+                val language = searchLanguage(
+                    call.request.queryParameters["lang"],
+                    call.request.cookies["_culture"],
+                    call.request.headers[HttpHeaders.AcceptLanguage],
+                )
+                call.response.headers.append(HttpHeaders.ContentLanguage, language)
+                call.respondSearchCsv(searchService.searchHits(request, language == "en"), language)
+            } else {
+                call.respond(searchService.search(request))
+            }
         }
     }
 }

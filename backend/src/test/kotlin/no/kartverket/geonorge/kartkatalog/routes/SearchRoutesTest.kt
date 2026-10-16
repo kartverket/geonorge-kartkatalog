@@ -20,6 +20,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
 import no.kartverket.geonorge.kartkatalog.search.SearchService
+import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.Test
@@ -92,7 +93,7 @@ class SearchRoutesTest {
                     }
                 val searchService =
                     SearchService(
-                        SolrClient(client, "https://solr.example.test"),
+                        SearchEngine(SolrClient(client, "https://solr.example.test")),
                         AreaResolver(RegisterClient(client, "https://register.example.test")),
                         HvdResolver(RegisterClient(client, "https://register.example.test")),
                     )
@@ -145,7 +146,7 @@ class SearchRoutesTest {
                     }
                 val searchService =
                     SearchService(
-                        SolrClient(client, "https://solr.example.test"),
+                        SearchEngine(SolrClient(client, "https://solr.example.test")),
                         AreaResolver(RegisterClient(client, "https://register.example.test")),
                         HvdResolver(RegisterClient(client, "https://register.example.test")),
                     )

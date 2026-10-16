@@ -44,7 +44,16 @@ internal fun canShowMap(
     return hasMappedDatasetView || hasDatasetViewServices || isServiceView
 }
 
-internal fun SolrDocument.resolveMapCapability(): MapCapability {
+internal fun SolrDocument.resolveMapCapability(): MapCapability =
+    resolveMapCapability(type, distributionProtocol, distributionUrl, datasetservice, serviceDistributionUrlForDataset)
+
+internal fun resolveMapCapability(
+    type: String?,
+    distributionProtocol: String?,
+    distributionUrl: String?,
+    datasetservice: List<String>?,
+    serviceDistributionUrlForDataset: String?,
+): MapCapability {
     val datasetServices = parseDatasetServices(datasetservice)
     val viewServices =
         datasetServices.filter {

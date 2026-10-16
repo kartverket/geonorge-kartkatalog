@@ -2,57 +2,53 @@ package no.kartverket.geonorge.kartkatalog.search
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.serialization.json.JsonPrimitive
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrFacetCounts
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
 import java.text.Collator
 import java.util.Locale
 
 class SearchService(
-    private val solrClient: SolrClient,
+    private val engine: SearchEngine,
     private val areaResolver: AreaResolver,
     private val hvdResolver: HvdResolver,
 ) {
+    internal suspend fun searchHits(request: SearchRequest, english: Boolean = false): SearchHits =
+        engine.search(SearchQueryBuilder.build(request), english)
+
     suspend fun search(request: SearchRequest): SearchResponse =
         coroutineScope {
             val normalized = request.normalized()
-            val query = SearchQueryBuilder.build(normalized)
-            val response = solrClient.searchMetadataAll(query)
+            val hits = searchHits(normalized)
             val fylkeNamesDeferred = async { areaResolver.getFylkeNames().orEmpty() }
             val hvdCategoriesDeferred = async { hvdResolver.getCategories().orEmpty() }
             val fylkeNames = fylkeNamesDeferred.await()
             val hvdCategories = hvdCategoriesDeferred.await()
 
             SearchResponse(
-                numFound = response.response.numFound,
+                numFound = hits.numFound,
                 limit = normalized.limit,
                 offset = normalized.offset,
                 results =
-                    response.response.docs.map { doc ->
+                    hits.documents.map { doc ->
                         doc.toSearchResultItem()
                     },
-                facets = response.facetCounts.toSearchFacets(fylkeNames, hvdCategories),
+                facets = hits.facets.toSearchFacets(fylkeNames, hvdCategories),
             )
         }
 
-    private fun getSeriesMemberDetails(doc: SolrDocument): List<RelatedServiceReference> {
+    private fun getSeriesMemberDetails(doc: SearchHit): List<RelatedServiceReference> {
         val seriesMemberRefs =
-            solrClient.parseDatasetServices(doc.seriedatasets)
+            engine.parseDatasetServices(doc.seriedatasets)
         return seriesMemberRefs.filter { it.protocol == "GEONORGE:DOWNLOAD" }
     }
 
-    private fun SolrFacetCounts?.toSearchFacets(
+    private fun Map<String, List<SearchFacetCount>>.toSearchFacets(
         fylkeNames: Map<String, String>,
         hvdCategories: Set<String>,
     ): List<SearchFacet> =
         this
-            ?.facetFields
-            .orEmpty()
             .map { (facetField, values) ->
                 SearchFacet(
                     facetField = facetField,
@@ -61,25 +57,14 @@ class SearchService(
                 )
             }.sortedWith(compareBy(nullsLast()) { FACET_ORDER[it.facetField] })
 
-    private fun List<JsonPrimitive>.pairs(): List<Pair<JsonPrimitive, JsonPrimitive>> =
-        chunked(2).mapNotNull { chunk ->
-            val name = chunk.getOrNull(0) ?: return@mapNotNull null
-            val count = chunk.getOrNull(1) ?: return@mapNotNull null
-            name to count
-        }
-
-    private fun kotlinx.serialization.json.JsonArray.toFacetValues(
+    private fun List<SearchFacetCount>.toFacetValues(
         facetField: String,
         fylkeNames: Map<String, String>,
         hvdCategories: Set<String>,
     ): List<SearchFacetValue> {
         val values =
-            mapNotNull { it as? JsonPrimitive }
-                .pairs()
-                .mapNotNull { (name, count) ->
-                    val facetName = name.content
+            mapNotNull { (facetName, facetCount) ->
                     if (isJunkFacetValue(facetField, facetName)) return@mapNotNull null
-                    val facetCount = count.content.toIntOrNull() ?: return@mapNotNull null
                     SearchFacetValue(
                         name = facetName,
                         label =
@@ -97,7 +82,7 @@ class SearchService(
                             },
                         count = facetCount,
                     )
-                }
+            }
 
         return when (facetField) {
             "area" -> values.sortedWith(compareBy(norwegianCollator) { it.label ?: it.name })
@@ -194,10 +179,11 @@ class SearchService(
             else -> false
         }
 
-    private fun SolrDocument.toSearchResultItem(): SearchResultItem {
+    private fun SearchHit.toSearchResultItem(): SearchResultItem {
         val access = resolveAccess(dataaccess, otherconstraintsaccess, accessconstraint)
 
-        val mapCapability = resolveMapCapability()
+        val mapCapability =
+            resolveMapCapability(type, distributionProtocol, distributionUrl, datasetservice, serviceDistributionUrlForDataset)
 
         return SearchResultItem(
             uuid = uuid,
