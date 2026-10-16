@@ -6,6 +6,7 @@ const displayFullUrl = process.env.NEXT_PUBLIC_DISPLAY_FULL_URL === "true";
 const nextConfig: NextConfig = {
   basePath,
   cacheComponents: true,
+  partialPrefetching: true,
   images: {
     remotePatterns: [
       {
