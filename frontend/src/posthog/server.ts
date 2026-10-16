@@ -12,6 +12,9 @@ export async function getServerFeatureFlag(
 ): Promise<boolean | string | undefined> {
   const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
   const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+  const baseUrl = process.env.KATALOG_BASE_URL || "";
+
+  const hostName = new URL(baseUrl).hostname;
   if (!token || !host) {
     console.warn(
       "PostHog feature flags unavailable: project token or host is missing",
