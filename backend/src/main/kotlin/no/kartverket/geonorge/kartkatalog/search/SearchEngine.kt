@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.search
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import no.kartverket.geonorge.kartkatalog.distribution.MapCapabilityFields
 import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
 import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
@@ -17,7 +18,7 @@ internal data class SearchHit(
     val uuid: String,
     val title: String?,
     val abstractText: String?,
-    val type: String?,
+    override val type: String?,
     val typename: String?,
     val theme: String?,
     val organization: String?,
@@ -25,18 +26,18 @@ internal data class SearchHit(
     val organizations: List<String>?,
     val organizationLogoUrl: String?,
     val thumbnailUrl: String?,
-    val distributionUrl: String?,
-    val distributionProtocol: String?,
+    override val distributionUrl: String?,
+    override val distributionProtocol: String?,
     val distributionName: String?,
     val nationalinitiative: List<String>?,
     val dataaccess: String?,
     val otherconstraintsaccess: String?,
     val accessconstraint: String?,
-    val serviceDistributionUrlForDataset: String?,
+    override val serviceDistributionUrlForDataset: String?,
     val serviceDistributionProtocolForDataset: String?,
     val serviceDistributionNameForDataset: String?,
     val serviceDistributionUuidForDataset: String?,
-    val datasetservice: List<String>?,
+    override val datasetservice: List<String>?,
     val servicedataset: List<String>?,
     val distributions: List<String>?,
     val bundle: List<String>?,
@@ -48,7 +49,7 @@ internal data class SearchHit(
     val productSpecificationUrl: String?,
     val dateUpdated: String?,
     val spatialscope: List<String>?,
-)
+) : MapCapabilityFields
 
 internal data class SearchHits(
     val numFound: Int,

@@ -184,14 +184,7 @@ class SearchService(
     private fun SearchHit.toSearchResultItem(): SearchResultItem {
         val access = resolveAccess(dataaccess, otherconstraintsaccess, accessconstraint)
 
-        val mapCapability =
-            resolveMapCapability(
-                type,
-                distributionProtocol,
-                distributionUrl,
-                datasetservice,
-                serviceDistributionUrlForDataset,
-            )
+        val mapCapability = resolveMapCapability()
 
         return SearchResultItem(
             uuid = uuid,

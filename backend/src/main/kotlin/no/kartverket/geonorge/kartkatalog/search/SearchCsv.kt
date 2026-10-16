@@ -37,6 +37,22 @@ internal fun searchLanguage(
         ?.first ?: "no"
 }
 
+// Shared by both /api/search and /search: resolves the request's language using the
+// same lang/cookie/Accept-Language priority.
+internal fun ApplicationCall.resolveSearchLanguage(): String =
+    searchLanguage(
+        request.queryParameters["lang"],
+        request.cookies["_culture"],
+        request.headers[HttpHeaders.AcceptLanguage],
+    )
+
+// Marks the response as varying on the headers search negotiation depends on, and
+// resolves the CSV content type (if any) the same way for both search routes.
+internal fun ApplicationCall.resolveSearchCsvContentType(): ContentType? {
+    response.headers.append(HttpHeaders.Vary, "Accept, Accept-Language, Cookie")
+    return request.queryParameters.searchCsvContentType(request.headers[HttpHeaders.Accept])
+}
+
 private fun supportedLanguage(tag: String): String? {
     if (!languageTag.matches(tag)) return null
     return when (tag.substringBefore('-').lowercase()) {
@@ -75,6 +91,7 @@ internal fun Parameters.searchCsvContentType(accept: String?): ContentType? {
             MediaPreference(type, quality)
         }
 
+    // The most specific Accept entry matching a type wins; ties break on quality.
     fun qualityFor(type: ContentType): Double =
         accepted
             .filter { type.match(it.type) }
@@ -82,11 +99,12 @@ internal fun Parameters.searchCsvContentType(accept: String?): ContentType? {
             ?.quality ?: 0.0
 
     val jsonQuality = qualityFor(ContentType.Application.Json)
-    val csvType =
+    val best =
         listOf(textCsv, applicationCsv)
             .filter { type -> accepted.any { it.quality > 0.0 && it.type == type } }
-            .maxByOrNull(::qualityFor)
-    return csvType?.takeIf { qualityFor(it) > 0.0 && qualityFor(it) >= jsonQuality }
+            .map { it to qualityFor(it) }
+            .maxByOrNull { it.second }
+    return best?.takeIf { (_, quality) -> quality > 0.0 && quality >= jsonQuality }?.first
 }
 
 internal suspend fun ApplicationCall.respondSearchCsv(

@@ -18,17 +18,9 @@ fun Route.searchRoutes(searchService: SearchService) {
                     listHidden = call.request.queryParameters["listhidden"]?.toBooleanStrictOrNull() ?: false,
                     facets = call.request.queryParameters.toFacetInputs(),
                 )
-            call.response.headers.append(HttpHeaders.Vary, "Accept, Accept-Language, Cookie")
-            val csvContentType =
-                call.request.queryParameters
-                    .searchCsvContentType(call.request.headers[HttpHeaders.Accept])
+            val csvContentType = call.resolveSearchCsvContentType()
             if (csvContentType != null) {
-                val language =
-                    searchLanguage(
-                        call.request.queryParameters["lang"],
-                        call.request.cookies["_culture"],
-                        call.request.headers[HttpHeaders.AcceptLanguage],
-                    )
+                val language = call.resolveSearchLanguage()
                 call.response.headers.append(HttpHeaders.ContentLanguage, language)
                 call.respondSearchCsv(
                     searchService.searchHits(request, language == "en"),
