@@ -251,6 +251,74 @@ class LegacySearchRoutesTest {
         }
 
     @Test
+    fun `negotiates weighted headers and explicit csv media types on both routes`() =
+        testApplication {
+            val upstream = upstream()
+            application {
+                configureSerialization()
+                val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
+                val register = RegisterClient(upstream, "https://register.example.test")
+                routing {
+                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                    searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+                }
+            }
+
+            val legacyJson =
+                client.get("/search") {
+                    headers.append(HttpHeaders.Accept, "text/csv;q=0.2, application/json;q=0.9")
+                    headers.append(HttpHeaders.AcceptLanguage, "nb-NO;q=0.2, en-GB;q=0.8")
+                }
+            assertEquals(HttpStatusCode.OK, legacyJson.status)
+            assertContains(legacyJson.headers[HttpHeaders.ContentType].orEmpty(), "application/json")
+            assertEquals("en", legacyJson.headers[HttpHeaders.ContentLanguage])
+            assertContains(legacyJson.bodyAsText(), "\"TypeTranslated\":\"Dataset\"")
+            assertContains(legacyJson.headers[HttpHeaders.SetCookie].orEmpty(), "_culture=en")
+            assertContains(legacyJson.headers[HttpHeaders.Vary].orEmpty(), "Accept-Language")
+
+            val legacyCsv =
+                client.get("/search?mediatype=application/csv") {
+                    headers.append(HttpHeaders.Accept, "application/json;q=1, application/csv;q=0")
+                    headers.append(HttpHeaders.AcceptLanguage, "en-US;q=0.8, nb-NO;q=0.2")
+                }
+            assertEquals(HttpStatusCode.OK, legacyCsv.status)
+            assertContains(legacyCsv.headers[HttpHeaders.ContentType].orEmpty(), "application/csv")
+            assertEquals("en", legacyCsv.headers[HttpHeaders.ContentLanguage])
+            assertTrue(legacyCsv.bodyAsText().startsWith("Title;Type;Topic;"))
+
+            val modernCsv =
+                client.get("/api/search") {
+                    headers.append(HttpHeaders.Accept, "application/json;q=0.2, application/csv;q=0.8")
+                    headers.append(HttpHeaders.AcceptLanguage, "nb-NO;q=1")
+                    headers.append(HttpHeaders.Cookie, "_culture=en")
+                }
+            assertEquals(HttpStatusCode.OK, modernCsv.status)
+            assertContains(modernCsv.headers[HttpHeaders.ContentType].orEmpty(), "application/csv")
+            assertEquals("en", modernCsv.headers[HttpHeaders.ContentLanguage])
+            assertTrue(modernCsv.bodyAsText().startsWith("Title;Type;Topic;"))
+
+            val modernJson =
+                client.get("/api/search") {
+                    headers.append(HttpHeaders.Accept, "text/csv;q=0.2, application/json;q=0.9")
+                    headers.append(HttpHeaders.AcceptLanguage, "en-US")
+                }
+            assertEquals(HttpStatusCode.OK, modernJson.status)
+            assertContains(modernJson.headers[HttpHeaders.ContentType].orEmpty(), "application/json")
+            assertContains(modernJson.bodyAsText(), "\"numFound\":1")
+            assertTrue(modernJson.headers[HttpHeaders.ContentLanguage] == null)
+            assertEquals(
+                listOf(
+                    "/solr/metadata_all_en/select",
+                    "/solr/metadata_all_en/select",
+                    "/solr/metadata_all_en/select",
+                    "/solr/metadata_all/select",
+                ),
+                paths.filter { it.startsWith("/solr/") },
+            )
+            upstream.close()
+        }
+
+    @Test
     fun `csv skips area register lookup but json still needs it`() =
         testApplication {
             val upstream = upstream(registerError = true)

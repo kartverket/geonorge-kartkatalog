@@ -1,35 +1,92 @@
 package no.kartverket.geonorge.kartkatalog.search
 
 import io.ktor.http.ContentType
+import io.ktor.http.HeaderValue
 import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
+import io.ktor.http.parseHeaderValue
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respondText
+
+private val textCsv = ContentType.parse("text/csv")
+private val applicationCsv = ContentType.parse("application/csv")
+private val languageTag = Regex("""^[a-zA-Z]{2,8}(?:-[a-zA-Z0-9]{1,8})*$""")
 
 internal fun searchLanguage(
     lang: String?,
     cookie: String?,
     acceptLanguage: String?,
 ): String {
-    val preferred =
-        lang?.takeIf { it.isNotBlank() }
-            ?: cookie?.takeIf { it.isNotBlank() }
-            ?: acceptLanguage?.takeIf { it.isNotBlank() }
-            ?: return "no"
-    return if (preferred.trim().startsWith("en", ignoreCase = true)) "en" else "no"
+    val explicit = lang?.trim()?.takeIf { it.isNotEmpty() } ?: cookie?.trim()?.takeIf { it.isNotEmpty() }
+    if (explicit != null) return supportedLanguage(explicit) ?: "no"
+
+    return parseHeaderValue(acceptLanguage)
+        .mapNotNull { preference ->
+            val quality = preference.validQuality()?.takeIf { it > 0.0 } ?: return@mapNotNull null
+            supportedLanguage(preference.value)?.let { it to quality }
+        }.maxByOrNull { it.second }
+        ?.first ?: "no"
 }
 
-internal fun Parameters.wantsSearchCsv(accept: String?): Boolean =
-    this["mediatype"]?.let { value ->
-        value.equals("csv", true) || value.equals("text/csv", true) || value.equals("application/csv", true)
-    } ?: (accept?.contains("text/csv", true) == true || accept?.contains("application/csv", true) == true)
+private fun supportedLanguage(tag: String): String? {
+    if (!languageTag.matches(tag)) return null
+    return when (tag.substringBefore('-').lowercase()) {
+        "en" -> "en"
+        "no", "nb", "nn" -> "no"
+        else -> null
+    }
+}
+
+private fun HeaderValue.validQuality(): Double? {
+    val quality = params.firstOrNull { it.name.equals("q", ignoreCase = true) } ?: return 1.0
+    return quality.value.toDoubleOrNull()?.takeIf { it in 0.0..1.0 }
+}
+
+private data class MediaPreference(
+    val type: ContentType,
+    val quality: Double,
+) {
+    fun specificity(): Int = (if (type.contentType == "*") 0 else 1) + (if (type.contentSubtype == "*") 0 else 1)
+}
+
+internal fun Parameters.searchCsvContentType(accept: String?): ContentType? {
+    this["mediatype"]?.trim()?.takeIf { it.isNotEmpty() }?.let { explicit ->
+        if (explicit.equals("csv", ignoreCase = true)) return textCsv
+        return when (runCatching { ContentType.parse(explicit).withoutParameters() }.getOrNull()) {
+            textCsv -> textCsv
+            applicationCsv -> applicationCsv
+            else -> null
+        }
+    }
+
+    val accepted =
+        parseHeaderValue(accept).mapNotNull { value ->
+            val quality = value.validQuality() ?: return@mapNotNull null
+            val type = runCatching { ContentType.parse(value.value) }.getOrNull() ?: return@mapNotNull null
+            MediaPreference(type, quality)
+        }
+
+    fun qualityFor(type: ContentType): Double =
+        accepted
+            .filter { type.match(it.type) }
+            .maxWithOrNull(compareBy<MediaPreference> { it.specificity() }.thenBy { it.quality })
+            ?.quality ?: 0.0
+
+    val jsonQuality = qualityFor(ContentType.Application.Json)
+    val csvType =
+        listOf(textCsv, applicationCsv)
+            .filter { type -> accepted.any { it.quality > 0.0 && it.type == type } }
+            .maxByOrNull(::qualityFor)
+    return csvType?.takeIf { qualityFor(it) > 0.0 && qualityFor(it) >= jsonQuality }
+}
 
 internal suspend fun ApplicationCall.respondSearchCsv(
     hits: SearchHits,
     language: String,
+    contentType: ContentType,
 ) {
     response.headers.append(HttpHeaders.ContentDisposition, "attachment; filename=kartkatalogen.csv")
-    respondText(SearchCsv.render(hits, language), ContentType.parse("text/csv; charset=utf-8"))
+    respondText(SearchCsv.render(hits, language), contentType.withParameter("charset", "utf-8"))
 }
 
 internal object SearchCsv {

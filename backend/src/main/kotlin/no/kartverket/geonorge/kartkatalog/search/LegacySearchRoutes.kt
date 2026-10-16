@@ -94,7 +94,8 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
                 call.request.headers[HttpHeaders.AcceptLanguage],
             )
         call.response.headers.append(HttpHeaders.ContentLanguage, language)
-        if (params["lang"] != null || call.request.cookies["_culture"] == null) {
+        call.response.headers.append(HttpHeaders.Vary, "Accept, Accept-Language, Cookie")
+        if (!params["lang"].isNullOrBlank() || call.request.cookies["_culture"] == null) {
             call.response.cookies.append(
                 Cookie(
                     name = "_culture",
@@ -106,10 +107,10 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
             )
         }
         val request = LegacySearchRequest.fromQuery(params)
-        val csv = params.wantsSearchCsv(call.request.headers[HttpHeaders.Accept])
+        val csvContentType = params.searchCsvContentType(call.request.headers[HttpHeaders.Accept])
         try {
-            if (csv) {
-                call.respondSearchCsv(service.searchHits(request, language), language)
+            if (csvContentType != null) {
+                call.respondSearchCsv(service.searchHits(request, language), language, csvContentType)
             } else {
                 call.respond(service.search(request, language))
             }
