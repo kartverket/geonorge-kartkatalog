@@ -58,7 +58,8 @@ export async function getServerFeatureFlag(
   });
 
   try {
-    return flags.getFlag(key);
+    const flag = flags.getFlag(key);
+    return flag ? (flag.variant ?? flag.enabled) : defaultValue;
   } catch (error) {
     console.error(`Failed to evaluate PostHog feature flag ${key}`, error);
     return defaultValue;
