@@ -1,6 +1,6 @@
 import { MetaField } from "@/app/metadata/[uuid]/_components/MetaField";
-import { ThemeTags } from "@/app/metadata/[uuid]/_components/ThemeTags";
 import styles from "./ProductMeta.module.css";
+import { ThemeTags } from "./ThemeTags";
 
 export function ProductMeta({
   spatialScope,
