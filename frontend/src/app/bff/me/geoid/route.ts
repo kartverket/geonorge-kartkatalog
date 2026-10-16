@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getGeoIdAuthInfo, HttpError } from "@/app/api";
-import { clearAuthProviderCookie } from "../../auth/providerCookie";
+import { clearAuthProviderCookieIfMatches } from "../../auth/providerCookie";
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (error instanceof HttpError) {
       if (error.status === 401) {
         const response = NextResponse.json({ authenticated: false });
-        clearAuthProviderCookie(response);
+        clearAuthProviderCookieIfMatches(request, response, "geoid");
         return response;
       }
 

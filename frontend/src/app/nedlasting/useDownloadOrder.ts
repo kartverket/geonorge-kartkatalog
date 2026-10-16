@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { AuthProvider } from "@/lib/authProvider";
 import { bffPath } from "@/lib/basePath";
 import {
   type DownloadOrderRequest,
@@ -18,7 +19,7 @@ export function useDownloadOrder() {
 
   async function submitOrder(
     request: DownloadOrderRequest,
-    isRestricted: boolean,
+    provider: AuthProvider | null,
   ): Promise<DownloadOrderResult | null> {
     setIsOrdering(true);
     setOrderError(null);
@@ -26,9 +27,10 @@ export function useDownloadOrder() {
 
     try {
       const payload = parseDownloadOrderRequest(request);
-      const endpoint = isRestricted
-        ? "/download/order-restricted"
-        : "/download/order";
+      const endpoint =
+        provider === "ansattporten"
+          ? "/download/order-restricted"
+          : "/download/order";
       const response = await fetch(`${bffPath}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

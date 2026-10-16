@@ -27,6 +27,7 @@ import {
   getMissingDownloadSelectionFields,
 } from "@/app/nedlasting/downloadUtils";
 import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
+import { useAuthInfo } from "@/components/AuthProvider";
 import type { DownloadInsightGroups } from "@/lib/schemas/download";
 import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
@@ -45,6 +46,7 @@ type DownloadPageContentClientProps = {
 export function DownloadPageContentClient({
   insightGroups,
 }: DownloadPageContentClientProps) {
+  const authState = useAuthInfo();
   const selectedDownloadUuids = useSelectedDownloadUuids();
   const { cards, isLoading, hasLoadError } = useDownloadCards(
     selectedDownloadUuids,
@@ -126,6 +128,8 @@ export function DownloadPageContentClient({
     productsWithMissingFields.length === 0 &&
     usageGroup !== "" &&
     usagePurpose.length > 0 &&
+    (authState.status === "anonymous" ||
+      authState.status === "authenticated") &&
     !isOrdering;
 
   const hasInsightGroupOptions =
@@ -145,7 +149,7 @@ export function DownloadPageContentClient({
           usagePurpose,
         })),
       },
-      cards.some((card) => card.accessState === "restricted"),
+      authState.status === "authenticated" ? authState.provider : null,
     ).then((result) => {
       if (!result) return;
       setStep("last-ned");
@@ -286,6 +290,12 @@ export function DownloadPageContentClient({
 
                 {orderError ? (
                   <Paragraph aria-live="polite">{orderError}</Paragraph>
+                ) : null}
+                {authState.status === "error" ? (
+                  <Paragraph aria-live="polite">
+                    Kunne ikke bekrefte innloggingen. Prøv å laste siden på
+                    nytt.
+                  </Paragraph>
                 ) : null}
               </section>
             </section>

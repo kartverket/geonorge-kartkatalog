@@ -45,3 +45,13 @@ export function clearAuthProviderCookie(response: NextResponse) {
     maxAge: 0,
   });
 }
+
+export function clearAuthProviderCookieIfMatches(
+  request: NextRequest,
+  response: NextResponse,
+  provider: AuthProvider,
+) {
+  if (request.cookies.get(AUTH_PROVIDER_COOKIE_NAME)?.value === provider) {
+    clearAuthProviderCookie(response);
+  }
+}
