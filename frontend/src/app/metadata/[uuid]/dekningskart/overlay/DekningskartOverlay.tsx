@@ -1,17 +1,33 @@
 "use client";
 
-import { Card, Checkbox, Details, Heading } from "@kv-designsystem/react";
-import Breadcrumbs from "@/app/_components/Breadcrumbs/Breadcrumbs";
-import type { ProductMetadata } from "@/lib/schemas/product";
+import {
+  Button,
+  Card,
+  Checkbox,
+  Details,
+  Heading,
+} from "@kv-designsystem/react";
+import { FilesIcon, XMarkIcon } from "@navikt/aksel-icons";
+import type { Coordinate } from "ol/coordinate";
+import type { FeatureInfo } from "@/app/_components/MapComponent/Content";
+import type { Kommune } from "@/lib/schemas/kommune";
+import { statusColors } from "../styleFunctions";
 import styles from "./DekningskartOverlay.module.css";
-import { statusColors } from "./styleFunctions";
+import { FeatureInfoContent } from "./FeatureInfoContent";
+import { HeightSection } from "./HeightSection";
+
+export type LocationClickedInfo = {
+  coordinate: Coordinate;
+  featureInfoResults: FeatureInfo[];
+};
 
 interface DekningskartOverlayProps {
-  uuid: string;
-  metadata: ProductMetadata;
+  kommunerByNummer: Record<string, Kommune>;
   layerVisibility: Record<string, boolean>;
   layerIds: string[];
   onVisibilityChange: (id: string, visible: boolean) => void;
+  onFeatureInfoClose: () => void;
+  locationClickedInfo?: LocationClickedInfo | null;
 }
 
 const SymbologyBox = ({
@@ -31,36 +47,25 @@ const SymbologyBox = ({
 );
 
 export const DekningskartOverlay = ({
-  uuid,
-  metadata,
+  kommunerByNummer,
   layerVisibility,
   layerIds,
   onVisibilityChange,
+  onFeatureInfoClose,
+  locationClickedInfo,
 }: DekningskartOverlayProps) => {
   const showSymbology =
     layerVisibility.fullstendig ||
     layerVisibility.ufullstendig ||
-    layerVisibility.ikkeKartlagt;
+    layerVisibility.ikkeKartlagt ||
+    layerVisibility.ikkeRelevant;
   return (
     <div className={styles.overlay}>
       <div className={styles.leftColumn}>
         <div className={styles.columnContent}>
-          <div className={styles.breadcrumbContainer}>
-            <Breadcrumbs
-              segments={[
-                { label: "Geonorge", href: "" },
-                { label: "Kartkatalogen", href: "" },
-                {
-                  label: metadata.title ?? "-",
-                  href: `metadata/${uuid}`,
-                },
-                { label: "Dekningskart" },
-              ]}
-            />
-          </div>
           <Card className={styles.mapControlCard}>
             <Heading level={4} data-size={"xs"}>
-              {metadata.title}
+              Velg hva du ser
             </Heading>
             {(layerIds.includes("overview") ||
               layerIds.includes("coverage")) && (
@@ -97,11 +102,14 @@ export const DekningskartOverlay = ({
                   Se fullstendighetsdekningskart
                 </Details.Summary>
                 <Details.Content>
+                  <Heading level={4} data-size={"2xs"}>
+                    Velg status for kartlegging
+                  </Heading>
                   <fieldset>
                     {layerIds.includes("fullstendig") && (
                       <LayerCheckbox
                         id="fullstendig"
-                        label="Fullstendig"
+                        label="Kartlagte områder"
                         visible={layerVisibility.fullstendig}
                         onVisibilityChange={onVisibilityChange}
                       />
@@ -109,7 +117,7 @@ export const DekningskartOverlay = ({
                     {layerIds.includes("ufullstendig") && (
                       <LayerCheckbox
                         id="ufullstendig"
-                        label="Ufullstendig"
+                        label="Delvis kartlagte områder"
                         visible={layerVisibility.ufullstendig}
                         onVisibilityChange={onVisibilityChange}
                       />
@@ -117,8 +125,16 @@ export const DekningskartOverlay = ({
                     {layerIds.includes("ikkeKartlagt") && (
                       <LayerCheckbox
                         id="ikkeKartlagt"
-                        label="Ikke kartlagt"
+                        label="Ikke kartlagte områder"
                         visible={layerVisibility.ikkeKartlagt}
+                        onVisibilityChange={onVisibilityChange}
+                      />
+                    )}
+                    {layerIds.includes("ikkeRelevant") && (
+                      <LayerCheckbox
+                        id="ikkeRelevant"
+                        label="Ikke relevante områder"
+                        visible={layerVisibility.ikkeRelevant}
                         onVisibilityChange={onVisibilityChange}
                       />
                     )}
@@ -141,6 +157,63 @@ export const DekningskartOverlay = ({
                 )}
                 {layerVisibility.ikkeKartlagt && (
                   <SymbologyBox status={"ikkeKartlagt"} label="Ikke kartlagt" />
+                )}
+                {layerVisibility.ikkeRelevant && (
+                  <SymbologyBox status={"ikkeRelevant"} label="Ikke relevant" />
+                )}
+              </div>
+            </Card>
+          )}
+        </div>
+      </div>
+      <div className={styles.rightColumn}>
+        <div className={styles.columnContent}>
+          {locationClickedInfo != null && (
+            <Card className={styles.mapControlCard}>
+              <div className={styles.featureInfoContainer}>
+                <div className={styles.featureInfoHeader}>
+                  <Heading level={3} data-size="xs">
+                    Informasjon
+                  </Heading>
+
+                  <Button onClick={onFeatureInfoClose} variant="tertiary">
+                    <XMarkIcon></XMarkIcon>
+                  </Button>
+                </div>
+                <HeightSection position={locationClickedInfo.coordinate} />
+                <Details defaultOpen>
+                  <Details.Summary>Koordinater</Details.Summary>
+                  <Details.Content>
+                    <Heading level={4} data-size="2xs">
+                      Koordinater:
+                    </Heading>
+                    <div>
+                      Ø: {locationClickedInfo.coordinate[0].toFixed(2)}, N:{" "}
+                      {locationClickedInfo.coordinate[1].toFixed(2)}
+                    </div>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          `Ø: ${locationClickedInfo.coordinate[0].toFixed(2)}, N: ${locationClickedInfo.coordinate[1].toFixed(2)}`,
+                        );
+                      }}
+                    >
+                      <FilesIcon />
+                      Kopièr koordinatene
+                    </Button>
+                  </Details.Content>
+                </Details>
+                {locationClickedInfo.featureInfoResults.length > 0 && (
+                  <Details defaultOpen>
+                    <Details.Summary>Objektinformasjon</Details.Summary>
+                    <Details.Content>
+                      <FeatureInfoContent
+                        featureInfos={locationClickedInfo.featureInfoResults}
+                        kommunerByNummer={kommunerByNummer}
+                      />
+                    </Details.Content>
+                  </Details>
                 )}
               </div>
             </Card>

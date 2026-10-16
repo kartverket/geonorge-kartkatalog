@@ -13,6 +13,7 @@ import {
   parseDownloadOptions,
   parseDownloadOrderResult,
 } from "@/lib/schemas/download";
+import { type Kommune, parseKommuner } from "@/lib/schemas/kommune";
 import {
   type LinkedDistributions,
   type ProductFairStatus,
@@ -115,6 +116,32 @@ export async function getGeoIdAuthInfo(cookie?: string): Promise<AuthInfo> {
   });
 
   return parseAuthInfo(body);
+}
+
+async function fetchText(
+  url: string,
+  options: RequestInit = {},
+): Promise<string> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), 8000);
+
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    const body = await res.text();
+
+    if (!res.ok) {
+      throw new HttpError(res.status, res.statusText, body);
+    }
+    return body;
+  } catch (err: unknown) {
+    const maybeErr = err as { name?: string } | undefined;
+    if (maybeErr?.name === "AbortError") {
+      throw new Error(`Request to ${url} timed out after 8000ms`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(id);
+  }
 }
 
 async function fetchJson(
@@ -373,4 +400,24 @@ export async function getDownloadInsightGroups(): Promise<DownloadInsightGroups>
     method: "GET",
   });
   return parseDownloadInsightGroups(body);
+}
+
+export async function getKommunerByNummer(): Promise<Record<string, Kommune>> {
+  "use cache";
+  cacheLife("days");
+
+  const body = await fetchJson(
+    "https://api.kartverket.no/kommuneinfo/v1/kommuner",
+  );
+  const kommuner = parseKommuner(body);
+  return Object.fromEntries(
+    kommuner.map((kommune) => [kommune.kommunenummer, kommune]),
+  );
+}
+
+export async function getCoverageData(url: string): Promise<string> {
+  "use cache";
+  cacheLife("days");
+  const body = await fetchText(url, { method: "GET" });
+  return body;
 }
