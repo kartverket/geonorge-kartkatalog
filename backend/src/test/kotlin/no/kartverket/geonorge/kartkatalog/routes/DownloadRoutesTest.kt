@@ -17,6 +17,7 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
+import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.download.DownloadApiClient
@@ -175,7 +176,8 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService, authentication) }
+                val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
+                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
 
             val response =
@@ -262,7 +264,8 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService, authentication) }
+                val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
+                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
 
             val response =
@@ -323,7 +326,8 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService, authentication) }
+                val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
+                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
 
             val response =
@@ -389,7 +393,8 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService, authentication) }
+                val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
+                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
 
             val response =
@@ -451,7 +456,8 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService, authentication) }
+                val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
+                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
 
             val response =
@@ -490,7 +496,8 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService, authentication) }
+                val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
+                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
 
             val response = client.get("/api/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b")
@@ -528,7 +535,8 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService, authentication) }
+                val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
+                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
 
             val response =
@@ -576,7 +584,8 @@ class DownloadRoutesTest {
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
-                routing { downloadRoutes(downloadService, authentication) }
+                val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
+                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
 
             val response =
