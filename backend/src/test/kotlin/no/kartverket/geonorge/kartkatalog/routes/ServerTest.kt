@@ -81,6 +81,7 @@ class ServerTest {
                             "GEOID_CLIENT_ID" to "kartkatalog-test",
                             "GEOID_CLIENT_SECRET" to "test-secret",
                             "PUBLIC_BASE_URL" to "https://test.example.com/kartkatalog",
+                            "TOKEN_EXCHANGE_URL" to "https://test.example.com/token-exchange",
                         ),
                     ),
                     authentication,
