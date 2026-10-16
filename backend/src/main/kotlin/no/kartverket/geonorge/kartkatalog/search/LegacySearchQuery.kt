@@ -92,18 +92,20 @@ internal object LegacySearchQuery {
     fun build(request: LegacySearchRequest): MetadataSolrQuery {
         // AddDefaultFacetsIfMissing drops selections that do not match a default facet name.
         // In particular, the legacy "organization" alias is accepted by the binder but then discarded.
+        // Group under the canonical (Solr-correct) casing, since e.g. "distributionprotocols" is
+        // accepted case-insensitively but Solr's field is "DistributionProtocols".
         val selected =
-            defaultFacets.flatMap { field ->
-                request.facets.filter { it.name.equals(field, ignoreCase = true) }
-            }
+            defaultFacets
+                .associateWith { field ->
+                    request.facets.filter { it.name.equals(field, ignoreCase = true) }
+                }.filterValues { it.isNotEmpty() }
         val hasFilters = selected.isNotEmpty()
         val fields =
             defaultFacets.map { field ->
-                if (selected.any { it.name.equals(field, ignoreCase = true) }) "{!ex=$field}$field" else field
+                if (field in selected) "{!ex=$field}$field" else field
             }
         val filters =
             selected
-                .groupBy { it.name }
                 .map { (name, values) ->
                     val terms =
                         if (name == "area") {

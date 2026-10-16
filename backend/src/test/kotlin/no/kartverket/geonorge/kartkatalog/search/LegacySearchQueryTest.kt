@@ -74,4 +74,20 @@ class LegacySearchQueryTest {
         assertTrue(query.fq.any { "0\\/03\\/0301" in it })
         assertFalse(query.fq.any { "area:\"0\\/03\" OR" in it })
     }
+
+    @Test
+    fun `lowercase distributionprotocols filters the Solr field's actual PascalCase name`() {
+        val query =
+            LegacySearchQuery.build(
+                LegacySearchRequest.fromQuery(
+                    Parameters.build {
+                        append("facets[0]name", "distributionprotocols")
+                        append("facets[0]value", "WMS")
+                    },
+                ),
+            )
+        assertTrue(query.fq.any { it.startsWith("{!tag=DistributionProtocols}DistributionProtocols:") })
+        assertFalse(query.fq.any { "distributionprotocols:" in it })
+        assertTrue(query.facetFields.contains("{!ex=DistributionProtocols}DistributionProtocols"))
+    }
 }
