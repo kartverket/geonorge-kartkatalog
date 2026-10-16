@@ -47,32 +47,12 @@ const onZoomOut = () => {
   zoomTo(currentLevel - 1);
 };
 
-const onShowMyLocation = () => {
-  const view = map.getView();
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const { latitude, longitude } = position.coords;
-
-      const currentProjection = view.getProjection();
-      const [x, y] = transform(
-        [longitude, latitude],
-        "EPSG:4326",
-        currentProjection,
-      );
-
-      view.animate({
-        center: [x, y],
-        zoom: 15,
-        duration: 500,
-      });
-    });
-  }
-};
-
 const ControlButton = ({
+  disabled,
   icon,
   onClick,
 }: {
+  disabled?: boolean;
   icon: React.ReactNode;
   onClick?: () => void;
 }) => (
@@ -80,6 +60,7 @@ const ControlButton = ({
     variant="secondary"
     className={styles.controlButton}
     onClick={onClick}
+    disabled={disabled === true}
   >
     {icon}
   </Button>
@@ -87,6 +68,39 @@ const ControlButton = ({
 
 export const MapOverlay = (props: MapOverlayProps) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+
+  const onShowMyLocation = () => {
+    const view = map.getView();
+    if (navigator.geolocation) {
+      setIsGettingLocation(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+
+          const currentProjection = view.getProjection();
+          const [x, y] = transform(
+            [longitude, latitude],
+            "EPSG:4326",
+            currentProjection,
+          );
+
+          view.animate({
+            center: [x, y],
+            zoom: 15,
+            duration: 500,
+          });
+          setIsGettingLocation(false);
+        },
+        () => {
+          setIsGettingLocation(false);
+        },
+        { enableHighAccuracy: false, timeout: 10_000 },
+      );
+    } else {
+      setIsGettingLocation(false);
+    }
+  };
 
   useEffect(() => {
     if (isFullscreen) {
@@ -117,6 +131,7 @@ export const MapOverlay = (props: MapOverlayProps) => {
         {props.showMovementControls && (
           <Card className={styles.movementControls}>
             <ControlButton
+              disabled={isGettingLocation || !navigator.geolocation}
               icon={
                 <ObiCoordinate style={{ width: "var(--ds-font-size-5)" }} />
               }
