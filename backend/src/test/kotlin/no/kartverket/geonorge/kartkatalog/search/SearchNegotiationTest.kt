@@ -66,6 +66,9 @@ class SearchNegotiationTest {
         assertEquals("no", searchLanguage(null, null, "en-US;q=0, nn-NO;q=0.3"))
         assertEquals("no", searchLanguage(null, null, "en-US;q=bogus"))
         assertEquals("no", searchLanguage(null, null, "enough;q=1"))
-        assertEquals("no", searchLanguage("invalid", "en", "en-US"))
+        // An unsupported lang value falls through to cookie, then to Accept-Language, not straight to "no".
+        assertEquals("en", searchLanguage("invalid", "en", "no;q=1"))
+        assertEquals("en", searchLanguage("invalid", null, "en-US"))
+        assertEquals("no", searchLanguage("invalid", "invalid", null))
     }
 }

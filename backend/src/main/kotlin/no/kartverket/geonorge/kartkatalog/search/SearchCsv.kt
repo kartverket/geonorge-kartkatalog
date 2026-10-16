@@ -17,8 +17,17 @@ internal fun searchLanguage(
     cookie: String?,
     acceptLanguage: String?,
 ): String {
-    val explicit = lang?.trim()?.takeIf { it.isNotEmpty() } ?: cookie?.trim()?.takeIf { it.isNotEmpty() }
-    if (explicit != null) return supportedLanguage(explicit) ?: "no"
+    // An unsupported lang/cookie value falls through to the next priority instead of forcing Norwegian.
+    lang
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+        ?.let(::supportedLanguage)
+        ?.let { return it }
+    cookie
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+        ?.let(::supportedLanguage)
+        ?.let { return it }
 
     return parseHeaderValue(acceptLanguage)
         .mapNotNull { preference ->
