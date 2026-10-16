@@ -22,6 +22,7 @@ jobs:
       GEOID_CLIENT_ID: test-client
       GEOID_CLIENT_SECRET: test-secret
       PUBLIC_BASE_URL: http://localhost:3000
+      TOKEN_EXCHANGE_URL: https://token-exchange.example
     defaults:
       run:
         working-directory: backend
