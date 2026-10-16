@@ -107,7 +107,8 @@ internal class LegacySearchResponse(
             putNullable("DistributionUrl", doc.distributionUrl)
             putNullable("DistributionProtocol", doc.distributionProtocol)
             putNullable("DistributionName", doc.distributionName)
-            put("ShowDetailsUrl", "${siteUrl.trimEnd('/')}/metadata/uuid/${doc.uuid}")
+            put("ShowDetailsUrl", "${siteUrl.trimEnd('/')}/metadata/${doc.uuid}")
+            // TODO: OrganizationUrl finnes ikke i ny kartkatalog atm, så denne lenken blir ugyldig
             put("OrganizationUrl", "${siteUrl.trimEnd('/')}/?organizations=${doc.organizationgroup.orEmpty()}")
             put("IsOpenData", isOpen)
             put("AccessIsOpendata", isOpen)

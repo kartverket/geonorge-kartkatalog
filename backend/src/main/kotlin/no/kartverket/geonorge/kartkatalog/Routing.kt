@@ -57,7 +57,7 @@ fun Application.configureRouting(
             call.respondText("Hello, World!")
         }
         searchRoutes(searchService)
-        legacySearchRoutes(LegacySearchService(searchEngine, registerClient, appConfig.kartkatalogBaseUrl))
+        legacySearchRoutes(LegacySearchService(searchEngine, registerClient, appConfig.publicBaseUrl))
         metadataRoutes(metadataService, linkedDistributionsService)
         downloadRoutes(downloadService, authentication)
         authRoutes(authentication)
