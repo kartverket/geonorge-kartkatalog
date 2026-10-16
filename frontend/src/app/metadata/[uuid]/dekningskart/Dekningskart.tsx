@@ -132,6 +132,7 @@ export const Dekningskart = (props: DekningkartProps) => {
         }}
       />
       <DekningskartOverlay
+        metadata={props.metadata}
         kommunerByNummer={props.kommunerByNummer}
         layerVisibility={layerVisibility}
         layerIds={layerIds}

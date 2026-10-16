@@ -11,6 +11,7 @@ import { FilesIcon, XMarkIcon } from "@navikt/aksel-icons";
 import type { Coordinate } from "ol/coordinate";
 import type { FeatureInfo } from "@/app/_components/MapComponent/Content";
 import type { Kommune } from "@/lib/schemas/kommune";
+import type { ProductMetadata } from "@/lib/schemas/product";
 import { statusColors } from "../styleFunctions";
 import styles from "./DekningskartOverlay.module.css";
 import { FeatureInfoContent } from "./FeatureInfoContent";
@@ -22,6 +23,7 @@ export type LocationClickedInfo = {
 };
 
 interface DekningskartOverlayProps {
+  metadata: ProductMetadata;
   kommunerByNummer: Record<string, Kommune>;
   layerVisibility: Record<string, boolean>;
   layerIds: string[];
@@ -47,6 +49,7 @@ const SymbologyBox = ({
 );
 
 export const DekningskartOverlay = ({
+  metadata,
   kommunerByNummer,
   layerVisibility,
   layerIds,
@@ -64,8 +67,9 @@ export const DekningskartOverlay = ({
       <div className={styles.leftColumn}>
         <div className={styles.columnContent}>
           <Card className={styles.mapControlCard}>
+            <Heading level={3}>{metadata.title}</Heading>
             <Heading level={4} data-size={"xs"}>
-              Velg hva du ser
+              Valg for visning
             </Heading>
             {(layerIds.includes("overview") ||
               layerIds.includes("coverage")) && (
@@ -73,7 +77,7 @@ export const DekningskartOverlay = ({
                 <Details.Summary>Se dekningskart</Details.Summary>
                 <Details.Content>
                   <legend>Velg detaljeringsnivå</legend>
-                  <fieldset>
+                  <fieldset className={styles.controlFielsset}>
                     {layerIds.includes("overview") ? (
                       <LayerCheckbox
                         id="overview"
@@ -105,7 +109,7 @@ export const DekningskartOverlay = ({
                   <Heading level={4} data-size={"2xs"}>
                     Velg status for kartlegging
                   </Heading>
-                  <fieldset>
+                  <fieldset className={styles.controlFielsset}>
                     {layerIds.includes("fullstendig") && (
                       <LayerCheckbox
                         id="fullstendig"
