@@ -9,6 +9,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.routing.routing
@@ -156,5 +157,46 @@ class SearchRoutesTest {
             val response = client.get("/api/search")
 
             assertEquals(HttpStatusCode.OK, response.status)
+        }
+
+    @Test
+    fun `mediatype=json overrides a CSV Accept header`() =
+        testApplication {
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(
+                        MockEngine {
+                            respond(
+                                content = searchSolrJson,
+                                status = HttpStatusCode.OK,
+                                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                            )
+                        },
+                    ) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val searchService =
+                    SearchService(
+                        SearchEngine(SolrClient(client, "https://solr.example.test")),
+                        AreaResolver(RegisterClient(client, "https://register.example.test")),
+                        HvdResolver(RegisterClient(client, "https://register.example.test")),
+                    )
+                routing { searchRoutes(searchService) }
+            }
+
+            val response =
+                client.get("/api/search?text=matrikkel&mediatype=json") {
+                    headers.append(HttpHeaders.Accept, "text/csv")
+                }
+            val body = response.bodyAsText()
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(
+                ContentType.Application.Json,
+                response.contentType()?.withoutParameters(),
+            )
+            assertContains(body, "\"numFound\":1")
         }
 }

@@ -335,11 +335,30 @@ class LegacySearchRoutesTest {
             assertContains(modernJson.headers[HttpHeaders.ContentType].orEmpty(), "application/json")
             assertContains(modernJson.bodyAsText(), "\"numFound\":1")
             assertTrue(modernJson.headers[HttpHeaders.ContentLanguage] == null)
+
+            val legacyJsonOverride =
+                client.get("/search?mediatype=json") {
+                    headers.append(HttpHeaders.Accept, "text/csv")
+                }
+            assertEquals(HttpStatusCode.OK, legacyJsonOverride.status)
+            assertContains(legacyJsonOverride.headers[HttpHeaders.ContentType].orEmpty(), "application/json")
+            assertContains(legacyJsonOverride.bodyAsText(), "\"TypeTranslated\":\"Datasett\"")
+
+            val modernJsonOverride =
+                client.get("/api/search?mediatype=json") {
+                    headers.append(HttpHeaders.Accept, "text/csv")
+                }
+            assertEquals(HttpStatusCode.OK, modernJsonOverride.status)
+            assertContains(modernJsonOverride.headers[HttpHeaders.ContentType].orEmpty(), "application/json")
+            assertContains(modernJsonOverride.bodyAsText(), "\"numFound\":1")
+
             assertEquals(
                 listOf(
                     "/solr/metadata_all_en/select",
                     "/solr/metadata_all_en/select",
                     "/solr/metadata_all_en/select",
+                    "/solr/metadata_all/select",
+                    "/solr/metadata_all/select",
                     "/solr/metadata_all/select",
                 ),
                 paths.filter { it.startsWith("/solr/") },

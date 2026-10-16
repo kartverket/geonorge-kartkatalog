@@ -3,7 +3,6 @@ package no.kartverket.geonorge.kartkatalog.search
 import io.ktor.http.Cookie
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import kotlinx.coroutines.CancellationException
@@ -115,18 +114,18 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
             if (csvContentType != null) {
                 call.respondSearchCsv(service.searchHits(request, language), language, csvContentType)
             } else {
-                call.respond(service.search(request, language))
+                call.respondSearchJson(service.search(request, language))
             }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             // The legacy controller returns a 500 rather than an upstream error for failures after querying Solr.
             LoggerFactory.getLogger("LegacySearchRoutes").error("Legacy-compatible search failed", e)
-            call.respond(
-                HttpStatusCode.InternalServerError,
+            call.respondSearchJson(
                 mapOf(
                     "error" to "An error occurred while processing your search request",
                 ),
+                HttpStatusCode.InternalServerError,
             )
         }
     }

@@ -3,10 +3,12 @@ package no.kartverket.geonorge.kartkatalog.search
 import io.ktor.http.ContentType
 import io.ktor.http.HeaderValue
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.Parameters
 import io.ktor.http.parseHeaderValue
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respondText
+import no.kartverket.geonorge.kartkatalog.config.searchJson
 
 private val textCsv = ContentType.parse("text/csv")
 private val applicationCsv = ContentType.parse("application/csv")
@@ -51,6 +53,17 @@ internal fun ApplicationCall.resolveSearchLanguage(): String =
 internal fun ApplicationCall.resolveSearchCsvContentType(): ContentType? {
     response.headers.append(HttpHeaders.Vary, "Accept, Accept-Language, Cookie")
     return request.queryParameters.searchCsvContentType(request.headers[HttpHeaders.Accept])
+}
+
+// Serializes with the app's configured Json settings directly, bypassing Ktor's Accept-based
+// ContentNegotiation. Both search routes already resolve CSV vs. JSON themselves (honoring an
+// explicit ?mediatype= override); negotiating again from the raw Accept header here could pick no
+// converter at all (e.g. mediatype=json with Accept: text/csv) instead of respecting that decision.
+internal suspend inline fun <reified T : Any> ApplicationCall.respondSearchJson(
+    message: T,
+    status: HttpStatusCode = HttpStatusCode.OK,
+) {
+    respondText(searchJson.encodeToString(message), ContentType.Application.Json, status)
 }
 
 private fun supportedLanguage(tag: String): String? {

@@ -1,7 +1,6 @@
 package no.kartverket.geonorge.kartkatalog.search
 
 import io.ktor.http.HttpHeaders
-import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
@@ -28,7 +27,7 @@ fun Route.searchRoutes(searchService: SearchService) {
                     csvContentType,
                 )
             } else {
-                call.respond(searchService.search(request))
+                call.respondSearchJson(searchService.search(request))
             }
         }
     }
