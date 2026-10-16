@@ -4,6 +4,7 @@ import {
   FileTextIcon,
   PencilIcon,
 } from "@navikt/aksel-icons";
+import { posthog } from "posthog-js";
 import AddSeriesToDownloadsButton from "@/app/_components/addToDownloads/AddSeriesToDownloadsButton";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
@@ -39,6 +40,8 @@ export function ProductActions({
   const downloadableSeriesMembers =
     getDownloadableSeriesMembers(linkedDistributions);
   const mapItem = getMapItem(metadata, linkedDistributions, uuid);
+  const showNewButton = posthog.getFeatureFlag("new-dekningskart-button") === true;
+
 
   return (
     <div className={styles.actions}>
@@ -62,7 +65,7 @@ export function ProductActions({
         item={mapItem}
         location={LOCATIONS.MetadataPage}
       />
-      {metadata.coverageUrl && (
+      {metadata.coverageUrl && !showNewButton && (
         <TrackedActionLinkButton
           eventName="show-coverage-map"
           href={metadata.coverageUrl}
@@ -70,13 +73,13 @@ export function ProductActions({
           title="Vis dekningskart"
         />
       )}
-      {shouldShowCoverageMap(metadata) && (
+      {shouldShowCoverageMap(metadata)  && showNewButton && (
         <TrackedActionLinkButton
           eventName="show-coverage-data"
           href={`${basePath}/metadata/${uuid}/dekningskart`}
           target="_self"
           icon={<EarthIcon aria-hidden />}
-          title="Vis dekningskart NY"
+          title="Vis dekningskart"
         />
       )}
       <TrackedActionLinkButton
