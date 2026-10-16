@@ -1,0 +1,11 @@
+.dekningskartPage {
+  width: 100%;
+  height: 80vh;
+  background-color: #f0f0f0;
+}
+
+.breadcrumbContainer {
+  padding-left: 3rem;
+  margin-left: auto;
+  pointer-events: auto;
+}

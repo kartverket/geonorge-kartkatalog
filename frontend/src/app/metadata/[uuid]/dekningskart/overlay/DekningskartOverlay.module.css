@@ -6,6 +6,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: minmax(0, 1fr) auto;
   pointer-events: none;
+  user-select: none;
 }
 
 .leftColumn {
@@ -26,9 +27,13 @@
   }
 }
 
-.breadcrumbContainer {
-  pointer-events: auto;
+.rightColumn {
+  user-select: none;
+  pointer-events: none;
+  grid-column: 3;
+  grid-row: 1 / -1;
 }
+
 .columnContent {
   padding: 3rem;
   display: flex;
@@ -53,4 +58,14 @@
 .symbologyColorBox {
   width: 24px;
   height: 24px;
+}
+
+.featureInfoContainer {
+  pointer-events: auto;
+}
+
+.featureInfoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

@@ -19,6 +19,7 @@
     "@cookieyes/nextjs": "^0.8.1",
     "@kv-designsystem/react": "^1.0.0-alpha.6",
     "@navikt/aksel-icons": "^8.19.1",
+    "@oicl/openbridge-webcomponents-react": "^2.0.0",
     "next": "^16.4.0",
     "ol": "^10.11.0",
     "posthog-js": "^1.438.8",
@@ -26,6 +27,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-markdown": "^10.1.0",
+    "xml-js": "^1.6.11",
     "zod": "^4.6.7"
   },
   "devDependencies": {

@@ -6,13 +6,26 @@ import { TileWMS } from "ol/source";
 import VectorSource from "ol/source/Vector";
 import type { CoverageDataSource } from "@/lib/schemas/product";
 
+export const LayerIdToName = new Map<string, string>([
+  ["overview", "Kommune"],
+  ["coverage", "Rutenett"],
+  ["fullstendig", "Fullstendig"],
+  ["ufullstendig", "Ufullstendig"],
+  ["ikkeKartlagt", "Ikke kartlagt"],
+]);
+
 export const getLayerFromCoverageData = (
   data: CoverageDataSource,
+  internalId?: string,
 ): BaseLayer => {
   if (data.type === "WMS") {
-    return getWMSLayerFromUrl(data.url, {
-      LAYERS: data.layers ?? "",
-    });
+    return getWMSLayerFromUrl(
+      data.url,
+      {
+        LAYERS: data.layers ?? "",
+      },
+      internalId,
+    );
   }
   if (data.type === "GEOJSON") {
     return getGEOJSONLayerFromUrl(data.url);
@@ -23,6 +36,7 @@ export const getLayerFromCoverageData = (
 export const getWMSLayerFromUrl = (
   url: string,
   params?: Record<string, string | boolean | number>,
+  internalId?: string,
 ): TileLayer => {
   const wmsLayer = new TileLayer({
     source: new TileWMS({
@@ -34,6 +48,9 @@ export const getWMSLayerFromUrl = (
 
       projection: "EPSG:25833",
     }),
+    properties: {
+      id: internalId,
+    },
   });
   return wmsLayer;
 };
