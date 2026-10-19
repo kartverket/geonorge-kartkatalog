@@ -66,14 +66,16 @@ export const DekningskartOverlay = ({
           <Card className={styles.mapControlCard}>
             <Heading level={3}>{metadata.title}</Heading>
             <Heading level={4} data-size={"xs"}>
-              Valg for visning
+              Lagvisning
             </Heading>
             {(layerIds.includes("overview") ||
               layerIds.includes("coverage")) && (
               <Details defaultOpen>
                 <Details.Summary>Se dekningskart</Details.Summary>
                 <Details.Content>
-                  <legend>Velg detaljeringsnivå</legend>
+                  <Heading level={4} data-size={"2xs"}>
+                    Velg detaljeringsnivå
+                  </Heading>
                   <fieldset className={styles.controlFielsset}>
                     {layerIds.includes("overview") ? (
                       <LayerCheckbox
