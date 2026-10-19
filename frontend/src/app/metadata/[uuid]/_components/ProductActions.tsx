@@ -16,6 +16,7 @@ import type {
   ProductMetadata,
 } from "@/lib/schemas/product";
 import { LOCATIONS } from "@/posthog/posthog";
+import { shouldShowCoverageMap } from "../dekningskart/utils";
 import { MapLinkButton } from "./MapLinkButton";
 import styles from "./ProductActions.module.css";
 import { TrackedActionLinkButton } from "./TrackedActionLinkButton";
@@ -56,7 +57,11 @@ export async function ProductActions({
         item={mapItem}
         location={LOCATIONS.MetadataPage}
       />
-      <MapLinkButton metadata={metadata} uuid={uuid} />
+      <MapLinkButton
+        shouldShowCoverageMap={shouldShowCoverageMap(metadata)}
+        coverageUrl={metadata.coverageUrl}
+        uuid={uuid}
+      />
       <TrackedActionLinkButton
         eventName="show-metadata-xml"
         href={getMetadataXmlUrl(uuid)}

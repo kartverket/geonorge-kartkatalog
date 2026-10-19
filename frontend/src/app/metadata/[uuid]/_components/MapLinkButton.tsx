@@ -3,15 +3,16 @@
 import { EarthIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
 import { posthog } from "posthog-js";
 import { basePath } from "@/lib/basePath";
-import type { ProductMetadata } from "@/lib/schemas/product";
-import { shouldShowCoverageMap } from "../dekningskart/utils";
 import { TrackedActionLinkButton } from "./TrackedActionLinkButton";
 
 export const MapLinkButton = ({
-  metadata,
+  coverageUrl,
+  shouldShowCoverageMap,
+
   uuid,
 }: {
-  metadata: ProductMetadata;
+  coverageUrl: string | null;
+  shouldShowCoverageMap: boolean;
   uuid: string;
 }) => {
   const useNewMap = posthog.getFeatureFlag(
@@ -20,7 +21,7 @@ export const MapLinkButton = ({
   return (
     <>
       {useNewMap
-        ? shouldShowCoverageMap(metadata) && (
+        ? shouldShowCoverageMap && (
             <TrackedActionLinkButton
               eventName="show-coverage-data"
               href={`${basePath}/metadata/${uuid}/dekningskart`}
@@ -29,10 +30,10 @@ export const MapLinkButton = ({
               title="Vis dekningskart"
             />
           )
-        : metadata.coverageUrl && (
+        : coverageUrl && (
             <TrackedActionLinkButton
               eventName="show-coverage-map"
-              href={metadata.coverageUrl}
+              href={coverageUrl}
               icon={<ExternalLinkIcon aria-hidden />}
               title="Vis dekningskart"
             />
