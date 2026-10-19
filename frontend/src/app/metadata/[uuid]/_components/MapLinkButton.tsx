@@ -1,7 +1,7 @@
 "use client";
 
 import { EarthIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
-import { posthog } from "posthog-js";
+import { useFeatureFlagEnabled } from "@posthog/react";
 import { basePath } from "@/lib/basePath";
 import { TrackedActionLinkButton } from "./TrackedActionLinkButton";
 
@@ -15,9 +15,8 @@ export const MapLinkButton = ({
   shouldShowCoverageMap: boolean;
   uuid: string;
 }) => {
-  const useNewMap = posthog.isFeatureEnabled("new-dekningskart-button", {
-    defaultValue: false,
-  });
+  const useNewMap = useFeatureFlagEnabled("new-dekningskart-button", false);
+
   return (
     <>
       {useNewMap
