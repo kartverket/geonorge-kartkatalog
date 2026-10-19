@@ -18,9 +18,15 @@ export default async function DekningskartPage({
   const coverageCompletenessUrl =
     metadata.coverageData?.completenessCoverageData?.type === "GEOJSON" &&
     metadata.coverageData?.completenessCoverageData?.url;
-  const completenessData = await (coverageCompletenessUrl
-    ? getCoverageData(coverageCompletenessUrl)
-    : Promise.resolve(null));
+  let completenessData = null;
+
+  try {
+    if (coverageCompletenessUrl) {
+      completenessData = await getCoverageData(coverageCompletenessUrl);
+    }
+  } catch (error) {
+    console.warn("Failed to fetch completeness data:", error);
+  }
 
   return (
     <div className={styles.dekningskartPage}>
