@@ -20,10 +20,6 @@ class MetadataParserTest {
         parseFixture("response3.xml")
     }
 
-    @Test
-    fun `print record`() {
-        println(record)
-    }
 
     @Test
     fun `parses basic identity fields`() {

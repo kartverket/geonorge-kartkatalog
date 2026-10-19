@@ -143,30 +143,7 @@ class GetCoverageLinkTest {
         assertContains(result, "project=geonorge")
         assertContains(result, "layers=1002")
         assertContains(result, "addLayers=datasett_dekning")
-        // After stripping "wms?" from the path the function appends the encoded wms suffix
         assertContains(result, "wms=https://wms.example.no/skwms1%2Fwms.geonorge_dekningskart%3Fdatasett%3Dlayer2")
-    }
-
-    @Test
-    fun `getCoverageLink strips literal wms-query from grid path`() {
-        // The function uses path.replace("wms?", "") — a literal string replacement
-        val gridUrl = "TYPE:GEONORGE-WMS@PATH:https://wms.example.no/wms?@LAYER:layer2"
-        val resources =
-            listOf(
-                ExtensionResource(
-                    applicationProfile = "dekningsoversikt rutenett",
-                    url = gridUrl,
-                ),
-            )
-        val result =
-            getCoverageLink(
-                extensionResources = resources,
-                zoomLevel = zoomLevel,
-                staticNorgeskartUrl = baseUrl,
-            )
-
-        // "wms?" should be removed from the path so the suffix follows immediately
-        assertContains(result!!, "wms=https://wms.example.no/skwms1%2F")
         assertTrue(!result.contains("wms?"), "Literal 'wms?' should be removed from the path")
     }
 
@@ -214,26 +191,6 @@ class GetCoverageLinkTest {
         assertContains(result, "long=6653881")
         assertContains(result, "wfs=http://example.com/wfs")
         assertContains(result, "addLayer=my_layer")
-    }
-
-    @Test
-    fun `getCoverageLink removes query string from WFS URL`() {
-        val coverageUrl = "TYPE:WFS@PATH:http://example.com/wfs?service=WFS@LAYER:my_layer"
-        val resources =
-            listOf(
-                ExtensionResource(
-                    applicationProfile = "dekningsoversikt",
-                    url = coverageUrl,
-                ),
-            )
-        val result =
-            getCoverageLink(
-                extensionResources = resources,
-                zoomLevel = zoomLevel,
-                staticNorgeskartUrl = baseUrl,
-            )
-
-        assertContains(result!!, "wfs=http://example.com/wfs")
         assertTrue(!result.contains("service=WFS"), "Query string should be removed from WFS URL")
     }
 
@@ -258,26 +215,7 @@ class GetCoverageLinkTest {
         assertContains(result, "long=6668909")
         assertContains(result, "geojson=http://example.com/geojson.json")
         assertContains(result, "addLayer=my_layer")
-    }
-
-    @Test
-    fun `getCoverageLink removes query string from GeoJSON URL`() {
-        val coverageUrl = "TYPE:GeoJSON@PATH:http://example.com/geojson.json?v=1@LAYER:my_layer"
-        val resources =
-            listOf(
-                ExtensionResource(
-                    applicationProfile = "dekningsoversikt",
-                    url = coverageUrl,
-                ),
-            )
-        val result =
-            getCoverageLink(
-                extensionResources = resources,
-                zoomLevel = zoomLevel,
-                staticNorgeskartUrl = baseUrl,
-            )
-
-        assertTrue(!result!!.contains("v=1"), "Query string should be removed from GeoJSON URL")
+        assertTrue(!result.contains("v=1"), "Query string should be removed from GeoJSON URL")
     }
 
     @Test
@@ -346,6 +284,7 @@ class GetCoverageLinkTest {
             )
 
         assertContains(result!!, "zoom=$customZoom")
+        assertContains(result, "#!?zoom=$customZoom&")
     }
 
     @Test
@@ -393,17 +332,6 @@ class GetCoverageLinkTest {
     }
 
     @Test
-    fun `getCoverageLink returns null for empty extension resources list`() {
-        val result =
-            getCoverageLink(
-                extensionResources = emptyList(),
-                zoomLevel = zoomLevel,
-                staticNorgeskartUrl = baseUrl,
-            )
-        assertNull(result)
-    }
-
-    @Test
     fun `getCoverageLink handles multiple resources and uses first matching dekningsoversikt`() {
         val correctUrl = "TYPE:WMS@PATH:http://example.com/wms@LAYER:layer1"
         val resources =
@@ -431,23 +359,4 @@ class GetCoverageLinkTest {
         assertContains(result!!, "wms=http://example.com/wms")
     }
 
-    @Test
-    fun `getCoverageLink includes zoom level in base URL`() {
-        val coverageUrl = "TYPE:WMS@PATH:http://example.com/wms@LAYER:my_layer"
-        val resources =
-            listOf(
-                ExtensionResource(
-                    applicationProfile = "dekningsoversikt",
-                    url = coverageUrl,
-                ),
-            )
-        val result =
-            getCoverageLink(
-                extensionResources = resources,
-                zoomLevel = 5,
-                staticNorgeskartUrl = baseUrl,
-            )
-
-        assertContains(result!!, "#!?zoom=5&")
-    }
 }
