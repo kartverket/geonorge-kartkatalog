@@ -2,10 +2,11 @@
 
 import { Button, Checkbox, Heading } from "@kv-designsystem/react";
 import { ChevronDownIcon } from "@navikt/aksel-icons";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import styles from "./FacetGroup.module.css";
 
-type FacetValue = {
+export type FacetValue = {
   name: string;
   label?: string | null;
   category?: string | null;
@@ -70,15 +71,9 @@ export function FacetGroup({
   values,
   selected,
   initialVisibleCount,
+  filterControl,
   onToggle,
-}: {
-  field: string;
-  label: string;
-  values: FacetValue[];
-  selected: string[];
-  initialVisibleCount?: number;
-  onToggle: (field: string, value: string) => void;
-}) {
+}: FacetGroupProps) {
   const [expanded, setExpanded] = useState(false);
 
   const childrenByParent = new Map<string, FacetValue[]>();
@@ -103,6 +98,7 @@ export function FacetGroup({
       <legend className={styles.legend} suppressHydrationWarning>
         <Heading data-size="md">{label}</Heading>
       </legend>
+      {filterControl}
       <div className={styles.checkboxes}>
         {visibleTopLevel.map((v) => {
           const children = childrenByParent.get(v.name);
@@ -147,3 +143,13 @@ export function FacetGroup({
     </fieldset>
   );
 }
+
+export type FacetGroupProps = {
+  field: string;
+  label: string;
+  values: FacetValue[];
+  selected: string[];
+  initialVisibleCount?: number;
+  filterControl?: ReactNode;
+  onToggle: (field: string, value: string) => void;
+};
