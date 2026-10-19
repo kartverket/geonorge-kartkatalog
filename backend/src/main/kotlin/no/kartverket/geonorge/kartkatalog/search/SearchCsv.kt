@@ -206,8 +206,18 @@ internal object SearchCsv {
         return fallback
     }
 
+    // Spreadsheet apps (Excel, Sheets, LibreOffice, ...) evaluate a cell as a formula when it starts
+    // with one of these characters, even after leading whitespace. A title/value sourced from metadata
+    // could otherwise execute as a formula ("CSV injection") when the export is opened in a spreadsheet.
+    private val formulaPrefixes = charArrayOf('=', '+', '-', '@')
+
+    private fun neutralizeFormula(value: String): String {
+        val firstSignificant = value.indexOfFirst { it != ' ' && it != '\t' }
+        return if (firstSignificant >= 0 && value[firstSignificant] in formulaPrefixes) "'$value" else value
+    }
+
     private fun escape(value: String): String {
-        val normalized = value.replace("\r\n", " ").replace('\n', ' ').replace('\r', ' ')
+        val normalized = neutralizeFormula(value.replace("\r\n", " ").replace('\n', ' ').replace('\r', ' '))
         return if (normalized.any { it == ';' || it == '"' }) "\"${normalized.replace("\"", "\"\"")}\"" else normalized
     }
 }
