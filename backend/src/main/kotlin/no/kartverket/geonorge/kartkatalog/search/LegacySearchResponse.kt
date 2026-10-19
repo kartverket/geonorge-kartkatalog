@@ -100,7 +100,7 @@ internal class LegacySearchResponse(
             putNullable("TypeName", doc.typename)
             putNullable("TypeTranslated", translatedType(type))
             putNullable("Theme", doc.theme)
-            putNullable("Organization", doc.organizationgroup)
+            putNullable("Organization", doc.organizationgroup ?: doc.organization)
             putStrings("Organizations", doc.organizations)
             putNullable("OrganizationLogo", doc.organizationLogoUrl)
             putNullable("ThumbnailUrl", doc.thumbnailUrl)
