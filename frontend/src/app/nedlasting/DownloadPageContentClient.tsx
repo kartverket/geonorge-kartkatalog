@@ -32,6 +32,7 @@ import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
 import { type DownloadStep, DownloadStepper } from "./DownloadStepper";
+import { OverwriteConfirmDialog } from "./OverwriteConfirmDialog";
 import { SingleSuggestion } from "./SingleSuggestion";
 import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
@@ -64,12 +65,17 @@ export function DownloadPageContentClient({
   const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
   const [step, setStep] = useState<DownloadStep>("bestilling");
   const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
+  const [pendingBulkSelection, setPendingBulkSelection] =
+    useState<DownloadSelection | null>(null);
 
   function handleSelectionChange(uuid: string, selection: DownloadSelection) {
     setSelections((current) => ({ ...current, [uuid]: selection }));
   }
 
-  function applyToAllProducts(bulkSelection: DownloadSelection) {
+  function applyBulkSelection(
+    bulkSelection: DownloadSelection,
+    mode: "overwrite" | "append",
+  ) {
     setSelections((current) => {
       const next = { ...current };
       for (const card of cards) {
@@ -77,10 +83,46 @@ export function DownloadPageContentClient({
         const filteredBlocks = bulkSelection.areaBlocks.map((block) =>
           filterAreaBlockForProduct(options, block),
         );
-        next[card.uuid] = { areaBlocks: filteredBlocks };
+        const existing = current[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
+        next[card.uuid] =
+          mode === "overwrite"
+            ? { areaBlocks: filteredBlocks }
+            : { areaBlocks: [...existing.areaBlocks, ...filteredBlocks] };
       }
       return next;
     });
+  }
+
+  function hasExistingManualSelections() {
+    return cards.some((card) => {
+      const existing = selections[card.uuid];
+      return (
+        existing?.areaBlocks.some((block) => block.areaCode !== null) ?? false
+      );
+    });
+  }
+
+  function handleApplyToAll(bulkSelection: DownloadSelection) {
+    if (hasExistingManualSelections()) {
+      setPendingBulkSelection(bulkSelection);
+      return;
+    }
+
+    applyBulkSelection(bulkSelection, "overwrite");
+  }
+
+  function handleConfirmOverwrite() {
+    if (pendingBulkSelection) {
+      applyBulkSelection(pendingBulkSelection, "overwrite");
+    }
+    setPendingBulkSelection(null);
+  }
+
+  function handleCancelOverwrite() {
+    if (pendingBulkSelection) {
+      applyBulkSelection(pendingBulkSelection, "append");
+    }
+    setPendingBulkSelection(null);
   }
 
   useEffect(() => {
@@ -181,6 +223,11 @@ export function DownloadPageContentClient({
         Filnedlastning - {step === "bestilling" ? "Bestilling" : "Oppsummering"}
       </Heading>
       <DownloadStepper step={step} />
+      <OverwriteConfirmDialog
+        open={pendingBulkSelection !== null}
+        onConfirmAction={handleConfirmOverwrite}
+        onCancelAction={handleCancelOverwrite}
+      />
 
       {step === "bestilling" ? (
         <>
@@ -193,7 +240,7 @@ export function DownloadPageContentClient({
             selections={selections}
             productsWithMissingFields={productsWithMissingFields}
             onSelectionChange={handleSelectionChange}
-            onApplyToAll={applyToAllProducts}
+            onApplyToAll={handleApplyToAll}
             isOrdering={isOrdering}
           />
           {selectedDownloadUuids.length > 0 ? (

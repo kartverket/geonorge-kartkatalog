@@ -19,3 +19,8 @@
   flex: 1;
   min-width: 12rem;
 }
+
+.applyButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+}

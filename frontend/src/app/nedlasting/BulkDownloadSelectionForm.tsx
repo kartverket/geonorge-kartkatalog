@@ -38,9 +38,8 @@ export function BulkDownloadSelectionForm({
   const [selection, setSelection] =
     useState<DownloadSelection>(EMPTY_BULK_SELECTION);
 
-  function applyChange(next: DownloadSelection) {
+  function updateSelection(next: DownloadSelection) {
     setSelection(next);
-    onApplyToAllAction(next);
   }
 
   return (
@@ -76,12 +75,12 @@ export function BulkDownloadSelectionForm({
                   isOrdering={isOrdering}
                   canRemove={selection.areaBlocks.length > 1}
                   onChangeAreaAction={(areaCode) =>
-                    applyChange(
+                    updateSelection(
                       selectAreaBlockArea(selection, blockIndex, areaCode),
                     )
                   }
                   onChangeProjectionsAction={(projectionCodes) =>
-                    applyChange(
+                    updateSelection(
                       selectAreaBlockProjections(
                         selection,
                         blockIndex,
@@ -90,7 +89,7 @@ export function BulkDownloadSelectionForm({
                     )
                   }
                   onChangeFormatsAction={(formatNames) =>
-                    applyChange(
+                    updateSelection(
                       selectAreaBlockFormats(
                         selection,
                         blockIndex,
@@ -99,7 +98,7 @@ export function BulkDownloadSelectionForm({
                     )
                   }
                   onRemoveAction={() =>
-                    applyChange(removeAreaBlock(selection, blockIndex))
+                    updateSelection(removeAreaBlock(selection, blockIndex))
                   }
                 />
                 {block.areaCode && gapCounts.areas > 0 ? (
@@ -126,7 +125,7 @@ export function BulkDownloadSelectionForm({
             <Button
               type="button"
               variant="tertiary"
-              onClick={() => applyChange(addAreaBlock(selection))}
+              onClick={() => updateSelection(addAreaBlock(selection))}
             >
               <PlusIcon aria-hidden />
               Legg til nytt område
@@ -134,6 +133,16 @@ export function BulkDownloadSelectionForm({
           </div>
         </div>
       )}
+      <div className={boxStyles.applyButtonContainer}>
+        <Button
+          type="button"
+          variant="primary"
+          disabled={isOrdering}
+          onClick={() => onApplyToAllAction(selection)}
+        >
+          Bruk på alle
+        </Button>
+      </div>
     </div>
   );
 }
