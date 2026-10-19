@@ -33,6 +33,7 @@ import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
 import { type DownloadStep, DownloadStepper } from "./DownloadStepper";
 import { OverwriteConfirmDialog } from "./OverwriteConfirmDialog";
+import { RemoveAllDownloadsConfirmDialog } from "./RemoveAllDownloadsConfirmDialog";
 import { SingleSuggestion } from "./SingleSuggestion";
 import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
@@ -67,6 +68,7 @@ export function DownloadPageContentClient({
   const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
   const [pendingBulkSelection, setPendingBulkSelection] =
     useState<DownloadSelection | null>(null);
+  const [showRemoveAllConfirm, setShowRemoveAllConfirm] = useState(false);
 
   function handleSelectionChange(uuid: string, selection: DownloadSelection) {
     setSelections((current) => ({ ...current, [uuid]: selection }));
@@ -228,6 +230,16 @@ export function DownloadPageContentClient({
         onConfirmAction={handleConfirmOverwrite}
         onCancelAction={handleCancelOverwrite}
       />
+      <RemoveAllDownloadsConfirmDialog
+        open={showRemoveAllConfirm}
+        onConfirmAction={() => {
+          clearDownloads();
+          setSelections({});
+          setStep("bestilling");
+          setShowRemoveAllConfirm(false);
+        }}
+        onCancelAction={() => setShowRemoveAllConfirm(false)}
+      />
 
       {step === "bestilling" ? (
         <>
@@ -310,11 +322,7 @@ export function DownloadPageContentClient({
                       type="button"
                       variant="secondary"
                       className={styles.removeAllButton}
-                      onClick={() => {
-                        clearDownloads();
-                        setSelections({});
-                        setStep("bestilling");
-                      }}
+                      onClick={() => setShowRemoveAllConfirm(true)}
                       disabled={
                         isOrdering || selectedDownloadUuids.length === 0
                       }
