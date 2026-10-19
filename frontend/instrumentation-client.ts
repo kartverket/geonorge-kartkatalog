@@ -15,6 +15,7 @@ if (process.env.NODE_ENV === "production" && projectToken && apiHost) {
     capture_heatmaps: false,
     opt_out_capturing_by_default: true,
   });
+  posthog.setPersonPropertiesForFlags({ $host: window.location.host });
 
   markPosthogInitialized();
 }
