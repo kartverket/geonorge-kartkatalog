@@ -1,9 +1,4 @@
-import {
-  EarthIcon,
-  ExternalLinkIcon,
-  FileTextIcon,
-  PencilIcon,
-} from "@navikt/aksel-icons";
+import { FileTextIcon, PencilIcon } from "@navikt/aksel-icons";
 import AddSeriesToDownloadsButton from "@/app/_components/addToDownloads/AddSeriesToDownloadsButton";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
@@ -16,14 +11,13 @@ import {
   getEditUrl,
   getMetadataXmlUrl,
 } from "@/app/metadata/[uuid]/_utils/urls";
-import { basePath } from "@/lib/basePath";
 import type {
   LinkedDistributions,
   ProductMetadata,
 } from "@/lib/schemas/product";
 import { LOCATIONS } from "@/posthog/posthog";
-import { getServerFeatureFlag } from "@/posthog/server";
 import { shouldShowCoverageMap } from "../dekningskart/utils";
+import { MapLinkButton } from "./MapLinkButton";
 import styles from "./ProductActions.module.css";
 import { TrackedActionLinkButton } from "./TrackedActionLinkButton";
 
@@ -40,8 +34,6 @@ export async function ProductActions({
   const downloadableSeriesMembers =
     getDownloadableSeriesMembers(linkedDistributions);
   const mapItem = getMapItem(metadata, linkedDistributions, uuid);
-  const useNewMap =
-    (await getServerFeatureFlag("new-dekningskart-button", false)) === true;
 
   return (
     <div className={styles.actions}>
@@ -65,25 +57,11 @@ export async function ProductActions({
         item={mapItem}
         location={LOCATIONS.MetadataPage}
       />
-
-      {useNewMap
-        ? shouldShowCoverageMap(metadata) && (
-            <TrackedActionLinkButton
-              eventName="show-coverage-data"
-              href={`${basePath}/metadata/${uuid}/dekningskart`}
-              target="_self"
-              icon={<EarthIcon aria-hidden />}
-              title="Vis dekningskart"
-            />
-          )
-        : metadata.coverageUrl && (
-            <TrackedActionLinkButton
-              eventName="show-coverage-map"
-              href={metadata.coverageUrl}
-              icon={<ExternalLinkIcon aria-hidden />}
-              title="Vis dekningskart"
-            />
-          )}
+      <MapLinkButton
+        shouldShowCoverageMap={shouldShowCoverageMap(metadata)}
+        coverageUrl={metadata.coverageUrl}
+        uuid={uuid}
+      />
       <TrackedActionLinkButton
         eventName="show-metadata-xml"
         href={getMetadataXmlUrl(uuid)}

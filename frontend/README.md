@@ -89,12 +89,6 @@ Anything with `page.tsx` inside a route folder becomes a page. If a folder start
 
 ## Conventions
 
-### Server-side PostHog flags
-
-Use `getServerFeatureFlag` from `src/posthog/server.ts` in Server Components. It uses the same `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` and `NEXT_PUBLIC_POSTHOG_HOST` configured for the browser in `instrumentation-client.ts`. Set both at build time for browser flags and at runtime for server evaluation. The helper evaluates flags only with analytics consent and reads the `posthog-js` distinct ID cookie from the current request; do not cache its result across users.
-
-On a first request (or when the browser blocks that cookie), no matching browser identity exists yet. The helper returns `undefined`, so callers should render their existing/default experience. A subsequent request can evaluate the flag once the browser has stored its identity.
-
 ### Server vs client components
 
 Every file under `app/` is a **Server Component** by default. It's rendered to HTML on the server, ships zero JS to the browser, and can use `async/await`, `fetch`, secrets, DB calls.
