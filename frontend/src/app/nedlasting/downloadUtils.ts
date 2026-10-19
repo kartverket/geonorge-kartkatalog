@@ -32,7 +32,7 @@ export type DownloadSelection = {
   areaBlocks: DownloadAreaBlock[];
 };
 
-export const EMPTY_AREA_BLOCK: DownloadAreaBlock = {
+const EMPTY_AREA_BLOCK: DownloadAreaBlock = {
   areaCode: null,
   projectionCodes: [],
   formatNames: [],
