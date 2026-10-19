@@ -2,10 +2,11 @@
 
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { FACET_VISIBLE_COUNT } from "@/lib/facets";
+import { FACET_CONFIG } from "@/lib/facets";
 import type { SearchResult } from "@/lib/schemas/search";
 import { FacetGroup } from "./FacetGroup";
 import styles from "./FacetSidebar.module.css";
+import { SearchableFacetGroup } from "./SearchableFacetGroup";
 
 type SearchFacet = SearchResult["facets"][number];
 
@@ -37,19 +38,24 @@ export function FacetSidebar({
 
   const groups = facets
     .filter((facet) => facet.label != null && facet.values.length > 0)
-    .map((facet, index) => (
-      <div key={facet.facetField} className={styles.groupWrapper}>
-        {index > 0 && <div className={styles.divider} />}
-        <FacetGroup
-          field={facet.facetField}
-          label={facet.label as string}
-          values={facet.values}
-          selected={searchParams.getAll(facet.facetField)}
-          initialVisibleCount={FACET_VISIBLE_COUNT[facet.facetField]}
-          onToggle={toggleFilter}
-        />
-      </div>
-    ));
+    .map((facet, index) => {
+      const config = FACET_CONFIG[facet.facetField];
+      const Group = config?.searchable ? SearchableFacetGroup : FacetGroup;
+
+      return (
+        <div key={facet.facetField} className={styles.groupWrapper}>
+          {index > 0 && <div className={styles.divider} />}
+          <Group
+            field={facet.facetField}
+            label={facet.label as string}
+            values={facet.values}
+            selected={searchParams.getAll(facet.facetField)}
+            initialVisibleCount={config?.initialVisibleCount}
+            onToggle={toggleFilter}
+          />
+        </div>
+      );
+    });
 
   if (variant === "mobile") {
     return <div className={styles.mobilePanel}>{groups}</div>;
