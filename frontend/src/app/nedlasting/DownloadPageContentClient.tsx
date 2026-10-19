@@ -89,7 +89,12 @@ export function DownloadPageContentClient({
         next[card.uuid] =
           mode === "overwrite"
             ? { areaBlocks: filteredBlocks }
-            : { areaBlocks: [...existing.areaBlocks, ...filteredBlocks] };
+            : {
+                areaBlocks: appendBulkAreaBlocks(
+                  existing.areaBlocks,
+                  filteredBlocks,
+                ),
+              };
       }
       return next;
     });

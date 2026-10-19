@@ -34,7 +34,9 @@ export function AreaBlockFields({
   onRemoveAction,
 }: AreaBlockFieldsProps) {
   const areaOptions = availability.areaOptions.filter(
-    (option) => !excludedAreaCodes.includes(option.area.code),
+    (option) =>
+      option.area.code === block.areaCode ||
+      !excludedAreaCodes.includes(option.area.code),
   );
 
   return (

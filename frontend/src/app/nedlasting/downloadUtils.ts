@@ -247,6 +247,37 @@ export function filterAreaBlockForProduct(
   return { areaCode: matchingArea.area.code, projectionCodes, formatNames };
 }
 
+export function appendBulkAreaBlocks(
+  existingBlocks: DownloadAreaBlock[],
+  newBlocks: DownloadAreaBlock[],
+): DownloadAreaBlock[] {
+  const merged = existingBlocks.map((block) => ({ ...block }));
+
+  for (const newBlock of newBlocks) {
+    if (!newBlock.areaCode) continue;
+
+    const matchingBlock = merged.find(
+      (block) => block.areaCode === newBlock.areaCode,
+    );
+
+    if (matchingBlock) {
+      matchingBlock.projectionCodes = Array.from(
+        new Set([
+          ...matchingBlock.projectionCodes,
+          ...newBlock.projectionCodes,
+        ]),
+      );
+      matchingBlock.formatNames = Array.from(
+        new Set([...matchingBlock.formatNames, ...newBlock.formatNames]),
+      );
+    } else {
+      merged.push(newBlock);
+    }
+  }
+
+  return merged;
+}
+
 export type DownloadAreaOption = DownloadOptions["areas"][number];
 type DownloadProjectionOption = DownloadAreaOption["projections"][number];
 type DownloadFormat = DownloadProjectionOption["formats"][number];
