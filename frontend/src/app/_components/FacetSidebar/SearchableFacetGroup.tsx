@@ -1,12 +1,12 @@
 "use client";
 
+import { Search } from "@kv-designsystem/react";
 import { useState } from "react";
 import {
   FacetGroup,
   type FacetGroupProps,
   type FacetValue,
 } from "./FacetGroup";
-import { FacetSearch } from "./FacetSearch";
 
 function matchesSearch(value: FacetValue, searchTerm: string): boolean {
   return (value.label ?? value.name)
@@ -34,11 +34,14 @@ export function SearchableFacetGroup({
       values={filteredValues}
       initialVisibleCount={isSearching ? undefined : initialVisibleCount}
       filterControl={
-        <FacetSearch
-          ariaLabel={`Søk etter ${label.toLocaleLowerCase("nb-NO")}`}
-          value={search}
-          onChange={setSearch}
-        />
+        <Search>
+          <Search.Input
+            aria-label={`Søk etter ${label.toLocaleLowerCase("nb-NO")}`}
+            placeholder="Søk"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </Search>
       }
     />
   );
