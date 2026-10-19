@@ -358,5 +358,4 @@ class GetCoverageLinkTest {
 
         assertContains(result!!, "wms=http://example.com/wms")
     }
-
 }

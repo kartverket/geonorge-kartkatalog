@@ -20,7 +20,6 @@ class MetadataParserTest {
         parseFixture("response3.xml")
     }
 
-
     @Test
     fun `parses basic identity fields`() {
         assertEquals("c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689", record.uuid)
