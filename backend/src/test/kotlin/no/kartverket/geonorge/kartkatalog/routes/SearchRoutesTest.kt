@@ -123,6 +123,8 @@ class SearchRoutesTest {
             assertContains(body, "\"facets\":[")
             assertContains(body, "\"facetField\":\"type\"")
             assertContains(body, "\"name\":\"dataset\"")
+            assertContains(body, "\"facetField\":\"organizations\"")
+            assertContains(body, "\"label\":\"Utgiver\"")
         }
 
     @Test
