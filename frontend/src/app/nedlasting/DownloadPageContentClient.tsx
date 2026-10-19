@@ -18,6 +18,7 @@ import {
 } from "@/app/_components/addToDownloads/downloadStorage";
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import {
+  appendBulkAreaBlocks,
   createDownloadOrderItems,
   type DownloadCard,
   type DownloadSelection,
