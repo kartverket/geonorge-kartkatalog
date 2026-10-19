@@ -126,10 +126,14 @@ export function DownloadPageContentClient({
     setPendingBulkSelection(null);
   }
 
-  function handleCancelOverwrite() {
+  function handleAppendOverwrite() {
     if (pendingBulkSelection) {
       applyBulkSelection(pendingBulkSelection, "append");
     }
+    setPendingBulkSelection(null);
+  }
+
+  function handleCancelOverwrite() {
     setPendingBulkSelection(null);
   }
 
@@ -234,6 +238,7 @@ export function DownloadPageContentClient({
       <OverwriteConfirmDialog
         open={pendingBulkSelection !== null}
         onConfirmAction={handleConfirmOverwrite}
+        onAppendAction={handleAppendOverwrite}
         onCancelAction={handleCancelOverwrite}
       />
       <RemoveAllDownloadsConfirmDialog

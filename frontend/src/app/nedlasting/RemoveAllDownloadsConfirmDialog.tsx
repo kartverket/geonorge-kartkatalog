@@ -15,7 +15,7 @@ export function RemoveAllDownloadsConfirmDialog({
   onCancelAction,
 }: RemoveAllDownloadsConfirmDialogProps) {
   return (
-    <Dialog open={open} onClose={onCancelAction} closeButton={false}>
+    <Dialog open={open} onClose={onCancelAction}>
       <Dialog.Block>
         <Heading level={2} data-size="xs">
           Er du sikker?

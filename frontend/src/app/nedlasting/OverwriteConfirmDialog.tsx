@@ -6,16 +6,18 @@ import styles from "./OverwriteConfirmDialog.module.css";
 type OverwriteConfirmDialogProps = {
   open: boolean;
   onConfirmAction: () => void;
+  onAppendAction: () => void;
   onCancelAction: () => void;
 };
 
 export function OverwriteConfirmDialog({
   open,
   onConfirmAction,
+  onAppendAction,
   onCancelAction,
 }: OverwriteConfirmDialogProps) {
   return (
-    <Dialog open={open} onClose={onCancelAction} closeButton={false}>
+    <Dialog open={open} onClose={onCancelAction}>
       <Dialog.Block>
         <Heading level={2} data-size="xs">
           Ønsker du å overskrive?
@@ -30,7 +32,7 @@ export function OverwriteConfirmDialog({
       </Dialog.Block>
       <Dialog.Block>
         <div className={styles.buttonRow}>
-          <Button type="button" variant="secondary" onClick={onCancelAction}>
+          <Button type="button" variant="secondary" onClick={onAppendAction}>
             Nei, legg til
           </Button>
           <Button type="button" variant="primary" onClick={onConfirmAction}>
