@@ -19,7 +19,6 @@ import {
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import {
   createDownloadOrderItems,
-  type DownloadAreaBlock,
   type DownloadCard,
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
@@ -70,19 +69,15 @@ export function DownloadPageContentClient({
     setSelections((current) => ({ ...current, [uuid]: selection }));
   }
 
-  function applyToAllProducts(bulkBlock: DownloadAreaBlock) {
+  function applyToAllProducts(bulkSelection: DownloadSelection) {
     setSelections((current) => {
       const next = { ...current };
       for (const card of cards) {
         const options = optionsByUuid[card.uuid]?.options ?? null;
-        const existing = current[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
-        const filteredFirstBlock = filterAreaBlockForProduct(
-          options,
-          bulkBlock,
+        const filteredBlocks = bulkSelection.areaBlocks.map((block) =>
+          filterAreaBlockForProduct(options, block),
         );
-        next[card.uuid] = {
-          areaBlocks: [filteredFirstBlock, ...existing.areaBlocks.slice(1)],
-        };
+        next[card.uuid] = { areaBlocks: filteredBlocks };
       }
       return next;
     });
