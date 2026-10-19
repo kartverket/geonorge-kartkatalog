@@ -25,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class SearchRoutesTest {
     private val searchSolrJson =
@@ -34,7 +35,7 @@ class SearchRoutesTest {
           "facet_counts": {
             "facet_fields": {
               "type": ["dataset", 1, "service", 0],
-              "organizations": ["Kartverket", 1]
+              "organizations": ["Ålesund kommune", 1, "Norges vassdrags- og energidirektorat", 2, "Meteorologisk institutt", 3]
             }
           },
           "response": {
@@ -125,6 +126,12 @@ class SearchRoutesTest {
             assertContains(body, "\"name\":\"dataset\"")
             assertContains(body, "\"facetField\":\"organizations\"")
             assertContains(body, "\"label\":\"Utgiver\"")
+            assertTrue(
+                body.indexOf("\"name\":\"Meteorologisk institutt\"") <
+                    body.indexOf("\"name\":\"Norges vassdrags- og energidirektorat\"") &&
+                    body.indexOf("\"name\":\"Norges vassdrags- og energidirektorat\"") <
+                    body.indexOf("\"name\":\"Ålesund kommune\""),
+            )
         }
 
     @Test
