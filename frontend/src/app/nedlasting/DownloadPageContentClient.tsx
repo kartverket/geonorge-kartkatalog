@@ -260,7 +260,9 @@ export function DownloadPageContentClient({
                     <Field>
                       <Label>
                         Brukergruppe{" "}
-                        <Tag data-color="warning">Må fylles ut</Tag>
+                        {usageGroup === "" ? (
+                          <Tag data-color="warning">Må fylles ut</Tag>
+                        ) : null}
                       </Label>
                       <SingleSuggestion
                         selectedValue={usageGroup || null}
@@ -277,7 +279,10 @@ export function DownloadPageContentClient({
                     </Field>
                     <Field>
                       <Label>
-                        Formål <Tag data-color="warning">Må fylles ut</Tag>
+                        Formål{" "}
+                        {usagePurpose.length === 0 ? (
+                          <Tag data-color="warning">Må fylles ut</Tag>
+                        ) : null}
                       </Label>
                       <MultiSuggestion
                         selectedValues={usagePurpose}
