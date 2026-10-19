@@ -2,18 +2,17 @@
 
 import { Button, Field, Label, Tag } from "@kv-designsystem/react";
 import { XMarkIcon } from "@navikt/aksel-icons";
-import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
-import {
-  type DownloadAreaBlock,
-  resolveAreaBlockAvailability,
+import type {
+  DownloadAreaBlock,
+  DownloadAreaBlockAvailability,
 } from "./downloadUtils";
 import { MultiSuggestion } from "./MultiSuggestion";
 import { SingleSuggestion } from "./SingleSuggestion";
 
 type AreaBlockFieldsProps = {
   block: DownloadAreaBlock;
-  options: DownloadOptions | null;
+  availability: DownloadAreaBlockAvailability;
   excludedAreaCodes: string[];
   isOrdering?: boolean;
   canRemove: boolean;
@@ -25,7 +24,7 @@ type AreaBlockFieldsProps = {
 
 export function AreaBlockFields({
   block,
-  options,
+  availability,
   excludedAreaCodes,
   isOrdering = false,
   canRemove,
@@ -34,7 +33,6 @@ export function AreaBlockFields({
   onChangeFormatsAction,
   onRemoveAction,
 }: AreaBlockFieldsProps) {
-  const availability = resolveAreaBlockAvailability(options, block);
   const areaOptions = availability.areaOptions.filter(
     (option) => !excludedAreaCodes.includes(option.area.code),
   );
