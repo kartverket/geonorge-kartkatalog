@@ -15,9 +15,9 @@ export const MapLinkButton = ({
   shouldShowCoverageMap: boolean;
   uuid: string;
 }) => {
-  const useNewMap = posthog.getFeatureFlag(
-    "new-dekningskart-button",
-  ) as boolean;
+  const useNewMap = posthog.isFeatureEnabled("new-dekningskart-button", {
+    defaultValue: false,
+  });
   return (
     <>
       {useNewMap
