@@ -32,7 +32,7 @@ export type DownloadSelection = {
   areaBlocks: DownloadAreaBlock[];
 };
 
-export const EMPTY_AREA_BLOCK: DownloadAreaBlock = {
+const EMPTY_AREA_BLOCK: DownloadAreaBlock = {
   areaCode: null,
   projectionCodes: [],
   formatNames: [],
@@ -245,6 +245,37 @@ export function filterAreaBlockForProduct(
     .map((format) => format.name);
 
   return { areaCode: matchingArea.area.code, projectionCodes, formatNames };
+}
+
+export function appendBulkAreaBlocks(
+  existingBlocks: DownloadAreaBlock[],
+  newBlocks: DownloadAreaBlock[],
+): DownloadAreaBlock[] {
+  const merged = existingBlocks.map((block) => ({ ...block }));
+
+  for (const newBlock of newBlocks) {
+    if (!newBlock.areaCode) continue;
+
+    const matchingBlock = merged.find(
+      (block) => block.areaCode === newBlock.areaCode,
+    );
+
+    if (matchingBlock) {
+      matchingBlock.projectionCodes = Array.from(
+        new Set([
+          ...matchingBlock.projectionCodes,
+          ...newBlock.projectionCodes,
+        ]),
+      );
+      matchingBlock.formatNames = Array.from(
+        new Set([...matchingBlock.formatNames, ...newBlock.formatNames]),
+      );
+    } else {
+      merged.push(newBlock);
+    }
+  }
+
+  return merged;
 }
 
 export type DownloadAreaOption = DownloadOptions["areas"][number];

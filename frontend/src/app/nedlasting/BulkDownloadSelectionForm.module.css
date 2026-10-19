@@ -8,14 +8,7 @@
   gap: var(--ds-size-4);
 }
 
-.fieldsRow {
+.applyButtonContainer {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: var(--ds-size-6);
-}
-
-.fieldsRow > * {
-  flex: 1;
-  min-width: 12rem;
+  justify-content: flex-end;
 }

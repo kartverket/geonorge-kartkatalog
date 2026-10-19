@@ -9,6 +9,7 @@ import {
   addAreaBlock,
   type DownloadSelection,
   removeAreaBlock,
+  resolveAreaBlockAvailability,
   selectAreaBlockArea,
   selectAreaBlockFormats,
   selectAreaBlockProjections,
@@ -50,6 +51,7 @@ export function DownloadOptionsForm({
           .flatMap((otherBlock) =>
             otherBlock.areaCode ? [otherBlock.areaCode] : [],
           );
+        const availability = resolveAreaBlockAvailability(options, block);
 
         return (
           <AreaBlockFields
@@ -59,7 +61,7 @@ export function DownloadOptionsForm({
             // biome-ignore lint/suspicious/noArrayIndexKey: se kommentar over
             key={blockIndex}
             block={block}
-            options={options}
+            availability={availability}
             excludedAreaCodes={excludedAreaCodes}
             isOrdering={isOrdering}
             canRemove={selection.areaBlocks.length > 1}

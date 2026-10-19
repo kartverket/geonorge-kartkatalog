@@ -2,6 +2,7 @@
 
 import { Suggestion } from "@kv-designsystem/react";
 import { useRef } from "react";
+import styles from "./MultiSuggestion.module.css";
 
 export type ChipSelectOption = {
   label: string;
@@ -10,6 +11,7 @@ export type ChipSelectOption = {
 
 type ChipSelectProps = {
   allSelectedLabel?: string;
+  disabled?: boolean;
   isOrdering?: boolean;
   noOptionsLabel?: string;
   onChangeAction: (values: string[]) => void;
@@ -20,6 +22,7 @@ type ChipSelectProps = {
 
 export function MultiSuggestion({
   allSelectedLabel = "Alle valg er valgt",
+  disabled = false,
   isOrdering = false,
   noOptionsLabel = "Ingen alternativer tilgjengelig",
   onChangeAction,
@@ -44,6 +47,7 @@ export function MultiSuggestion({
 
   return (
     <Suggestion
+      className={styles.suggestion}
       multiple
       selected={selected}
       onSelectedChange={(nextSelected) => {
@@ -63,7 +67,7 @@ export function MultiSuggestion({
       <Suggestion.Input
         ref={inputRef}
         placeholder={placeholder}
-        disabled={options.length === 0 || isOrdering}
+        disabled={options.length === 0 || isOrdering || disabled}
       />
       <Suggestion.Clear aria-label="Tøm søk" />
       <Suggestion.List>

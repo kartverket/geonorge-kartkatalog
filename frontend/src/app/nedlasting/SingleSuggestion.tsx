@@ -2,6 +2,7 @@
 
 import { Suggestion } from "@kv-designsystem/react";
 import { useRef } from "react";
+import styles from "./SingleSuggestion.module.css";
 
 export type SuggestionOption = {
   label: string;
@@ -9,6 +10,7 @@ export type SuggestionOption = {
 };
 
 type SingleSuggestionProps = {
+  disabled?: boolean;
   isOrdering?: boolean;
   noOptionsLabel?: string;
   onChangeAction: (value: string | null) => void;
@@ -18,6 +20,7 @@ type SingleSuggestionProps = {
 };
 
 export function SingleSuggestion({
+  disabled = false,
   isOrdering = false,
   noOptionsLabel = "Ingen alternativer tilgjengelig",
   onChangeAction,
@@ -34,6 +37,7 @@ export function SingleSuggestion({
 
   return (
     <Suggestion
+      className={styles.suggestion}
       selected={selected}
       onSelectedChange={(nextSelected) => {
         requestAnimationFrame(() => {
@@ -52,7 +56,7 @@ export function SingleSuggestion({
       <Suggestion.Input
         ref={inputRef}
         placeholder={placeholder}
-        disabled={options.length === 0 || isOrdering}
+        disabled={options.length === 0 || isOrdering || disabled}
       />
       <Suggestion.Clear aria-label="Tøm søk" />
       <Suggestion.List>

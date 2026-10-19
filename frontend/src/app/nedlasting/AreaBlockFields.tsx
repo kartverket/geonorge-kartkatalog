@@ -2,18 +2,17 @@
 
 import { Button, Field, Label, Tag } from "@kv-designsystem/react";
 import { XMarkIcon } from "@navikt/aksel-icons";
-import type { DownloadOptions } from "@/lib/schemas/download";
 import styles from "./DownloadOptionsForm.module.css";
-import {
-  type DownloadAreaBlock,
-  resolveAreaBlockAvailability,
+import type {
+  DownloadAreaBlock,
+  DownloadAreaBlockAvailability,
 } from "./downloadUtils";
 import { MultiSuggestion } from "./MultiSuggestion";
 import { SingleSuggestion } from "./SingleSuggestion";
 
 type AreaBlockFieldsProps = {
   block: DownloadAreaBlock;
-  options: DownloadOptions | null;
+  availability: DownloadAreaBlockAvailability;
   excludedAreaCodes: string[];
   isOrdering?: boolean;
   canRemove: boolean;
@@ -25,7 +24,7 @@ type AreaBlockFieldsProps = {
 
 export function AreaBlockFields({
   block,
-  options,
+  availability,
   excludedAreaCodes,
   isOrdering = false,
   canRemove,
@@ -34,9 +33,10 @@ export function AreaBlockFields({
   onChangeFormatsAction,
   onRemoveAction,
 }: AreaBlockFieldsProps) {
-  const availability = resolveAreaBlockAvailability(options, block);
   const areaOptions = availability.areaOptions.filter(
-    (option) => !excludedAreaCodes.includes(option.area.code),
+    (option) =>
+      option.area.code === block.areaCode ||
+      !excludedAreaCodes.includes(option.area.code),
   );
 
   return (
@@ -55,7 +55,8 @@ export function AreaBlockFields({
       <div className={styles.selectionFields}>
         <Field className={styles.selectionField}>
           <Label>
-            Geografisk område <Tag data-color="warning">Påkrevd</Tag>
+            Geografisk område
+            {!block.areaCode ? <Tag data-color="warning">Påkrevd</Tag> : null}
           </Label>
           <SingleSuggestion
             selectedValue={block.areaCode}
@@ -78,42 +79,46 @@ export function AreaBlockFields({
             </Button>
           </div>
         </Field>
-        {block.areaCode ? (
-          <Field className={styles.selectionField}>
-            <Label>
-              Projeksjon <Tag data-color="warning">Påkrevd</Tag>
-            </Label>
-            <MultiSuggestion
-              selectedValues={block.projectionCodes}
-              onChangeAction={onChangeProjectionsAction}
-              options={availability.projectionOptions.map((projection) => ({
-                label: projection.name,
-                value: projection.code,
-              }))}
-              placeholder="Velg en eller flere projeksjoner"
-              noOptionsLabel="Ingen projeksjoner tilgjengelig for valgt område"
-              isOrdering={isOrdering}
-            />
-          </Field>
-        ) : null}
-        {block.projectionCodes.length > 0 ? (
-          <Field className={styles.selectionField}>
-            <Label>
-              Format <Tag data-color="warning">Påkrevd</Tag>
-            </Label>
-            <MultiSuggestion
-              selectedValues={block.formatNames}
-              onChangeAction={onChangeFormatsAction}
-              options={availability.formatOptions.map((format) => ({
-                label: format.name,
-                value: format.name,
-              }))}
-              placeholder="Velg en eller flere formater"
-              noOptionsLabel="Ingen formater tilgjengelig for valgte projeksjoner"
-              isOrdering={isOrdering}
-            />
-          </Field>
-        ) : null}
+        <Field className={styles.selectionField}>
+          <Label>
+            Projeksjon
+            {block.projectionCodes.length === 0 ? (
+              <Tag data-color="warning">Påkrevd</Tag>
+            ) : null}
+          </Label>
+          <MultiSuggestion
+            selectedValues={block.projectionCodes}
+            onChangeAction={onChangeProjectionsAction}
+            options={availability.projectionOptions.map((projection) => ({
+              label: projection.name,
+              value: projection.code,
+            }))}
+            placeholder="Velg en eller flere projeksjoner"
+            noOptionsLabel="Ingen projeksjoner tilgjengelig for valgt område"
+            isOrdering={isOrdering}
+            disabled={!block.areaCode}
+          />
+        </Field>
+        <Field className={styles.selectionField}>
+          <Label>
+            Format
+            {block.formatNames.length === 0 ? (
+              <Tag data-color="warning">Påkrevd</Tag>
+            ) : null}
+          </Label>
+          <MultiSuggestion
+            selectedValues={block.formatNames}
+            onChangeAction={onChangeFormatsAction}
+            options={availability.formatOptions.map((format) => ({
+              label: format.name,
+              value: format.name,
+            }))}
+            placeholder="Velg en eller flere formater"
+            noOptionsLabel="Ingen formater tilgjengelig for valgte projeksjoner"
+            isOrdering={isOrdering}
+            disabled={block.projectionCodes.length === 0}
+          />
+        </Field>
       </div>
     </div>
   );

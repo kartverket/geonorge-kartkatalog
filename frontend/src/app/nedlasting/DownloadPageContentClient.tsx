@@ -18,8 +18,8 @@ import {
 } from "@/app/_components/addToDownloads/downloadStorage";
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import {
+  appendBulkAreaBlocks,
   createDownloadOrderItems,
-  type DownloadAreaBlock,
   type DownloadCard,
   type DownloadSelection,
   EMPTY_DOWNLOAD_SELECTION,
@@ -33,6 +33,8 @@ import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
 import { type DownloadStep, DownloadStepper } from "./DownloadStepper";
+import { OverwriteConfirmDialog } from "./OverwriteConfirmDialog";
+import { RemoveAllDownloadsConfirmDialog } from "./RemoveAllDownloadsConfirmDialog";
 import { SingleSuggestion } from "./SingleSuggestion";
 import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
@@ -65,27 +67,74 @@ export function DownloadPageContentClient({
   const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
   const [step, setStep] = useState<DownloadStep>("bestilling");
   const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
+  const [pendingBulkSelection, setPendingBulkSelection] =
+    useState<DownloadSelection | null>(null);
+  const [showRemoveAllConfirm, setShowRemoveAllConfirm] = useState(false);
 
   function handleSelectionChange(uuid: string, selection: DownloadSelection) {
     setSelections((current) => ({ ...current, [uuid]: selection }));
   }
 
-  function applyToAllProducts(bulkBlock: DownloadAreaBlock) {
+  function applyBulkSelection(
+    bulkSelection: DownloadSelection,
+    mode: "overwrite" | "append",
+  ) {
     setSelections((current) => {
       const next = { ...current };
       for (const card of cards) {
         const options = optionsByUuid[card.uuid]?.options ?? null;
-        const existing = current[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
-        const filteredFirstBlock = filterAreaBlockForProduct(
-          options,
-          bulkBlock,
+        const filteredBlocks = bulkSelection.areaBlocks.map((block) =>
+          filterAreaBlockForProduct(options, block),
         );
-        next[card.uuid] = {
-          areaBlocks: [filteredFirstBlock, ...existing.areaBlocks.slice(1)],
-        };
+        const existing = current[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
+        next[card.uuid] =
+          mode === "overwrite"
+            ? { areaBlocks: filteredBlocks }
+            : {
+                areaBlocks: appendBulkAreaBlocks(
+                  existing.areaBlocks,
+                  filteredBlocks,
+                ),
+              };
       }
       return next;
     });
+  }
+
+  function hasExistingManualSelections() {
+    return cards.some((card) => {
+      const existing = selections[card.uuid];
+      return (
+        existing?.areaBlocks.some((block) => block.areaCode !== null) ?? false
+      );
+    });
+  }
+
+  function handleApplyToAll(bulkSelection: DownloadSelection) {
+    if (hasExistingManualSelections()) {
+      setPendingBulkSelection(bulkSelection);
+      return;
+    }
+
+    applyBulkSelection(bulkSelection, "overwrite");
+  }
+
+  function handleConfirmOverwrite() {
+    if (pendingBulkSelection) {
+      applyBulkSelection(pendingBulkSelection, "overwrite");
+    }
+    setPendingBulkSelection(null);
+  }
+
+  function handleAppendOverwrite() {
+    if (pendingBulkSelection) {
+      applyBulkSelection(pendingBulkSelection, "append");
+    }
+    setPendingBulkSelection(null);
+  }
+
+  function handleCancelOverwrite() {
+    setPendingBulkSelection(null);
   }
 
   useEffect(() => {
@@ -186,6 +235,22 @@ export function DownloadPageContentClient({
         Filnedlastning - {step === "bestilling" ? "Bestilling" : "Oppsummering"}
       </Heading>
       <DownloadStepper step={step} />
+      <OverwriteConfirmDialog
+        open={pendingBulkSelection !== null}
+        onConfirmAction={handleConfirmOverwrite}
+        onAppendAction={handleAppendOverwrite}
+        onCancelAction={handleCancelOverwrite}
+      />
+      <RemoveAllDownloadsConfirmDialog
+        open={showRemoveAllConfirm}
+        onConfirmAction={() => {
+          clearDownloads();
+          setSelections({});
+          setStep("bestilling");
+          setShowRemoveAllConfirm(false);
+        }}
+        onCancelAction={() => setShowRemoveAllConfirm(false)}
+      />
 
       {step === "bestilling" ? (
         <>
@@ -198,7 +263,7 @@ export function DownloadPageContentClient({
             selections={selections}
             productsWithMissingFields={productsWithMissingFields}
             onSelectionChange={handleSelectionChange}
-            onApplyToAll={applyToAllProducts}
+            onApplyToAll={handleApplyToAll}
             isOrdering={isOrdering}
           />
           {selectedDownloadUuids.length > 0 ? (
@@ -218,7 +283,9 @@ export function DownloadPageContentClient({
                     <Field>
                       <Label>
                         Brukergruppe{" "}
-                        <Tag data-color="warning">Må fylles ut</Tag>
+                        {usageGroup === "" ? (
+                          <Tag data-color="warning">Må fylles ut</Tag>
+                        ) : null}
                       </Label>
                       <SingleSuggestion
                         selectedValue={usageGroup || null}
@@ -235,7 +302,10 @@ export function DownloadPageContentClient({
                     </Field>
                     <Field>
                       <Label>
-                        Formål <Tag data-color="warning">Må fylles ut</Tag>
+                        Formål{" "}
+                        {usagePurpose.length === 0 ? (
+                          <Tag data-color="warning">Må fylles ut</Tag>
+                        ) : null}
                       </Label>
                       <MultiSuggestion
                         selectedValues={usagePurpose}
@@ -263,11 +333,7 @@ export function DownloadPageContentClient({
                       type="button"
                       variant="secondary"
                       className={styles.removeAllButton}
-                      onClick={() => {
-                        clearDownloads();
-                        setSelections({});
-                        setStep("bestilling");
-                      }}
+                      onClick={() => setShowRemoveAllConfirm(true)}
                       disabled={
                         isOrdering || selectedDownloadUuids.length === 0
                       }
