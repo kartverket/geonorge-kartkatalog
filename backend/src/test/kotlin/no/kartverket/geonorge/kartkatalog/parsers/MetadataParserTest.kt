@@ -21,11 +21,6 @@ class MetadataParserTest {
     }
 
     @Test
-    fun `print record`() {
-        println(record)
-    }
-
-    @Test
     fun `parses basic identity fields`() {
         assertEquals("c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689", record.uuid)
         assertNull(record.parentIdentifier)

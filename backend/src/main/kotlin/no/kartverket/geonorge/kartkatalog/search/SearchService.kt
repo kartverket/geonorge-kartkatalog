@@ -100,7 +100,7 @@ class SearchService(
                 }
 
         return when (facetField) {
-            "area" -> values.sortedWith(compareBy(norwegianCollator) { it.label ?: it.name })
+            "area", "organizations" -> values.sortedWith(compareBy(norwegianCollator) { it.label ?: it.name })
             else -> {
                 val order = facetValueOrder[facetField]
                 if (order != null) values.sortedBy { order[it.name] ?: Int.MAX_VALUE } else values

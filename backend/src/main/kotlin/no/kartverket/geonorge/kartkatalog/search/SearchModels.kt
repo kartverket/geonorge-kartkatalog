@@ -75,6 +75,7 @@ val FACET_LABELS: Map<String, String> =
     linkedMapOf(
         "type" to "Type",
         "theme" to "Tema",
+        "organizations" to "Utgiver",
         "area" to "Geografisk område",
         "dataaccess" to "Tilgang til data",
         "DistributionProtocols" to "Distribusjonsform",

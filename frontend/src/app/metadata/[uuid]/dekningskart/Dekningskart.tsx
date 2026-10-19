@@ -19,6 +19,7 @@ import {
 interface CoverageLayer {
   id: string;
   label: string;
+  order: number;
   layer: BaseLayer;
 }
 
@@ -32,20 +33,9 @@ export const Dekningskart = (props: DekningkartProps) => {
     useState<LocationClickedInfo | null>(null);
   const coverageData = props.metadata.coverageData;
   const componentRef = useRef<HTMLDivElement>(null);
-  const layers = useMemo(() => {
+  const layerConfigs = useMemo(() => {
     const result: CoverageLayer[] = [];
     if (!coverageData) return result;
-    if (coverageData.coverageData) {
-      const coverage = getLayerFromCoverageData(
-        coverageData.coverageData,
-        "coverage",
-      );
-      result.push({
-        id: "coverage",
-        label: "Dekning",
-        layer: coverage,
-      });
-    }
 
     if (coverageData.coverageOverviewData) {
       const overview = getLayerFromCoverageData(
@@ -55,7 +45,21 @@ export const Dekningskart = (props: DekningkartProps) => {
       result.push({
         id: "overview",
         label: "Dekningsoversikt",
+        order: 11,
         layer: overview,
+      });
+    }
+
+    if (coverageData.coverageData) {
+      const coverage = getLayerFromCoverageData(
+        coverageData.coverageData,
+        "coverage",
+      );
+      result.push({
+        id: "coverage",
+        label: "Dekning",
+        order: 10,
+        layer: coverage,
       });
     }
 
@@ -75,7 +79,7 @@ export const Dekningskart = (props: DekningkartProps) => {
       ];
 
       const splitLayers = splitLayerConfig
-        .map(({ id, label }) => {
+        .map(({ id, label }, i) => {
           const styleFunction = getCompletenessStyleFunction(id);
           const featuresForLayer = features.filter(
             (feature) => feature.get("dekningsstatus") === id,
@@ -91,6 +95,7 @@ export const Dekningskart = (props: DekningkartProps) => {
           return {
             id,
             label,
+            order: result.length + i,
             layer,
           };
         })
@@ -98,19 +103,25 @@ export const Dekningskart = (props: DekningkartProps) => {
       result.push(...splitLayers);
     }
 
-    return result;
+    return result.sort((a, b) => a.order - b.order);
   }, [coverageData, props.completenessDataString]);
   const [layerVisibility, setLayerVisibility] = useState<
     Record<string, boolean>
-  >(() => Object.fromEntries(layers.map(({ id }) => [id, true])));
-  const mapLayers = useMemo(() => layers.map(({ layer }) => layer), [layers]);
-  const layerIds = useMemo(() => layers.map(({ id }) => id), [layers]);
+  >(() => Object.fromEntries(layerConfigs.map(({ id }) => [id, true])));
+  const mapLayers = useMemo(
+    () => layerConfigs.map(({ layer }) => layer),
+    [layerConfigs],
+  );
+  const layerIds = useMemo(
+    () => layerConfigs.map(({ id }) => id),
+    [layerConfigs],
+  );
 
   useEffect(() => {
-    layers.forEach(({ id, layer }) => {
+    layerConfigs.forEach(({ id, layer }) => {
       layer.setVisible(layerVisibility[id] ?? false);
     });
-  }, [layers, layerVisibility]);
+  }, [layerConfigs, layerVisibility]);
 
   if (!coverageData) return null;
 
