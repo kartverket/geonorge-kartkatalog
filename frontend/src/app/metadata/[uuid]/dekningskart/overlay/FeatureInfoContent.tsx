@@ -38,7 +38,15 @@ const FeatureInfoSection = ({ info }: { info: FeatureInfo }) => {
               if (!("navn" in feature)) return null;
               const val = feature.navn._text;
               const label = "Kommunenavn";
-              return <FeatureInfoLine label={label} value={val} />;
+
+              const _val2 = feature.kommunenr._text;
+              const _label2 = "Kommunenummer";
+              return (
+                <>
+                  <FeatureInfoLine label={label} value={val} />
+                  <FeatureInfoLine label={_label2} value={_val2} />
+                </>
+              );
             }
             case "coverage":
               if (!("objid" in feature)) return null;
