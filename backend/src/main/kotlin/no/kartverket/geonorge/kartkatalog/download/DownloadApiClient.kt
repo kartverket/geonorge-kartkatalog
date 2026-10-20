@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.download
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
+import io.ktor.client.request.head
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -85,6 +86,14 @@ class DownloadApiClient(
             httpClient.get(url)
         } catch (e: Exception) {
             throw DownloadApiException("Download API request to $url failed", e)
+        }
+
+    suspend fun isDownloadable(url: String): Boolean =
+        try {
+            httpClient.head(url).status.isSuccess()
+        } catch (e: Exception) {
+            log.warn("Nedlasting availability check failed for {}: {}", url, e.message)
+            false
         }
 
     suspend fun order(
