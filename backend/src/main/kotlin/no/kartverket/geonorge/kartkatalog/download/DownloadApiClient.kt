@@ -9,6 +9,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLBuilder
 import io.ktor.http.Url
 import io.ktor.http.appendPathSegments
@@ -88,12 +89,25 @@ class DownloadApiClient(
             throw DownloadApiException("Download API request to $url failed", e)
         }
 
-    suspend fun isDownloadable(url: String): Boolean =
+    enum class DownloadAvailability {
+        AVAILABLE,
+        CONFIRMED_UNAVAILABLE,
+        UNKNOWN,
+    }
+
+    suspend fun checkAvailability(url: String): DownloadAvailability =
         try {
-            httpClient.prepareGet(url).execute { response -> response.status.isSuccess() }
+            httpClient.prepareGet(url).execute { response ->
+                when {
+                    response.status.isSuccess() -> DownloadAvailability.AVAILABLE
+                    response.status == HttpStatusCode.NotFound ||
+                        response.status == HttpStatusCode.Gone -> DownloadAvailability.CONFIRMED_UNAVAILABLE
+                    else -> DownloadAvailability.UNKNOWN
+                }
+            }
         } catch (e: Exception) {
             log.warn("Nedlasting availability check failed for {}: {}", url, e.message)
-            false
+            DownloadAvailability.UNKNOWN
         }
 
     suspend fun order(

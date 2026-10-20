@@ -235,7 +235,7 @@ function ProductGroup({
                           >
                             {format.label}{" "}
                             <Tag data-color="danger" data-size="sm">
-                              Ikke tilgjengelig
+                              Ikke tilgjengelig hos leverandøren
                             </Tag>
                           </span>
                         );

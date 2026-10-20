@@ -74,11 +74,13 @@ class DownloadService(
                     response.files
                         .map { file ->
                             async {
-                                if (file.status == "ReadyForDownload" &&
-                                    file.downloadUrl != null &&
-                                    !downloadApiClient.isDownloadable(file.downloadUrl)
-                                ) {
-                                    file.copy(status = "Failed", downloadUrl = null)
+                                if (file.status == "ReadyForDownload" && file.downloadUrl != null) {
+                                    val availability = downloadApiClient.checkAvailability(file.downloadUrl)
+                                    if (availability == DownloadApiClient.DownloadAvailability.CONFIRMED_UNAVAILABLE) {
+                                        file.copy(status = "Failed", downloadUrl = null)
+                                    } else {
+                                        file
+                                    }
                                 } else {
                                     file
                                 }
