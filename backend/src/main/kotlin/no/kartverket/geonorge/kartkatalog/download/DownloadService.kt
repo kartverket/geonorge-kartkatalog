@@ -83,8 +83,7 @@ class DownloadService(
                                     file
                                 }
                             }
-                        }
-                        .awaitAll()
+                        }.awaitAll()
                 }
 
             DownloadOrderGroupResult.Success(
