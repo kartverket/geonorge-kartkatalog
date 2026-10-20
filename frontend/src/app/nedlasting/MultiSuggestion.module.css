@@ -3,10 +3,10 @@
 }
 
 .suggestion.suggestion {
-    grid-template-areas:
+  grid-template-areas:
     "input"
     "items";
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
-    --dsc-suggestion-list-placement: top;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  --dsc-suggestion-list-placement: top;
 }
