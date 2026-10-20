@@ -154,7 +154,9 @@ export const DekningskartOverlay = ({
       <div className={styles.rightColumn}>
         <div className={styles.columnContent}>
           {locationClickedInfo != null && (
-            <Card className={styles.mapControlCard}>
+            <Card
+              className={`${styles.mapControlCard} ${styles.featureInfoCard}`}
+            >
               <div className={styles.featureInfoContainer}>
                 <div className={styles.featureInfoHeader}>
                   <Heading level={3} data-size="xs">
@@ -174,18 +176,18 @@ export const DekningskartOverlay = ({
                     </Heading>
                     <div>
                       Ø: {locationClickedInfo.coordinate[0].toFixed(2)}, N:{" "}
-                      {locationClickedInfo.coordinate[1].toFixed(2)}
+                      {locationClickedInfo.coordinate[1].toFixed(2)} @EPSG25833
                     </div>
                     <Button
                       variant="secondary"
                       onClick={() => {
                         navigator.clipboard.writeText(
-                          `Ø: ${locationClickedInfo.coordinate[0].toFixed(2)}, N: ${locationClickedInfo.coordinate[1].toFixed(2)}`,
+                          `Ø: ${locationClickedInfo.coordinate[0].toFixed(2)}, N: ${locationClickedInfo.coordinate[1].toFixed(2)} @EPSG25833`,
                         );
                       }}
                     >
                       <FilesIcon />
-                      Kopièr koordinatene
+                      Kopier koordinatene
                     </Button>
                   </Details.Content>
                 </Details>

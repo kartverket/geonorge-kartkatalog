@@ -1,5 +1,6 @@
 "use client";
 
+import { Tag } from "@kv-designsystem/react";
 import type { Coordinate } from "ol/coordinate";
 import { useEffect, useState } from "react";
 
@@ -40,8 +41,8 @@ export const HeightSection = ({ position }: { position: Coordinate }) => {
   }
 
   return (
-    <div>
+    <Tag>
       Høyde: {elevation !== null ? elevation.toFixed(2) : "Laster..."} moh
-    </div>
+    </Tag>
   );
 };
