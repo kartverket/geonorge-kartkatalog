@@ -4,6 +4,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
+import no.kartverket.geonorge.kartkatalog.distribution.MapCapabilityFields
 
 @Serializable
 data class SolrResponse(
@@ -40,7 +41,7 @@ data class SolrDocument(
     @SerialName("abstract")
     val abstractText: String? = null,
     val purpose: String? = null,
-    val type: String? = null,
+    override val type: String? = null,
     val theme: String? = null,
     val organization: String? = null,
     val organizations: List<String>? = null,
@@ -57,9 +58,9 @@ data class SolrDocument(
     @SerialName("thumbnail_url")
     val thumbnailUrl: String? = null,
     @SerialName("distribution_url")
-    val distributionUrl: String? = null,
+    override val distributionUrl: String? = null,
     @SerialName("distribution_protocol")
-    val distributionProtocol: String? = null,
+    override val distributionProtocol: String? = null,
     @SerialName("distribution_name")
     val distributionName: String? = null,
     @SerialName("product_page_url")
@@ -73,7 +74,7 @@ data class SolrDocument(
     @SerialName("ServiceDistributionProtocolForDataset")
     val serviceDistributionProtocolForDataset: String? = null,
     @SerialName("ServiceDistributionUrlForDataset")
-    val serviceDistributionUrlForDataset: String? = null,
+    override val serviceDistributionUrlForDataset: String? = null,
     @SerialName("ServiceDistributionNameForDataset")
     val serviceDistributionNameForDataset: String? = null,
     @SerialName("ServiceDistributionUuidForDataset")
@@ -89,7 +90,7 @@ data class SolrDocument(
     @SerialName("product_specification_url")
     val productSpecificationUrl: String? = null,
     val area: List<String>? = null,
-    val datasetservice: List<String>? = null,
+    override val datasetservice: List<String>? = null,
     val popularMetadata: Int? = null,
     val bundle: List<String>? = null,
     val servicelayers: List<String>? = null,
@@ -104,7 +105,7 @@ data class SolrDocument(
     val distributions: List<String>? = null,
     val typename: String? = null,
     val spatialscope: List<String>? = null,
-)
+) : MapCapabilityFields
 
 data class RelatedServiceReference(
     val uuid: String,
