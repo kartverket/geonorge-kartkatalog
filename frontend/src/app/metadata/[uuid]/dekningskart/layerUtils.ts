@@ -9,9 +9,10 @@ import type { CoverageDataSource } from "@/lib/schemas/product";
 export const LayerIdToName = new Map<string, string>([
   ["overview", "Kommune"],
   ["coverage", "Rutenett"],
-  ["fullstendig", "Fullstendig"],
-  ["ufullstendig", "Ufullstendig"],
+  ["fullstendig", "Fullstendig kartlagt"],
+  ["ufullstendig", "Ufullstendig kartlagt"],
   ["ikkeKartlagt", "Ikke kartlagt"],
+  ["ikkeRelevant", "Ikke relevant"],
 ]);
 
 export const getLayerFromCoverageData = (
