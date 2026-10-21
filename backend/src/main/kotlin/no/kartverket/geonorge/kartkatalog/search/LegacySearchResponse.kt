@@ -181,10 +181,10 @@ internal class LegacySearchResponse(
             putNullable("DistributionProtocol", parts.getOrNull(6))
             putNullable("DistributionUrl", parts.getOrNull(7))
             putNullable("GetCapabilitiesUrl", parts.getOrNull(7))
-            val open = parts.getOrNull(if (dataset) 14 else 12)?.toBooleanStrictOrNull()
-            val restricted = parts.getOrNull(if (dataset) 15 else 13)?.toBooleanStrictOrNull()
-            if (open != null) put("AccessIsOpendata", open)
-            if (restricted != null) put("AccessIsRestricted", restricted)
+            val open = parts.getOrNull(if (dataset) 14 else 12)?.lowercase()?.toBooleanStrictOrNull() ?: false
+            val restricted = parts.getOrNull(if (dataset) 15 else 13)?.lowercase()?.toBooleanStrictOrNull() ?: false
+            put("AccessIsOpendata", open)
+            put("AccessIsRestricted", restricted)
         }
     }
 
