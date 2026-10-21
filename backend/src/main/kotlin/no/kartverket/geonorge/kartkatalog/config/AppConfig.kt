@@ -51,10 +51,7 @@ class AppConfig(
                 location = optionalEnv("VERTEX_AI_LOCATION") ?: "global",
                 model =
                     optionalEnv("VERTEX_AI_EMBEDDING_MODEL")
-                        ?: "gemini-embedding-001",
-                dimensions =
-                    optionalEnv("VERTEX_AI_DIMENSIONS")
-                        ?.toIntOrNull() ?: 768,
+                        ?: "text-multilingual-embedding-002",
                 timeoutMillis =
                     optionalEnv("VERTEX_AI_TIMEOUT_MS")
                         ?.toIntOrNull() ?: 30_000,
@@ -75,8 +72,7 @@ class AppConfig(
 data class VertexAIConfig(
     val projectId: String,
     val location: String = "global",
-    val model: String = "gemini-embedding-001",
-    val dimensions: Int = 768,
+    val model: String = "text-multilingual-embedding-002",
     val timeoutMillis: Int = 30_000,
 )
 

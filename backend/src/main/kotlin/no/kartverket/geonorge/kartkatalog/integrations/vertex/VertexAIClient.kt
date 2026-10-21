@@ -36,7 +36,6 @@ class VertexAIClient(
                 val conf =
                     EmbedContentConfig
                         .builder()
-                        .outputDimensionality(vertexConfig.dimensions)
                         .build()
 
                 val response =
