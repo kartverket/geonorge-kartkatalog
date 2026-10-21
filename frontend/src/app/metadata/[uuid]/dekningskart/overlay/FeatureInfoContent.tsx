@@ -36,9 +36,18 @@ const FeatureInfoSection = ({ info }: { info: FeatureInfo }) => {
           switch (info.layerId) {
             case "overview": {
               if (!("navn" in feature)) return null;
-              const val = feature.navn._text;
-              const label = "Kommunenavn";
-              return <FeatureInfoLine label={label} value={val} />;
+              return (
+                <>
+                  <FeatureInfoLine
+                    value={feature.navn._text}
+                    label={"Kommunenavn"}
+                  />
+                  <FeatureInfoLine
+                    value={feature.kommunenr._text}
+                    label={"Kommunenummer"}
+                  />
+                </>
+              );
             }
             case "coverage":
               if (!("objid" in feature)) return null;
