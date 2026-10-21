@@ -168,7 +168,10 @@ export function resolveAreaBlockAvailability(
   options: DownloadOptions | null,
   block: Pick<DownloadAreaBlock, "areaCode" | "projectionCodes">,
 ): DownloadAreaBlockAvailability {
-  const areaOptions = options?.areas ?? [];
+  const areaOptions = unionByKey(
+    [options?.areas ?? []],
+    (option) => option.area.code,
+  );
   const selectedArea = options
     ? getMatchingArea(options, block.areaCode)
     : null;

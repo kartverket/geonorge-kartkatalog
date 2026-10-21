@@ -11,6 +11,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.headersOf
@@ -156,12 +157,15 @@ class DownloadRoutesTest {
                             requestedPaths += request.url.encodedPath
                             requestedUrls += request.url.toString()
                             val content =
-                                if (request.url.encodedPath.startsWith("/api/capabilities")) {
-                                    capabilitiesJson
-                                } else {
-                                    orderRequestBodies +=
-                                        (request.body as OutgoingContent.ByteArrayContent).bytes().decodeToString()
-                                    orderResponseJson
+                                when {
+                                    request.url.encodedPath.startsWith("/api/capabilities") -> capabilitiesJson
+                                    request.method == HttpMethod.Get &&
+                                        request.url.encodedPath.startsWith("/api/download/order") -> ""
+                                    else -> {
+                                        orderRequestBodies +=
+                                            (request.body as OutgoingContent.ByteArrayContent).bytes().decodeToString()
+                                        orderResponseJson
+                                    }
                                 }
                             respond(
                                 content = content,
@@ -236,7 +240,11 @@ class DownloadRoutesTest {
                 requestedUrls.first(),
             )
             assertEquals(
-                listOf("/api/capabilities/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "/api/order"),
+                listOf(
+                    "/api/capabilities/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",
+                    "/api/order",
+                    "/api/download/order/abc/def",
+                ),
                 requestedPaths,
             )
         }

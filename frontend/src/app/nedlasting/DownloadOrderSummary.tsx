@@ -33,6 +33,8 @@ const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
 function triggerDownload(url: string) {
   const link = document.createElement("a");
   link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener";
   link.click();
 }
 
@@ -41,6 +43,7 @@ type GroupedFormat = {
   label: string;
   downloadUrl: string | null;
   isReady: boolean;
+  isFailed: boolean;
 };
 
 type GroupedProjection = {
@@ -60,6 +63,7 @@ type GroupedProduct = {
   typeTranslated: string | null;
   accessState: DownloadCard["accessState"];
   isReady: boolean;
+  hasProcessingFiles: boolean;
   areas: GroupedArea[];
 };
 
@@ -115,12 +119,17 @@ function groupOrderedProducts(
               label: file.format ?? file.name ?? "Fil",
               downloadUrl: file.downloadUrl ?? null,
               isReady: file.status === "ReadyForDownload",
+              isFailed: file.status === "Failed",
             })),
         }),
       );
 
       return { areaName, projections };
     });
+
+    const hasProcessingFiles = productFiles.some(
+      (file) => file.status !== "ReadyForDownload" && file.status !== "Failed",
+    );
 
     return {
       uuid,
@@ -129,6 +138,7 @@ function groupOrderedProducts(
       typeTranslated: card?.typeTranslated ?? null,
       accessState: card?.accessState ?? null,
       isReady,
+      hasProcessingFiles,
       areas,
     };
   });
@@ -200,23 +210,43 @@ function ProductGroup({
                     {projection.projectionName}
                   </span>
                   <div className={styles.formatButtons}>
-                    {projection.formats.map((format) =>
-                      format.isReady && format.downloadUrl ? (
-                        <a
-                          key={format.key}
-                          className={styles.formatButton}
-                          href={format.downloadUrl}
-                          onClick={() => onProductDownloaded(product.uuid)}
-                        >
-                          <DownloadIcon aria-hidden />
-                          {format.label}
-                        </a>
-                      ) : (
+                    {projection.formats.map((format) => {
+                      if (format.isReady && format.downloadUrl) {
+                        return (
+                          <a
+                            key={format.key}
+                            className={styles.formatButton}
+                            href={format.downloadUrl}
+                            target="_blank"
+                            rel="noopener"
+                            onClick={() => onProductDownloaded(product.uuid)}
+                          >
+                            <DownloadIcon aria-hidden />
+                            {format.label}
+                          </a>
+                        );
+                      }
+
+                      if (format.isFailed) {
+                        return (
+                          <span
+                            key={format.key}
+                            className={styles.formatPending}
+                          >
+                            {format.label}{" "}
+                            <Tag data-color="danger" data-size="sm">
+                              Ikke tilgjengelig hos leverandøren
+                            </Tag>
+                          </span>
+                        );
+                      }
+
+                      return (
                         <span key={format.key} className={styles.formatPending}>
                           {format.label} (under behandling)
                         </span>
-                      ),
-                    )}
+                      );
+                    })}
                   </div>
                 </div>
               ))}
@@ -239,7 +269,12 @@ export function DownloadOrderSummary({
 }) {
   const products = groupOrderedProducts(orderResult, cards);
   const readyProducts = products.filter((product) => product.isReady);
-  const processingProducts = products.filter((product) => !product.isReady);
+  const failedProducts = products.filter(
+    (product) => !product.isReady && !product.hasProcessingFiles,
+  );
+  const processingProducts = products.filter(
+    (product) => !product.isReady && product.hasProcessingFiles,
+  );
 
   function handleDownloadAll() {
     for (const product of readyProducts) {
@@ -277,6 +312,23 @@ export function DownloadOrderSummary({
               <DownloadIcon aria-hidden />
               Last ned alle filformater
             </Button>
+          </div>
+        </section>
+      ) : null}
+
+      {failedProducts.length > 0 ? (
+        <section>
+          <Heading level={2} data-size="sm">
+            Ikke tilgjengelig ({failedProducts.length})
+          </Heading>
+          <div className={styles.productList}>
+            {failedProducts.map((product) => (
+              <ProductGroup
+                key={product.uuid}
+                product={product}
+                onProductDownloaded={onProductDownloaded}
+              />
+            ))}
           </div>
         </section>
       ) : null}

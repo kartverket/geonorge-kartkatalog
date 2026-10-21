@@ -69,10 +69,29 @@ class DownloadService(
                     if (groupIsRestricted) geoIdAccessToken else null,
                 )
 
+            val verifiedFiles =
+                coroutineScope {
+                    response.files
+                        .map { file ->
+                            async {
+                                if (file.status == "ReadyForDownload" && file.downloadUrl != null) {
+                                    val availability = downloadApiClient.checkAvailability(file.downloadUrl)
+                                    if (availability == DownloadApiClient.DownloadAvailability.CONFIRMED_UNAVAILABLE) {
+                                        file.copy(status = "Failed", downloadUrl = null)
+                                    } else {
+                                        file
+                                    }
+                                } else {
+                                    file
+                                }
+                            }
+                        }.awaitAll()
+                }
+
             DownloadOrderGroupResult.Success(
                 DownloadOrderResponse(
                     files =
-                        response.files.map { file ->
+                        verifiedFiles.map { file ->
                             DownloadOrderFile(
                                 status = file.status,
                                 downloadUrl = file.downloadUrl,

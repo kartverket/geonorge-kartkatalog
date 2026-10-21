@@ -97,7 +97,17 @@
   background: var(--ds-color-accent-surface-hover);
 }
 
+.formatButtons {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--ds-size-2);
+}
+
 .formatPending {
+  width: 100%;
+  text-align: right;
   font-size: var(--ds-body-sm-font-size);
   color: var(--ds-color-text-subtle);
 }
