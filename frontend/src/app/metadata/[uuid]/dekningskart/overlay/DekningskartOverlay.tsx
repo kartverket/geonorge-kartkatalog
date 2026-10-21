@@ -143,7 +143,11 @@ export const DekningskartOverlay = ({
                 {fullstendighetsDekningsLayers.map(
                   (id) =>
                     layerVisibility[id] && (
-                      <SymbologyBox status={id} label={LayerIdToName.get(id)} />
+                      <SymbologyBox
+                        key={id}
+                        status={id}
+                        label={LayerIdToName.get(id)}
+                      />
                     ),
                 )}
               </div>
