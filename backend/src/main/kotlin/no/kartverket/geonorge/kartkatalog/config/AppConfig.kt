@@ -29,7 +29,7 @@ class AppConfig(
         VectorSearchConfig(
             enabled =
                 optionalEnv("VECTOR_SEARCH_ENABLED")
-                    ?.toBooleanStrictOrNull() ?: true,
+                    ?.toBooleanStrictOrNull() ?: false,
             similarityFunction =
                 optionalEnv("VECTOR_SIMILARITY_FUNCTION")
                     ?: "dot_product",
@@ -48,7 +48,7 @@ class AppConfig(
         if (vectorSearchConfig.enabled) {
             VertexAIConfig(
                 projectId = env("VERTEX_AI_PROJECT_ID"),
-                location = optionalEnv("VERTEX_AI_LOCATION") ?: "global",
+                location = optionalEnv("VERTEX_AI_LOCATION") ?: "europe-north1",
                 model =
                     optionalEnv("VERTEX_AI_EMBEDDING_MODEL")
                         ?: "text-multilingual-embedding-002",
@@ -71,15 +71,15 @@ class AppConfig(
 
 data class VertexAIConfig(
     val projectId: String,
-    val location: String = "global",
-    val model: String = "text-multilingual-embedding-002",
-    val timeoutMillis: Int = 30_000,
+    val location: String,
+    val model: String,
+    val timeoutMillis: Int,
 )
 
 data class VectorSearchConfig(
-    val enabled: Boolean = false,
-    val similarityFunction: String = "dot_product",
-    val cosineThreshold: Double = 0.56,
-    val rerankWeight: Int = 80,
-    val topK: Int = 200,
+    val enabled: Boolean,
+    val similarityFunction: String,
+    val cosineThreshold: Double,
+    val rerankWeight: Int,
+    val topK: Int,
 )
