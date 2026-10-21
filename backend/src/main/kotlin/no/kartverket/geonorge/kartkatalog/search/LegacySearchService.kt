@@ -38,7 +38,7 @@ class LegacySearchService(
         language: String,
     ): SearchOutcome =
         try {
-            SearchOutcome.Success(engine.search(LegacySearchQuery.build(request), language == "en"))
+            SearchOutcome.Success(engine.search(LegacySearchQuery.build(request), request.text, language == "en"))
         } catch (e: CancellationException) {
             throw e
         } catch (e: SolrException) {
