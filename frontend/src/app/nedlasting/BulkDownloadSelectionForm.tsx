@@ -140,7 +140,7 @@ export function BulkDownloadSelectionForm({
           disabled={isOrdering}
           onClick={() => onApplyToAllAction(selection)}
         >
-          Bruk på alle
+          Bruk for alle
         </Button>
       </div>
     </div>
