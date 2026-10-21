@@ -7,12 +7,13 @@ import {
   Details,
   Heading,
 } from "@kv-designsystem/react";
-import { FilesIcon, XMarkIcon } from "@navikt/aksel-icons";
+import { XMarkIcon } from "@navikt/aksel-icons";
 import type { Coordinate } from "ol/coordinate";
 import type { FeatureInfo } from "@/app/_components/MapComponent/Content";
 import type { ProductMetadata } from "@/lib/schemas/product";
 import { LayerIdToName } from "../layerUtils";
 import { statusColors } from "../styleFunctions";
+import { CoordinateSection } from "./CoordinateSection";
 import styles from "./DekningskartOverlay.module.css";
 import { FeatureInfoContent } from "./FeatureInfoContent";
 import { HeightSection } from "./HeightSection";
@@ -67,6 +68,7 @@ export const DekningskartOverlay = ({
     layerVisibility.ufullstendig ||
     layerVisibility.ikkeKartlagt ||
     layerVisibility.ikkeRelevant;
+
   return (
     <div className={styles.overlay}>
       <div className={styles.leftColumn}>
@@ -172,29 +174,18 @@ export const DekningskartOverlay = ({
                   </Button>
                 </div>
                 <HeightSection position={locationClickedInfo.coordinate} />
-                <Details defaultOpen>
-                  <Details.Summary>Koordinater</Details.Summary>
-                  <Details.Content>
-                    <Heading level={4} data-size="2xs">
-                      Koordinater:
-                    </Heading>
-                    <div>
-                      Ø: {locationClickedInfo.coordinate[0].toFixed(2)}, N:{" "}
-                      {locationClickedInfo.coordinate[1].toFixed(2)} @EPSG25833
-                    </div>
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          `Ø: ${locationClickedInfo.coordinate[0].toFixed(2)}, N: ${locationClickedInfo.coordinate[1].toFixed(2)} @EPSG25833`,
-                        );
-                      }}
-                    >
-                      <FilesIcon />
-                      Kopier koordinatene
-                    </Button>
-                  </Details.Content>
-                </Details>
+                {locationClickedInfo.coordinate && (
+                  <Details defaultOpen>
+                    <Details.Summary>Koordinater</Details.Summary>
+                    <Details.Content>
+                      <CoordinateSection
+                        coord={locationClickedInfo.coordinate}
+                        crs="EUREF89 UTM33"
+                      />
+                    </Details.Content>
+                  </Details>
+                )}
+
                 {locationClickedInfo.featureInfoResults.length > 0 && (
                   <Details defaultOpen>
                     <Details.Summary>Objektinformasjon</Details.Summary>
