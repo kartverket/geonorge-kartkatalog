@@ -210,9 +210,13 @@ export function DownloadPageContentClient({
       const files = result.orders.flatMap((order) =>
         order.status === "ordered" ? order.files : [],
       );
+      const datasetCount = new Set(
+        downloadableProducts.map((item) => item.uuid),
+      ).size;
+
       trackEvent("download-order-completed", {
         location: LOCATIONS.DownloadPage,
-        datasetCount: downloadableProducts.length,
+        datasetCount,
         totalFileCount: files.length,
         readyFileCount: files.filter(
           (file) => file.status === "ReadyForDownload",
