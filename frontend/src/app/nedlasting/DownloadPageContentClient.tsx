@@ -29,6 +29,7 @@ import {
 import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import { useAuthInfo } from "@/components/AuthProvider";
 import type { DownloadInsightGroups } from "@/lib/schemas/download";
+import { LOCATIONS, trackEvent } from "@/posthog/posthog";
 import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
