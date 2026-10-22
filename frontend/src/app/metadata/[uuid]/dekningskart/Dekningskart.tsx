@@ -7,6 +7,7 @@ import VectorSource from "ol/source/Vector";
 import { useEffect, useMemo, useRef, useState } from "react";
 import MapComponent from "@/app/_components/MapComponent/MapComponent";
 import type { ProductMetadata } from "@/lib/schemas/product";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./Dekningskart.module.css";
 import { getLayerFromCoverageData } from "./layerUtils";
 import type { LocationClickedInfo } from "./overlay/DekningskartOverlay";
@@ -24,6 +25,7 @@ interface CoverageLayer {
 }
 
 export interface DekningkartProps {
+  uuid: string;
   metadata: ProductMetadata;
   completenessDataString: string | null;
 }
@@ -134,6 +136,9 @@ export const Dekningskart = (props: DekningkartProps) => {
         controls={["scale", "movement"]}
         fullScreenElementRef={componentRef}
         onFeatureInfoResultsChange={(featureInfoResults, coordinate) => {
+          trackClick("map-location", LOCATIONS.CoverageMap, {
+            hasFeatureInfo: featureInfoResults.length > 0,
+          });
           setLocationClickedInfo({
             featureInfoResults,
             coordinate,
@@ -144,11 +149,16 @@ export const Dekningskart = (props: DekningkartProps) => {
         metadata={props.metadata}
         layerVisibility={layerVisibility}
         layerIds={layerIds}
-        onVisibilityChange={(id, visible) =>
+        onVisibilityChange={(id, visible) => {
+          trackClick("toggle-layer", LOCATIONS.CoverageMap, {
+            uuid: props.uuid,
+            layerId: id,
+            visible,
+          });
           setLayerVisibility((current) =>
             layerIds.includes(id) ? { ...current, [id]: visible } : current,
-          )
-        }
+          );
+        }}
         locationClickedInfo={locationClickedInfo}
         onFeatureInfoClose={() => setLocationClickedInfo(null)}
       />

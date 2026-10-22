@@ -22,7 +22,8 @@ export const MapLinkButton = ({
       {useNewMap
         ? shouldShowCoverageMap && (
             <TrackedActionLinkButton
-              eventName="show-coverage-data"
+              eventName="show-coverage-map"
+              properties={{ uuid }}
               href={`${basePath}/metadata/${uuid}/dekningskart`}
               target="_self"
               icon={<EarthIcon aria-hidden />}
@@ -31,7 +32,8 @@ export const MapLinkButton = ({
           )
         : coverageUrl && (
             <TrackedActionLinkButton
-              eventName="show-coverage-map"
+              eventName="show-coverage-map-old"
+              properties={{ uuid }}
               href={coverageUrl}
               icon={<ExternalLinkIcon aria-hidden />}
               title="Vis dekningskart"
