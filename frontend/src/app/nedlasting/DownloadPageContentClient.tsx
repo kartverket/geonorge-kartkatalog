@@ -29,6 +29,7 @@ import {
 import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import { useAuthInfo } from "@/components/AuthProvider";
 import type { DownloadInsightGroups } from "@/lib/schemas/download";
+import { LOCATIONS, trackEvent } from "@/posthog/posthog";
 import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
@@ -205,6 +206,23 @@ export function DownloadPageContentClient({
       authState.status === "authenticated" ? authState.provider : null,
     ).then((result) => {
       if (!result) return;
+
+      const files = result.orders.flatMap((order) =>
+        order.status === "ordered" ? order.files : [],
+      );
+      const datasetCount = new Set(
+        downloadableProducts.map((item) => item.uuid),
+      ).size;
+
+      trackEvent("download-order-completed", {
+        location: LOCATIONS.DownloadPage,
+        datasetCount,
+        totalFileCount: files.length,
+        readyFileCount: files.filter(
+          (file) => file.status === "ReadyForDownload",
+        ).length,
+      });
+
       setStep("last-ned");
       setOrderedCards(cards);
     });

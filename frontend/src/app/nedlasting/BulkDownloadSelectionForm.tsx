@@ -4,6 +4,7 @@ import { Button, Heading, ValidationMessage } from "@kv-designsystem/react";
 import { PlusIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import type { DownloadOptions } from "@/lib/schemas/download";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import { AreaBlockFields } from "./AreaBlockFields";
 import boxStyles from "./BulkDownloadSelectionForm.module.css";
 import styles from "./DownloadOptionsForm.module.css";
@@ -138,7 +139,12 @@ export function BulkDownloadSelectionForm({
           type="button"
           variant="primary"
           disabled={isOrdering}
-          onClick={() => onApplyToAllAction(selection)}
+          onClick={() => {
+            trackClick("apply-bulk-selection", LOCATIONS.DownloadPage, {
+              areaBlockCount: selection.areaBlocks.length,
+            });
+            onApplyToAllAction(selection);
+          }}
         >
           Bruk for alle
         </Button>

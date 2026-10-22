@@ -26,11 +26,10 @@ export function trackEvent(
   eventName: string,
   properties?: AnalyticsProperties,
 ): void {
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[PostHog] ${eventName} (no analytics consent)`, properties);
+  }
   if (!canTrackAnalytics()) {
-    if (process.env.NODE_ENV === "development") {
-      console.log(`[PostHog] ${eventName} (no analytics consent)`, properties);
-    }
-
     return;
   }
 
