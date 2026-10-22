@@ -50,6 +50,10 @@ export function DownloadPageContentClient({
 }: DownloadPageContentClientProps) {
   const authState = useAuthInfo();
   const selectedDownloadUuids = useSelectedDownloadUuids();
+  const [hasHydrated, setHasHydrated] = useState(false);
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
   const { cards, isLoading, hasLoadError } = useDownloadCards(
     selectedDownloadUuids,
   );
@@ -256,6 +260,7 @@ export function DownloadPageContentClient({
         <>
           <DownloadSelectionList
             selectedDownloadCount={selectedDownloadUuids.length}
+            hasHydrated={hasHydrated}
             cards={cards}
             isLoading={isLoading}
             hasLoadError={hasLoadError}
