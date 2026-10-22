@@ -2,7 +2,7 @@
 
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { FACET_CONFIG } from "@/lib/facets";
+import { FACET_CONFIG, withHits } from "@/lib/facets";
 import type { SearchResult } from "@/lib/schemas/search";
 import { FacetGroup } from "./FacetGroup";
 import styles from "./FacetSidebar.module.css";
@@ -36,8 +36,8 @@ export function FacetSidebar({
     router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
   };
 
-  const groups = facets
-    .filter((facet) => facet.label != null && facet.values.length > 0)
+  const groups = withHits(facets)
+    .filter((facet) => facet.label != null)
     .map((facet, index) => {
       const config = FACET_CONFIG[facet.facetField];
       const Group = config?.searchable ? SearchableFacetGroup : FacetGroup;
