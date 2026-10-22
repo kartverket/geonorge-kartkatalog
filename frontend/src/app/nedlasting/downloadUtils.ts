@@ -168,7 +168,9 @@ export function resolveAreaBlockAvailability(
   options: DownloadOptions | null,
   block: Pick<DownloadAreaBlock, "areaCode" | "projectionCodes">,
 ): DownloadAreaBlockAvailability {
-  const areaOptions = options?.areas ?? [];
+  const areaOptions = sortAreaOptionsNationwideFirst(
+    unionByKey([options?.areas ?? []], (option) => option.area.code),
+  );
   const selectedArea = options
     ? getMatchingArea(options, block.areaCode)
     : null;
@@ -251,7 +253,9 @@ export function appendBulkAreaBlocks(
   existingBlocks: DownloadAreaBlock[],
   newBlocks: DownloadAreaBlock[],
 ): DownloadAreaBlock[] {
-  const merged = existingBlocks.map((block) => ({ ...block }));
+  const merged = existingBlocks
+    .filter((block) => block.areaCode !== null)
+    .map((block) => ({ ...block }));
 
   for (const newBlock of newBlocks) {
     if (!newBlock.areaCode) continue;
@@ -275,7 +279,7 @@ export function appendBulkAreaBlocks(
     }
   }
 
-  return merged;
+  return merged.length > 0 ? merged : [{ ...EMPTY_AREA_BLOCK }];
 }
 
 export type DownloadAreaOption = DownloadOptions["areas"][number];
@@ -322,6 +326,16 @@ function unionByKey<T>(lists: T[][], key: (item: T) => string): T[] {
   }
 
   return result;
+}
+
+function sortAreaOptionsNationwideFirst(
+  areas: DownloadAreaOption[],
+): DownloadAreaOption[] {
+  return [...areas].sort((a, b) => {
+    const aIsNationwide = a.area.type === "landsdekkende" ? 0 : 1;
+    const bIsNationwide = b.area.type === "landsdekkende" ? 0 : 1;
+    return aIsNationwide - bIsNationwide;
+  });
 }
 
 export type DownloadSelectionGapCounts = {
@@ -384,9 +398,11 @@ export function resolveUnionDownloadAvailability(
     options ? [options] : [],
   );
 
-  const areaOptions = unionByKey(
-    presentOptionsList.map((options) => options.areas),
-    (option) => option.area.code,
+  const areaOptions = sortAreaOptionsNationwideFirst(
+    unionByKey(
+      presentOptionsList.map((options) => options.areas),
+      (option) => option.area.code,
+    ),
   );
   const selectedArea =
     areaOptions.find((option) => option.area.code === bulkBlock.areaCode) ??

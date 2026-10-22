@@ -77,35 +77,25 @@
 
 .formatButtons {
   display: flex;
+  flex: 1;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: var(--ds-size-2);
 }
 
-.formatButton {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ds-size-2);
-  padding: var(--ds-size-2) var(--ds-size-3);
-  border-radius: var(--ds-border-radius-md);
-  border: 1px solid var(--ds-color-accent-border-default);
-  color: var(--ds-color-accent-text-default);
-  font-size: var(--ds-body-sm-font-size);
-  text-decoration: none;
+.downloadLink {
+  color: var(--dsc-button-color);
 }
 
-.formatButton:hover {
-  background: var(--ds-color-accent-surface-hover);
+.downloadLink:hover {
+  color: var(--dsc-button-color--hover);
 }
 
 .formatPending {
+  width: 100%;
+  text-align: right;
   font-size: var(--ds-body-sm-font-size);
   color: var(--ds-color-text-subtle);
-}
-
-.downloadAllButtonContainer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: var(--ds-size-3);
 }
 
 .notifyBox {

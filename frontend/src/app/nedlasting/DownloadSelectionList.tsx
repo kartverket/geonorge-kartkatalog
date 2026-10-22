@@ -15,6 +15,7 @@ import { MissingInputSummary } from "./MissingInputSummary";
 
 type DownloadSelectionListProps = {
   selectedDownloadCount: number;
+  hasHydrated: boolean;
   cards: DownloadCard[];
   isLoading: boolean;
   hasLoadError: boolean;
@@ -32,6 +33,7 @@ type DownloadSelectionListProps = {
 
 export function DownloadSelectionList({
   selectedDownloadCount,
+  hasHydrated,
   cards,
   isLoading,
   hasLoadError,
@@ -69,10 +71,10 @@ export function DownloadSelectionList({
           </List.Unordered>
         </div>
       ) : null}
-      {selectedDownloadCount === 0 ? (
-        <Paragraph>Ingen datasett lagt til nedlasting</Paragraph>
-      ) : isLoading ? (
+      {!hasHydrated || isLoading ? (
         <Paragraph aria-live="polite">Laster datasett...</Paragraph>
+      ) : selectedDownloadCount === 0 ? (
+        <Paragraph>Ingen datasett lagt til nedlasting</Paragraph>
       ) : (
         <>
           {hasLoadError ? (
