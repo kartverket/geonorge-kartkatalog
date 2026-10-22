@@ -253,7 +253,9 @@ export function appendBulkAreaBlocks(
   existingBlocks: DownloadAreaBlock[],
   newBlocks: DownloadAreaBlock[],
 ): DownloadAreaBlock[] {
-  const merged = existingBlocks.map((block) => ({ ...block }));
+  const merged = existingBlocks
+    .filter((block) => block.areaCode !== null)
+    .map((block) => ({ ...block }));
 
   for (const newBlock of newBlocks) {
     if (!newBlock.areaCode) continue;
@@ -277,7 +279,7 @@ export function appendBulkAreaBlocks(
     }
   }
 
-  return merged;
+  return merged.length > 0 ? merged : [{ ...EMPTY_AREA_BLOCK }];
 }
 
 export type DownloadAreaOption = DownloadOptions["areas"][number];
