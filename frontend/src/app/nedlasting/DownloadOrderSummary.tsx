@@ -30,14 +30,6 @@ const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
   Datasettserie: "datasettserie",
 };
 
-function triggerDownload(url: string) {
-  const link = document.createElement("a");
-  link.href = url;
-  link.target = "_blank";
-  link.rel = "noopener";
-  link.click();
-}
-
 type GroupedFormat = {
   key: string;
   label: string;
@@ -213,17 +205,18 @@ function ProductGroup({
                     {projection.formats.map((format) => {
                       if (format.isReady && format.downloadUrl) {
                         return (
-                          <a
-                            key={format.key}
-                            className={styles.formatButton}
-                            href={format.downloadUrl}
-                            target="_blank"
-                            rel="noopener"
-                            onClick={() => onProductDownloaded(product.uuid)}
-                          >
-                            <DownloadIcon aria-hidden />
-                            {format.label}
-                          </a>
+                          <Button key={format.key} asChild variant="primary">
+                            <a
+                              className={styles.downloadLink}
+                              href={format.downloadUrl}
+                              target="_blank"
+                              rel="noopener"
+                              onClick={() => onProductDownloaded(product.uuid)}
+                            >
+                              <DownloadIcon aria-hidden />
+                              {format.label}
+                            </a>
+                          </Button>
                         );
                       }
 
@@ -306,12 +299,6 @@ export function DownloadOrderSummary({
                 onProductDownloaded={onProductDownloaded}
               />
             ))}
-          </div>
-          <div className={styles.downloadAllButtonContainer}>
-            <Button type="button" variant="primary" onClick={handleDownloadAll}>
-              <DownloadIcon aria-hidden />
-              Last ned alle filformater
-            </Button>
           </div>
         </section>
       ) : null}
