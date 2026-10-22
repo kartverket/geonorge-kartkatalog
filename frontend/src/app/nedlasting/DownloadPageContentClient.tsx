@@ -205,6 +205,19 @@ export function DownloadPageContentClient({
       authState.status === "authenticated" ? authState.provider : null,
     ).then((result) => {
       if (!result) return;
+
+      const files = result.orders.flatMap((order) =>
+        order.status === "ordered" ? order.files : [],
+      );
+      trackEvent("download-order-completed", {
+        location: LOCATIONS.DownloadPage,
+        datasetCount: downloadableProducts.length,
+        totalFileCount: files.length,
+        readyFileCount: files.filter(
+          (file) => file.status === "ReadyForDownload",
+        ).length,
+      });
+
       setStep("last-ned");
       setOrderedCards(cards);
     });

@@ -20,6 +20,7 @@ import {
   type AccessTagContext,
 } from "@/components/AccessStateTag/AccessStateTag";
 import type { DownloadOrderResult } from "@/lib/schemas/download";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadOrderSummary.module.css";
 import type { DownloadCard } from "./downloadUtils";
 
@@ -211,7 +212,16 @@ function ProductGroup({
                               href={format.downloadUrl}
                               target="_blank"
                               rel="noopener"
-                              onClick={() => onProductDownloaded(product.uuid)}
+                              onClick={() => {
+                                trackClick(
+                                  "download-file",
+                                  LOCATIONS.DownloadPage,
+                                  {
+                                    format: format.label,
+                                  },
+                                );
+                                onProductDownloaded(product.uuid);
+                              }}
                             >
                               <DownloadIcon aria-hidden />
                               {format.label}
