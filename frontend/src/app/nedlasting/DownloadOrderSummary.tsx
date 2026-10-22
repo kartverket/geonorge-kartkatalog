@@ -269,21 +269,6 @@ export function DownloadOrderSummary({
     (product) => !product.isReady && product.hasProcessingFiles,
   );
 
-  function handleDownloadAll() {
-    for (const product of readyProducts) {
-      for (const area of product.areas) {
-        for (const projection of area.projections) {
-          for (const format of projection.formats) {
-            if (format.isReady && format.downloadUrl) {
-              triggerDownload(format.downloadUrl);
-            }
-          }
-        }
-      }
-      onProductDownloaded(product.uuid);
-    }
-  }
-
   return (
     <div className={styles.summary}>
       {readyProducts.length > 0 ? (
