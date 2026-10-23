@@ -371,7 +371,7 @@ export function DownloadPageContentClient({
                     >
                       {!isOrdering && <ArrowRightIcon aria-hidden />}
                       {isOrdering
-                        ? "Bestiller..."
+                        ? "Henter oppsummering..."
                         : "Gå videre til oppsummering"}
                     </Button>
                   </div>
