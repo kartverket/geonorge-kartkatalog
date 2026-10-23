@@ -8,6 +8,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
 import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
 
 internal data class SearchFacetCount(
     val name: String,
@@ -63,12 +64,36 @@ internal data class SearchHits(
 
 class SearchEngine(
     private val solrClient: SolrClient,
+    private val embeddingClient: VertexAIClient? = null,
+    private val hybridQueryBuilder: HybridSearchQueryBuilder? = null,
 ) {
     internal suspend fun search(
         query: MetadataSolrQuery,
+        text: String? = null,
         english: Boolean = false,
     ): SearchHits {
-        val response = solrClient.searchMetadataAll(query, english)
+        val text = text?.trim().orEmpty()
+        val effectiveQuery =
+            if (
+                text.length > MINIMUM_VECTOR_SEARCH_LENGTH &&
+                embeddingClient != null &&
+                hybridQueryBuilder != null
+            ) {
+                embeddingClient
+                    .embed(text)
+                    ?.takeIf { it.isNotEmpty() }
+                    ?.let { embedding ->
+                        hybridQueryBuilder.build(
+                            query = query,
+                            text = text,
+                            embedding = embedding,
+                        )
+                    }
+                    ?: query
+            } else {
+                query
+            }
+        val response = solrClient.searchMetadataAll(effectiveQuery, english)
         val facets =
             response.facetCounts
                 ?.facetFields
@@ -79,6 +104,10 @@ class SearchEngine(
 
     fun parseDatasetServices(values: List<String>?): List<RelatedServiceReference> =
         solrClient.parseDatasetServices(values)
+
+    private companion object {
+        const val MINIMUM_VECTOR_SEARCH_LENGTH = 2
+    }
 }
 
 private fun JsonArray.toCounts(): List<SearchFacetCount> =
