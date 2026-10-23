@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-noble AS build
+FROM eclipse-temurin:25-jdk-ubi10-minimal AS build
 
 ARG RUN_VERIFICATIONS=true
 
@@ -15,7 +15,7 @@ RUN --mount=type=cache,id=kartkatalog-backend-gradle-cache,target=/root/.gradle 
     fi && \
     ./gradlew buildFatJar --no-daemon
     
-FROM dhi.io/eclipse-temurin:21-alpine3.24 AS runtime
+FROM dhi.io/eclipse-temurin:25-alpine3.23-dev AS runtime
 
 WORKDIR /app
 
