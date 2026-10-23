@@ -15,12 +15,14 @@ import io.ktor.http.Url
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.URISyntaxException
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
 
 class DownloadApiClient(
     private val httpClient: HttpClient,
@@ -97,12 +99,14 @@ class DownloadApiClient(
 
     suspend fun checkAvailability(url: String): DownloadAvailability =
         try {
-            httpClient.prepareGet(url).execute { response ->
-                when {
-                    response.status.isSuccess() -> DownloadAvailability.AVAILABLE
-                    response.status == HttpStatusCode.NotFound ||
-                        response.status == HttpStatusCode.Gone -> DownloadAvailability.CONFIRMED_UNAVAILABLE
-                    else -> DownloadAvailability.UNKNOWN
+            withTimeout(3.seconds) {
+                httpClient.prepareGet(url).execute { response ->
+                    when {
+                        response.status.isSuccess() -> DownloadAvailability.AVAILABLE
+                        response.status == HttpStatusCode.NotFound ||
+                            response.status == HttpStatusCode.Gone -> DownloadAvailability.CONFIRMED_UNAVAILABLE
+                        else -> DownloadAvailability.UNKNOWN
+                    }
                 }
             }
         } catch (e: Exception) {
