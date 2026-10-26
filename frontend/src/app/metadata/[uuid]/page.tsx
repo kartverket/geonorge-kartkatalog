@@ -86,6 +86,7 @@ export default async function ProductPage({
             [
               metadata.contactOwner?.organization,
               metadata.contactPublisher?.organization,
+              metadata.contactMetadata?.organization,
             ].filter((organization): organization is string => !!organization),
           ),
         )}
