@@ -1,6 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.search
 
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
@@ -33,9 +34,9 @@ class SearchService(
                 limit = normalized.limit,
                 offset = normalized.offset,
                 results =
-                    hits.documents.map { doc ->
-                        doc.toSearchResultItem()
-                    },
+                    hits.documents
+                        .map { doc -> async { doc.toSearchResultItem() } }
+                        .awaitAll(),
                 facets = hits.facets.toSearchFacets(fylkeNames, hvdCategories),
             )
         }
