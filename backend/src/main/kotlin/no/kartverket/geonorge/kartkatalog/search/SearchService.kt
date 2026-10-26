@@ -40,10 +40,18 @@ class SearchService(
             )
         }
 
-    private fun getSeriesMemberDetails(doc: SearchHit): List<RelatedServiceReference> {
-        val seriesMemberRefs =
-            engine.parseDatasetServices(doc.seriedatasets)
-        return seriesMemberRefs.filter { it.protocol == "GEONORGE:DOWNLOAD" }
+    private suspend fun getSeriesMemberDetails(doc: SearchHit): List<RelatedServiceReference> {
+        val seriesMemberRefs = engine.parseDatasetServices(doc.seriedatasets)
+        if (seriesMemberRefs.isEmpty()) return emptyList()
+
+        val protocolsByUuid =
+            engine
+                .getMetadataByUuids(seriesMemberRefs.map { it.uuid })
+                .associate { it.uuid to it.distributionProtocols.orEmpty() }
+
+        return seriesMemberRefs.filter { ref ->
+            "GEONORGE:DOWNLOAD" in protocolsByUuid[ref.uuid].orEmpty()
+        }
     }
 
     private fun Map<String, List<SearchFacetCount>>.toSearchFacets(
@@ -181,7 +189,7 @@ class SearchService(
             else -> false
         }
 
-    private fun SearchHit.toSearchResultItem(): SearchResultItem {
+    private suspend fun SearchHit.toSearchResultItem(): SearchResultItem {
         val access = resolveAccess(dataaccess, otherconstraintsaccess, accessconstraint)
 
         val mapCapability = resolveMapCapability()
