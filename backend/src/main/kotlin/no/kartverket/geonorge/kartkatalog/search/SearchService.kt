@@ -44,13 +44,22 @@ class SearchService(
         val seriesMemberRefs = engine.parseDatasetServices(doc.seriedatasets)
         if (seriesMemberRefs.isEmpty()) return emptyList()
 
-        val protocolsByUuid =
-            engine
-                .getMetadataByUuids(seriesMemberRefs.map { it.uuid })
-                .associate { it.uuid to it.distributionProtocols.orEmpty() }
+        val fullDocsByUuid =
+            engine.getMetadataByUuids(seriesMemberRefs.map { it.uuid }).associateBy { it.uuid }
 
-        return seriesMemberRefs.filter { ref ->
-            "GEONORGE:DOWNLOAD" in protocolsByUuid[ref.uuid].orEmpty()
+        return seriesMemberRefs.mapNotNull { ref ->
+            val downloadUrl =
+                fullDocsByUuid[ref.uuid]
+                    ?.distributions
+                    .orEmpty()
+                    .asSequence()
+                    .map { it.split("|") }
+                    .firstOrNull { parts -> parts.getOrNull(1) == "GEONORGE:DOWNLOAD" }
+                    ?.getOrNull(2)
+                    ?.takeIf { it.isNotBlank() }
+                    ?: return@mapNotNull null
+
+            ref.copy(protocol = "GEONORGE:DOWNLOAD", distributionUrl = downloadUrl)
         }
     }
 
