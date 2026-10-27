@@ -77,6 +77,8 @@ class SearchEngine(
         return SearchHits(response.response.numFound, response.response.docs.map { it.toSearchHit() }, facets)
     }
 
+    suspend fun getMetadataByUuids(uuids: List<String>): List<SolrDocument> = solrClient.getMetadataByUuids(uuids)
+
     fun parseDatasetServices(values: List<String>?): List<RelatedServiceReference> =
         solrClient.parseDatasetServices(values)
 }
