@@ -5,6 +5,7 @@ import ScaleLine from "ol/control/ScaleLine";
 import type { Coordinate } from "ol/coordinate";
 import type BaseEvent from "ol/events/Event";
 import { Point } from "ol/geom";
+import type Interaction from "ol/interaction/Interaction";
 import type BaseLayer from "ol/layer/Base";
 import TileLayer from "ol/layer/Tile";
 import VectorLayer from "ol/layer/Vector";
@@ -37,6 +38,7 @@ export interface MapComponentProps {
   markerLocation?: Coordinate;
   backgroundLayerName: BackgroundLayerName;
   layers?: BaseLayer[];
+  interactions?: Interaction[];
   controls?: MapControls[];
   fullScreenElementRef?: React.RefObject<HTMLElement | null>;
   onFeatureInfoResultsChange?: (
@@ -174,6 +176,17 @@ const Content = (props: MapComponentProps) => {
       });
     };
   }, [props.layers]);
+
+  useEffect(() => {
+    props.interactions?.forEach((interaction) => {
+      map.addInteraction(interaction);
+    });
+    return () => {
+      props.interactions?.forEach((interaction) => {
+        map.removeInteraction(interaction);
+      });
+    };
+  }, [props.interactions]);
 
   useEffect(() => {
     if (props.controls?.includes("scale")) {
