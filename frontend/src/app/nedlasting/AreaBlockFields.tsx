@@ -56,7 +56,12 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Geografisk område
-            {!block.areaCode ? <Tag data-color="warning">Påkrevd</Tag> : null}
+            <Tag
+              data-color="warning"
+              className={block.areaCode ? styles.hiddenTag : undefined}
+            >
+              Påkrevd
+            </Tag>
           </Label>
           <SingleSuggestion
             selectedValue={block.areaCode}
@@ -82,9 +87,14 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Projeksjon
-            {block.projectionCodes.length === 0 ? (
-              <Tag data-color="warning">Påkrevd</Tag>
-            ) : null}
+            <Tag
+              data-color="warning"
+              className={
+                block.projectionCodes.length > 0 ? styles.hiddenTag : undefined
+              }
+            >
+              Påkrevd
+            </Tag>
           </Label>
           <MultiSuggestion
             selectedValues={block.projectionCodes}
@@ -102,9 +112,14 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Format
-            {block.formatNames.length === 0 ? (
-              <Tag data-color="warning">Påkrevd</Tag>
-            ) : null}
+            <Tag
+              data-color="warning"
+              className={
+                block.formatNames.length > 0 ? styles.hiddenTag : undefined
+              }
+            >
+              Påkrevd
+            </Tag>
           </Label>
           <MultiSuggestion
             selectedValues={block.formatNames}

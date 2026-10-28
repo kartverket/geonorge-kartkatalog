@@ -55,7 +55,7 @@ type GroupedProduct = {
   organization: string | null;
   typeTranslated: string | null;
   accessState: DownloadCard["accessState"];
-  isReady: boolean;
+  hasReadyFiles: boolean;
   hasProcessingFiles: boolean;
   areas: GroupedArea[];
 };
@@ -81,7 +81,7 @@ function groupOrderedProducts(
 
   return Array.from(filesByUuid.entries()).map(([uuid, productFiles]) => {
     const card = cards.find((c) => c.uuid === uuid);
-    const isReady = productFiles.every(
+    const hasReadyFiles = productFiles.some(
       (file) => file.status === "ReadyForDownload",
     );
 
@@ -130,7 +130,7 @@ function groupOrderedProducts(
       organization: card?.organization ?? null,
       typeTranslated: card?.typeTranslated ?? null,
       accessState: card?.accessState ?? null,
-      isReady,
+      hasReadyFiles,
       hasProcessingFiles,
       areas,
     };
@@ -271,12 +271,12 @@ export function DownloadOrderSummary({
   onProductDownloaded: (uuid: string) => void;
 }) {
   const products = groupOrderedProducts(orderResult, cards);
-  const readyProducts = products.filter((product) => product.isReady);
+  const readyProducts = products.filter((product) => product.hasReadyFiles);
   const failedProducts = products.filter(
-    (product) => !product.isReady && !product.hasProcessingFiles,
+    (product) => !product.hasReadyFiles && !product.hasProcessingFiles,
   );
   const processingProducts = products.filter(
-    (product) => !product.isReady && product.hasProcessingFiles,
+    (product) => !product.hasReadyFiles && product.hasProcessingFiles,
   );
 
   return (
