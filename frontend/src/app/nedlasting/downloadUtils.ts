@@ -178,6 +178,7 @@ export type DownloadAreaBlockAvailability = {
   selectedArea: DownloadAreaOption | null;
   projectionOptions: DownloadProjectionOption[];
   formatOptions: DownloadFormat[];
+  supportsPolygonSelection: boolean;
 };
 
 export function resolveAreaBlockAvailability(
@@ -203,6 +204,7 @@ export function resolveAreaBlockAvailability(
       formatOptions: nationwideArea
         ? resolveFormatOptions(referenceAreas, block.projectionCodes)
         : unionFormatsAcrossAreas(referenceAreas),
+      supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
     };
   }
 
@@ -216,6 +218,7 @@ export function resolveAreaBlockAvailability(
     selectedArea,
     projectionOptions: resolveProjectionOptions(selectedAreas),
     formatOptions: resolveFormatOptions(selectedAreas, block.projectionCodes),
+    supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
   };
 }
 
@@ -476,5 +479,6 @@ export function resolveUnionDownloadAvailability(
       ),
       (format) => format.name,
     ),
+    supportsPolygonSelection: false,
   };
 }
