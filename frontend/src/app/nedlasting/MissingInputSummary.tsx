@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import { ErrorSummary } from "@kv-designsystem/react";
 import type { MissingDownloadSelectionField } from "@/app/nedlasting/downloadUtils";
 
@@ -12,6 +13,20 @@ export function MissingInputSummary({
   }[];
   className?: string;
 }) {
+  // ds-error-summary fokuserer seg selv når den vises, noe som får nettleseren
+  // til å scrolle den inn i synsfeltet. Vi nuller ut det hoppet her, siden
+  // komponenten ikke har noen måte å skru av selve autofokuseringen på.
+  const scrollPositionBeforeMount = useRef(
+    typeof window !== "undefined"
+      ? { x: window.scrollX, y: window.scrollY }
+      : { x: 0, y: 0 },
+  );
+
+  useLayoutEffect(() => {
+    const { x, y } = scrollPositionBeforeMount.current;
+    window.scrollTo(x, y);
+  }, []);
+
   function formatMissingFields(fields: MissingDownloadSelectionField[]) {
     const FIELD_LABELS = {
       area: "geografisk område",
