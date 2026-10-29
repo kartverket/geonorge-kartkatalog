@@ -2,6 +2,8 @@
 
 import { Button, Field, Label, Tag } from "@kv-designsystem/react";
 import { XMarkIcon } from "@navikt/aksel-icons";
+import { useState } from "react";
+import { DrawAreaDialog } from "./DrawAreaDialog";
 import styles from "./DownloadOptionsForm.module.css";
 import type {
   DownloadAreaBlock,
@@ -17,6 +19,7 @@ type AreaBlockFieldsProps = {
   isOrdering?: boolean;
   canRemove: boolean;
   onChangeAreaAction: (areaCode: string | null) => void;
+  onChangePolygonAction: (polygon: string | null) => void;
   onChangeProjectionsAction: (projectionCodes: string[]) => void;
   onChangeFormatsAction: (formatNames: string[]) => void;
   onRemoveAction: () => void;
@@ -29,15 +32,20 @@ export function AreaBlockFields({
   isOrdering = false,
   canRemove,
   onChangeAreaAction,
+  onChangePolygonAction,
   onChangeProjectionsAction,
   onChangeFormatsAction,
   onRemoveAction,
 }: AreaBlockFieldsProps) {
+  const [isDrawingArea, setIsDrawingArea] = useState(false);
+
   const areaOptions = availability.areaOptions.filter(
     (option) =>
       option.area.code === block.areaCode ||
       !excludedAreaCodes.includes(option.area.code),
   );
+
+  const hasArea = Boolean(block.areaCode || block.polygon);
 
   return (
     <div className={styles.areaBlock}>
@@ -58,25 +66,45 @@ export function AreaBlockFields({
             Geografisk område
             <Tag
               data-color="warning"
-              className={block.areaCode ? styles.hiddenTag : undefined}
+              className={hasArea ? styles.hiddenTag : undefined}
             >
               Påkrevd
             </Tag>
           </Label>
-          <SingleSuggestion
-            selectedValue={block.areaCode}
-            onChangeAction={onChangeAreaAction}
-            options={areaOptions.map((option) => ({
-              label: option.area.type
-                ? `${option.area.name} (${option.area.type})`
-                : option.area.name,
-              value: option.area.code,
-            }))}
-            placeholder="Velg ett område"
-            isOrdering={isOrdering}
-          />
+          {block.polygon ? (
+            <div className={styles.customAreaSummary}>
+              <span>Egendefinert område tegnet på kart</span>
+              <Button
+                type="button"
+                variant="tertiary"
+                data-size="sm"
+                onClick={() => onChangePolygonAction(null)}
+              >
+                Fjern
+              </Button>
+            </div>
+          ) : (
+            <SingleSuggestion
+              selectedValue={block.areaCode}
+              onChangeAction={onChangeAreaAction}
+              options={areaOptions.map((option) => ({
+                label: option.area.type
+                  ? `${option.area.name} (${option.area.type})`
+                  : option.area.name,
+                value: option.area.code,
+              }))}
+              placeholder="Velg ett område"
+              isOrdering={isOrdering}
+            />
+          )}
           <div className={styles.areaInputButtons}>
-            <Button type="button" variant="secondary" data-size="sm" disabled>
+            <Button
+              type="button"
+              variant="secondary"
+              data-size="sm"
+              disabled={!availability.supportsPolygonSelection}
+              onClick={() => setIsDrawingArea(true)}
+            >
               Velg fra kart
             </Button>
             <Button type="button" variant="secondary" data-size="sm" disabled>
@@ -106,7 +134,7 @@ export function AreaBlockFields({
             placeholder="Velg en eller flere projeksjoner"
             noOptionsLabel="Ingen projeksjoner tilgjengelig for valgt område"
             isOrdering={isOrdering}
-            disabled={!block.areaCode}
+            disabled={!hasArea}
           />
         </Field>
         <Field className={styles.selectionField}>
@@ -135,6 +163,14 @@ export function AreaBlockFields({
           />
         </Field>
       </div>
+      <DrawAreaDialog
+        open={isDrawingArea}
+        onCloseAction={() => setIsDrawingArea(false)}
+        onConfirmAction={(coordinates) => {
+          onChangePolygonAction(coordinates);
+          setIsDrawingArea(false);
+        }}
+      />
     </div>
   );
 }
