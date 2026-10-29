@@ -1,0 +1,4 @@
+[
+  { "match": { "package_ecosystem": "npm", "update_type": "semver:minor" } },
+  { "match": { "package_ecosystem": "gradle", "update_type": "semver:minor" } }
+]
