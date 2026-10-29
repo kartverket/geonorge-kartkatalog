@@ -19,7 +19,6 @@
     "@cookieyes/nextjs": "^0.8.1",
     "@kv-designsystem/react": "^1.0.0-alpha.6",
     "@navikt/aksel-icons": "^8.19.1",
-    "@oicl/openbridge-webcomponents-react": "^2.0.0",
     "@posthog/react": "^1.11.3",
     "next": "^16.4.0",
     "ol": "^10.11.0",
