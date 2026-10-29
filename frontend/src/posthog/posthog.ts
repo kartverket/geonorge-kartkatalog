@@ -14,6 +14,7 @@ export const LOCATIONS = {
   MetadataPageTabs: "metadata-page-tabs",
   MetadataPageLinkedDistributions: "metadata-page-linked-distributions",
   MetadataPageError: "metadata-page-error",
+  CoverageMap: "coverage-map",
 } as const;
 
 export type Location = (typeof LOCATIONS)[keyof typeof LOCATIONS];
