@@ -7,10 +7,10 @@ import {
   PlusIcon,
   ShrinkIcon,
 } from "@navikt/aksel-icons";
-import { ObiCoordinate } from "@oicl/openbridge-webcomponents-react/icons/icon-coordinate";
 import { transform } from "ol/proj";
 import { useEffect, useState } from "react";
 import styles from "./MapOverlay.module.css";
+import { MyLocationIcon } from "./MyLocationIcon";
 import { map } from "./map/map";
 
 export type MapOverlayProps = {
@@ -133,7 +133,12 @@ export const MapOverlay = (props: MapOverlayProps) => {
             <ControlButton
               disabled={isGettingLocation || !navigator.geolocation}
               icon={
-                <ObiCoordinate style={{ width: "var(--ds-font-size-5)" }} />
+                <MyLocationIcon
+                  style={{
+                    width: "var(--ds-font-size-5)",
+                    height: "var(--ds-font-size-5)",
+                  }}
+                />
               }
               onClick={onShowMyLocation}
             />
