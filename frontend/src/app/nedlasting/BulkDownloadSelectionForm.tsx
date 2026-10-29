@@ -20,7 +20,9 @@ import {
 } from "./downloadUtils";
 
 const EMPTY_BULK_SELECTION: DownloadSelection = {
-  areaBlocks: [{ areaCode: null, polygon: null, projectionCodes: [], formatNames: [] }],
+  areaBlocks: [
+    { areaCode: null, polygon: null, projectionCodes: [], formatNames: [] },
+  ],
 };
 
 type BulkDownloadSelectionFormProps = {
