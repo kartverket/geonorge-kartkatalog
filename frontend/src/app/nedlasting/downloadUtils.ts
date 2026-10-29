@@ -176,6 +176,7 @@ function resolveFormatOptions(
 export type DownloadAreaBlockAvailability = {
   areaOptions: DownloadAreaOption[];
   selectedArea: DownloadAreaOption | null;
+  orderArea: DownloadAreaOption | null;
   projectionOptions: DownloadProjectionOption[];
   formatOptions: DownloadFormat[];
   supportsPolygonSelection: boolean;
@@ -198,6 +199,7 @@ export function resolveAreaBlockAvailability(
     return {
       areaOptions,
       selectedArea: null,
+      orderArea: nationwideArea ?? areaOptions[0] ?? null,
       projectionOptions: nationwideArea
         ? resolveProjectionOptions(referenceAreas)
         : unionProjectionsAcrossAreas(referenceAreas),
@@ -216,6 +218,7 @@ export function resolveAreaBlockAvailability(
   return {
     areaOptions,
     selectedArea,
+    orderArea: selectedArea,
     projectionOptions: resolveProjectionOptions(selectedAreas),
     formatOptions: resolveFormatOptions(selectedAreas, block.projectionCodes),
     supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
@@ -244,8 +247,8 @@ function createOrderItemForBlock(
   return {
     uuid,
     capabilitiesUrl,
-    areas: availability.selectedArea
-      ? [toDownloadOrderArea(availability.selectedArea)]
+    areas: availability.orderArea
+      ? [toDownloadOrderArea(availability.orderArea)]
       : [],
     projections: projections.map(toDownloadOrderProjection),
     formats: formats.map((format) => ({ name: format.name })),
