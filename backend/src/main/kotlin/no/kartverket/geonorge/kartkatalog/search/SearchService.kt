@@ -18,7 +18,7 @@ class SearchService(
     internal suspend fun searchHits(
         request: SearchRequest,
         english: Boolean = false,
-    ): SearchHits = engine.search(SearchQueryBuilder.build(request), english)
+    ): SearchHits = engine.search(SearchQueryBuilder.build(request), request.text, english)
 
     suspend fun search(request: SearchRequest): SearchResponse =
         coroutineScope {
