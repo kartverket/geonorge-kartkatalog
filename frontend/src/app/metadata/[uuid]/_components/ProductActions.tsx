@@ -59,7 +59,6 @@ export async function ProductActions({
       />
       <MapLinkButton
         shouldShowCoverageMap={shouldShowCoverageMap(metadata)}
-        coverageUrl={metadata.coverageUrl}
         uuid={uuid}
       />
       <TrackedActionLinkButton
