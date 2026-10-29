@@ -101,6 +101,8 @@ export function DrawAreaDialog({
 
   const isTooLarge = areaM2 !== null && areaM2 > MAX_AREA_M2_PLACEHOLDER;
 
+  const interactions = useMemo(() => [draw, modify], [draw, modify]);
+
   return (
     <Dialog open={open} onClose={onCloseAction}>
       <Dialog.Block>
@@ -118,7 +120,7 @@ export function DrawAreaDialog({
             <MapComponent
               backgroundLayerName="topograyscale"
               layers={[vectorLayer]}
-              interactions={[draw, modify]}
+              interactions={interactions}
               controls={["scale", "movement"]}
               fullScreenElementRef={componentRef}
             />
