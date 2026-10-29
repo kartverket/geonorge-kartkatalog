@@ -272,7 +272,38 @@ export function filterAreaBlockForProduct(
   options: DownloadOptions | null,
   bulkBlock: DownloadAreaBlock,
 ): DownloadAreaBlock {
-  if (!options || !bulkBlock.areaCode) return { ...EMPTY_AREA_BLOCK };
+  if (!options) return { ...EMPTY_AREA_BLOCK };
+
+  if (bulkBlock.polygon) {
+    if (!options.supportsPolygonSelection) return { ...EMPTY_AREA_BLOCK };
+
+    const referenceArea =
+      options.areas.find((option) => option.area.type === "landsdekkende") ??
+      options.areas[0] ??
+      null;
+    const referenceAreas = referenceArea ? [referenceArea] : [];
+
+    const projectionOptions = resolveProjectionOptions(referenceAreas);
+    const projectionCodeSet = new Set(bulkBlock.projectionCodes);
+    const projectionCodes = projectionOptions
+      .filter((projection) => projectionCodeSet.has(projection.code))
+      .map((projection) => projection.code);
+
+    const formatOptions = resolveFormatOptions(referenceAreas, projectionCodes);
+    const formatNameSet = new Set(bulkBlock.formatNames);
+    const formatNames = formatOptions
+      .filter((format) => formatNameSet.has(format.name))
+      .map((format) => format.name);
+
+    return {
+      areaCode: null,
+      polygon: bulkBlock.polygon,
+      projectionCodes,
+      formatNames,
+    };
+  }
+
+  if (!bulkBlock.areaCode) return { ...EMPTY_AREA_BLOCK };
 
   const matchingArea = getMatchingArea(options, bulkBlock.areaCode);
   if (!matchingArea) return { ...EMPTY_AREA_BLOCK };
@@ -302,16 +333,19 @@ export function appendBulkAreaBlocks(
   existingBlocks: DownloadAreaBlock[],
   newBlocks: DownloadAreaBlock[],
 ): DownloadAreaBlock[] {
+  function keyOf(block: DownloadAreaBlock): string | null {
+    return block.areaCode ?? block.polygon;
+  }
+
   const merged = existingBlocks
-    .filter((block) => block.areaCode !== null)
+    .filter((block) => keyOf(block) !== null)
     .map((block) => ({ ...block }));
 
   for (const newBlock of newBlocks) {
-    if (!newBlock.areaCode) continue;
+    const key = keyOf(newBlock);
+    if (key === null) continue;
 
-    const matchingBlock = merged.find(
-      (block) => block.areaCode === newBlock.areaCode,
-    );
+    const matchingBlock = merged.find((block) => keyOf(block) === key);
 
     if (matchingBlock) {
       matchingBlock.projectionCodes = Array.from(
@@ -411,9 +445,11 @@ export function getDownloadSelectionGapCounts(
   }
 
   return {
-    areas: bulkBlock.areaCode
-      ? perProductBlocks.filter((block) => !block.areaCode).length
-      : 0,
+    areas:
+      bulkBlock.areaCode || bulkBlock.polygon
+        ? perProductBlocks.filter((block) => !block.areaCode && !block.polygon)
+            .length
+        : 0,
     projections: countGaps(bulkBlock.projectionCodes, (b) => b.projectionCodes),
     formats: countGaps(bulkBlock.formatNames, (b) => b.formatNames),
   };
@@ -483,6 +519,8 @@ export function resolveUnionDownloadAvailability(
       ),
       (format) => format.name,
     ),
-    supportsPolygonSelection: false,
+    supportsPolygonSelection: presentOptionsList.some(
+      (options) => options.supportsPolygonSelection,
+    ),
   };
 }

@@ -16,6 +16,7 @@ import {
   resolveUnionDownloadAvailability,
   selectAreaBlockArea,
   selectAreaBlockFormats,
+  selectAreaBlockPolygon,
   selectAreaBlockProjections,
 } from "./downloadUtils";
 
@@ -103,9 +104,13 @@ export function BulkDownloadSelectionForm({
                   onRemoveAction={() =>
                     updateSelection(removeAreaBlock(selection, blockIndex))
                   }
-                  onChangePolygonAction={() => {}}
+                  onChangePolygonAction={(polygon) =>
+                    updateSelection(
+                      selectAreaBlockPolygon(selection, blockIndex, polygon),
+                    )
+                  }
                 />
-                {block.areaCode && gapCounts.areas > 0 ? (
+                {(block.areaCode || block.polygon) && gapCounts.areas > 0 ? (
                   <ValidationMessage data-color="warning">
                     {gapCounts.areas} datasett har ikke valgte områder.
                   </ValidationMessage>
