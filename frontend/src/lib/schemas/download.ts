@@ -27,6 +27,7 @@ export const DownloadAreaOptionSchema = z.object({
 
 export const DownloadOptionsSchema = z.object({
   areas: z.array(DownloadAreaOptionSchema),
+  supportsPolygonSelection: z.boolean().default(false),
 });
 
 export type DownloadOptions = z.infer<typeof DownloadOptionsSchema>;
@@ -101,9 +102,10 @@ export const DownloadOrderItemInputSchema = z
   .object({
     uuid: z.string().min(1),
     capabilitiesUrl: z.string().url(),
-    areas: z.array(DownloadOrderAreaInputSchema).min(1),
+    areas: z.array(DownloadOrderAreaInputSchema),
     projections: z.array(DownloadOrderProjectionInputSchema).min(1),
     formats: z.array(DownloadOrderFormatInputSchema).min(1),
+    coordinates: z.string().min(1).optional(),
   })
   .strict();
 
@@ -117,7 +119,18 @@ export const DownloadOrderRequestSchema = z
     usageGroup: z.string().min(1),
     items: z.array(DownloadOrderRequestItemSchema).min(1),
   })
-  .strict();
+  .strict()
+  .superRefine((request, ctx) => {
+    request.items.forEach((item, index) => {
+      if (item.areas.length === 0 && item.coordinates === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Enten areas eller coordinates må være satt",
+          path: ["items", index, "areas"],
+        });
+      }
+    });
+  });
 
 export type DownloadOrderAreaInput = z.infer<
   typeof DownloadOrderAreaInputSchema
