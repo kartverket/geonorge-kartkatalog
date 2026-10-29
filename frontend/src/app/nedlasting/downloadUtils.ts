@@ -334,7 +334,7 @@ export function appendBulkAreaBlocks(
   newBlocks: DownloadAreaBlock[],
 ): DownloadAreaBlock[] {
   function keyOf(block: DownloadAreaBlock): string | null {
-    return block.areaCode ?? block.polygon;
+    return block.areaCode ?? block.polygon ?? null;
   }
 
   const merged = existingBlocks
@@ -477,7 +477,10 @@ function unionFormatsAcrossAreas(
 
 export function resolveUnionDownloadAvailability(
   optionsList: (DownloadOptions | null)[],
-  bulkBlock: Pick<DownloadAreaBlock, "areaCode" | "projectionCodes">,
+  bulkBlock: Pick<
+    DownloadAreaBlock,
+    "areaCode" | "polygon" | "projectionCodes"
+  >,
 ): DownloadAreaBlockAvailability {
   const presentOptionsList = optionsList.flatMap((options) =>
     options ? [options] : [],
@@ -489,6 +492,40 @@ export function resolveUnionDownloadAvailability(
       (option) => option.area.code,
     ),
   );
+
+  if (bulkBlock.polygon) {
+    const polygonCapableOptionsList = presentOptionsList.filter(
+      (options) => options.supportsPolygonSelection,
+    );
+
+    const displayAreasByProduct = polygonCapableOptionsList.map((options) => {
+      const referenceArea =
+        options.areas.find((option) => option.area.type === "landsdekkende") ??
+        options.areas[0] ??
+        null;
+      return referenceArea ? [referenceArea] : [];
+    });
+
+    return {
+      areaOptions,
+      selectedArea: null,
+      orderArea: null,
+      projectionOptions: unionByKey(
+        displayAreasByProduct.map((areas) => resolveProjectionOptions(areas)),
+        (projection) => projection.code,
+      ),
+      formatOptions: unionByKey(
+        displayAreasByProduct.map((areas) =>
+          resolveFormatOptions(areas, bulkBlock.projectionCodes),
+        ),
+        (format) => format.name,
+      ),
+      supportsPolygonSelection: presentOptionsList.some(
+        (options) => options.supportsPolygonSelection,
+      ),
+    };
+  }
+
   const selectedArea =
     areaOptions.find((option) => option.area.code === bulkBlock.areaCode) ??
     null;
