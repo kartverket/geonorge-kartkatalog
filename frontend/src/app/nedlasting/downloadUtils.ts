@@ -194,18 +194,18 @@ export function resolveAreaBlockAvailability(
     const nationwideArea =
       areaOptions.find((option) => option.area.type === "landsdekkende") ??
       null;
-    const referenceAreas = nationwideArea ? [nationwideArea] : areaOptions;
+    const referenceArea = nationwideArea ?? areaOptions[0] ?? null;
+    const referenceAreas = referenceArea ? [referenceArea] : [];
 
     return {
       areaOptions,
       selectedArea: null,
-      orderArea: nationwideArea ?? areaOptions[0] ?? null,
-      projectionOptions: nationwideArea
-        ? resolveProjectionOptions(referenceAreas)
-        : unionProjectionsAcrossAreas(referenceAreas),
-      formatOptions: nationwideArea
-        ? resolveFormatOptions(referenceAreas, block.projectionCodes)
-        : unionFormatsAcrossAreas(referenceAreas),
+      orderArea: referenceArea,
+      projectionOptions: resolveProjectionOptions(referenceAreas),
+      formatOptions: resolveFormatOptions(
+        referenceAreas,
+        block.projectionCodes,
+      ),
       supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
     };
   }
