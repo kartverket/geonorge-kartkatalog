@@ -466,6 +466,7 @@ export function resolveUnionDownloadAvailability(
   return {
     areaOptions,
     selectedArea,
+    orderArea: selectedArea,
     projectionOptions: unionByKey(
       displayAreasByProduct.map((areas) =>
         bulkBlock.areaCode

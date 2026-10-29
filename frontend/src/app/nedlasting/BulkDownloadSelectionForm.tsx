@@ -20,7 +20,7 @@ import {
 } from "./downloadUtils";
 
 const EMPTY_BULK_SELECTION: DownloadSelection = {
-  areaBlocks: [{ areaCode: null, projectionCodes: [], formatNames: [] }],
+  areaBlocks: [{ areaCode: null, polygon: null, projectionCodes: [], formatNames: [] }],
 };
 
 type BulkDownloadSelectionFormProps = {
@@ -101,6 +101,7 @@ export function BulkDownloadSelectionForm({
                   onRemoveAction={() =>
                     updateSelection(removeAreaBlock(selection, blockIndex))
                   }
+                  onChangePolygonAction={() => {}}
                 />
                 {block.areaCode && gapCounts.areas > 0 ? (
                   <ValidationMessage data-color="warning">
