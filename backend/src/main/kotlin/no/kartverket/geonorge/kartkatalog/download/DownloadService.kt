@@ -136,7 +136,10 @@ class DownloadService(
 
         if (areasUrl == null) {
             log.warn("No area codelist URL found for dataset {}, returning no areas", uuid)
-            return DownloadOptions(areas = emptyList())
+            return DownloadOptions(
+                areas = emptyList(),
+                supportsPolygonSelection = capabilities.supportsPolygonSelection,
+            )
         }
 
         return DownloadOptions(
@@ -163,6 +166,7 @@ class DownloadService(
                             },
                     )
                 },
+            supportsPolygonSelection = capabilities.supportsPolygonSelection,
         )
     }
 

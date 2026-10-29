@@ -73,6 +73,7 @@ data class DownloadOrderLink(
 
 data class DownloadOptions(
     val areas: List<DownloadAreaOption>,
+    val supportsPolygonSelection: Boolean = false,
 )
 
 data class DownloadAreaOption(
