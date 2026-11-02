@@ -84,7 +84,7 @@ export function DistributionDetailActionButton({
         size="sm"
         href={firstUrl}
         icon={<ExternalLinkIcon aria-hidden />}
-        title="Åpne nedlastinger"
+        title="Åpne nettside"
         eventName="open-download-distribution-from-accordion-summary"
         trackingProperties={trackingProperties}
       />
