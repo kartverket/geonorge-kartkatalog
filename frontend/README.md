@@ -26,13 +26,13 @@ The dev server prints a local URL (usually `http://localhost:3000`).
 
 ### Everyday commands
 
-| Command | What it does |
-|---|---|
-| `npm run dev` | Start dev server with hot reload. |
-| `npm run build` | Production build. Fails on type errors or invalid routes. |
-| `npm run start` | Serve the production build locally. |
-| `npm run lint` | Biome check (lint + formatting). |
-| `npm run format` | Biome format `--write` — rewrites files in place. |
+| Command          | What it does                                              |
+| ---------------- | --------------------------------------------------------- |
+| `npm run dev`    | Start dev server with hot reload.                         |
+| `npm run build`  | Production build. Fails on type errors or invalid routes. |
+| `npm run start`  | Serve the production build locally.                       |
+| `npm run lint`   | Biome check (lint + formatting).                          |
+| `npm run format` | Biome format `--write` — rewrites files in place.         |
 
 Run `npm run build` before opening a PR — it catches things `next dev` won't (typed-route errors, unused imports, etc.).
 
@@ -76,12 +76,12 @@ frontend/
 
 ### Folder naming rules (App Router)
 
-| Prefix | Meaning |
-|---|---|
-| `folder/` | **Route** — URL segment `/folder` |
+| Prefix     | Meaning                                                 |
+| ---------- | ------------------------------------------------------- |
+| `folder/`  | **Route** — URL segment `/folder`                       |
 | `_folder/` | **Private** — never routed, safe for components/helpers |
-| `[param]/` | **Dynamic segment** — value available via `params` |
-| `(group)/` | **Route group** — organizes without changing the URL |
+| `[param]/` | **Dynamic segment** — value available via `params`      |
+| `(group)/` | **Route group** — organizes without changing the URL    |
 
 Anything with `page.tsx` inside a route folder becomes a page. If a folder starts with `_`, Next will never treat it as a route.
 
@@ -117,7 +117,7 @@ Use plain CSS Modules — one `Foo.module.css` per `Foo.tsx`, colocated in the s
 ```tsx
 import styles from "./MyThing.module.css";
 
-<div className={styles.wrapper}>...</div>
+<div className={styles.wrapper}>...</div>;
 ```
 
 - Class names are scoped automatically. `styles.wrapper` becomes something like `MyThing_wrapper__abc12`.
@@ -160,7 +160,7 @@ export default async function Page({ params }: Props) {
 ```tsx
 import Link from "next/link";
 
-<Link href={`/metadata/${uuid}`}>...</Link>
+<Link href={`/metadata/${uuid}`}>...</Link>;
 ```
 
 - `next/link` gives you prefetching and instant client-side transitions.
@@ -174,7 +174,7 @@ import Link from "next/link";
 
 ```tsx
 import type { Route } from "next";
-<Link href={untrustedUrl as Route}>...</Link>
+<Link href={untrustedUrl as Route}>...</Link>;
 ```
 
 ---
