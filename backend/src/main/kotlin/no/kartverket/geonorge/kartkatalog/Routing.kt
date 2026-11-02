@@ -11,6 +11,8 @@ import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
 import no.kartverket.geonorge.kartkatalog.auth.authRoutes
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
+import no.kartverket.geonorge.kartkatalog.distribution.DistributionsService
+import no.kartverket.geonorge.kartkatalog.distribution.distributionsRoutes
 import no.kartverket.geonorge.kartkatalog.download.DownloadApiClient
 import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
@@ -73,6 +75,7 @@ fun Application.configureRouting(
         searchRoutes(searchService)
         legacySearchRoutes(LegacySearchService(searchEngine, registerClient, appConfig.publicBaseUrl))
         metadataRoutes(metadataService, linkedDistributionsService)
+        distributionsRoutes(DistributionsService(solrClient, geonetworkClient, codeListTranslator))
         downloadRoutes(downloadService, tokenExchangeClient, authentication)
         authRoutes(authentication)
     }
