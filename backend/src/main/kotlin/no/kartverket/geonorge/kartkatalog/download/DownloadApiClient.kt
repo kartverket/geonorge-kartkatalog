@@ -137,9 +137,16 @@ class DownloadApiClient(
             }
 
         if (!response.status.isSuccess()) {
-            log.warn("Nedlasting order request to {} failed with status: {}", requestUrl, response.status)
+            val errorBody = runCatching { response.bodyAsText() }.getOrNull()
+            log.warn(
+                "Nedlasting order request to {} failed with status: {}, body: {}",
+                requestUrl,
+                response.status,
+                errorBody,
+            )
             throw DownloadApiException(
-                "Download API order request to $requestUrl failed with status ${response.status}",
+                "Download API order request to $requestUrl failed with status ${response.status}" +
+                    (errorBody?.takeIf { it.isNotBlank() }?.let { ": $it" } ?: ""),
             )
         }
 
