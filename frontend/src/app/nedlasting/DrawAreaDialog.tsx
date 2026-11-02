@@ -13,9 +13,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import MapComponent from "@/app/_components/MapComponent/MapComponent";
 import styles from "./DrawAreaDialog.module.css";
 
-// TODO: avklar reell arealgrense med nedlastings-API (GN-xxx).
-// Placeholder inntil da, kun for å unngå å love nedlasting av enorme arealer.
-const MAX_AREA_M2_PLACEHOLDER = 50_000_000; // 50 km²
+// TODO: maxArea kommer snart som eget felt i capabilities-kallet fra
+// nedlastings-API-et (per datasett). Bytt denne faste placeholderen ut med
+// den verdien når den er tilgjengelig.
+const MAX_AREA_M2_PLACEHOLDER = 1_000_000_000; // 1000 km²
 
 type DrawAreaDialogProps = {
   open: boolean;
