@@ -225,6 +225,11 @@ export function resolveAreaBlockAvailability(
   };
 }
 
+// Nedlastings-API-et forventer dette spesifikke, ikke-ekte området (ikke en
+// kode fra det vanlige områdekodeverket) for å vite at bestillingen er et
+// tegnet område og at "coordinates" skal brukes til å klippe, i stedet for å
+// levere et forhåndsdefinert område i sin helhet. Verdien er hentet fra
+// hvordan gammel løsning gjorde det samme (code: "Kart", type: "polygon").
 const POLYGON_AREA: DownloadOrderAreaInput = {
   code: "Kart",
   name: "Valgt fra kart",
