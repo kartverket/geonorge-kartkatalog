@@ -125,6 +125,14 @@
   height: 24px;
 }
 
+/* Designsystemets pil-ikon (::before) antar at summary-innholdet er én
+   tekstlinje og beregner vertikal posisjon ut fra linjehøyden. Når raden
+   inneholder en knapp og blir høyere, treffer ikke den beregningen lenger. */
+.detailsSummary::before {
+  align-self: center !important;
+  translate: none !important;
+}
+
 .accordionSummary {
   display: flex;
   flex-direction: row;
