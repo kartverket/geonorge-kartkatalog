@@ -123,7 +123,9 @@ export function DownloadPageContentClient({
     return cards.some((card) => {
       const existing = selections[card.uuid];
       return (
-        existing?.areaBlocks.some((block) => block.areaCode !== null) ?? false
+        existing?.areaBlocks.some(
+          (block) => block.areaCode !== null || block.polygon !== null,
+        ) ?? false
       );
     });
   }

@@ -12,6 +12,7 @@ import {
   resolveAreaBlockAvailability,
   selectAreaBlockArea,
   selectAreaBlockFormats,
+  selectAreaBlockPolygon,
   selectAreaBlockProjections,
 } from "./downloadUtils";
 
@@ -68,6 +69,11 @@ export function DownloadOptionsForm({
             onChangeAreaAction={(areaCode) =>
               onSelectionChangeAction(
                 selectAreaBlockArea(selection, blockIndex, areaCode),
+              )
+            }
+            onChangePolygonAction={(polygon) =>
+              onSelectionChangeAction(
+                selectAreaBlockPolygon(selection, blockIndex, polygon),
               )
             }
             onChangeProjectionsAction={(projectionCodes) =>

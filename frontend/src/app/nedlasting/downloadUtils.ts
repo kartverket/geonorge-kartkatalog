@@ -24,6 +24,7 @@ export type DownloadOptionsByUuid = Record<string, DownloadOptionsState>;
 
 export type DownloadAreaBlock = {
   areaCode: string | null;
+  polygon: string | null;
   projectionCodes: string[];
   formatNames: string[];
 };
@@ -34,6 +35,7 @@ export type DownloadSelection = {
 
 const EMPTY_AREA_BLOCK: DownloadAreaBlock = {
   areaCode: null,
+  polygon: null,
   projectionCodes: [],
   formatNames: [],
 };
@@ -50,7 +52,21 @@ export function selectAreaBlockArea(
   return {
     areaBlocks: selection.areaBlocks.map((block, index) =>
       index === blockIndex
-        ? { areaCode, projectionCodes: [], formatNames: [] }
+        ? { areaCode, polygon: null, projectionCodes: [], formatNames: [] }
+        : block,
+    ),
+  };
+}
+
+export function selectAreaBlockPolygon(
+  selection: DownloadSelection,
+  blockIndex: number,
+  polygon: string | null,
+): DownloadSelection {
+  return {
+    areaBlocks: selection.areaBlocks.map((block, index) =>
+      index === blockIndex
+        ? { areaCode: null, polygon, projectionCodes: [], formatNames: [] }
         : block,
     ),
   };
@@ -102,7 +118,7 @@ function getMissingAreaBlockFields(
 ): MissingDownloadSelectionField[] {
   const missingFields: MissingDownloadSelectionField[] = [];
 
-  if (!block.areaCode) missingFields.push("area");
+  if (!block.areaCode && !block.polygon) missingFields.push("area");
   if (block.projectionCodes.length === 0) missingFields.push("projection");
   if (block.formatNames.length === 0) missingFields.push("format");
 
@@ -129,6 +145,16 @@ function getMatchingArea(
 ): DownloadAreaOption | null {
   if (!areaCode) return null;
   return options.areas.find((option) => option.area.code === areaCode) ?? null;
+}
+
+function resolvePolygonReferenceArea(
+  areas: DownloadAreaOption[],
+): DownloadAreaOption | null {
+  return (
+    areas.find((option) => option.area.type === "landsdekkende") ??
+    areas[0] ??
+    null
+  );
 }
 
 function resolveProjectionOptions(areas: DownloadAreaOption[]) {
@@ -162,15 +188,33 @@ export type DownloadAreaBlockAvailability = {
   selectedArea: DownloadAreaOption | null;
   projectionOptions: DownloadProjectionOption[];
   formatOptions: DownloadFormat[];
+  supportsPolygonSelection: boolean;
 };
 
 export function resolveAreaBlockAvailability(
   options: DownloadOptions | null,
-  block: Pick<DownloadAreaBlock, "areaCode" | "projectionCodes">,
+  block: Pick<DownloadAreaBlock, "areaCode" | "polygon" | "projectionCodes">,
 ): DownloadAreaBlockAvailability {
   const areaOptions = sortAreaOptionsNationwideFirst(
     unionByKey([options?.areas ?? []], (option) => option.area.code),
   );
+
+  if (block.polygon) {
+    const referenceArea = resolvePolygonReferenceArea(areaOptions);
+    const referenceAreas = referenceArea ? [referenceArea] : [];
+
+    return {
+      areaOptions,
+      selectedArea: referenceArea,
+      projectionOptions: resolveProjectionOptions(referenceAreas),
+      formatOptions: resolveFormatOptions(
+        referenceAreas,
+        block.projectionCodes,
+      ),
+      supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
+    };
+  }
+
   const selectedArea = options
     ? getMatchingArea(options, block.areaCode)
     : null;
@@ -181,8 +225,20 @@ export function resolveAreaBlockAvailability(
     selectedArea,
     projectionOptions: resolveProjectionOptions(selectedAreas),
     formatOptions: resolveFormatOptions(selectedAreas, block.projectionCodes),
+    supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
   };
 }
+
+// Nedlastings-API-et forventer dette spesifikke, ikke-ekte området (ikke en
+// kode fra det vanlige områdekodeverket) for å vite at bestillingen er et
+// tegnet område og at "coordinates" skal brukes til å klippe, i stedet for å
+// levere et forhåndsdefinert område i sin helhet. Verdien er hentet fra
+// hvordan gammel løsning gjorde det samme (code: "Kart", type: "polygon").
+const POLYGON_AREA: DownloadOrderAreaInput = {
+  code: "Kart",
+  name: "Valgt fra kart",
+  type: "polygon",
+};
 
 function createOrderItemForBlock(
   uuid: string,
@@ -191,7 +247,7 @@ function createOrderItemForBlock(
   block: DownloadAreaBlock,
 ): DownloadOrderItemInput | null {
   const availability = resolveAreaBlockAvailability(options, block);
-  if (!availability.selectedArea) return null;
+  if (!block.polygon && !availability.selectedArea) return null;
 
   const projectionCodeSet = new Set(block.projectionCodes);
   const projections = availability.projectionOptions.filter((candidate) =>
@@ -206,9 +262,14 @@ function createOrderItemForBlock(
   return {
     uuid,
     capabilitiesUrl,
-    areas: [toDownloadOrderArea(availability.selectedArea)],
+    areas: block.polygon
+      ? [POLYGON_AREA]
+      : availability.selectedArea
+        ? [toDownloadOrderArea(availability.selectedArea)]
+        : [],
     projections: projections.map(toDownloadOrderProjection),
     formats: formats.map((format) => ({ name: format.name })),
+    ...(block.polygon ? { coordinates: block.polygon } : {}),
   };
 }
 
@@ -228,7 +289,35 @@ export function filterAreaBlockForProduct(
   options: DownloadOptions | null,
   bulkBlock: DownloadAreaBlock,
 ): DownloadAreaBlock {
-  if (!options || !bulkBlock.areaCode) return { ...EMPTY_AREA_BLOCK };
+  if (!options) return { ...EMPTY_AREA_BLOCK };
+
+  if (bulkBlock.polygon) {
+    if (!options.supportsPolygonSelection) return { ...EMPTY_AREA_BLOCK };
+
+    const referenceArea = resolvePolygonReferenceArea(options.areas);
+    const referenceAreas = referenceArea ? [referenceArea] : [];
+
+    const projectionOptions = resolveProjectionOptions(referenceAreas);
+    const projectionCodeSet = new Set(bulkBlock.projectionCodes);
+    const projectionCodes = projectionOptions
+      .filter((projection) => projectionCodeSet.has(projection.code))
+      .map((projection) => projection.code);
+
+    const formatOptions = resolveFormatOptions(referenceAreas, projectionCodes);
+    const formatNameSet = new Set(bulkBlock.formatNames);
+    const formatNames = formatOptions
+      .filter((format) => formatNameSet.has(format.name))
+      .map((format) => format.name);
+
+    return {
+      areaCode: null,
+      polygon: bulkBlock.polygon,
+      projectionCodes,
+      formatNames,
+    };
+  }
+
+  if (!bulkBlock.areaCode) return { ...EMPTY_AREA_BLOCK };
 
   const matchingArea = getMatchingArea(options, bulkBlock.areaCode);
   if (!matchingArea) return { ...EMPTY_AREA_BLOCK };
@@ -246,23 +335,31 @@ export function filterAreaBlockForProduct(
     .filter((format) => formatNameSet.has(format.name))
     .map((format) => format.name);
 
-  return { areaCode: matchingArea.area.code, projectionCodes, formatNames };
+  return {
+    areaCode: matchingArea.area.code,
+    polygon: null,
+    projectionCodes,
+    formatNames,
+  };
 }
 
 export function appendBulkAreaBlocks(
   existingBlocks: DownloadAreaBlock[],
   newBlocks: DownloadAreaBlock[],
 ): DownloadAreaBlock[] {
+  function keyOf(block: DownloadAreaBlock): string | null {
+    return block.areaCode ?? block.polygon ?? null;
+  }
+
   const merged = existingBlocks
-    .filter((block) => block.areaCode !== null)
+    .filter((block) => keyOf(block) !== null)
     .map((block) => ({ ...block }));
 
   for (const newBlock of newBlocks) {
-    if (!newBlock.areaCode) continue;
+    const key = keyOf(newBlock);
+    if (key === null) continue;
 
-    const matchingBlock = merged.find(
-      (block) => block.areaCode === newBlock.areaCode,
-    );
+    const matchingBlock = merged.find((block) => keyOf(block) === key);
 
     if (matchingBlock) {
       matchingBlock.projectionCodes = Array.from(
@@ -362,9 +459,11 @@ export function getDownloadSelectionGapCounts(
   }
 
   return {
-    areas: bulkBlock.areaCode
-      ? perProductBlocks.filter((block) => !block.areaCode).length
-      : 0,
+    areas:
+      bulkBlock.areaCode || bulkBlock.polygon
+        ? perProductBlocks.filter((block) => !block.areaCode && !block.polygon)
+            .length
+        : 0,
     projections: countGaps(bulkBlock.projectionCodes, (b) => b.projectionCodes),
     formats: countGaps(bulkBlock.formatNames, (b) => b.formatNames),
   };
@@ -392,7 +491,10 @@ function unionFormatsAcrossAreas(
 
 export function resolveUnionDownloadAvailability(
   optionsList: (DownloadOptions | null)[],
-  bulkBlock: Pick<DownloadAreaBlock, "areaCode" | "projectionCodes">,
+  bulkBlock: Pick<
+    DownloadAreaBlock,
+    "areaCode" | "polygon" | "projectionCodes"
+  >,
 ): DownloadAreaBlockAvailability {
   const presentOptionsList = optionsList.flatMap((options) =>
     options ? [options] : [],
@@ -404,6 +506,37 @@ export function resolveUnionDownloadAvailability(
       (option) => option.area.code,
     ),
   );
+
+  if (bulkBlock.polygon) {
+    const polygonCapableOptionsList = presentOptionsList.filter(
+      (options) => options.supportsPolygonSelection,
+    );
+
+    const displayAreasByProduct = polygonCapableOptionsList.map((options) =>
+      resolvePolygonReferenceArea(options.areas)
+        ? [resolvePolygonReferenceArea(options.areas) as DownloadAreaOption]
+        : [],
+    );
+
+    return {
+      areaOptions,
+      selectedArea: null,
+      projectionOptions: unionByKey(
+        displayAreasByProduct.map((areas) => resolveProjectionOptions(areas)),
+        (projection) => projection.code,
+      ),
+      formatOptions: unionByKey(
+        displayAreasByProduct.map((areas) =>
+          resolveFormatOptions(areas, bulkBlock.projectionCodes),
+        ),
+        (format) => format.name,
+      ),
+      supportsPolygonSelection: presentOptionsList.some(
+        (options) => options.supportsPolygonSelection,
+      ),
+    };
+  }
+
   const selectedArea =
     areaOptions.find((option) => option.area.code === bulkBlock.areaCode) ??
     null;
@@ -432,6 +565,9 @@ export function resolveUnionDownloadAvailability(
           : resolveFormatOptions(areas, bulkBlock.projectionCodes),
       ),
       (format) => format.name,
+    ),
+    supportsPolygonSelection: presentOptionsList.some(
+      (options) => options.supportsPolygonSelection,
     ),
   };
 }
