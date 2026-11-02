@@ -116,13 +116,13 @@ class DownloadService(
             log.warn("Order failed for group with url {}", group.first().orderUrl, e)
             DownloadOrderGroupResult.Failure(
                 metadataUuids = metadataUuids,
-                message = e.message ?: "Bestillingen feilet",
+                message = "Bestillingen feilet. Prøv igjen, eller kontakt oss hvis problemet vedvarer.",
             )
         } catch (e: DownloadApiException) {
             log.warn("Order failed for group with url {}", group.first().orderUrl, e)
             DownloadOrderGroupResult.Failure(
                 metadataUuids = metadataUuids,
-                message = e.message ?: "Bestillingen feilet",
+                message = "Bestillingen feilet. Prøv igjen, eller kontakt oss hvis problemet vedvarer.",
             )
         }
     }
