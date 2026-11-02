@@ -116,13 +116,13 @@ class DownloadService(
             log.warn("Order failed for group with url {}", group.first().orderUrl, e)
             DownloadOrderGroupResult.Failure(
                 metadataUuids = metadataUuids,
-                message = e.message ?: "Bestillingen feilet",
+                message = "Bestillingen feilet. Prøv igjen, eller kontakt oss hvis problemet vedvarer.",
             )
         } catch (e: DownloadApiException) {
             log.warn("Order failed for group with url {}", group.first().orderUrl, e)
             DownloadOrderGroupResult.Failure(
                 metadataUuids = metadataUuids,
-                message = e.message ?: "Bestillingen feilet",
+                message = "Bestillingen feilet. Prøv igjen, eller kontakt oss hvis problemet vedvarer.",
             )
         }
     }
@@ -136,7 +136,10 @@ class DownloadService(
 
         if (areasUrl == null) {
             log.warn("No area codelist URL found for dataset {}, returning no areas", uuid)
-            return DownloadOptions(areas = emptyList())
+            return DownloadOptions(
+                areas = emptyList(),
+                supportsPolygonSelection = capabilities.supportsPolygonSelection,
+            )
         }
 
         return DownloadOptions(
@@ -163,6 +166,7 @@ class DownloadService(
                             },
                     )
                 },
+            supportsPolygonSelection = capabilities.supportsPolygonSelection,
         )
     }
 

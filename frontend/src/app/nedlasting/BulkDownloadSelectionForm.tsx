@@ -16,11 +16,14 @@ import {
   resolveUnionDownloadAvailability,
   selectAreaBlockArea,
   selectAreaBlockFormats,
+  selectAreaBlockPolygon,
   selectAreaBlockProjections,
 } from "./downloadUtils";
 
 const EMPTY_BULK_SELECTION: DownloadSelection = {
-  areaBlocks: [{ areaCode: null, projectionCodes: [], formatNames: [] }],
+  areaBlocks: [
+    { areaCode: null, polygon: null, projectionCodes: [], formatNames: [] },
+  ],
 };
 
 type BulkDownloadSelectionFormProps = {
@@ -101,8 +104,13 @@ export function BulkDownloadSelectionForm({
                   onRemoveAction={() =>
                     updateSelection(removeAreaBlock(selection, blockIndex))
                   }
+                  onChangePolygonAction={(polygon) =>
+                    updateSelection(
+                      selectAreaBlockPolygon(selection, blockIndex, polygon),
+                    )
+                  }
                 />
-                {block.areaCode && gapCounts.areas > 0 ? (
+                {(block.areaCode || block.polygon) && gapCounts.areas > 0 ? (
                   <ValidationMessage data-color="warning">
                     {gapCounts.areas} datasett har ikke valgte områder.
                   </ValidationMessage>
