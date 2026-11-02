@@ -131,7 +131,7 @@ class DistributionsRoutesTest {
 
     @Test
     fun `includes applications from solr for datasets`() =
-        testApp(recordXml) {
+        testApp(recordXml.replace("codeListValue=\"service\"", "codeListValue=\"dataset\"")) {
             val body = client.get("/api/distributions/$uuid").bodyAsText()
             assertContains(body, "\"Uuid\":\"app-uuid\"")
         }

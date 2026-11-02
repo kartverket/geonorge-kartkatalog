@@ -33,7 +33,7 @@ class DistributionsService(
                     .firstOrNull()
 
             val own = record.toDistributions()
-            val relatedUuids = relatedUuids(solrDoc, uuid)
+            val relatedUuids = relatedUuids(solrDoc, record.hierarchyLevel, uuid)
             val related =
                 relatedUuids
                     .map { relatedUuid ->
@@ -42,7 +42,7 @@ class DistributionsService(
                     .flatten()
 
             val applications =
-                if (solrDoc?.type == "dataset") {
+                if (record.hierarchyLevel == "dataset") {
                     solrClient.searchApplicationsForDataset(uuid).filter { it.uuid != uuid }.map {
                         Distribution(
                             uuid = it.uuid,
@@ -61,13 +61,14 @@ class DistributionsService(
 
     private fun relatedUuids(
         solrDoc: SolrDocument?,
+        hierarchyLevel: String,
         uuid: String,
     ): List<String> {
         fun refs(values: List<String>?) = solrClient.parseDatasetServices(values).map { it.uuid }
-        return when (solrDoc?.type) {
-            null -> emptyList()
-            "service", "servicelayer" -> refs(solrDoc.servicedataset) + refs(solrDoc.servicelayers)
-            "software" -> refs(solrDoc.applicationdataset)
+        return when {
+            solrDoc == null -> emptyList()
+            hierarchyLevel == "service" -> refs(solrDoc.servicedataset) + refs(solrDoc.servicelayers)
+            hierarchyLevel == "software" -> refs(solrDoc.applicationdataset)
             else -> refs(solrDoc.datasetservice)
         }.filter { it != uuid }.distinct()
     }
