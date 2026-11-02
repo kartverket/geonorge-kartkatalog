@@ -153,6 +153,7 @@ data class MetadataSolrQuery(
     val fq: List<String> = emptyList(),
     val facetFields: List<String> = emptyList(),
     val facetSortIndex: Boolean = false,
+    val extraParams: Map<String, String> = emptyMap(),
     val wt: String = "json",
 ) {
     fun toParameters(): Parameters =
@@ -170,6 +171,7 @@ data class MetadataSolrQuery(
                 if (facetSortIndex) append("facet.sort", "index")
                 facetFields.forEach { append("facet.field", it) }
             }
+            extraParams.forEach { (name, value) -> append(name, value) }
             append("wt", wt)
         }
 }

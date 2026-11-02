@@ -21,6 +21,3 @@ services:
       - "3000:3000"
     env_file:
       - ./frontend/.env
-    environment:
-      - API_BASE=http://backend:8080
-      - REGISTER_BASE_URL=https://register.dev.geonorge.no
