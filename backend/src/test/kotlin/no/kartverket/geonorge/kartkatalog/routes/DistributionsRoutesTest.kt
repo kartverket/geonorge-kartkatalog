@@ -51,8 +51,11 @@ class DistributionsRoutesTest {
         """{"responseHeader": {"status": 0, "QTime": 1}, "response": {"numFound": 1, "start": 0,
           "docs": [{"uuid": "app-uuid", "distribution_protocol": "OGC:WFS"}]}}"""
 
-    private fun xmlWithFormatAndExtraTransferOption(formatProtocol: String): String =
-        recordXml
+    private fun xmlWithFormatAndExtraTransferOption(
+        formatProtocol: String,
+        sourceXml: String = recordXml,
+    ): String =
+        sourceXml
             .replace(
                 "</gmd:MD_DigitalTransferOptions>",
                 """
@@ -163,6 +166,33 @@ class DistributionsRoutesTest {
         testApp(wmsXml) {
             val body = client.get("/api/distributions/$uuid").bodyAsText()
             assertContains(body, "\"Protocol\":\"WMS-tjeneste\"")
+        }
+
+    @Test
+    fun `name on format resource does not turn WMS into service layer`() {
+        val xml =
+            xmlWithFormatAndExtraTransferOption("OGC:WMS")
+                .replace(
+                    "<gco:CharacterString>OGC:WMS</gco:CharacterString></gmd:protocol>",
+                    "<gco:CharacterString>OGC:WMS</gco:CharacterString>$nameTag",
+                )
+        testApp(xml) {
+            val distributions = Json.parseToJsonElement(client.get("/api/distributions/$uuid").bodyAsText()).jsonArray
+            assertEquals(
+                listOf("WMS-tjeneste", "W3C:AtomFeed"),
+                distributions.map { it.jsonObject["Protocol"]?.jsonPrimitive?.content },
+            )
+        }
+    }
+
+    @Test
+    fun `name on first shared resource turns format WMS into service layer`() =
+        testApp(xmlWithFormatAndExtraTransferOption("OGC:WMS", wmsXml.replace("</gmd:protocol>", nameTag))) {
+            val distributions = Json.parseToJsonElement(client.get("/api/distributions/$uuid").bodyAsText()).jsonArray
+            assertEquals(
+                listOf("Tjenestelag", "W3C:AtomFeed"),
+                distributions.map { it.jsonObject["Protocol"]?.jsonPrimitive?.content },
+            )
         }
 
     @Test
