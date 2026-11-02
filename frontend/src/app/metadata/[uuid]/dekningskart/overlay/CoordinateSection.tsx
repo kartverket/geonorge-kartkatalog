@@ -3,6 +3,7 @@
 import { Button, Heading } from "@kv-designsystem/react";
 import { FilesIcon } from "@navikt/aksel-icons";
 import type { Coordinate } from "ol/coordinate";
+import { LOCATIONS, trackClick } from "@/posthog/posthog";
 
 interface CoordinateSectionProps {
   coord: Coordinate;
@@ -20,6 +21,7 @@ export const CoordinateSection = ({ coord, crs }: CoordinateSectionProps) => {
       <Button
         variant="secondary"
         onClick={() => {
+          trackClick("copy-coordinates", LOCATIONS.CoverageMap);
           navigator.clipboard.writeText(
             `Ø: ${coord[0].toFixed(0)}, N: ${coord[1].toFixed(0)}, ${crs}`,
           );

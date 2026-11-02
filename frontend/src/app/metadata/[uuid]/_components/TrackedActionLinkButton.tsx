@@ -10,12 +10,14 @@ export function TrackedActionLinkButton({
   title,
   target = "_blank",
   eventName,
+  properties,
 }: {
   href: string;
   icon: ReactNode;
   title: string;
   target?: string | "_blank";
   eventName: string;
+  properties?: Record<string, unknown>;
 }) {
   return (
     <a
@@ -24,7 +26,9 @@ export function TrackedActionLinkButton({
       rel="noreferrer"
       href={href}
       className={`ds-button ${styles.actionButton}`}
-      onClick={() => trackClick(eventName, LOCATIONS.MetadataPage, { title })}
+      onClick={() =>
+        trackClick(eventName, LOCATIONS.MetadataPage, { title, ...properties })
+      }
     >
       {icon}
       {title}
