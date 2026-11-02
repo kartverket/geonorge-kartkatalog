@@ -25,6 +25,41 @@ class AppConfig(
 
     val tokenExchangeUrl: String = env("TOKEN_EXCHANGE_URL")
 
+    val vectorSearchConfig =
+        VectorSearchConfig(
+            enabled =
+                optionalEnv("VECTOR_SEARCH_ENABLED")
+                    ?.toBooleanStrictOrNull() ?: false,
+            similarityFunction =
+                optionalEnv("VECTOR_SIMILARITY_FUNCTION")
+                    ?: "dot_product",
+            cosineThreshold =
+                optionalEnv("VECTOR_COSINE_THRESHOLD")
+                    ?.toDoubleOrNull() ?: 0.56,
+            rerankWeight =
+                optionalEnv("VECTOR_RERANK_WEIGHT")
+                    ?.toIntOrNull() ?: 80,
+            topK =
+                optionalEnv("VECTOR_TOP_K")
+                    ?.toIntOrNull() ?: 200,
+        )
+
+    val vertexAIConfig: VertexAIConfig? =
+        if (vectorSearchConfig.enabled) {
+            VertexAIConfig(
+                projectId = env("VERTEX_AI_PROJECT_ID"),
+                location = optionalEnv("VERTEX_AI_LOCATION") ?: "europe-north1",
+                model =
+                    optionalEnv("VERTEX_AI_EMBEDDING_MODEL")
+                        ?: "text-multilingual-embedding-002",
+                timeoutMillis =
+                    optionalEnv("VERTEX_AI_TIMEOUT_MS")
+                        ?.toIntOrNull() ?: 30_000,
+            )
+        } else {
+            null
+        }
+
     private fun env(key: String): String =
         optionalEnv(key)
             ?: throw IllegalStateException(
@@ -33,3 +68,18 @@ class AppConfig(
 
     private fun optionalEnv(key: String): String? = overrides[key] ?: dotenv[key]
 }
+
+data class VertexAIConfig(
+    val projectId: String,
+    val location: String,
+    val model: String,
+    val timeoutMillis: Int,
+)
+
+data class VectorSearchConfig(
+    val enabled: Boolean,
+    val similarityFunction: String,
+    val cosineThreshold: Double,
+    val rerankWeight: Int,
+    val topK: Int,
+)
