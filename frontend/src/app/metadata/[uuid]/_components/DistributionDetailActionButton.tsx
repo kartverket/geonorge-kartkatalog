@@ -1,4 +1,4 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { DownloadIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
 import { DistributionActionLinkButton } from "@/app/metadata/[uuid]/_components/DistributionActionLinkButton";
@@ -6,6 +6,7 @@ import {
   isCopyableDistributionProtocol,
   isDirectDownloadPageProtocol,
   isGeonorgeDownloadProtocol,
+  isGeonorgeFileDownloadProtocol,
 } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
 import { getGeonorgeDownloadUrl } from "@/app/metadata/[uuid]/_utils/distributions";
 import type { AccessState, DistributionGroup } from "@/lib/schemas/product";
@@ -60,6 +61,19 @@ export function DistributionDetailActionButton({
         addLabel="Legg til nedlasting"
         removeLabel="Fjern fra nedlasting"
         preventAccordionToggle
+      />
+    );
+  }
+
+  if (isGeonorgeFileDownloadProtocol(group.protocol)) {
+    return (
+      <DistributionActionLinkButton
+        size="sm"
+        href={firstUrl}
+        icon={<DownloadIcon aria-hidden />}
+        title="Last ned"
+        eventName="download-file-distribution-from-accordion-summary"
+        trackingProperties={trackingProperties}
       />
     );
   }
