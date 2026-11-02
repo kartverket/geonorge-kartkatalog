@@ -74,10 +74,17 @@ class DistributionsService(
     }
 
     private suspend fun MetadataRecord.toDistributions(): List<Distribution> {
-        val resources = distributionInfo?.formats.orEmpty().flatMap { it.onlineResources }
-        val hasDistributionName = !resources.firstOrNull()?.name.isNullOrEmpty()
-        return resources
-            .map { it.protocol }
+        val formats = distributionInfo?.formats.orEmpty()
+        val transferOptions = distributionInfo?.transferOptions.orEmpty()
+        val firstResource = formats.flatMap { it.onlineResources }.firstOrNull()
+        val hasDistributionName = !firstResource?.name.isNullOrEmpty()
+        val firstTransferProtocol = transferOptions.firstOrNull()?.protocol
+        val protocols =
+            formats.map { format ->
+                val formatProtocol = format.onlineResources.firstOrNull()?.protocol
+                formatProtocol?.takeIf { it.isNotEmpty() } ?: firstTransferProtocol
+            } + transferOptions.drop(1).map { it.protocol }
+        return protocols
             .distinct()
             .map { protocol ->
                 val translated = codeListTranslator.translate(CodeList.DISTRIBUTION_TYPES, protocol)

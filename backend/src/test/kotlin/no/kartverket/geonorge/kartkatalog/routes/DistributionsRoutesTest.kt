@@ -13,6 +13,10 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
@@ -46,6 +50,38 @@ class DistributionsRoutesTest {
     private val appSolr =
         """{"responseHeader": {"status": 0, "QTime": 1}, "response": {"numFound": 1, "start": 0,
           "docs": [{"uuid": "app-uuid", "distribution_protocol": "OGC:WFS"}]}}"""
+
+    private fun xmlWithFormatAndExtraTransferOption(formatProtocol: String): String =
+        recordXml
+            .replace(
+                "</gmd:MD_DigitalTransferOptions>",
+                """
+                <gmd:onLine>
+                    <gmd:CI_OnlineResource>
+                        <gmd:protocol><gco:CharacterString>W3C:AtomFeed</gco:CharacterString></gmd:protocol>
+                    </gmd:CI_OnlineResource>
+                </gmd:onLine>
+                </gmd:MD_DigitalTransferOptions>
+                """.trimIndent(),
+            ).replace(
+                "</gmd:version>",
+                """
+                </gmd:version>
+                <gmd:formatDistributor>
+                    <gmd:MD_Distributor>
+                        <gmd:distributorTransferOptions>
+                            <gmd:MD_DigitalTransferOptions>
+                                <gmd:onLine>
+                                    <gmd:CI_OnlineResource>
+                                        <gmd:protocol><gco:CharacterString>$formatProtocol</gco:CharacterString></gmd:protocol>
+                                    </gmd:CI_OnlineResource>
+                                </gmd:onLine>
+                            </gmd:MD_DigitalTransferOptions>
+                        </gmd:distributorTransferOptions>
+                    </gmd:MD_Distributor>
+                </gmd:formatDistributor>
+                """.trimIndent(),
+            )
 
     private fun testApp(
         xml: String,
@@ -127,6 +163,27 @@ class DistributionsRoutesTest {
         testApp(wmsXml) {
             val body = client.get("/api/distributions/$uuid").bodyAsText()
             assertContains(body, "\"Protocol\":\"WMS-tjeneste\"")
+        }
+
+    @Test
+    fun `includes later shared transfer options even when format has its own protocol`() =
+        testApp(xmlWithFormatAndExtraTransferOption("OGC:WMS")) {
+            val distributions = Json.parseToJsonElement(client.get("/api/distributions/$uuid").bodyAsText()).jsonArray
+            assertEquals(
+                listOf("WMS-tjeneste", "W3C:AtomFeed"),
+                distributions.map { it.jsonObject["Protocol"]?.jsonPrimitive?.content },
+            )
+            assertEquals(listOf(uuid, uuid), distributions.map { it.jsonObject["Uuid"]?.jsonPrimitive?.content })
+        }
+
+    @Test
+    fun `uses first shared transfer option when format protocol is empty`() =
+        testApp(xmlWithFormatAndExtraTransferOption("")) {
+            val distributions = Json.parseToJsonElement(client.get("/api/distributions/$uuid").bodyAsText()).jsonArray
+            assertEquals(
+                listOf("WFS-tjeneste", "W3C:AtomFeed"),
+                distributions.map { it.jsonObject["Protocol"]?.jsonPrimitive?.content },
+            )
         }
 
     @Test
