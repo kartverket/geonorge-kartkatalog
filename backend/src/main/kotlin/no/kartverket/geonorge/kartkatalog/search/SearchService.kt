@@ -1,6 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.search
 
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
@@ -33,17 +34,34 @@ class SearchService(
                 limit = normalized.limit,
                 offset = normalized.offset,
                 results =
-                    hits.documents.map { doc ->
-                        doc.toSearchResultItem()
-                    },
+                    hits.documents
+                        .map { doc -> async { doc.toSearchResultItem() } }
+                        .awaitAll(),
                 facets = hits.facets.toSearchFacets(fylkeNames, hvdCategories),
             )
         }
 
-    private fun getSeriesMemberDetails(doc: SearchHit): List<RelatedServiceReference> {
-        val seriesMemberRefs =
-            engine.parseDatasetServices(doc.seriedatasets)
-        return seriesMemberRefs.filter { it.protocol == "GEONORGE:DOWNLOAD" }
+    private suspend fun getSeriesMemberDetails(doc: SearchHit): List<RelatedServiceReference> {
+        val seriesMemberRefs = engine.parseDatasetServices(doc.seriedatasets)
+        if (seriesMemberRefs.isEmpty()) return emptyList()
+
+        val fullDocsByUuid =
+            engine.getMetadataByUuids(seriesMemberRefs.map { it.uuid }).associateBy { it.uuid }
+
+        return seriesMemberRefs.mapNotNull { ref ->
+            val downloadUrl =
+                fullDocsByUuid[ref.uuid]
+                    ?.distributions
+                    .orEmpty()
+                    .asSequence()
+                    .map { it.split("|") }
+                    .firstOrNull { parts -> parts.getOrNull(1) == "GEONORGE:DOWNLOAD" }
+                    ?.getOrNull(2)
+                    ?.takeIf { it.isNotBlank() }
+                    ?: return@mapNotNull null
+
+            ref.copy(protocol = "GEONORGE:DOWNLOAD", distributionUrl = downloadUrl)
+        }
     }
 
     private fun Map<String, List<SearchFacetCount>>.toSearchFacets(
@@ -181,7 +199,7 @@ class SearchService(
             else -> false
         }
 
-    private fun SearchHit.toSearchResultItem(): SearchResultItem {
+    private suspend fun SearchHit.toSearchResultItem(): SearchResultItem {
         val access = resolveAccess(dataaccess, otherconstraintsaccess, accessconstraint)
 
         val mapCapability = resolveMapCapability()

@@ -20,7 +20,7 @@ const OM_NETTSTEDET: { label: string; href: Route }[] = [
     href: "https://uustatus.no/nb/erklaringer/publisert/8f3210cf-aa22-4d32-9fda-4460e3c3e05a\n",
   },
   {
-    label: "Personver og bruk av cookies",
+    label: "Personvern og bruk av cookies",
     href: "https://www.geonorge.no/aktuelt/Se-siste-nyheter/nyheter2/annet/personvern-og-bruk-av-cookies/",
   },
 ];

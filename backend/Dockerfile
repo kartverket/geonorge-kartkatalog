@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-noble AS build
+FROM eclipse-temurin:25-alpine-3.24 AS build
 
 ARG RUN_VERIFICATIONS=true
 
@@ -15,7 +15,7 @@ RUN --mount=type=cache,id=kartkatalog-backend-gradle-cache,target=/root/.gradle 
     fi && \
     ./gradlew buildFatJar --no-daemon
     
-FROM dhi.io/eclipse-temurin:21-alpine3.24 AS runtime
+FROM ghcr.io/kartverket/emudhra-images/jre/dhi:jre-25.0-alpine3.24@sha256:0560e1680f602893991ce298a03975ebf3cc467fc0b01275ed1d83d03e013044 AS runtime
 
 WORKDIR /app
 

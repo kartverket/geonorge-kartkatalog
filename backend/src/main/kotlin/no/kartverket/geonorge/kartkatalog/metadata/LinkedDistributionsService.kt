@@ -97,14 +97,14 @@ class LinkedDistributionsService(
             val seriesMembersDeferred =
                 seriesMemberRefs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid)
+                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid, preferDownloadProtocol = true)
                     }
                 }
 
             val parentSeriesDeferred =
                 parentSeriesRefs.map {
                     async {
-                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid)
+                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid, preferDownloadProtocol = true)
                     }
                 }
 
@@ -180,21 +180,30 @@ class LinkedDistributionsService(
         relatedUuid: String,
         protocol: String?,
         solrDocsByUuid: Map<String, SolrDocument>,
+        preferDownloadProtocol: Boolean = false,
     ): LinkedDistribution? {
         val record = geonetworkClient.getRecordByUuid(relatedUuid) ?: return null
-        return record.toLinkedDistribution(relatedUuid, protocol, solrDocsByUuid[relatedUuid])
+        return record.toLinkedDistribution(relatedUuid, protocol, solrDocsByUuid[relatedUuid], preferDownloadProtocol)
     }
 
     private suspend fun MetadataRecord.toLinkedDistribution(
         uuid: String,
         protocol: String?,
         solrDoc: SolrDocument?,
+        preferDownloadProtocol: Boolean = false,
     ): LinkedDistribution {
         val allResources =
             distributionInfo?.formats.orEmpty().flatMap {
                 it.onlineResources
             }
-        val url = allResources.findUrlForProtocol(protocol)
+        val downloadResource =
+            if (preferDownloadProtocol) {
+                allResources.firstOrNull { it.protocol.equals("GEONORGE:DOWNLOAD", ignoreCase = true) }
+            } else {
+                null
+            }
+        val effectiveProtocol = downloadResource?.protocol ?: protocol
+        val url = downloadResource?.url ?: allResources.findUrlForProtocol(protocol)
         val ownViewServiceResource = allResources.firstOrNull { DistributionProtocols.isViewService(it.protocol) }
         val mapCapability = solrDoc?.resolveMapCapability()
 
@@ -210,8 +219,8 @@ class LinkedDistributionsService(
                     }?.url
                     ?: thumbnails.firstOrNull()?.url,
             distributionUrl = url,
-            distributionProtocol = protocol,
-            getCapabilitiesUrl = if (protocol != null) url else null,
+            distributionProtocol = effectiveProtocol,
+            getCapabilitiesUrl = if (effectiveProtocol != null) url else null,
             showMapLink = (mapCapability?.showMapLink == true) || ownViewServiceResource != null,
             mapCapabilitiesUrl = mapCapability?.mapCapabilitiesUrl ?: ownViewServiceResource?.url,
             hierarchyLevel = hierarchyLevel,

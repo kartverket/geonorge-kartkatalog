@@ -5,11 +5,11 @@ import styles from "./ProductHeader.module.css";
 
 export function ProductHeader({
   title,
-  organization,
+  organizations,
   access,
 }: {
   title: string | null;
-  organization: string | null;
+  organizations: string[];
   access: AccessState | null;
 }) {
   return (
@@ -23,15 +23,16 @@ export function ProductHeader({
       />
       <div className={styles.badgeRow}>
         <AccessStateTag accessState={access} context="tilgang" />
-        {organization && (
+        {organizations.map((organization) => (
           <span
+            key={organization}
             className={`ds-tag ${styles.orgTag}`}
             data-color="neutral"
             data-size="sm"
           >
             {organization}
           </span>
-        )}
+        ))}
       </div>
       <h1 className={styles.title}>{title ?? "-"}</h1>
     </div>

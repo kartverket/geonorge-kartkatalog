@@ -13,6 +13,7 @@ concurrency:
 
 permissions:
   contents: read
+  packages: read
 
 jobs:
   build:
@@ -22,12 +23,20 @@ jobs:
       GEOID_CLIENT_ID: test-client
       GEOID_CLIENT_SECRET: test-secret
       PUBLIC_BASE_URL: http://localhost:3000
+      registry: ghcr.io
     defaults:
       run:
         working-directory: backend
 
     steps:
       - uses: actions/checkout@v7
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ env.registry }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
 
       - name: Build docker image and test it
         id: build_image

@@ -32,6 +32,10 @@
   min-width: 12rem;
 }
 
+.hiddenTag {
+  visibility: hidden;
+}
+
 .areaInputButtons {
   display: flex;
   gap: var(--ds-size-2);

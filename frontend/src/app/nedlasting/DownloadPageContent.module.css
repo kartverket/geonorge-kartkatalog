@@ -1,38 +1,3 @@
-.userInputs {
-  display: flex;
-  align-items: flex-end;
-  gap: var(--ds-size-2);
-  margin-top: var(--ds-size-8);
-  margin-bottom: var(--ds-size-8);
-}
-
-.userInputs > :nth-child(1) {
-  flex: 0.5;
-}
-
-.userInputs > :nth-child(2) {
-  flex: 0.5;
-  margin-right: var(--ds-size-8);
-}
-
-.userInputs > :nth-child(3) {
-  flex: 1;
-}
-
-.buttonContainer {
-  display: flex;
-  gap: var(--ds-size-2);
-  justify-content: flex-end;
-  margin-top: var(--ds-size-4);
-}
-
-.removeAllButton.removeAllButton {
-  --dsc-button-color: var(--ds-color-danger-text-subtle);
-  --dsc-button-border-color: var(--ds-color-danger-border-strong);
-  --dsc-button-color--hover: var(--ds-color-danger-text-subtle);
-  --dsc-button-background--hover: var(--ds-color-danger-surface-hover);
-}
-
 .orderSectionWrapper {
   width: 100vw;
   margin-left: calc(50% - 50vw);
@@ -50,4 +15,45 @@
 
 .infoRow {
   margin-top: var(--ds-size-4);
+}
+
+.userInputs {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--ds-size-2);
+  margin-top: var(--ds-size-8);
+  margin-bottom: var(--ds-size-8);
+}
+
+.userInputs > :nth-child(1) {
+  flex: 0.5;
+  align-self: flex-start;
+}
+
+.userInputs > :nth-child(2) {
+  flex: 0.5;
+  margin-right: var(--ds-size-8);
+  align-self: flex-start;
+}
+
+.userInputs > :nth-child(3) {
+  flex: 1;
+}
+
+.hiddenTag {
+  visibility: hidden;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: var(--ds-size-2);
+  justify-content: flex-end;
+  margin-top: var(--ds-size-4);
+}
+
+.removeAllButton.removeAllButton {
+  --dsc-button-color: var(--ds-color-danger-text-subtle);
+  --dsc-button-border-color: var(--ds-color-danger-border-strong);
+  --dsc-button-color--hover: var(--ds-color-danger-text-subtle);
+  --dsc-button-background--hover: var(--ds-color-danger-surface-hover);
 }

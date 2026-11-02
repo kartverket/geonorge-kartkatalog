@@ -81,7 +81,15 @@ export default async function ProductPage({
       <DatasetStructuredData uuid={uuid} metadata={metadata} />
       <ProductHeader
         title={metadata.title}
-        organization={metadata.organization}
+        organizations={Array.from(
+          new Set(
+            [
+              metadata.contactOwner?.organization,
+              metadata.contactPublisher?.organization,
+              metadata.contactMetadata?.organization,
+            ].filter((organization): organization is string => !!organization),
+          ),
+        )}
         access={metadata.accessState}
       />
       {alertsWithDetailsUrl.length > 0 && (
