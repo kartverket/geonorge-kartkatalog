@@ -225,6 +225,12 @@ export function resolveAreaBlockAvailability(
   };
 }
 
+const POLYGON_AREA: DownloadOrderAreaInput = {
+  code: "Kart",
+  name: "Valgt fra kart",
+  type: "polygon",
+};
+
 function createOrderItemForBlock(
   uuid: string,
   capabilitiesUrl: string,
@@ -247,9 +253,11 @@ function createOrderItemForBlock(
   return {
     uuid,
     capabilitiesUrl,
-    areas: availability.orderArea
-      ? [toDownloadOrderArea(availability.orderArea)]
-      : [],
+    areas: block.polygon
+      ? [POLYGON_AREA]
+      : availability.orderArea
+        ? [toDownloadOrderArea(availability.orderArea)]
+        : [],
     projections: projections.map(toDownloadOrderProjection),
     formats: formats.map((format) => ({ name: format.name })),
     ...(block.polygon ? { coordinates: block.polygon } : {}),
