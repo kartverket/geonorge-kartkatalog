@@ -98,4 +98,3 @@ Disse breakpointene skal matche på tvers av relaterte frontend-filer, spesielt 
 - `src/components/Header/Header.module.css`
 - `src/components/Header/HeaderMenu.module.css`
 - andre relaterte header-filer
-
