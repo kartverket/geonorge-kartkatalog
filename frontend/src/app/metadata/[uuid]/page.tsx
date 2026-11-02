@@ -23,6 +23,7 @@ import { ProductActions } from "./_components/ProductActions";
 import { ProductHeader } from "./_components/ProductHeader";
 import { ProductMeta } from "./_components/ProductMeta";
 import { ProductThumbnail } from "./_components/ProductThumbnail";
+import { ScrollToTopOnReload } from "./_components/ScrollToTopOnReload";
 import styles from "./page.module.css";
 
 // TODO: kunne fallbacken vært null i stedet for et tomt linked distribution-element?
@@ -79,6 +80,7 @@ export default async function ProductPage({
   return (
     <div className={styles.content}>
       <DatasetStructuredData uuid={uuid} metadata={metadata} />
+      <ScrollToTopOnReload />
       <ProductHeader
         title={metadata.title}
         organizations={Array.from(
