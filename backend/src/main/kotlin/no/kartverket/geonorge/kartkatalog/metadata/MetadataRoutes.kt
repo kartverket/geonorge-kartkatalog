@@ -17,6 +17,7 @@ fun Route.metadataRoutes(
          * Path: uuid [String] Metadata record UUID.
          * Response: 200 application/json [no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata] The metadata record.
          * Response: 400 Missing UUID.
+         * Response: 404 No metadata record exists for this UUID.
          */
         get("{uuid}") {
             val uuid =
