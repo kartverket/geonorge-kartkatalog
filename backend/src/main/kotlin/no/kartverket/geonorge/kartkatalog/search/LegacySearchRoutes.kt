@@ -13,7 +13,7 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
      * Legacy-compatible catalog search. Returns the legacy Kartkatalog response contract as JSON or CSV.
      *
      * Query: text [String] Text to search for.
-     * Query: limit [Int] Maximum number of results (default 10; clamped to 1-1000).
+     * Query: limit [Int] Maximum number of results (default 10; clamped to at least 1).
      * Query: offset [Int] One-based result offset (default 1).
      * Query: orderby [String] Sort order (score, title, title_desc, organization, organization_desc, newest, updated, popularMetadata).
      * Query: listhidden [Boolean] Include hidden metadata (default false).
