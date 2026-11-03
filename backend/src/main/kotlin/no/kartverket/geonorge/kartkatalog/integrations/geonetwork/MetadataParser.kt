@@ -373,10 +373,11 @@ object MetadataParser {
 
         private fun parseDistributionInfo(): DistributionInfo? {
             val dist = md.node("gmd:distributionInfo/gmd:MD_Distribution") ?: return null
-            val sharedOnlineResources =
+            val transferOptions =
                 dist
                     .nodes("gmd:transferOptions/gmd:MD_DigitalTransferOptions")
-                    .flatMap { parseOnlineResources(it) }
+                    .map { parseOnlineResources(it) }
+            val sharedOnlineResources = transferOptions.flatten()
             val formats =
                 dist.nodes("gmd:distributionFormat/gmd:MD_Format").map { f ->
                     val ownOnlineResources =
@@ -399,7 +400,10 @@ object MetadataParser {
                     emptyList()
                 }
 
-            return DistributionInfo(formats = formats + fallbackFormats)
+            return DistributionInfo(
+                formats = formats + fallbackFormats,
+                transferOptions = transferOptions.firstOrNull().orEmpty(),
+            )
         }
 
         private fun parseOnlineResources(dto: Node): List<OnlineResource> {
