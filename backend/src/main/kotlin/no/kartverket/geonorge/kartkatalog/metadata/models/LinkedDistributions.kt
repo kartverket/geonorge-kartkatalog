@@ -16,6 +16,7 @@ data class LinkedDistribution(
     val mapCapabilitiesUrl: String?,
     val hierarchyLevel: String? = null,
     val accessState: AccessState? = null,
+    val seriesType: String? = null,
 )
 
 @Serializable
