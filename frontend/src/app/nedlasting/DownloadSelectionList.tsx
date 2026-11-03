@@ -115,6 +115,7 @@ export function DownloadSelectionList({
                 selection={selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION}
                 onSelectionChangeAction={onSelectionChange}
                 isOrdering={isOrdering}
+                defaultExpanded={cards.length === 1}
               />
             ))}
           </div>
