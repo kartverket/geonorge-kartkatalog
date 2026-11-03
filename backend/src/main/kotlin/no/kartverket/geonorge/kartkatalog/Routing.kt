@@ -49,6 +49,7 @@ fun Application.configureRouting(
     val metadataService = MetadataService(geonetworkClient, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)
+    val distributionsService = DistributionsService(solrClient, geonetworkClient, codeListTranslator)
     val embeddingClient = appConfig.vertexAIConfig?.let(::VertexAIClient)
     val hybridQueryBuilder =
         appConfig.vectorSearchConfig
@@ -75,7 +76,7 @@ fun Application.configureRouting(
         searchRoutes(searchService)
         legacySearchRoutes(LegacySearchService(searchEngine, registerClient, appConfig.publicBaseUrl))
         metadataRoutes(metadataService, linkedDistributionsService)
-        distributionsRoutes(DistributionsService(solrClient, geonetworkClient, codeListTranslator))
+        distributionsRoutes(distributionsService)
         downloadRoutes(downloadService, tokenExchangeClient, authentication)
         authRoutes(authentication)
     }
