@@ -17,6 +17,8 @@ import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
 import no.kartverket.geonorge.kartkatalog.auth.authRoutes
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
+import no.kartverket.geonorge.kartkatalog.distribution.DistributionsService
+import no.kartverket.geonorge.kartkatalog.distribution.distributionsRoutes
 import no.kartverket.geonorge.kartkatalog.download.DownloadApiClient
 import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
@@ -24,6 +26,7 @@ import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
@@ -31,6 +34,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.LinkedDistributionsService
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataMapper
 import no.kartverket.geonorge.kartkatalog.metadata.MetadataService
 import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
+import no.kartverket.geonorge.kartkatalog.search.HybridSearchQueryBuilder
 import no.kartverket.geonorge.kartkatalog.search.LegacySearchService
 import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import no.kartverket.geonorge.kartkatalog.search.SearchService
@@ -57,7 +61,18 @@ fun Application.configureRouting(
     val metadataService = MetadataService(geonetworkClient, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)
-    val searchEngine = SearchEngine(solrClient)
+    val distributionsService = DistributionsService(solrClient, geonetworkClient, codeListTranslator)
+    val embeddingClient = appConfig.vertexAIConfig?.let(::VertexAIClient)
+    val hybridQueryBuilder =
+        appConfig.vectorSearchConfig
+            .takeIf { it.enabled }
+            ?.let(::HybridSearchQueryBuilder)
+    val searchEngine =
+        SearchEngine(
+            solrClient = solrClient,
+            embeddingClient = embeddingClient,
+            hybridQueryBuilder = hybridQueryBuilder,
+        )
     val searchService = SearchService(searchEngine, areaResolver, hvdResolver)
     val downloadApiClient = DownloadApiClient(httpClient, appConfig.allowedDownloadClients)
     val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
@@ -87,6 +102,7 @@ fun Application.configureRouting(
         searchRoutes(searchService)
         legacySearchRoutes(LegacySearchService(searchEngine, registerClient, appConfig.publicBaseUrl))
         metadataRoutes(metadataService, linkedDistributionsService)
+        distributionsRoutes(distributionsService)
         downloadRoutes(downloadService, tokenExchangeClient, authentication)
         authRoutes(authentication)
     }

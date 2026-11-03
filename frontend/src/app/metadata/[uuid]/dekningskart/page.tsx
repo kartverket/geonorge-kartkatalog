@@ -44,6 +44,7 @@ export default async function DekningskartPage({
         />
       </div>
       <Dekningskart
+        uuid={uuid}
         metadata={metadata}
         completenessDataString={completenessData}
       />

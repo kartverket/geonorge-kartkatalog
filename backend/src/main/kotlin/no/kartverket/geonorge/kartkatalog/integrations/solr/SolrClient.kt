@@ -7,6 +7,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Parameters
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 
 class SolrClient(
@@ -51,8 +52,8 @@ class SolrClient(
     suspend fun searchApplicationsForDataset(uuid: String): List<SolrDocument> {
         val query =
             MetadataSolrQuery(
-                q = "applicationdataset:$uuid*",
-                fl = "uuid",
+                q = "applicationdataset:${escapeSolrSpecialChars(uuid)}*",
+                fl = "uuid,title,distribution_protocol",
                 rows = 100,
                 wt = "json",
             )
@@ -74,6 +75,8 @@ class SolrClient(
                 httpClient.post("$baseUrl/$path") {
                     setBody(FormDataContent(query.toParameters()))
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 throw SolrException("Solr request to $path failed (q=${query.q})", e)
             }
@@ -91,7 +94,7 @@ class SolrClient(
 
     private fun buildMetadataSolrQuery(uuid: String): MetadataSolrQuery =
         MetadataSolrQuery(
-            q = "uuid:$uuid",
+            q = "uuid:${escapeSolrSpecialChars(uuid)}",
             fl = METADATA_FL,
             rows = 1,
             wt = "json",
@@ -99,7 +102,7 @@ class SolrClient(
 
     private fun buildMetadataSolrQuery(uuids: List<String>): MetadataSolrQuery =
         MetadataSolrQuery(
-            q = "uuid:(${uuids.joinToString(" OR ")})",
+            q = "uuid:(${uuids.joinToString(" OR ") { escapeSolrSpecialChars(it) }})",
             fl = METADATA_FL,
             rows = uuids.size,
             wt = "json",
@@ -153,6 +156,7 @@ data class MetadataSolrQuery(
     val fq: List<String> = emptyList(),
     val facetFields: List<String> = emptyList(),
     val facetSortIndex: Boolean = false,
+    val extraParams: Map<String, String> = emptyMap(),
     val wt: String = "json",
 ) {
     fun toParameters(): Parameters =
@@ -170,6 +174,7 @@ data class MetadataSolrQuery(
                 if (facetSortIndex) append("facet.sort", "index")
                 facetFields.forEach { append("facet.field", it) }
             }
+            extraParams.forEach { (name, value) -> append(name, value) }
             append("wt", wt)
         }
 }

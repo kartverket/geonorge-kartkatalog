@@ -71,6 +71,7 @@ export const ProductMetadataSchema = z.object({
   title: z.string(),
   organization: z.string().nullable(),
   hierarchyLevel: z.string(),
+  seriesType: z.string().nullable(),
   accessState: z.enum(accessState).nullable(),
   dateUpdated: z.string().nullable(),
   maintenanceFrequency: z.string().nullable(),
@@ -207,6 +208,7 @@ export const LinkedDistributionSchema = z.object({
   showMapLink: z.boolean(),
   mapCapabilitiesUrl: z.string().nullable(),
   hierarchyLevel: z.string().nullable(),
+  seriesType: z.string().nullable(),
   accessState: z.enum(accessState).nullable(),
 });
 

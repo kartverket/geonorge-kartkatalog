@@ -11,7 +11,7 @@ import {
 } from "@kv-designsystem/react";
 import { ArrowRightIcon, TrashIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
-import { type SubmitEventHandler, useEffect, useState } from "react";
+import { type SubmitEventHandler, useEffect, useRef, useState } from "react";
 import {
   clearDownloads,
   removeItemsFromDownloads,
@@ -71,6 +71,19 @@ export function DownloadPageContentClient({
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
   const [step, setStep] = useState<DownloadStep>("bestilling");
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const previousStep = useRef(step);
+
+  // Bytte av steg er ikke en navigering, så nettleseren beholder scrollposisjonen.
+  // Vi scroller til toppen og flytter fokus til overskriften, slik at det oppleves
+  // som en ny side, også for skjermlesere.
+  useEffect(() => {
+    if (previousStep.current === step) return;
+    previousStep.current = step;
+    window.scrollTo(0, 0);
+    headingRef.current?.focus({ preventScroll: true });
+  }, [step]);
+
   const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
   const [pendingBulkSelection, setPendingBulkSelection] =
     useState<DownloadSelection | null>(null);
@@ -110,7 +123,9 @@ export function DownloadPageContentClient({
     return cards.some((card) => {
       const existing = selections[card.uuid];
       return (
-        existing?.areaBlocks.some((block) => block.areaCode !== null) ?? false
+        existing?.areaBlocks.some(
+          (block) => block.areaCode !== null || block.polygon !== null,
+        ) ?? false
       );
     });
   }
@@ -176,6 +191,10 @@ export function DownloadPageContentClient({
     return missingFields.length > 0 ? [{ ...card, missingFields }] : [];
   });
 
+  const hasOnlyOpenDatasets = cards.every(
+    (card) => card.accessState === "open",
+  );
+
   const canOrder =
     cards.length > 0 &&
     cards.length === selectedDownloadUuids.length &&
@@ -183,7 +202,8 @@ export function DownloadPageContentClient({
     usageGroup !== "" &&
     usagePurpose.length > 0 &&
     (authState.status === "anonymous" ||
-      authState.status === "authenticated") &&
+      authState.status === "authenticated" ||
+      (authState.status === "error" && hasOnlyOpenDatasets)) &&
     !isOrdering;
 
   const hasInsightGroupOptions =
@@ -253,7 +273,7 @@ export function DownloadPageContentClient({
 
   return (
     <>
-      <Heading data-size={"lg"} level={1}>
+      <Heading data-size={"lg"} level={1} ref={headingRef} tabIndex={-1}>
         Filnedlastning - {step === "bestilling" ? "Bestilling" : "Oppsummering"}
       </Heading>
       <DownloadStepper step={step} />
