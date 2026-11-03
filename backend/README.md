@@ -36,7 +36,7 @@ If the server starts successfully, you'll see the following output:
 2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
 ```
 
-API documentation is generated from the route definitions and available at `http://localhost:8080/swagger`. The OpenAPI JSON document is served at `http://localhost:8080/swagger/openapi.json`. Route documentation is written as KDoc comments above each route (see [Ktor's OpenAPI docs](https://ktor.io/docs/openapi-spec-generation.html#comment-annotations)); request bodies, responses and parameters read in the handler are inferred automatically.
+API documentation is generated from the route definitions and available at `http://localhost:8080/swagger`. The OpenAPI JSON document is served at `http://localhost:8080/swagger/openapi.json`. Route documentation is written as KDoc comments above each route (see [Ktor's OpenAPI docs](https://ktor.io/docs/openapi-spec-generation.html#comment-annotations)). Code inference is disabled, so request bodies, responses and parameters must be documented explicitly and kept in sync with the handlers.
 
 ## Restricted downloads
 
