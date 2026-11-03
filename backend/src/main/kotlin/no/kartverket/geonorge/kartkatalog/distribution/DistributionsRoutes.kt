@@ -10,12 +10,6 @@ fun Route.distributionsRoutes(distributionsService: DistributionsService) {
         val uuid =
             call.parameters["uuid"]?.takeIf { it.isNotBlank() }
                 ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
-        val result =
-            distributionsService.getDistributions(uuid)
-                ?: return@get call.respond(
-                    HttpStatusCode.NotFound,
-                    mapOf("error" to "No metadata found for UUID: $uuid"),
-                )
-        call.respond(result)
+        call.respond(distributionsService.getDistributions(uuid))
     }
 }

@@ -7,6 +7,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Parameters
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 
 class SolrClient(
@@ -74,6 +75,8 @@ class SolrClient(
                 httpClient.post("$baseUrl/$path") {
                     setBody(FormDataContent(query.toParameters()))
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 throw SolrException("Solr request to $path failed (q=${query.q})", e)
             }

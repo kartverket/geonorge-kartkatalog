@@ -11,6 +11,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
@@ -242,6 +243,18 @@ class SolrClientTest {
             httpClient.use {
                 assertFailsWith<SolrException> {
                     solrClient.getMetadataByUuid(UUID.randomUUID().toString())
+                }
+            }
+        }
+
+    @Test
+    fun `does not turn cancellation into a Solr failure`(): Unit =
+        runBlocking {
+            val engine = MockEngine { throw CancellationException("request cancelled") }
+            val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
+            httpClient.use {
+                assertFailsWith<CancellationException> {
+                    SolrClient(httpClient, solrBaseUrl).getMetadataByUuid("test-uuid")
                 }
             }
         }

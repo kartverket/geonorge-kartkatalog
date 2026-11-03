@@ -88,28 +88,36 @@ class DistributionsRoutesTest {
 
     private fun testApp(
         xml: String,
+        metadataSolr: String = datasetSolr,
+        applicationSolr: String = appSolr,
+        relatedXml: String = xml,
+        solrStatus: HttpStatusCode = HttpStatusCode.OK,
+        applicationStatus: HttpStatusCode = HttpStatusCode.OK,
         block: suspend io.ktor.server.testing.ApplicationTestBuilder.() -> Unit,
     ) = testApplication {
+        var geonetworkRequests = 0
         val client =
             HttpClient(
                 MockEngine { request ->
                     val path = request.url.encodedPath
                     when {
-                        path.endsWith("/srv/nor/csw") ->
+                        path.endsWith("/srv/nor/csw") -> {
+                            geonetworkRequests++
                             respond(
-                                xml,
+                                if (geonetworkRequests == 1) xml else relatedXml,
                                 HttpStatusCode.OK,
                                 headersOf(HttpHeaders.ContentType, ContentType.Application.Xml.toString()),
                             )
+                        }
                         path == "/api/kodelister/${CodeList.DISTRIBUTION_TYPES.systemId}" ->
                             respond(
                                 """{"containeditems": [{"label": "WFS-tjeneste", "codevalue": "OGC:WFS"}, {"label": "WMS-tjeneste", "codevalue": "OGC:WMS"}]}""",
                                 HttpStatusCode.OK,
                                 json,
                             )
-                        path == "/solr/metadata/select" -> respond(datasetSolr, HttpStatusCode.OK, json)
-                        path == "/solr/applications/select" -> respond(appSolr, HttpStatusCode.OK, json)
-                        path.startsWith("/solr/") -> respond(emptySolr, HttpStatusCode.OK, json)
+                        path == "/solr/metadata/select" -> respond(metadataSolr, solrStatus, json)
+                        path == "/solr/applications/select" -> respond(applicationSolr, applicationStatus, json)
+                        path.startsWith("/solr/") -> respond(emptySolr, solrStatus, json)
                         else -> respond("{}", HttpStatusCode.NotFound)
                     }
                 },
@@ -145,9 +153,43 @@ class DistributionsRoutesTest {
         }
 
     @Test
-    fun `returns 404 when metadata is missing`() =
+    fun `fails rather than returning an empty list when metadata is missing`() =
         testApp(emptyXml) {
-            assertEquals(HttpStatusCode.NotFound, client.get("/api/distributions/$uuid").status)
+            assertEquals(HttpStatusCode.InternalServerError, client.get("/api/distributions/$uuid").status)
+        }
+
+    @Test
+    fun `returns own distributions when metadata Solr lookup fails`() =
+        testApp(recordXml, solrStatus = HttpStatusCode.InternalServerError) {
+            val response = client.get("/api/distributions/$uuid")
+            assertEquals(HttpStatusCode.OK, response.status)
+            val distributions = Json.parseToJsonElement(response.bodyAsText()).jsonArray
+            assertEquals(listOf(uuid), distributions.map { it.jsonObject["Uuid"]?.jsonPrimitive?.content })
+        }
+
+    @Test
+    fun `returns own distributions when application Solr lookup fails`() =
+        testApp(
+            recordXml.replace("codeListValue=\"service\"", "codeListValue=\"dataset\""),
+            applicationStatus = HttpStatusCode.InternalServerError,
+        ) {
+            val response = client.get("/api/distributions/$uuid")
+            assertEquals(HttpStatusCode.OK, response.status)
+            val distributions = Json.parseToJsonElement(response.bodyAsText()).jsonArray
+            assertEquals(listOf(uuid), distributions.map { it.jsonObject["Uuid"]?.jsonPrimitive?.content })
+        }
+
+    @Test
+    fun `does not return a partial list when related metadata is missing`() =
+        testApp(
+            recordXml,
+            metadataSolr =
+                """{"responseHeader":{"status":0,"QTime":1},"response":{"numFound":1,"start":0,
+                   "docs":[{"uuid":"$uuid","type":"service","servicedataset":["missing-related|Dataset"]}]}}""",
+            relatedXml = emptyXml,
+        ) {
+            val response = client.get("/api/distributions/$uuid")
+            assertEquals(HttpStatusCode.InternalServerError, response.status)
         }
 
     private val wmsXml = recordXml.replace("OGC:WFS", "OGC:WMS")

@@ -10,7 +10,9 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Metadata
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
+import org.slf4j.LoggerFactory
 
 @Serializable
 data class Distribution(
@@ -23,27 +25,47 @@ class DistributionsService(
     private val geonetworkClient: GeonetworkClient,
     private val codeListTranslator: CodeListTranslator,
 ) {
-    suspend fun getDistributions(uuid: String): List<Distribution>? =
-        coroutineScope {
-            val record = geonetworkClient.getRecordByUuid(uuid) ?: return@coroutineScope null
-            val solrDoc =
-                solrClient
-                    .getMetadataByUuid(uuid)
-                    .response.docs
-                    .firstOrNull()
+    private val log = LoggerFactory.getLogger(DistributionsService::class.java)
 
+    suspend fun getDistributions(uuid: String): List<Distribution> =
+        coroutineScope {
+            val record =
+                geonetworkClient.getRecordByUuid(uuid)
+                    ?: throw IllegalStateException("Metadata not found: $uuid")
             val own = record.toDistributions()
+            val solrDoc =
+                try {
+                    solrClient
+                        .getMetadataByUuid(uuid)
+                        .response.docs
+                        .firstOrNull()
+                } catch (e: SolrException) {
+                    log.warn("Failed to fetch related distributions from Solr for {}", uuid, e)
+                    null
+                }
             val relatedUuids = relatedUuids(solrDoc, record.hierarchyLevel, uuid)
             val related =
                 relatedUuids
                     .map { relatedUuid ->
-                        async { geonetworkClient.getRecordByUuid(relatedUuid)?.toDistributions().orEmpty() }
+                        async {
+                            val relatedRecord =
+                                geonetworkClient.getRecordByUuid(relatedUuid)
+                                    ?: throw IllegalStateException("Related metadata not found: $relatedUuid")
+                            relatedRecord.toDistributions()
+                        }
                     }.awaitAll()
                     .flatten()
 
             val applications =
                 if (record.hierarchyLevel == "dataset") {
-                    solrClient.searchApplicationsForDataset(uuid).filter { it.uuid != uuid }.map {
+                    val applicationDocs =
+                        try {
+                            solrClient.searchApplicationsForDataset(uuid)
+                        } catch (e: SolrException) {
+                            log.warn("Failed to fetch applications from Solr for {}", uuid, e)
+                            emptyList()
+                        }
+                    applicationDocs.filter { it.uuid != uuid }.map {
                         Distribution(
                             uuid = it.uuid,
                             protocol =
