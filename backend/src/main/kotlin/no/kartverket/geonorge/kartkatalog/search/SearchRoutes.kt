@@ -19,8 +19,9 @@ fun Route.searchRoutes(searchService: SearchService) {
          * Query: facets[0]name [String] Facet field for indexed facet 0. Increment the index for each additional facet.
          * Query: facets[0]value [String] Facet value for indexed facet 0. Increment the index for each additional facet.
          * Query: mediatype [String] Select csv or a CSV media type; overrides Accept.
-         * Query: lang [String] Response language, en or Norwegian (no, nb, nn).
-         * Header: Accept-Language [String] Language preference used when lang is not supplied.
+         * Query: lang [String] CSV response language, en or Norwegian (no, nb, nn). JSON always uses Norwegian.
+         * Header: Accept-Language [String] CSV language preference used when neither lang nor _culture selects a supported language.
+         * Cookie: _culture [String] Remembered CSV response language, used when lang does not select a supported language.
          * Header: Accept [String] Request text/csv or application/csv to receive a CSV export.
          * Response: 200 text/csv [String] Search results as CSV.
          * Response: 200 application/json [SearchResponse] Search results as JSON, or CSV when requested.
