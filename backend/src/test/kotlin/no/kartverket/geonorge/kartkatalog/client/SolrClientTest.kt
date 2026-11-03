@@ -5,6 +5,7 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.FormDataContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -72,6 +73,52 @@ class SolrClientTest {
             } finally {
                 httpClient.close()
             }
+        }
+
+    @Test
+    fun `escapes special characters in metadata and application dataset queries`() =
+        runBlocking {
+            val queries = mutableListOf<String>()
+            val engine =
+                MockEngine { request ->
+                    queries += (request.body as FormDataContent).formData["q"]!!
+                    respond(
+                        content = minimalSolrResponse,
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                    )
+                }
+            val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
+            httpClient.use {
+                val client = SolrClient(httpClient, solrBaseUrl)
+                client.getMetadataByUuid("no.met:dataset/1")
+                client.searchApplicationsForDataset("no.met:dataset/1")
+            }
+            assertEquals(
+                listOf("""uuid:no.met\:dataset\/1""", """applicationdataset:no.met\:dataset\/1*"""),
+                queries,
+            )
+        }
+
+    @Test
+    fun `escapes each id in a multi-uuid query without escaping query syntax`() =
+        runBlocking {
+            val queries = mutableListOf<String>()
+            val engine =
+                MockEngine { request ->
+                    queries += (request.body as FormDataContent).formData["q"]!!
+                    respond(
+                        content = emptySolrResponse,
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                    )
+                }
+            val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
+            httpClient.use {
+                val client = SolrClient(httpClient, solrBaseUrl)
+                client.getMetadataByUuids(listOf("no.met:dataset/1", "second+uuid"))
+            }
+            assertEquals("""uuid:(no.met\:dataset\/1 OR second\+uuid)""", queries.first())
         }
 
     @Test

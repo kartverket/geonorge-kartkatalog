@@ -51,7 +51,7 @@ class SolrClient(
     suspend fun searchApplicationsForDataset(uuid: String): List<SolrDocument> {
         val query =
             MetadataSolrQuery(
-                q = "applicationdataset:$uuid*",
+                q = "applicationdataset:${escapeSolrSpecialChars(uuid)}*",
                 fl = "uuid,distribution_protocol",
                 rows = 100,
                 wt = "json",
@@ -91,7 +91,7 @@ class SolrClient(
 
     private fun buildMetadataSolrQuery(uuid: String): MetadataSolrQuery =
         MetadataSolrQuery(
-            q = "uuid:$uuid",
+            q = "uuid:${escapeSolrSpecialChars(uuid)}",
             fl = METADATA_FL,
             rows = 1,
             wt = "json",
@@ -99,7 +99,7 @@ class SolrClient(
 
     private fun buildMetadataSolrQuery(uuids: List<String>): MetadataSolrQuery =
         MetadataSolrQuery(
-            q = "uuid:(${uuids.joinToString(" OR ")})",
+            q = "uuid:(${uuids.joinToString(" OR ") { escapeSolrSpecialChars(it) }})",
             fl = METADATA_FL,
             rows = uuids.size,
             wt = "json",
