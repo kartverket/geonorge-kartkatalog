@@ -23,4 +23,5 @@ data class OnlineResource(
 @Serializable
 data class DistributionInfo(
     val formats: List<DistributionFormat> = emptyList(),
+    val transferOptions: List<OnlineResource> = emptyList(),
 )

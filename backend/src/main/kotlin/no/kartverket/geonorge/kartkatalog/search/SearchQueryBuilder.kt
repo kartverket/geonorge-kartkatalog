@@ -1,11 +1,9 @@
 package no.kartverket.geonorge.kartkatalog.search
 
 import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
+import no.kartverket.geonorge.kartkatalog.integrations.solr.escapeSolrSpecialChars
 
 object SearchQueryBuilder {
-    private val solrSpecialChars =
-        charArrayOf('+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/')
-
     private val solrBooleanKeywords =
         Regex("""(?<!\S)(AND|OR|NOT)(?!\S)""")
 
@@ -111,16 +109,10 @@ object SearchQueryBuilder {
             .map { name -> if (request.facets.any { it.name == name }) "{!ex=$name}$name" else name }
     }
 
-    private fun escapeSolrQuery(input: String): String {
-        val sb = StringBuilder()
-        input.forEach { char ->
-            if (char in solrSpecialChars) sb.append('\\')
-            sb.append(char)
-        }
-        return solrBooleanKeywords.replace(sb.toString()) {
+    private fun escapeSolrQuery(input: String): String =
+        solrBooleanKeywords.replace(escapeSolrSpecialChars(input)) {
             "\\${it.value}"
         }
-    }
 }
 
 private val SEARCH_FL =
