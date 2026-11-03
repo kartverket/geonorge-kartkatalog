@@ -212,6 +212,7 @@ class LinkedDistributionsService(
             title = title,
             organization = metadataContact.organization,
             typeTranslated = null,
+            seriesType = hierarchyLevelName,
             thumbnailUrl =
                 thumbnails
                     .firstOrNull {

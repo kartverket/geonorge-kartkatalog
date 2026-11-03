@@ -11,6 +11,8 @@ import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
 import no.kartverket.geonorge.kartkatalog.auth.authRoutes
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
+import no.kartverket.geonorge.kartkatalog.distribution.DistributionsService
+import no.kartverket.geonorge.kartkatalog.distribution.distributionsRoutes
 import no.kartverket.geonorge.kartkatalog.download.DownloadApiClient
 import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
@@ -47,6 +49,7 @@ fun Application.configureRouting(
     val metadataService = MetadataService(geonetworkClient, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)
+    val distributionsService = DistributionsService(solrClient, geonetworkClient, codeListTranslator)
     val embeddingClient = appConfig.vertexAIConfig?.let(::VertexAIClient)
     val hybridQueryBuilder =
         appConfig.vectorSearchConfig
@@ -73,6 +76,7 @@ fun Application.configureRouting(
         searchRoutes(searchService)
         legacySearchRoutes(LegacySearchService(searchEngine, registerClient, appConfig.publicBaseUrl))
         metadataRoutes(metadataService, linkedDistributionsService)
+        distributionsRoutes(distributionsService)
         downloadRoutes(downloadService, tokenExchangeClient, authentication)
         authRoutes(authentication)
     }

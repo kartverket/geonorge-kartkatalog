@@ -5,13 +5,14 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.FormDataContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
-import no.kartverket.geonorge.kartkatalog.distribution.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrResponse
@@ -72,6 +73,56 @@ class SolrClientTest {
             } finally {
                 httpClient.close()
             }
+        }
+
+    @Test
+    fun `escapes special characters in metadata and application dataset queries`() =
+        runBlocking {
+            val queries = mutableListOf<String>()
+            val fields = mutableListOf<String>()
+            val engine =
+                MockEngine { request ->
+                    val formData = (request.body as FormDataContent).formData
+                    queries += formData["q"]!!
+                    fields += formData["fl"]!!
+                    respond(
+                        content = minimalSolrResponse,
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                    )
+                }
+            val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
+            httpClient.use {
+                val client = SolrClient(httpClient, solrBaseUrl)
+                client.getMetadataByUuid("no.met:dataset/1")
+                client.searchApplicationsForDataset("no.met:dataset/1")
+            }
+            assertEquals(
+                listOf("""uuid:no.met\:dataset\/1""", """applicationdataset:no.met\:dataset\/1*"""),
+                queries,
+            )
+            assertEquals("uuid,title,distribution_protocol", fields.last())
+        }
+
+    @Test
+    fun `escapes each id in a multi-uuid query without escaping query syntax`() =
+        runBlocking {
+            val queries = mutableListOf<String>()
+            val engine =
+                MockEngine { request ->
+                    queries += (request.body as FormDataContent).formData["q"]!!
+                    respond(
+                        content = emptySolrResponse,
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                    )
+                }
+            val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
+            httpClient.use {
+                val client = SolrClient(httpClient, solrBaseUrl)
+                client.getMetadataByUuids(listOf("no.met:dataset/1", "second+uuid"))
+            }
+            assertEquals("""uuid:(no.met\:dataset\/1 OR second\+uuid)""", queries.first())
         }
 
     @Test
@@ -196,6 +247,18 @@ class SolrClientTest {
             httpClient.use {
                 assertFailsWith<SolrException> {
                     solrClient.getMetadataByUuid(UUID.randomUUID().toString())
+                }
+            }
+        }
+
+    @Test
+    fun `does not turn cancellation into a Solr failure`(): Unit =
+        runBlocking {
+            val engine = MockEngine { throw CancellationException("request cancelled") }
+            val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
+            httpClient.use {
+                assertFailsWith<CancellationException> {
+                    SolrClient(httpClient, solrBaseUrl).getMetadataByUuid("test-uuid")
                 }
             }
         }

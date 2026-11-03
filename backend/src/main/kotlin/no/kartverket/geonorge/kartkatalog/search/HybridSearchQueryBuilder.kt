@@ -2,6 +2,7 @@ package no.kartverket.geonorge.kartkatalog.search
 
 import no.kartverket.geonorge.kartkatalog.config.VectorSearchConfig
 import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
+import no.kartverket.geonorge.kartkatalog.integrations.solr.escapeSolrSpecialChars
 import java.util.Locale
 
 class HybridSearchQueryBuilder(
@@ -14,7 +15,7 @@ class HybridSearchQueryBuilder(
     ): MetadataSolrQuery {
         require(text.isNotBlank()) { "Search text must not be blank" }
         require(embedding.isNotEmpty()) { "Embedding must not be empty" }
-        val escapedText = escapeSolrQuery(text)
+        val escapedText = escapeSolrSpecialChars(text)
         val textAll = escapedText.replace(" ", "*")
         val knnQuery = "{!knn f=vector topK=${config.topK}}${embedding.toSolrVector()}"
         val threshold = cosineToFrangeThreshold(config.cosineThreshold, config.similarityFunction).formatThreshold()
@@ -42,14 +43,6 @@ class HybridSearchQueryBuilder(
             else -> (1.0 + cosine) / 2.0
         }
 
-    private fun escapeSolrQuery(input: String): String =
-        buildString {
-            input.forEach { char ->
-                if (char in solrSpecialChars) append('\\')
-                append(char)
-            }
-        }
-
     private fun FloatArray.toSolrVector(): String =
         joinToString(
             separator = ",",
@@ -64,9 +57,4 @@ class HybridSearchQueryBuilder(
             .format(Locale.ROOT, "%.4f", this)
             .trimEnd('0')
             .trimEnd('.')
-
-    private companion object {
-        val solrSpecialChars =
-            charArrayOf('+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/')
-    }
 }

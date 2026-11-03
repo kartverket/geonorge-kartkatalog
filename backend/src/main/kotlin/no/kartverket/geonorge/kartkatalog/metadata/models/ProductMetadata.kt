@@ -8,6 +8,7 @@ data class ProductMetadata(
     val title: String,
     val organization: String? = null,
     val hierarchyLevel: String,
+    val seriesType: String? = null,
     val accessState: AccessState? = null,
     val dateUpdated: String? = null,
     val maintenanceFrequency: String? = null,
