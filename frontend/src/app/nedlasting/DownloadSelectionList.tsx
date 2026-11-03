@@ -51,6 +51,8 @@ export function DownloadSelectionList({
     (card) => optionsByUuid[card.uuid]?.isLoading ?? true,
   );
 
+  const showBulkSelection = cards.length > 1;
+
   return (
     <div className={styles.pageInner}>
       {selectedDownloadCount > 0 ? (
@@ -60,14 +62,17 @@ export function DownloadSelectionList({
           </Heading>
           <List.Unordered>
             <List.Item>
-              Velg område, projeksjoner og formater. Fellesvalg fylles ut
-              automatisk når datasettet er tilgjengelig for de valgte
-              geografiske områdene, projeksjonene og formatene.
+              Velg område, projeksjoner og formater.
+              {showBulkSelection
+                ? " Fellesvalg fylles ut automatisk når datasettet er tilgjengelig for de valgte geografiske områdene, projeksjonene og formatene."
+                : null}
             </List.Item>
-            <List.Item>
-              Dersom et fellesvalg ikke kan benyttes for alle de valgte
-              datasettene, må verdiene angis manuelt. Det vises da et varsel.
-            </List.Item>
+            {showBulkSelection ? (
+              <List.Item>
+                Dersom et fellesvalg ikke kan benyttes for alle de valgte
+                datasettene, må verdiene angis manuelt. Det vises da et varsel.
+              </List.Item>
+            ) : null}
           </List.Unordered>
         </div>
       ) : null}
@@ -83,12 +88,14 @@ export function DownloadSelectionList({
             </Paragraph>
           ) : null}
 
-          <BulkDownloadSelectionForm
-            optionsList={optionsList}
-            isLoading={isLoadingBulkOptions}
-            onApplyToAllAction={onApplyToAll}
-            isOrdering={isOrdering}
-          />
+          {showBulkSelection ? (
+            <BulkDownloadSelectionForm
+              optionsList={optionsList}
+              isLoading={isLoadingBulkOptions}
+              onApplyToAllAction={onApplyToAll}
+              isOrdering={isOrdering}
+            />
+          ) : null}
 
           <Heading
             level={2}
