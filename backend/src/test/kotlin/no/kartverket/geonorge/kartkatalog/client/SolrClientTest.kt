@@ -12,7 +12,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
-import no.kartverket.geonorge.kartkatalog.distribution.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrResponse
