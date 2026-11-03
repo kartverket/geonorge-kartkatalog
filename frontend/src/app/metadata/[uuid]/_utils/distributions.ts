@@ -72,7 +72,12 @@ export function getDownloadItem(
   metadata: ProductMetadata,
   uuid: string,
 ): DownloadItem | null {
-  if (metadata.hierarchyLevel !== "dataset") {
+  const isDataset = metadata.hierarchyLevel === "dataset";
+  const isThematicSeries =
+    metadata.hierarchyLevel === "series" &&
+    metadata.seriesType === "series_thematic";
+
+  if (!isDataset && !isThematicSeries) {
     return null;
   }
 

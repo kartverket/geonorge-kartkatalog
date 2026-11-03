@@ -28,6 +28,7 @@ function toDatasetCardData(d: LinkedDistribution): DatasetCardData {
     mapCapabilitiesUrl: d.mapCapabilitiesUrl,
     accessState: d.accessState,
     hierarchyLevel: d.hierarchyLevel,
+    seriesType: d.seriesType,
   };
 }
 

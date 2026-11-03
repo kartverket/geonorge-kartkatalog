@@ -204,6 +204,8 @@ class SearchService(
 
         val mapCapability = resolveMapCapability()
 
+        val isThematicSeries = typename == "series_thematic"
+
         return SearchResultItem(
             uuid = uuid,
             title = title.orEmpty(),
@@ -214,9 +216,11 @@ class SearchService(
                     it.equals("https://editor.geonorge.no/thumbnails/undefined", ignoreCase = true)
                 },
             downloadableSeriesMembers =
-                getSeriesMemberDetails(
-                    this,
-                ).map { DownloadItem.fromRelatedServiceReference(it) },
+                if (isThematicSeries) {
+                    emptyList()
+                } else {
+                    getSeriesMemberDetails(this).map { DownloadItem.fromRelatedServiceReference(it) }
+                },
             distributionUrl = distributionUrl,
             distributionProtocol = distributionProtocol,
             getCapabilitiesUrl = distributionUrl,
@@ -224,6 +228,7 @@ class SearchService(
             mapCapabilitiesUrl = mapCapability.mapCapabilitiesUrl,
             accessState = access.asAccessState(),
             hierarchyLevel = type,
+            seriesType = typename,
         )
     }
 

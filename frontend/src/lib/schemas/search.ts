@@ -36,6 +36,7 @@ const SearchResultItemSchema = z.object({
   mapCapabilitiesUrl: z.string().nullable(),
   accessState: z.enum(accessState).nullable(),
   hierarchyLevel: z.string().nullable(),
+  seriesType: z.string().nullable(),
   downloadableSeriesMembers: z.array(DownloadItemSchema).nullable(),
 });
 

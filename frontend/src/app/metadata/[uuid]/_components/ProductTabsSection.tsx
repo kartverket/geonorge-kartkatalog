@@ -84,6 +84,7 @@ export async function ProductTabsSection({
     title: metadata.title,
     organizationName: metadata.organization,
     hierarchyLevel: metadata.hierarchyLevel,
+    seriesType: metadata.seriesType,
     accessState: metadata.accessState,
     groups: metadata.distributionGroups,
     referenceSystems: metadata.referenceSystems,
@@ -232,6 +233,7 @@ function buildDistributionDetails({
   title,
   organizationName,
   hierarchyLevel,
+  seriesType,
   accessState,
   groups,
   referenceSystems,
@@ -242,6 +244,7 @@ function buildDistributionDetails({
   title: string;
   organizationName: string | null;
   hierarchyLevel: string | null;
+  seriesType: string | null;
   accessState: "restricted" | "open" | "protected" | null;
   groups: DistributionGroup[];
   referenceSystems: ReferenceSystem[];
@@ -260,6 +263,7 @@ function buildDistributionDetails({
           title={title}
           organizationName={organizationName}
           hierarchyLevel={hierarchyLevel}
+          seriesType={seriesType}
           accessState={accessState}
           group={group}
           formatNames={formatNames}
