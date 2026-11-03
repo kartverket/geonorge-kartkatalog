@@ -191,6 +191,10 @@ export function DownloadPageContentClient({
     return missingFields.length > 0 ? [{ ...card, missingFields }] : [];
   });
 
+  const hasOnlyOpenDatasets = cards.every(
+    (card) => card.accessState === "open",
+  );
+
   const canOrder =
     cards.length > 0 &&
     cards.length === selectedDownloadUuids.length &&
@@ -198,7 +202,8 @@ export function DownloadPageContentClient({
     usageGroup !== "" &&
     usagePurpose.length > 0 &&
     (authState.status === "anonymous" ||
-      authState.status === "authenticated") &&
+      authState.status === "authenticated" ||
+      (authState.status === "error" && hasOnlyOpenDatasets)) &&
     !isOrdering;
 
   const hasInsightGroupOptions =
