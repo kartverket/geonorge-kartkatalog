@@ -79,9 +79,12 @@ class SolrClientTest {
     fun `escapes special characters in metadata and application dataset queries`() =
         runBlocking {
             val queries = mutableListOf<String>()
+            val fields = mutableListOf<String>()
             val engine =
                 MockEngine { request ->
-                    queries += (request.body as FormDataContent).formData["q"]!!
+                    val formData = (request.body as FormDataContent).formData
+                    queries += formData["q"]!!
+                    fields += formData["fl"]!!
                     respond(
                         content = minimalSolrResponse,
                         status = HttpStatusCode.OK,
@@ -98,6 +101,7 @@ class SolrClientTest {
                 listOf("""uuid:no.met\:dataset\/1""", """applicationdataset:no.met\:dataset\/1*"""),
                 queries,
             )
+            assertEquals("uuid,title,distribution_protocol", fields.last())
         }
 
     @Test

@@ -49,7 +49,7 @@ class DistributionsRoutesTest {
 
     private val appSolr =
         """{"responseHeader": {"status": 0, "QTime": 1}, "response": {"numFound": 1, "start": 0,
-          "docs": [{"uuid": "app-uuid", "distribution_protocol": "OGC:WFS"}]}}"""
+          "docs": [{"uuid": "app-uuid", "title": "Kartapplikasjon", "distribution_protocol": "OGC:WFS"}]}}"""
 
     private fun xmlWithFormatAndExtraTransferOption(
         formatProtocol: String,
@@ -142,14 +142,70 @@ class DistributionsRoutesTest {
     }
 
     @Test
-    fun `returns flat list with translated protocol and uuid`() =
+    fun `returns flat list with translated protocol uuid and title`() =
         testApp(recordXml) {
-            val response = client.get("/api/distributions/$uuid")
+            val response = client.get("/api/distributions/$uuid?lang=no")
 
             assertEquals(HttpStatusCode.OK, response.status)
-            val body = response.bodyAsText()
-            assertContains(body, "\"Uuid\":\"$uuid\"")
-            assertContains(body, "\"Protocol\":\"WFS-tjeneste\"")
+            val distribution =
+                Json
+                    .parseToJsonElement(response.bodyAsText())
+                    .jsonArray
+                    .single()
+                    .jsonObject
+            assertEquals(setOf("Uuid", "Protocol", "Title"), distribution.keys)
+            assertEquals(uuid, distribution["Uuid"]?.jsonPrimitive?.content)
+            assertEquals("WFS-tjeneste", distribution["Protocol"]?.jsonPrimitive?.content)
+            assertEquals("Matrikkelen - Bygningspunkt WFS", distribution["Title"]?.jsonPrimitive?.content)
+        }
+
+    @Test
+    fun `uses Norwegian localized title for Kartografi`() {
+        val xml =
+            recordXml.replace(
+                "<gco:CharacterString>Matrikkelen - Bygningspunkt WFS</gco:CharacterString>",
+                """
+                <gco:CharacterString>Building points WFS</gco:CharacterString>
+                <gmd:PT_FreeText>
+                    <gmd:textGroup>
+                        <gmd:LocalisedCharacterString locale="#NOR">Bygningspunkt WFS</gmd:LocalisedCharacterString>
+                    </gmd:textGroup>
+                </gmd:PT_FreeText>
+                """.trimIndent(),
+            )
+        testApp(xml) {
+            val distribution =
+                Json
+                    .parseToJsonElement(client.get("/api/distributions/$uuid?lang=no").bodyAsText())
+                    .jsonArray
+                    .single()
+                    .jsonObject
+            assertEquals("Bygningspunkt WFS", distribution["Title"]?.jsonPrimitive?.content)
+        }
+    }
+
+    @Test
+    fun `related distributions use the related metadata title`() =
+        testApp(
+            recordXml,
+            metadataSolr =
+                """{"responseHeader":{"status":0,"QTime":1},"response":{"numFound":1,"start":0,
+                   "docs":[{"uuid":"$uuid","type":"service","servicedataset":["related-uuid|Dataset"]}]}}""",
+            relatedXml =
+                recordXml
+                    .replace(uuid, "related-uuid")
+                    .replace("Matrikkelen - Bygningspunkt WFS", "Relatert tjeneste"),
+        ) {
+            val distributions =
+                Json.parseToJsonElement(client.get("/api/distributions/$uuid?lang=no").bodyAsText()).jsonArray
+            assertEquals(
+                listOf("Matrikkelen - Bygningspunkt WFS", "Relatert tjeneste"),
+                distributions.map { it.jsonObject["Title"]?.jsonPrimitive?.content },
+            )
+            assertEquals(
+                listOf(uuid, "related-uuid"),
+                distributions.map { it.jsonObject["Uuid"]?.jsonPrimitive?.content },
+            )
         }
 
     @Test
@@ -261,7 +317,16 @@ class DistributionsRoutesTest {
     @Test
     fun `includes applications from solr for datasets`() =
         testApp(recordXml.replace("codeListValue=\"service\"", "codeListValue=\"dataset\"")) {
-            val body = client.get("/api/distributions/$uuid").bodyAsText()
-            assertContains(body, "\"Uuid\":\"app-uuid\"")
+            val distributions =
+                Json
+                    .parseToJsonElement(
+                        client.get("/api/distributions/$uuid?lang=no").bodyAsText(),
+                    ).jsonArray
+            val application =
+                distributions
+                    .single { it.jsonObject["Uuid"]?.jsonPrimitive?.content == "app-uuid" }
+                    .jsonObject
+            assertEquals("Kartapplikasjon", application["Title"]?.jsonPrimitive?.content)
+            assertEquals("WFS-tjeneste", application["Protocol"]?.jsonPrimitive?.content)
         }
 }

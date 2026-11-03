@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory
 data class Distribution(
     @SerialName("Uuid") val uuid: String,
     @SerialName("Protocol") val protocol: String?,
+    @SerialName("Title") val title: String?,
 )
 
 class DistributionsService(
@@ -68,6 +69,7 @@ class DistributionsService(
                     applicationDocs.filter { it.uuid != uuid }.map {
                         Distribution(
                             uuid = it.uuid,
+                            title = it.title,
                             protocol =
                                 it.distributionProtocol?.let { protocol ->
                                     codeListTranslator.translate(CodeList.DISTRIBUTION_TYPES, protocol)
@@ -111,7 +113,7 @@ class DistributionsService(
                 val translated = codeListTranslator.translate(CodeList.DISTRIBUTION_TYPES, protocol)
                 val isServiceLayer =
                     hierarchyLevel == "service" && hasDistributionName && translated in WMS_PROTOCOL_NAMES
-                Distribution(uuid = uuid, protocol = if (isServiceLayer) SERVICE_LAYER else translated)
+                Distribution(uuid = uuid, protocol = if (isServiceLayer) SERVICE_LAYER else translated, title = title)
             }
     }
 

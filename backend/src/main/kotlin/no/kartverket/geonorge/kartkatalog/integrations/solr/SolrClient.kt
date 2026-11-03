@@ -53,7 +53,7 @@ class SolrClient(
         val query =
             MetadataSolrQuery(
                 q = "applicationdataset:${escapeSolrSpecialChars(uuid)}*",
-                fl = "uuid,distribution_protocol",
+                fl = "uuid,title,distribution_protocol",
                 rows = 100,
                 wt = "json",
             )
