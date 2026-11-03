@@ -37,6 +37,7 @@ class MetadataMapper(
             title = record.title,
             organization = record.metadataContact.organization.orEmpty(),
             hierarchyLevel = record.hierarchyLevel,
+            seriesType = record.hierarchyLevelName,
             accessState = accessState,
             dateUpdated = record.dates.firstOrNull { it.type == "revision" }?.date,
             maintenanceFrequency =
