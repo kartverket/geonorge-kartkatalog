@@ -6,7 +6,7 @@ import {
   ChevronUpIcon,
   ExternalLinkIcon,
 } from "@navikt/aksel-icons";
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import {
   AccessStateTag,
@@ -30,6 +30,7 @@ export type DownloadSelectionCardProps = {
   optionsError: string | null;
   selection: DownloadSelection;
   onSelectionChangeAction: (uuid: string, selection: DownloadSelection) => void;
+  isOrdering?: boolean;
   defaultExpanded?: boolean;
 };
 
@@ -52,14 +53,10 @@ export function DownloadSelectionCard({
   optionsError,
   selection,
   onSelectionChangeAction,
+  isOrdering = false,
   defaultExpanded = false,
 }: DownloadSelectionCardProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-
-  // Åpne kortet hvis det blir det eneste igjen (f.eks. når et annet datasett fjernes).
-  useEffect(() => {
-    if (defaultExpanded) setExpanded(true);
-  }, [defaultExpanded]);
 
   const detailsId = useId();
   const accessContext =

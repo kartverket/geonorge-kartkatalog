@@ -105,7 +105,7 @@ export function DownloadSelectionList({
             Dine valgte datasett ({selectedDownloadCount})
           </Heading>
           <div className={styles.results}>
-            {cards.map((card) => (
+            {cards.map((card, index) => (
               <DownloadSelectionCard
                 key={card.uuid}
                 {...card}
@@ -115,7 +115,7 @@ export function DownloadSelectionList({
                 selection={selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION}
                 onSelectionChangeAction={onSelectionChange}
                 isOrdering={isOrdering}
-                defaultExpanded={cards.length === 1}
+                defaultExpanded={index === 0}
               />
             ))}
           </div>
