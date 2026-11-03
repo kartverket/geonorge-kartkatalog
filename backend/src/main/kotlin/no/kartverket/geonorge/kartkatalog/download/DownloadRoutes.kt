@@ -233,6 +233,13 @@ fun Route.downloadRoutes(
 ) {
     route("/api/download") {
         authenticateWithOptional(authentication.provider.session) {
+            /**
+             * Places one or more download orders. Restricted products require a valid GeoID session.
+             *
+             * Body: application/json [DownloadOrderRequestDto] Requested products and delivery options.
+             * Response: 200 application/json [DownloadOrderResponseDto] The placed orders.
+             * Response: 401 Authentication is required for restricted downloads.
+             */
             post("/order") {
                 val body = call.receive<DownloadOrderRequestDto>()
                 val accessToken = call.principalOrNull?.accessToken
@@ -242,6 +249,14 @@ fun Route.downloadRoutes(
             }
         }
 
+        /**
+         * Exchanges the supplied GeoID bearer token and submits the download order.
+         *
+         * Header: Authorization [String] Bearer GeoID user access token.
+         * Body: application/json [DownloadOrderRequestDto] Requested products and delivery options.
+         * Response: 200 application/json [DownloadOrderResponseDto] The placed orders.
+         * Response: 401 Missing or invalid authorization header.
+         */
         post("/order-restricted") {
             val body = call.receive<DownloadOrderRequestDto>()
             call.request.headers["Authorization"]?.let { authorizationHeader ->
@@ -269,6 +284,14 @@ fun Route.downloadRoutes(
             call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Missing authorization header"))
         }
 
+        /**
+         * Returns the download options for a product.
+         *
+         * Path: uuid [String] Metadata record UUID.
+         * Query: capabilitiesUrl [String] Capabilities document URL for the product.
+         * Response: 200 application/json [DownloadOptionsDto] Available download options.
+         * Response: 400 Missing UUID or capabilitiesUrl.
+         */
         get("/options/{uuid}") {
             val uuid =
                 call.parameters["uuid"]?.takeIf { it.isNotBlank() }
@@ -284,6 +307,11 @@ fun Route.downloadRoutes(
             val options = downloadService.getOptions(uuid, capabilitiesUrl)
             call.respond(options.toDto())
         }
+        /**
+         * Returns the configured formal and user download-purpose groups.
+         *
+         * Response: 200 application/json [DownloadInsightGroups] The download-purpose groups.
+         */
         get("/insight-groups") {
             call.respond(downloadService.getInsightGroups())
         }

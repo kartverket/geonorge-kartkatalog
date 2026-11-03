@@ -25,6 +25,11 @@ ktor {
     fatJar {
         archiveFileName.set("application.jar")
     }
+    openApi {
+        enabled = true
+        // Inference duplicates parameters that are also documented in comments, so routes are documented explicitly.
+        codeInferenceEnabled = false
+    }
 }
 
 tasks.test {
@@ -42,6 +47,8 @@ dependencies {
     implementation(ktorLibs.server.forwardedHeader)
     implementation(ktorLibs.server.netty)
     implementation(ktorLibs.server.statusPages)
+    implementation(ktorLibs.server.routingOpenapi)
+    implementation(ktorLibs.server.swagger)
     implementation(libs.kotlinx.datetime)
     implementation(libs.logback.classic)
     implementation(ktorLibs.utils)

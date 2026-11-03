@@ -2,11 +2,17 @@ package no.kartverket.geonorge.kartkatalog
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.http.ContentType
+import io.ktor.openapi.OpenApiInfo
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopping
+import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
+import io.ktor.server.routing.openapi.OpenApiDocSource
+import io.ktor.server.routing.path
 import io.ktor.server.routing.routing
+import io.ktor.server.routing.routingRoot
 import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
 import no.kartverket.geonorge.kartkatalog.auth.authRoutes
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
@@ -30,6 +36,12 @@ import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import no.kartverket.geonorge.kartkatalog.search.SearchService
 import no.kartverket.geonorge.kartkatalog.search.legacySearchRoutes
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
+
+// Internal routes used by the frontend (BFF auth, session user and downloads) are left out of the public API docs.
+private val undocumentedPathPrefixes = listOf("/bff", "/auth", "/api/me", "/api/download")
+
+private fun String.isUndocumented(): Boolean =
+    this == "/" || undocumentedPathPrefixes.any { this == it || startsWith("$it/") }
 
 fun Application.configureRouting(
     appConfig: AppConfig,
@@ -55,6 +67,20 @@ fun Application.configureRouting(
     monitor.subscribe(ApplicationStopping) { httpClient.close() }
 
     routing {
+        swaggerUI("/swagger") {
+            info =
+                OpenApiInfo(
+                    title = "Geonorge Kartkatalog API",
+                    version = "1.0.0",
+                    description =
+                        "Search, metadata, download, and authentication endpoints for the Geonorge map catalog.",
+                )
+            source =
+                OpenApiDocSource.Routing(ContentType.Application.Json) {
+                    routingRoot.descendants().filterNot { it.path.isUndocumented() }
+                }
+            remotePath = "openapi.json"
+        }
         get("/") {
             call.respondText("Hello, World!")
         }
