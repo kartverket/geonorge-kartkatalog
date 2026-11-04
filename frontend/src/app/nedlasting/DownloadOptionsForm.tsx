@@ -7,6 +7,7 @@ import { AreaBlockFields } from "./AreaBlockFields";
 import styles from "./DownloadOptionsForm.module.css";
 import {
   addAreaBlock,
+  canAddAreaBlock,
   type DownloadSelection,
   removeAreaBlock,
   resolveAreaBlockAvailability,
@@ -96,16 +97,18 @@ export function DownloadOptionsForm({
           />
         );
       })}
-      <div data-color="accent" className={styles.addAreaBlockButton}>
-        <Button
-          type="button"
-          variant="tertiary"
-          onClick={() => onSelectionChangeAction(addAreaBlock(selection))}
-        >
-          <PlusIcon aria-hidden />
-          Legg til nytt område
-        </Button>
-      </div>
+      {canAddAreaBlock([options], selection) ? (
+        <div data-color="accent" className={styles.addAreaBlockButton}>
+          <Button
+            type="button"
+            variant="tertiary"
+            onClick={() => onSelectionChangeAction(addAreaBlock(selection))}
+          >
+            <PlusIcon aria-hidden />
+            Legg til nytt område
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

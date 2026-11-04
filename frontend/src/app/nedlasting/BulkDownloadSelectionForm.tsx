@@ -10,6 +10,7 @@ import boxStyles from "./BulkDownloadSelectionForm.module.css";
 import styles from "./DownloadOptionsForm.module.css";
 import {
   addAreaBlock,
+  canAddAreaBlock,
   type DownloadSelection,
   getDownloadSelectionGapCounts,
   removeAreaBlock,
@@ -130,16 +131,18 @@ export function BulkDownloadSelectionForm({
               </div>
             );
           })}
-          <div data-color="accent" className={styles.addAreaBlockButton}>
-            <Button
-              type="button"
-              variant="tertiary"
-              onClick={() => updateSelection(addAreaBlock(selection))}
-            >
-              <PlusIcon aria-hidden />
-              Legg til nytt område
-            </Button>
-          </div>
+          {canAddAreaBlock(optionsList, selection) ? (
+            <div data-color="accent" className={styles.addAreaBlockButton}>
+              <Button
+                type="button"
+                variant="tertiary"
+                onClick={() => updateSelection(addAreaBlock(selection))}
+              >
+                <PlusIcon aria-hidden />
+                Legg til nytt område
+              </Button>
+            </div>
+          ) : null}
         </div>
       )}
       <div className={boxStyles.applyButtonContainer}>
