@@ -44,6 +44,13 @@
   visibility: hidden;
 }
 
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .buttonContainer {
   display: flex;
   gap: var(--ds-size-2);

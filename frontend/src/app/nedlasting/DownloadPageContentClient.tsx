@@ -341,8 +341,8 @@ export function DownloadPageContentClient({
                 <form onSubmit={handleSubmit}>
                   <div className={styles.userInputs}>
                     <Field>
-                      <Label>
-                        Brukergruppe{" "}
+                      <Label className={styles.labelRow}>
+                        Brukergruppe
                         <Tag
                           data-color="warning"
                           className={
@@ -366,8 +366,8 @@ export function DownloadPageContentClient({
                       />
                     </Field>
                     <Field>
-                      <Label>
-                        Formål{" "}
+                      <Label className={styles.labelRow}>
+                        Formål
                         <Tag
                           data-color="warning"
                           className={
@@ -395,31 +395,33 @@ export function DownloadPageContentClient({
                   </div>
 
                   {requiresEmail ? (
-                    <Field>
-                      <Label>
-                        E-post{" "}
-                        <Tag
-                          data-color="warning"
-                          className={
-                            isValidEmail ? styles.hiddenTag : undefined
-                          }
-                        >
-                          Må fylles ut
-                        </Tag>
-                      </Label>
-                      <ValidationMessage data-color="info">
-                        {cards.length > 1
-                          ? "Minst ett av datasettene krever e-post for å varsle deg når filene er klare til nedlasting."
-                          : "Dette datasettet krever e-post for å varsle deg når filen er klar til nedlasting."}
-                      </ValidationMessage>
-                      <Input
-                        type="email"
-                        value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                        disabled={isOrdering}
-                        placeholder="din@epost.no"
-                      />
-                    </Field>
+                    <div className={styles.userInputs}>
+                      <Field>
+                        <Label className={styles.labelRow}>
+                          E-post
+                          <Tag
+                            data-color="warning"
+                            className={
+                              isValidEmail ? styles.hiddenTag : undefined
+                            }
+                          >
+                            Må fylles ut
+                          </Tag>
+                        </Label>
+                        <Field.Description>
+                          {cards.length > 1
+                            ? "Du har valgt ett eller flere datasett som krever e-postadresse for å motta nedlastingslenke."
+                            : "Du har valgt et datasett som krever e-postadresse for å motta nedlastingslenke."}
+                        </Field.Description>
+                        <Input
+                          type="email"
+                          value={email}
+                          onChange={(event) => setEmail(event.target.value)}
+                          disabled={isOrdering}
+                          placeholder="din@epost.no"
+                        />
+                      </Field>
+                    </div>
                   ) : null}
 
                   {!hasInsightGroupOptions ? (
