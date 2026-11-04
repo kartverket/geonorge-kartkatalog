@@ -407,6 +407,11 @@ export function DownloadPageContentClient({
                           Må fylles ut
                         </Tag>
                       </Label>
+                      <ValidationMessage data-color="info">
+                        {cards.length > 1
+                          ? "Minst ett av datasettene krever e-post for å varsle deg når filene er klare til nedlasting."
+                          : "Dette datasettet krever e-post for å varsle deg når filen er klar til nedlasting."}
+                      </ValidationMessage>
                       <Input
                         type="email"
                         value={email}
@@ -414,10 +419,6 @@ export function DownloadPageContentClient({
                         disabled={isOrdering}
                         placeholder="din@epost.no"
                       />
-                      <ValidationMessage data-color="info">
-                        Dette datasettet krever e-post for å varsle deg når
-                        filen er klar til nedlasting.
-                      </ValidationMessage>
                     </Field>
                   ) : null}
 
