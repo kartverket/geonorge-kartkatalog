@@ -102,6 +102,35 @@ export function addAreaBlock(selection: DownloadSelection): DownloadSelection {
   return { areaBlocks: [...selection.areaBlocks, { ...EMPTY_AREA_BLOCK }] };
 }
 
+export function canAddAreaBlock(
+  optionsList: (DownloadOptions | null)[],
+  selection: DownloadSelection,
+): boolean {
+  const presentOptionsList = optionsList.filter(
+    (options): options is DownloadOptions => options !== null,
+  );
+  if (presentOptionsList.some((options) => options.supportsPolygonSelection)) {
+    return true;
+  }
+
+  const usedAreaCodes = new Set(
+    selection.areaBlocks.flatMap((block) =>
+      block.areaCode ? [block.areaCode] : [],
+    ),
+  );
+  const unusedAreaCodes = new Set(
+    presentOptionsList.flatMap((options) =>
+      options.areas
+        .filter((option) => !usedAreaCodes.has(option.area.code))
+        .map((option) => option.area.code),
+    ),
+  );
+  const emptyBlockCount = selection.areaBlocks.filter(
+    (block) => !block.areaCode && !block.polygon,
+  ).length;
+  return unusedAreaCodes.size > emptyBlockCount;
+}
+
 export function removeAreaBlock(
   selection: DownloadSelection,
   blockIndex: number,

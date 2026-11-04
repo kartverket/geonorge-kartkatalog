@@ -31,6 +31,7 @@ export type DownloadSelectionCardProps = {
   selection: DownloadSelection;
   onSelectionChangeAction: (uuid: string, selection: DownloadSelection) => void;
   isOrdering?: boolean;
+  defaultExpanded?: boolean;
 };
 
 const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
@@ -53,8 +54,9 @@ export function DownloadSelectionCard({
   selection,
   onSelectionChangeAction,
   isOrdering = false,
+  defaultExpanded = false,
 }: DownloadSelectionCardProps) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
 
   const detailsId = useId();
   const accessContext =
