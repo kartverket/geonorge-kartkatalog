@@ -92,6 +92,7 @@ data class DownloadOrderLinkDto(
 data class DownloadOptionsDto(
     val areas: List<DownloadAreaOptionDto>,
     val supportsPolygonSelection: Boolean = false,
+    val deliveryNotificationByEmail: Boolean = false,
 )
 
 @Serializable
@@ -226,6 +227,7 @@ private fun DownloadOptions.toDto() =
                 )
             },
         supportsPolygonSelection = supportsPolygonSelection,
+        deliveryNotificationByEmail = deliveryNotificationByEmail,
     )
 
 fun Route.downloadRoutes(

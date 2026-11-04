@@ -139,6 +139,7 @@ class DownloadService(
             return DownloadOptions(
                 areas = emptyList(),
                 supportsPolygonSelection = capabilities.supportsPolygonSelection,
+                deliveryNotificationByEmail = capabilities.deliveryNotificationByEmail,
             )
         }
 
@@ -167,6 +168,7 @@ class DownloadService(
                     )
                 },
             supportsPolygonSelection = capabilities.supportsPolygonSelection,
+            deliveryNotificationByEmail = capabilities.deliveryNotificationByEmail,
         )
     }
 
