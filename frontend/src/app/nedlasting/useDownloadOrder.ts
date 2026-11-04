@@ -36,7 +36,6 @@ export function useDownloadOrder() {
       status,
     });
     setOrderError(message);
-    return null;
   }
 
   async function submitOrder(
@@ -60,11 +59,12 @@ export function useDownloadOrder() {
       });
 
       if (!response.ok) {
-        return failOrder(
+        failOrder(
           ORDER_ERROR_BY_STATUS[response.status] ?? DEFAULT_ORDER_ERROR,
           response.status,
           await response.text(),
         );
+        return null;
       }
 
       const result: DownloadOrderResult = parseDownloadOrderResult(
@@ -74,11 +74,12 @@ export function useDownloadOrder() {
       return result;
     } catch (error) {
       // fetch kaster TypeError når nettverkskallet i seg selv feiler
-      return failOrder(
+      failOrder(
         error instanceof TypeError ? NETWORK_ORDER_ERROR : DEFAULT_ORDER_ERROR,
         null,
         error,
       );
+      return null;
     } finally {
       setIsOrdering(false);
     }
