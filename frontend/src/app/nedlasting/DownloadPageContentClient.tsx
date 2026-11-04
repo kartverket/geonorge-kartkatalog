@@ -91,6 +91,7 @@ export function DownloadPageContentClient({
   }, [step]);
 
   const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
+  const [orderEmailProvided, setOrderEmailProvided] = useState(false);
   const [pendingBulkSelection, setPendingBulkSelection] =
     useState<DownloadSelection | null>(null);
   const [showRemoveAllConfirm, setShowRemoveAllConfirm] = useState(false);
@@ -266,6 +267,7 @@ export function DownloadPageContentClient({
 
       setStep("last-ned");
       setOrderedCards(cards);
+      setOrderEmailProvided(requiresEmail && Boolean(email.trim()));
     });
   };
 
@@ -515,7 +517,7 @@ export function DownloadPageContentClient({
                 />
               </>
             ) : null}
-            {hasProcessingFiles && requiresEmail && email.trim() ? (
+            {hasProcessingFiles && orderEmailProvided ? (
               <Alert data-color="info" className={styles.processingAlert}>
                 Du vil få en e-post med nedlastingslenke når filene er klare.
                 Det er trygt å lukke denne siden i mellomtiden.
