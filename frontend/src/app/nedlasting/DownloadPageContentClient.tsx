@@ -30,7 +30,10 @@ import {
 } from "@/app/nedlasting/downloadUtils";
 import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import { useAuthInfo } from "@/components/AuthProvider";
-import type { DownloadInsightGroups } from "@/lib/schemas/download";
+import {
+  type DownloadInsightGroups,
+  DownloadOrderEmailSchema,
+} from "@/lib/schemas/download";
 import { LOCATIONS, trackEvent } from "@/posthog/posthog";
 import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
@@ -209,7 +212,7 @@ export function DownloadPageContentClient({
       (card) => optionsByUuid[card.uuid]?.options?.deliveryNotificationByEmail,
     );
 
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const isValidEmail = DownloadOrderEmailSchema.safeParse(email.trim()).success;
 
   const canOrder =
     cards.length > 0 &&

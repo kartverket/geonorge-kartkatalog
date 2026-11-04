@@ -114,9 +114,11 @@ const DownloadOrderRequestItemSchema = DownloadOrderItemInputSchema.extend({
   usagePurpose: z.array(z.string().min(1)).min(1),
 }).strict();
 
+export const DownloadOrderEmailSchema = z.string().email();
+
 export const DownloadOrderRequestSchema = z
   .object({
-    email: z.string().email().optional(),
+    email: DownloadOrderEmailSchema.optional(),
     usageGroup: z.string().min(1),
     items: z.array(DownloadOrderRequestItemSchema).min(1),
   })
