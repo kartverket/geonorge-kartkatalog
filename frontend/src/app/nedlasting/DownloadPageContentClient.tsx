@@ -421,6 +421,7 @@ export function DownloadPageContentClient({
                           placeholder="din@epost.no"
                         />
                       </Field>
+                      <div aria-hidden="true" />
                     </div>
                   ) : null}
 
