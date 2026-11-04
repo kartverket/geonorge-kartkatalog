@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  Heading,
-  Tag,
-  ValidationMessage,
-} from "@kv-designsystem/react";
+import { Button, Card, Heading, Tag } from "@kv-designsystem/react";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -263,12 +257,10 @@ export function DownloadOrderSummary({
   orderResult,
   cards,
   onProductDownloaded,
-  emailProvided,
 }: {
   orderResult: DownloadOrderResult;
   cards: DownloadCard[];
   onProductDownloaded: (uuid: string) => void;
-  emailProvided: boolean;
 }) {
   const products = groupOrderedProducts(orderResult, cards);
   const readyProducts = products.filter((product) => product.hasReadyFiles);
@@ -320,12 +312,6 @@ export function DownloadOrderSummary({
           <Heading level={2} data-size="sm">
             Under behandling ({processingProducts.length})
           </Heading>
-          {emailProvided ? (
-            <ValidationMessage data-color="info">
-              Du vil få en e-post med nedlastingslenke når filene er klare. Det
-              er trygt å lukke denne siden i mellomtiden.
-            </ValidationMessage>
-          ) : null}
           <div className={styles.productList}>
             {processingProducts.map((product) => (
               <ProductGroup

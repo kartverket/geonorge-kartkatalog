@@ -97,7 +97,3 @@
   font-size: var(--ds-body-sm-font-size);
   color: var(--ds-color-text-subtle);
 }
-
-.notifyRow input {
-  flex: 1;
-}

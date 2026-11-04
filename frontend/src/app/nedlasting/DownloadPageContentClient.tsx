@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Alert,
   Button,
   Field,
   Heading,
@@ -288,6 +289,17 @@ export function DownloadPageContentClient({
     });
   }
 
+  const hasProcessingFiles = Boolean(
+    orderResult?.orders.some(
+      (order) =>
+        order.status === "ordered" &&
+        order.files.some(
+          (file) =>
+            file.status !== "ReadyForDownload" && file.status !== "Failed",
+        ),
+    ),
+  );
+
   return (
     <>
       <Heading data-size={"lg"} level={1} ref={headingRef} tabIndex={-1}>
@@ -497,9 +509,14 @@ export function DownloadPageContentClient({
                   orderResult={orderResult}
                   cards={orderedCards}
                   onProductDownloaded={handleProductDownloaded}
-                  emailProvided={Boolean(email.trim())}
                 />
               </>
+            ) : null}
+            {hasProcessingFiles && email.trim() ? (
+              <Alert data-color="info" className={styles.processingAlert}>
+                Du vil få en e-post med nedlastingslenke når filene er klare.
+                Det er trygt å lukke denne siden i mellomtiden.
+              </Alert>
             ) : null}
             <div className={styles.buttonContainer}>
               <Button
