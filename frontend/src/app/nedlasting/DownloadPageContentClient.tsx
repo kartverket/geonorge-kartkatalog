@@ -237,7 +237,7 @@ export function DownloadPageContentClient({
 
     void submitOrder(
       {
-        email: email.trim() || undefined,
+        email: requiresEmail && email.trim() ? email.trim() : undefined,
         usageGroup,
         items: downloadableProducts.map((item) => ({
           ...item,
@@ -515,7 +515,7 @@ export function DownloadPageContentClient({
                 />
               </>
             ) : null}
-            {hasProcessingFiles && email.trim() ? (
+            {hasProcessingFiles && requiresEmail && email.trim() ? (
               <Alert data-color="info" className={styles.processingAlert}>
                 Du vil få en e-post med nedlastingslenke når filene er klare.
                 Det er trygt å lukke denne siden i mellomtiden.
