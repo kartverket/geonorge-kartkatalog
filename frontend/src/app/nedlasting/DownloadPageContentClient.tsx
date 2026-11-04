@@ -494,6 +494,7 @@ export function DownloadPageContentClient({
                   orderResult={orderResult}
                   cards={orderedCards}
                   onProductDownloaded={handleProductDownloaded}
+                  emailProvided={Boolean(email.trim())}
                 />
               </>
             ) : null}
