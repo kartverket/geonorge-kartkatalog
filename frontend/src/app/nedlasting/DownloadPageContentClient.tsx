@@ -4,6 +4,7 @@ import {
   Button,
   Field,
   Heading,
+  Input,
   Label,
   Paragraph,
   Tag,
@@ -70,6 +71,7 @@ export function DownloadPageContentClient({
   const [selections, setSelections] = usePersistedDownloadSelections();
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
+  const [email, setEmail] = useState("");
   const [step, setStep] = useState<DownloadStep>("bestilling");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const previousStep = useRef(step);
@@ -195,12 +197,26 @@ export function DownloadPageContentClient({
     (card) => card.accessState === "open",
   );
 
+  const hasPolygonSelection = cards.some((card) => {
+    const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
+    return selection.areaBlocks.some((block) => block.polygon !== null);
+  });
+
+  const requiresEmail =
+    hasPolygonSelection ||
+    cards.some(
+      (card) => optionsByUuid[card.uuid]?.options?.deliveryNotificationByEmail,
+    );
+
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
   const canOrder =
     cards.length > 0 &&
     cards.length === selectedDownloadUuids.length &&
     productsWithMissingFields.length === 0 &&
     usageGroup !== "" &&
     usagePurpose.length > 0 &&
+    (!requiresEmail || isValidEmail) &&
     (authState.status === "anonymous" ||
       authState.status === "authenticated" ||
       (authState.status === "error" && hasOnlyOpenDatasets)) &&
@@ -217,6 +233,7 @@ export function DownloadPageContentClient({
 
     void submitOrder(
       {
+        email: email.trim() || undefined,
         usageGroup,
         items: downloadableProducts.map((item) => ({
           ...item,
@@ -376,6 +393,33 @@ export function DownloadPageContentClient({
                       />
                     </Field>
                   </div>
+
+                  {requiresEmail ? (
+                    <Field>
+                      <Label>
+                        E-post{" "}
+                        <Tag
+                          data-color="warning"
+                          className={
+                            isValidEmail ? styles.hiddenTag : undefined
+                          }
+                        >
+                          Må fylles ut
+                        </Tag>
+                      </Label>
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        disabled={isOrdering}
+                        placeholder="din@epost.no"
+                      />
+                      <ValidationMessage data-color="info">
+                        Dette datasettet krever e-post for å varsle deg når
+                        filen er klar til nedlasting.
+                      </ValidationMessage>
+                    </Field>
+                  ) : null}
 
                   {!hasInsightGroupOptions ? (
                     <Paragraph aria-live="polite">
