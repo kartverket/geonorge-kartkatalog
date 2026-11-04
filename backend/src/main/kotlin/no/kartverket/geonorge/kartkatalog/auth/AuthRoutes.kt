@@ -19,6 +19,13 @@ data class AuthInfoResponse(
 fun Route.authRoutes(authentication: GeoIdAuthentication) {
     authenticateWith(authentication.provider.session) {
         route("/api/me/geoid") {
+            /**
+             * Returns the authenticated GeoID user's name.
+             *
+             * Cookie: GEOID_SESSION [String] Authenticated GeoID session cookie.
+             * Response: 200 application/json [AuthInfoResponse] The current user.
+             * Response: 401 The authenticated user has no available name.
+             */
             get {
                 val info = call.principal.userInfo
                 val name = info.name
