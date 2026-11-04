@@ -118,9 +118,17 @@ export function canAddAreaBlock(
       block.areaCode ? [block.areaCode] : [],
     ),
   );
-  return presentOptionsList.some((options) =>
-    options.areas.some((option) => !usedAreaCodes.has(option.area.code)),
+  const unusedAreaCodes = new Set(
+    presentOptionsList.flatMap((options) =>
+      options.areas
+        .filter((option) => !usedAreaCodes.has(option.area.code))
+        .map((option) => option.area.code),
+    ),
   );
+  const emptyBlockCount = selection.areaBlocks.filter(
+    (block) => !block.areaCode && !block.polygon,
+  ).length;
+  return unusedAreaCodes.size > emptyBlockCount;
 }
 
 export function removeAreaBlock(
