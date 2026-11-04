@@ -9,6 +9,25 @@ import kotlinx.coroutines.CancellationException
 import org.slf4j.LoggerFactory
 
 fun Route.legacySearchRoutes(service: LegacySearchService) {
+    /**
+     * Legacy-compatible catalog search. Returns the legacy Kartkatalog response contract as JSON or CSV.
+     *
+     * Query: text [String] Text to search for.
+     * Query: limit [Int] Maximum number of results (default 10; clamped to at least 1).
+     * Query: offset [Int] One-based result offset (default 1).
+     * Query: orderby [String] Sort order (score, title, title_desc, organization, organization_desc, newest, updated, popularMetadata).
+     * Query: listhidden [Boolean] Include hidden metadata (default false).
+     * Query: facets[0]name [String] Facet field for indexed facet 0. Increment the index for each additional facet.
+     * Query: facets[0]value [String] Facet value for indexed facet 0. Increment the index for each additional facet.
+     * Query: mediatype [String] Select csv or a CSV media type; overrides Accept.
+     * Query: lang [String] Response language, en or Norwegian (no, nb, nn).
+     * Header: Accept-Language [String] Language preference used when lang is not supplied.
+     * Header: Accept [String] Request text/csv or application/csv to receive a CSV export.
+     * Cookie: _culture [String] Remembered response language.
+     * Response: 200 text/csv [String] Search results as CSV.
+     * Response: 200 application/json Legacy search results as JSON, or CSV when requested.
+     * Response: 500 The legacy search request failed.
+     */
     get("/search") {
         val params = call.request.queryParameters
         val language = call.resolveSearchLanguage()
