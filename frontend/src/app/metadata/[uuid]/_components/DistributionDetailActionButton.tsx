@@ -1,4 +1,4 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { DownloadIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
 import { DistributionActionLinkButton } from "@/app/metadata/[uuid]/_components/DistributionActionLinkButton";
@@ -6,6 +6,7 @@ import {
   isCopyableDistributionProtocol,
   isDirectDownloadPageProtocol,
   isGeonorgeDownloadProtocol,
+  isGeonorgeFileDownloadProtocol,
 } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
 import { getGeonorgeDownloadUrl } from "@/app/metadata/[uuid]/_utils/distributions";
 import type { AccessState, DistributionGroup } from "@/lib/schemas/product";
@@ -16,6 +17,7 @@ export function DistributionDetailActionButton({
   title,
   organizationName,
   hierarchyLevel,
+  seriesType,
   accessState,
   group,
   formatNames,
@@ -25,6 +27,7 @@ export function DistributionDetailActionButton({
   title: string;
   organizationName: string | null;
   hierarchyLevel: string | null;
+  seriesType: string | null;
   accessState: AccessState | null;
   group: DistributionGroup;
   formatNames: string[];
@@ -41,10 +44,11 @@ export function DistributionDetailActionButton({
     urlLabel,
   };
 
-  if (
-    isGeonorgeDownloadProtocol(group.protocol) &&
-    hierarchyLevel === "dataset"
-  ) {
+  const canDownloadDirectly =
+    hierarchyLevel === "dataset" ||
+    (hierarchyLevel === "series" && seriesType === "series_thematic");
+
+  if (isGeonorgeDownloadProtocol(group.protocol) && canDownloadDirectly) {
     return (
       <AddToDownloadsButton
         item={{
@@ -64,13 +68,26 @@ export function DistributionDetailActionButton({
     );
   }
 
+  if (isGeonorgeFileDownloadProtocol(group.protocol)) {
+    return (
+      <DistributionActionLinkButton
+        size="sm"
+        href={firstUrl}
+        icon={<DownloadIcon aria-hidden />}
+        title="Last ned"
+        eventName="download-file-distribution-from-accordion-summary"
+        trackingProperties={trackingProperties}
+      />
+    );
+  }
+
   if (isDirectDownloadPageProtocol(group.protocol)) {
     return (
       <DistributionActionLinkButton
         size="sm"
         href={firstUrl}
         icon={<ExternalLinkIcon aria-hidden />}
-        title="Åpne nedlastinger"
+        title="Åpne nettside"
         eventName="open-download-distribution-from-accordion-summary"
         trackingProperties={trackingProperties}
       />

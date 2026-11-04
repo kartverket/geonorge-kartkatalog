@@ -31,8 +31,12 @@ export async function ProductActions({
   uuid: string;
 }) {
   const downloadItem = getDownloadItem(metadata, uuid);
-  const downloadableSeriesMembers =
-    getDownloadableSeriesMembers(linkedDistributions);
+  const isThematicSeries =
+    metadata.hierarchyLevel === "series" &&
+    metadata.seriesType === "series_thematic";
+  const downloadableSeriesMembers = isThematicSeries
+    ? []
+    : getDownloadableSeriesMembers(linkedDistributions);
   const mapItem = getMapItem(metadata, linkedDistributions, uuid);
 
   return (

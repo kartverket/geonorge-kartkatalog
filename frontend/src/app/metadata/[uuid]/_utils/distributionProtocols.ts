@@ -16,6 +16,7 @@ const COPYABLE_DISTRIBUTION_PROTOCOLS = new Set([
 export const DISTRIBUTION_PROTOCOLS = {
   directDownloadPage: "WWW:DOWNLOAD-1.0-http--download",
   geonorgeDownload: "GEONORGE:DOWNLOAD",
+  geonorgeFileDownload: "GEONORGE:FILEDOWNLOAD",
   wms: "OGC:WMS",
 } as const;
 
@@ -31,6 +32,12 @@ export function isDirectDownloadPageProtocol(protocol: string | null): boolean {
 
 export function isGeonorgeDownloadProtocol(protocol: string | null): boolean {
   return protocol === DISTRIBUTION_PROTOCOLS.geonorgeDownload;
+}
+
+export function isGeonorgeFileDownloadProtocol(
+  protocol: string | null,
+): boolean {
+  return protocol === DISTRIBUTION_PROTOCOLS.geonorgeFileDownload;
 }
 
 export function isWmsDistributionProtocol(protocol: string | null): boolean {

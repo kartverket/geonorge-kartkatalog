@@ -11,4 +11,5 @@ export type DatasetCardData = {
   mapCapabilitiesUrl: string | null;
   accessState: "restricted" | "open" | "protected" | null;
   hierarchyLevel: string | null;
+  seriesType: string | null;
 };

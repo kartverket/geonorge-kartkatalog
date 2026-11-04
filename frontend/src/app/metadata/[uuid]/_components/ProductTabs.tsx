@@ -144,6 +144,7 @@ function DetailAccordion({ items }: { items: DetailItem[] }) {
         return (
           <Details key={key}>
             <Details.Summary
+              className={styles.detailsSummary}
               onClick={(event) => onAccordionClick(event, item.title)}
             >
               <div className={styles.accordionSummary}>

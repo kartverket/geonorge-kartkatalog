@@ -125,6 +125,16 @@
   height: 24px;
 }
 
+/* Designsystemets pil-ikon (::before) antar at summary-innholdet er én
+   tekstlinje og beregner vertikal posisjon ut fra linjehøyden. Når raden
+   inneholder en knapp og blir høyere, treffer ikke den beregningen lenger. */
+.detailsSummary::before {
+  /* biome-ignore lint/complexity/noImportantStyles: overstyrer designsystemets ::before, spesifisitet er for lik til å vinne uten !important */
+  align-self: center !important;
+  /* biome-ignore lint/complexity/noImportantStyles: se begrunnelse over */
+  translate: none !important;
+}
+
 .accordionSummary {
   display: flex;
   flex-direction: row;
