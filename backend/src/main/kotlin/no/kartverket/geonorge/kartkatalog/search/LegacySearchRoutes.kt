@@ -72,16 +72,16 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
      *
      * Query: organization [String] Optional organization filter; also adds the organization facet to the response.
      * Query: lang [String] Response language, en or Norwegian; takes precedence over the _culture cookie.
-     * Header: Accept-Language [String] Whole-value culture name used when neither lang nor _culture is supplied.
+     * Header: Accept-Language [String] Language preference used when neither lang nor _culture is supplied.
      * Cookie: _culture [String] Remembered response language.
      * Response: 200 application/json Legacy search results as JSON.
      * Response: 204 The request failed (legacy returns no body on errors).
      */
     get("/api/datasets-simple") {
-        val language = call.resolveLegacyCultureLanguage()
+        val language = call.resolveSearchLanguage()
         call.response.headers.append(HttpHeaders.ContentLanguage, language)
         call.response.headers.append(HttpHeaders.Vary, "Accept-Language, Cookie")
-        if (!call.request.queryParameters["lang"].isNullOrEmpty() || call.request.cookies["_culture"] == null) {
+        if (!call.request.queryParameters["lang"].isNullOrBlank() || call.request.cookies["_culture"] == null) {
             call.response.cookies.append(
                 Cookie(
                     name = "_culture",

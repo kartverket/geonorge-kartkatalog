@@ -537,7 +537,7 @@ class LegacySearchRoutesTest {
             simpleApp(upstream(solrBody = solrResponse.replace("\"typename\"", "\"x\"")))
 
             val browser = client.get("/api/datasets-simple") { header(HttpHeaders.AcceptLanguage, "en-US,en;q=0.9") }
-            assertContains(browser.bodyAsText(), "\"TypeTranslated\":\"Datasett\"")
+            assertContains(browser.bodyAsText(), "\"TypeTranslated\":\"Dataset\"")
             val english = client.get("/api/datasets-simple?lang=en") { header(HttpHeaders.AcceptLanguage, "nb") }
             assertContains(english.bodyAsText(), "\"TypeTranslated\":\"Dataset\"")
             assertEquals("en", english.headers[HttpHeaders.ContentLanguage])
