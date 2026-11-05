@@ -1,7 +1,29 @@
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dialog[open] > button:first-child {
+  position: absolute;
+  top: var(--dsc-dialog-icon-spacing);
+  right: var(--dsc-dialog-icon-spacing);
+  margin: 0;
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+}
+
 .mapBlock {
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-2);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .mapContainer {
