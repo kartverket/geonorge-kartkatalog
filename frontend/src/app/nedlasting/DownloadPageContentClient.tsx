@@ -271,6 +271,14 @@ export function DownloadPageContentClient({
     });
   }
 
+  function handleStartNewOrder() {
+    clearDownloads();
+    setSelections({});
+    setUsageGroup("");
+    setUsagePurpose([]);
+    setStep("bestilling");
+  }
+
   return (
     <>
       <Heading data-size={"lg"} level={1} ref={headingRef} tabIndex={-1}>
@@ -456,9 +464,9 @@ export function DownloadPageContentClient({
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => setStep("bestilling")}
+                onClick={handleStartNewOrder}
               >
-                ← Gå tilbake til bestilling
+                Start ny bestilling
               </Button>
               <Button type="button" variant="secondary" asChild>
                 <Link href="/">Gå til Kartkatalogen</Link>
