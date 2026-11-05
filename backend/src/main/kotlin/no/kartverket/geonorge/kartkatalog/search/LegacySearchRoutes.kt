@@ -1,9 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.search
 
-import io.ktor.http.Cookie
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -33,19 +31,8 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
     get("/search") {
         val params = call.request.queryParameters
         val language = call.resolveSearchLanguage()
-        call.response.headers.append(HttpHeaders.ContentLanguage, language)
+        call.applyLanguageHeaders(language)
         val csvContentType = call.resolveSearchCsvContentType()
-        if (!params["lang"].isNullOrBlank() || call.request.cookies["_culture"] == null) {
-            call.response.cookies.append(
-                Cookie(
-                    name = "_culture",
-                    value = language,
-                    path = "/",
-                    maxAge =
-                        365 * 24 * 60 * 60,
-                ),
-            )
-        }
         val request = LegacySearchRequest.fromQuery(params)
         try {
             if (csvContentType != null) {
@@ -80,7 +67,8 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
      */
     get("/api/datasets-simple") {
         val language = call.resolveSearchLanguage()
-        call.applyLegacyLanguage(language)
+        call.applyLanguageHeaders(language)
+        call.response.headers.append(HttpHeaders.Vary, "Accept-Language, Cookie")
         try {
             call.respondSearchJson(service.simpleSearch(call.request.queryParameters["organization"], language))
         } catch (e: CancellationException) {
@@ -106,7 +94,8 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
     get("/api/metadata/{uuid}") {
         val uuid = call.parameters["uuid"].orEmpty()
         val language = call.resolveSearchLanguage()
-        call.applyLegacyLanguage(language)
+        call.applyLanguageHeaders(language)
+        call.response.headers.append(HttpHeaders.Vary, "Accept-Language, Cookie")
         try {
             call.respondSearchJson(service.metadataItem(uuid, language))
         } catch (e: CancellationException) {
@@ -115,13 +104,5 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
             LoggerFactory.getLogger("LegacySearchRoutes").error("api/metadata/{uuid} failed", e)
             call.respondText("", status = HttpStatusCode.NoContent)
         }
-    }
-}
-
-private fun ApplicationCall.applyLegacyLanguage(language: String) {
-    response.headers.append(HttpHeaders.ContentLanguage, language)
-    response.headers.append(HttpHeaders.Vary, "Accept-Language, Cookie")
-    if (!request.queryParameters["lang"].isNullOrBlank() || request.cookies["_culture"] == null) {
-        response.cookies.append(Cookie(name = "_culture", value = language, path = "/", maxAge = 365 * 24 * 60 * 60))
     }
 }
