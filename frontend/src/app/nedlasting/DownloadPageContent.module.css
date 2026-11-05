@@ -48,8 +48,8 @@
 }
 
 .processingAlert {
-  margin-top: var(--ds-size-4);
-  margin-bottom: var(--ds-size-4);
+  margin-top: var(--ds-size-8);
+  margin-bottom: var(--ds-size-12);
 }
 
 .buttonContainer {
@@ -57,6 +57,21 @@
   gap: var(--ds-size-2);
   justify-content: flex-end;
   margin-top: var(--ds-size-4);
+}
+
+.finishButtonContainer {
+  display: flex;
+  gap: var(--ds-size-2);
+  justify-content: space-between;
+  margin-top: var(--ds-size-4);
+}
+
+.finishLink {
+  color: var(--dsc-button-color);
+}
+
+.finishLink:hover {
+  color: var(--dsc-button-color--hover);
 }
 
 .removeAllButton.removeAllButton {
