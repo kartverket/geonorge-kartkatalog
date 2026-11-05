@@ -9,6 +9,8 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceRefere
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
+import org.slf4j.LoggerFactory
+import kotlin.coroutines.cancellation.CancellationException
 
 internal data class SearchFacetCount(
     val name: String,
@@ -67,39 +69,55 @@ class SearchEngine(
     private val embeddingClient: VertexAIClient? = null,
     private val hybridQueryBuilder: HybridSearchQueryBuilder? = null,
 ) {
+    private val log = LoggerFactory.getLogger(SearchEngine::class.java)
+
+
     internal suspend fun search(
         query: MetadataSolrQuery,
         text: String? = null,
         english: Boolean = false,
     ): SearchHits {
         val text = text?.trim().orEmpty()
-        val effectiveQuery =
-            if (
-                text.length > MINIMUM_VECTOR_SEARCH_LENGTH &&
-                embeddingClient != null &&
-                hybridQueryBuilder != null
-            ) {
-                embeddingClient
-                    .embed(text)
-                    ?.takeIf { it.isNotEmpty() }
-                    ?.let { embedding ->
-                        hybridQueryBuilder.build(
-                            query = query,
-                            text = text,
-                            embedding = embedding,
-                        )
-                    }
-                    ?: query
+        val hybridQuery = buildHybridQuery(query, text)
+        val response =
+            if (hybridQuery == null) {
+                solrClient.searchMetadataAll(query, english)
             } else {
-                query
+                try {
+                    solrClient.searchMetadataAll(hybridQuery, english)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    log.warn("Vector search failed, falling back to plain Solr search", e)
+                    solrClient.searchMetadataAll(query, english)
+                }
             }
-        val response = solrClient.searchMetadataAll(effectiveQuery, english)
         val facets =
             response.facetCounts
                 ?.facetFields
                 .orEmpty()
                 .mapValues { (_, raw) -> raw.toCounts() }
         return SearchHits(response.response.numFound, response.response.docs.map { it.toSearchHit() }, facets)
+    }
+
+    private suspend fun buildHybridQuery(
+        query: MetadataSolrQuery,
+        text: String,
+    ): MetadataSolrQuery? {
+        if (text.length <= MINIMUM_VECTOR_SEARCH_LENGTH || embeddingClient == null || hybridQueryBuilder == null) {
+            return null
+        }
+        return try {
+            embeddingClient
+                .embed(text)
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { hybridQueryBuilder.build(query = query, text = text, embedding = it) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.warn("Could not build vector search query, falling back to plain Solr search", e)
+            null
+        }
     }
 
     suspend fun getMetadataByUuids(uuids: List<String>): List<SolrDocument> = solrClient.getMetadataByUuids(uuids)
