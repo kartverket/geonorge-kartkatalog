@@ -541,6 +541,8 @@ class LegacySearchRoutesTest {
             val english = client.get("/api/datasets-simple?lang=en") { header(HttpHeaders.AcceptLanguage, "nb") }
             assertContains(english.bodyAsText(), "\"TypeTranslated\":\"Dataset\"")
             assertEquals("en", english.headers[HttpHeaders.ContentLanguage])
+            assertContains(english.headers[HttpHeaders.Vary].orEmpty(), "Accept-Language, Cookie")
+            assertContains(english.headers[HttpHeaders.SetCookie].orEmpty(), "_culture=en")
             searchForms.clear()
             val response = client.get("/api/datasets-simple")
             val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject

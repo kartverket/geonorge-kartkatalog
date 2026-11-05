@@ -80,6 +80,18 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
     get("/api/datasets-simple") {
         val language = call.resolveLegacyCultureLanguage()
         call.response.headers.append(HttpHeaders.ContentLanguage, language)
+        call.response.headers.append(HttpHeaders.Vary, "Accept-Language, Cookie")
+        if (!call.request.queryParameters["lang"].isNullOrEmpty() || call.request.cookies["_culture"] == null) {
+            call.response.cookies.append(
+                Cookie(
+                    name = "_culture",
+                    value = language,
+                    path = "/",
+                    maxAge =
+                        365 * 24 * 60 * 60,
+                ),
+            )
+        }
         try {
             call.respondSearchJson(service.simpleSearch(call.request.queryParameters["organization"], language))
         } catch (e: CancellationException) {

@@ -21,7 +21,9 @@ internal object SimpleMetadataQuery {
         )
 
     fun build(organization: String?): MetadataSolrQuery {
-        val filterByOrganization = !organization.isNullOrEmpty()
+        // Legacy adds the facet for any non-empty value but skips whitespace-only filter values.
+        val withFacet = !organization.isNullOrEmpty()
+        val filterByOrganization = !organization.isNullOrBlank()
         return MetadataSolrQuery(
             q = QUERY,
             fl = FIELDS,
@@ -35,7 +37,7 @@ internal object SimpleMetadataQuery {
                 },
             // The organization facet only exists when a filter is given, as in legacy.
             facetFields =
-                defaultFacets + if (filterByOrganization) listOf("{!ex=organization}organization") else emptyList(),
+                defaultFacets + if (withFacet) listOf("{!ex=organization}organization") else emptyList(),
             facetSortIndex = true,
         )
     }

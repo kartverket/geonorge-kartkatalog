@@ -42,4 +42,11 @@ class SimpleMetadataQueryTest {
         assertEquals("{!ex=organization}organization", query.facetFields.last())
         assertEquals(9, query.facetFields.size)
     }
+
+    @Test
+    fun `whitespace-only organization skips the filter but keeps the facet`() {
+        val query = SimpleMetadataQuery.build("   ")
+        assertTrue(query.fq.isEmpty())
+        assertEquals("{!ex=organization}organization", query.facetFields.last())
+    }
 }
