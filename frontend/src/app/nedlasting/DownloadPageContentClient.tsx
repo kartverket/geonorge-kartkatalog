@@ -301,6 +301,8 @@ export function DownloadPageContentClient({
     setSelections({});
     setUsageGroup("");
     setUsagePurpose([]);
+    setEmail("");
+    setOrderEmailProvided(false);
     setStep("bestilling");
     setShowStartNewOrderConfirm(false);
   }
