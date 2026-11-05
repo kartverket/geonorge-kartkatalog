@@ -12,6 +12,7 @@ class LegacySearchService(
     private val engine: SearchEngine,
     private val registerClient: RegisterClient,
     private val kartkatalogUrl: String,
+    private val norgeskartUrl: String = "",
 ) {
     private sealed interface SearchOutcome {
         val hits: SearchHits
@@ -67,6 +68,23 @@ class LegacySearchService(
         val hits = engine.searchMetadataCore(SimpleMetadataQuery.build(organization))
         return LegacySearchResponse(language, kartkatalogUrl, loadAreas())
             .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
+    }
+
+    internal suspend fun metadataItem(
+        uuid: String,
+        language: String,
+    ): JsonObject {
+        // Legacy swallows Solr errors, so a failure looks the same as an unknown uuid.
+        val doc =
+            try {
+                engine.getMetadataAllByUuid(uuid)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                log.warn("Could not look up metadata $uuid in metadata_all", e)
+                null
+            }
+        return LegacyMetadataItem(language, norgeskartUrl).build(doc)
     }
 
     private suspend fun loadAreas(): Map<String, String> =
