@@ -1,31 +1,34 @@
 "use client";
 
 import { Button, Dialog, Heading, Paragraph } from "@kv-designsystem/react";
-import styles from "./RemoveAllDownloadsConfirmDialog.module.css";
+import styles from "./ConfirmDialog.module.css";
 
-type RemoveAllDownloadsConfirmDialogProps = {
+type ConfirmDialogProps = {
   open: boolean;
+  heading: string;
+  description: string;
+  confirmLabel: string;
   onConfirmAction: () => void;
   onCancelAction: () => void;
 };
 
-export function RemoveAllDownloadsConfirmDialog({
+export function ConfirmDialog({
   open,
+  heading,
+  description,
+  confirmLabel,
   onConfirmAction,
   onCancelAction,
-}: RemoveAllDownloadsConfirmDialogProps) {
+}: ConfirmDialogProps) {
   return (
     <Dialog open={open} onClose={onCancelAction}>
       <Dialog.Block>
         <Heading level={2} data-size="xs">
-          Er du sikker?
+          {heading}
         </Heading>
       </Dialog.Block>
       <Dialog.Block>
-        <Paragraph>
-          Dette fjerner alle datasett og valg fra nedlastingskurven. Dette kan
-          ikke angres.
-        </Paragraph>
+        <Paragraph>{description}</Paragraph>
       </Dialog.Block>
       <Dialog.Block>
         <div className={styles.buttonRow}>
@@ -33,7 +36,7 @@ export function RemoveAllDownloadsConfirmDialog({
             Avbryt
           </Button>
           <Button type="button" variant="primary" onClick={onConfirmAction}>
-            Ja, fjern alle
+            {confirmLabel}
           </Button>
         </div>
       </Dialog.Block>

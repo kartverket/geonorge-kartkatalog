@@ -11,7 +11,7 @@ import {
   Tag,
   ValidationMessage,
 } from "@kv-designsystem/react";
-import { ArrowRightIcon, TrashIcon } from "@navikt/aksel-icons";
+import { ArrowLeftIcon, ArrowRightIcon, TrashIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import { type SubmitEventHandler, useEffect, useRef, useState } from "react";
 import {
@@ -35,12 +35,12 @@ import {
   DownloadOrderEmailSchema,
 } from "@/lib/schemas/download";
 import { LOCATIONS, trackEvent } from "@/posthog/posthog";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
 import { type DownloadStep, DownloadStepper } from "./DownloadStepper";
 import { OverwriteConfirmDialog } from "./OverwriteConfirmDialog";
-import { RemoveAllDownloadsConfirmDialog } from "./RemoveAllDownloadsConfirmDialog";
 import { SingleSuggestion } from "./SingleSuggestion";
 import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
@@ -95,6 +95,8 @@ export function DownloadPageContentClient({
   const [pendingBulkSelection, setPendingBulkSelection] =
     useState<DownloadSelection | null>(null);
   const [showRemoveAllConfirm, setShowRemoveAllConfirm] = useState(false);
+  const [showStartNewOrderConfirm, setShowStartNewOrderConfirm] =
+    useState(false);
 
   function handleSelectionChange(uuid: string, selection: DownloadSelection) {
     setSelections((current) => ({ ...current, [uuid]: selection }));
@@ -294,6 +296,16 @@ export function DownloadPageContentClient({
     });
   }
 
+  function handleStartNewOrder() {
+    clearDownloads();
+    setSelections({});
+    setUsageGroup("");
+    setUsagePurpose([]);
+    setEmail("");
+    setOrderEmailProvided(false);
+    setStep("bestilling");
+    setShowStartNewOrderConfirm(false);
+  }
   const hasProcessingFiles = Boolean(
     orderResult?.orders.some(
       (order) =>
@@ -317,8 +329,11 @@ export function DownloadPageContentClient({
         onAppendAction={handleAppendOverwrite}
         onCancelAction={handleCancelOverwrite}
       />
-      <RemoveAllDownloadsConfirmDialog
+      <ConfirmDialog
         open={showRemoveAllConfirm}
+        heading="Er du sikker?"
+        description="Dette fjerner alle datasett og valg fra nedlastingskurven. Dette kan ikke angres."
+        confirmLabel="Ja, fjern alle"
         onConfirmAction={() => {
           clearDownloads();
           setSelections({});
@@ -326,6 +341,14 @@ export function DownloadPageContentClient({
           setShowRemoveAllConfirm(false);
         }}
         onCancelAction={() => setShowRemoveAllConfirm(false)}
+      />
+      <ConfirmDialog
+        open={showStartNewOrderConfirm}
+        heading="Er du sikker?"
+        description="Dette tømmer kurven og alle valgene dine, og du blir sendt til en tom bestillingsside. Dette kan ikke angres."
+        confirmLabel="Ja, start ny bestilling"
+        onConfirmAction={handleStartNewOrder}
+        onCancelAction={() => setShowStartNewOrderConfirm(false)}
       />
 
       {step === "bestilling" ? (
@@ -523,16 +546,19 @@ export function DownloadPageContentClient({
                 Det er trygt å lukke denne siden i mellomtiden.
               </Alert>
             ) : null}
-            <div className={styles.buttonContainer}>
+            <div className={styles.finishButtonContainer}>
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => setStep("bestilling")}
+                onClick={() => setShowStartNewOrderConfirm(true)}
               >
-                ← Gå tilbake til bestilling
+                <ArrowLeftIcon aria-hidden />
+                Opprett en ny bestilling
               </Button>
-              <Button type="button" variant="secondary" asChild>
-                <Link href="/">Gå til Kartkatalogen</Link>
+              <Button type="button" variant="primary" asChild>
+                <Link href="/" className={styles.finishLink}>
+                  Avslutt og gå til kartkatalogen
+                </Link>
               </Button>
             </div>
           </section>

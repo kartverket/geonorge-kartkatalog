@@ -105,8 +105,8 @@ export function DrawAreaDialog({
   const interactions = useMemo(() => [draw, modify], [draw, modify]);
 
   return (
-    <Dialog open={open} onClose={onCloseAction}>
-      <Dialog.Block>
+    <Dialog open={open} onClose={onCloseAction} className={styles.dialog}>
+      <Dialog.Block className={styles.titleBlock}>
         <Heading level={2} data-size="xs">
           Tegn område på kart
         </Heading>
