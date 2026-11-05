@@ -36,12 +36,20 @@
   align-self: flex-start;
 }
 
-.userInputs > :nth-child(3) {
-  flex: 1;
-}
-
 .hiddenTag {
   visibility: hidden;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.processingAlert {
+  margin-top: var(--ds-size-4);
+  margin-bottom: var(--ds-size-4);
 }
 
 .buttonContainer {
