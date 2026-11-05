@@ -11,7 +11,7 @@ import {
   Tag,
   ValidationMessage,
 } from "@kv-designsystem/react";
-import { ArrowRightIcon, TrashIcon } from "@navikt/aksel-icons";
+import { ArrowLeftIcon, ArrowRightIcon, TrashIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import { type SubmitEventHandler, useEffect, useRef, useState } from "react";
 import {
@@ -546,16 +546,19 @@ export function DownloadPageContentClient({
                 Det er trygt å lukke denne siden i mellomtiden.
               </Alert>
             ) : null}
-            <div className={styles.buttonContainer}>
+            <div className={styles.finishButtonContainer}>
               <Button
                 type="button"
                 variant="secondary"
                 onClick={() => setShowStartNewOrderConfirm(true)}
               >
-                Start ny bestilling
+                <ArrowLeftIcon aria-hidden />
+                Opprett en ny bestilling
               </Button>
-              <Button type="button" variant="secondary" asChild>
-                <Link href="/">Gå til Kartkatalogen</Link>
+              <Button type="button" variant="primary" asChild>
+                <Link href="/" className={styles.finishLink}>
+                  Avslutt og gå til kartkatalogen
+                </Link>
               </Button>
             </div>
           </section>
