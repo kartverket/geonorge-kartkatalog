@@ -100,6 +100,7 @@ data class SearchResultItem(
     val mapCapabilitiesUrl: String? = null,
     val accessState: String? = null,
     val hierarchyLevel: String? = null,
+    val seriesType: String? = null,
 )
 
 @Serializable

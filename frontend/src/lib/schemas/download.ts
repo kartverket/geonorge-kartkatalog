@@ -28,6 +28,7 @@ export const DownloadAreaOptionSchema = z.object({
 export const DownloadOptionsSchema = z.object({
   areas: z.array(DownloadAreaOptionSchema),
   supportsPolygonSelection: z.boolean().default(false),
+  deliveryNotificationByEmail: z.boolean().default(false),
 });
 
 export type DownloadOptions = z.infer<typeof DownloadOptionsSchema>;
@@ -113,9 +114,11 @@ const DownloadOrderRequestItemSchema = DownloadOrderItemInputSchema.extend({
   usagePurpose: z.array(z.string().min(1)).min(1),
 }).strict();
 
+export const DownloadOrderEmailSchema = z.string().email();
+
 export const DownloadOrderRequestSchema = z
   .object({
-    email: z.string().email().optional(),
+    email: DownloadOrderEmailSchema.optional(),
     usageGroup: z.string().min(1),
     items: z.array(DownloadOrderRequestItemSchema).min(1),
   })

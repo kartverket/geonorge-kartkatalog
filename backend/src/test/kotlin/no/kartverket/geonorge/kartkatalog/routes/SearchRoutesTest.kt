@@ -27,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class SearchRoutesTest {
@@ -207,5 +208,193 @@ class SearchRoutesTest {
                 response.contentType()?.withoutParameters(),
             )
             assertContains(body, "\"numFound\":1")
+        }
+
+    private fun seriesMemberEntry(
+        uuid: String,
+        name: String,
+        organization: String,
+        protocol: String,
+        distributionUrl: String,
+    ): String =
+        "$uuid|" +
+            "$name|" +
+            "${java.util.UUID.randomUUID()}|" +
+            "dataset|" +
+            "$organization||" +
+            "$protocol|" +
+            "$distributionUrl|" +
+            "Basis geodata|" +
+            "https://example.test/logo.png|" +
+            "https://example.test/thumbnail.png|" +
+            "no restrictions|http://inspire.ec.europa.eu||true|false"
+
+    @Test
+    fun `suppresses downloadableSeriesMembers for thematic series`() =
+        testApplication {
+            val memberUuid = "11111111-1111-1111-1111-111111111111"
+            val seriesSolrJson =
+                """
+                {
+                  "responseHeader": {"status": 0, "QTime": 1},
+                  "response": {
+                    "numFound": 1,
+                    "start": 0,
+                    "docs": [{
+                      "uuid": "22222222-2222-2222-2222-222222222222",
+                      "title": "SAT-SKOG",
+                      "type": "series",
+                      "typename": "series_thematic",
+                      "organization": "NIBIO",
+                      "seriedatasets": [
+                        "${seriesMemberEntry(
+                    memberUuid,
+                    "SAT-SKOG - Volum Gran",
+                    "NIBIO",
+                    "GEONORGE:DOWNLOAD",
+                    "https://kart8.nibio.no/api/capabilities/",
+                )}"
+                      ]
+                    }]
+                  }
+                }
+                """.trimIndent()
+            val memberSolrJson =
+                """
+                {
+                  "responseHeader": {"status": 0, "QTime": 1},
+                  "response": {
+                    "numFound": 1,
+                    "start": 0,
+                    "docs": [{
+                      "uuid": "$memberUuid",
+                      "title": "SAT-SKOG - Volum Gran",
+                      "type": "dataset",
+                      "distributions": ["NIBIO|GEONORGE:DOWNLOAD|https://kart8.nibio.no/api/capabilities/|extra"]
+                    }]
+                  }
+                }
+                """.trimIndent()
+
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(
+                        MockEngine { request ->
+                            val content =
+                                when (request.url.encodedPath) {
+                                    "/solr/metadata/select" -> memberSolrJson
+                                    else -> seriesSolrJson
+                                }
+                            respond(
+                                content = content,
+                                status = HttpStatusCode.OK,
+                                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                            )
+                        },
+                    ) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val searchService =
+                    SearchService(
+                        SearchEngine(SolrClient(client, "https://solr.example.test")),
+                        AreaResolver(RegisterClient(client, "https://register.example.test")),
+                        HvdResolver(RegisterClient(client, "https://register.example.test")),
+                    )
+                routing { searchRoutes(searchService) }
+            }
+
+            val response = client.get("/api/search?text=sat-skog&limit=25")
+            val body = response.bodyAsText()
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(body, "\"seriesType\":\"series_thematic\"")
+            assertContains(body, "\"downloadableSeriesMembers\":[]")
+        }
+
+    @Test
+    fun `keeps downloadableSeriesMembers for non-thematic series`() =
+        testApplication {
+            val memberUuid = "33333333-3333-3333-3333-333333333333"
+            val seriesSolrJson =
+                """
+                {
+                  "responseHeader": {"status": 0, "QTime": 1},
+                  "response": {
+                    "numFound": 1,
+                    "start": 0,
+                    "docs": [{
+                      "uuid": "44444444-4444-4444-4444-444444444444",
+                      "title": "Befolkning på grunnkretsnivå - historiske versjoner",
+                      "type": "series",
+                      "typename": "series_historic",
+                      "organization": "Kartverket",
+                      "seriedatasets": [
+                        "${seriesMemberEntry(
+                    memberUuid,
+                    "Befolkning 2020",
+                    "Kartverket",
+                    "GEONORGE:DOWNLOAD",
+                    "https://nedlasting.geonorge.no/api/capabilities/",
+                )}"
+                      ]
+                    }]
+                  }
+                }
+                """.trimIndent()
+            val memberSolrJson =
+                """
+                {
+                  "responseHeader": {"status": 0, "QTime": 1},
+                  "response": {
+                    "numFound": 1,
+                    "start": 0,
+                    "docs": [{
+                      "uuid": "$memberUuid",
+                      "title": "Befolkning 2020",
+                      "type": "dataset",
+                      "distributions": ["Kartverket|GEONORGE:DOWNLOAD|https://nedlasting.geonorge.no/api/capabilities/|extra"]
+                    }]
+                  }
+                }
+                """.trimIndent()
+
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(
+                        MockEngine { request ->
+                            val content =
+                                when (request.url.encodedPath) {
+                                    "/solr/metadata/select" -> memberSolrJson
+                                    else -> seriesSolrJson
+                                }
+                            respond(
+                                content = content,
+                                status = HttpStatusCode.OK,
+                                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                            )
+                        },
+                    ) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val searchService =
+                    SearchService(
+                        SearchEngine(SolrClient(client, "https://solr.example.test")),
+                        AreaResolver(RegisterClient(client, "https://register.example.test")),
+                        HvdResolver(RegisterClient(client, "https://register.example.test")),
+                    )
+                routing { searchRoutes(searchService) }
+            }
+
+            val response = client.get("/api/search?text=befolkning&limit=25")
+            val body = response.bodyAsText()
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(body, "\"seriesType\":\"series_historic\"")
+            assertContains(body, "\"uuid\":\"$memberUuid\"")
+            assertFalse(body.contains("\"downloadableSeriesMembers\":[]"))
         }
 }

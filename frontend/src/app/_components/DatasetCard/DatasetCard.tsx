@@ -41,7 +41,9 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const analyticsLocation = p.analyticsLocation ?? LOCATIONS.SearchPage;
 
   const isService = p.typeTranslated === "Tjeneste";
-  const isDataset = p.hierarchyLevel === "dataset";
+  const isDataset =
+    p.hierarchyLevel === "dataset" ||
+    (p.hierarchyLevel === "series" && p.seriesType === "series_thematic");
   const canDownload = p.distributionProtocol === "GEONORGE:DOWNLOAD";
   const canShowMap = !!p.showMapLink && !!p.mapCapabilitiesUrl;
   const canCopy = isService && !!p.getCapabilitiesUrl;
