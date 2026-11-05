@@ -1,9 +1,11 @@
 "use client";
 
 import {
+  Alert,
   Button,
   Field,
   Heading,
+  Input,
   Label,
   Paragraph,
   Tag,
@@ -28,7 +30,10 @@ import {
 } from "@/app/nedlasting/downloadUtils";
 import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import { useAuthInfo } from "@/components/AuthProvider";
-import type { DownloadInsightGroups } from "@/lib/schemas/download";
+import {
+  type DownloadInsightGroups,
+  DownloadOrderEmailSchema,
+} from "@/lib/schemas/download";
 import { LOCATIONS, trackEvent } from "@/posthog/posthog";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { DownloadOrderSummary } from "./DownloadOrderSummary";
@@ -70,6 +75,7 @@ export function DownloadPageContentClient({
   const [selections, setSelections] = usePersistedDownloadSelections();
   const [usageGroup, setUsageGroup] = useState("");
   const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
+  const [email, setEmail] = useState("");
   const [step, setStep] = useState<DownloadStep>("bestilling");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const previousStep = useRef(step);
@@ -85,6 +91,7 @@ export function DownloadPageContentClient({
   }, [step]);
 
   const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
+  const [orderEmailProvided, setOrderEmailProvided] = useState(false);
   const [pendingBulkSelection, setPendingBulkSelection] =
     useState<DownloadSelection | null>(null);
   const [showRemoveAllConfirm, setShowRemoveAllConfirm] = useState(false);
@@ -197,12 +204,26 @@ export function DownloadPageContentClient({
     (card) => card.accessState === "open",
   );
 
+  const hasPolygonSelection = cards.some((card) => {
+    const selection = selections[card.uuid] ?? EMPTY_DOWNLOAD_SELECTION;
+    return selection.areaBlocks.some((block) => block.polygon !== null);
+  });
+
+  const requiresEmail =
+    hasPolygonSelection ||
+    cards.some(
+      (card) => optionsByUuid[card.uuid]?.options?.deliveryNotificationByEmail,
+    );
+
+  const isValidEmail = DownloadOrderEmailSchema.safeParse(email.trim()).success;
+
   const canOrder =
     cards.length > 0 &&
     cards.length === selectedDownloadUuids.length &&
     productsWithMissingFields.length === 0 &&
     usageGroup !== "" &&
     usagePurpose.length > 0 &&
+    (!requiresEmail || isValidEmail) &&
     (authState.status === "anonymous" ||
       authState.status === "authenticated" ||
       (authState.status === "error" && hasOnlyOpenDatasets)) &&
@@ -219,6 +240,7 @@ export function DownloadPageContentClient({
 
     void submitOrder(
       {
+        email: requiresEmail && email.trim() ? email.trim() : undefined,
         usageGroup,
         items: downloadableProducts.map((item) => ({
           ...item,
@@ -247,6 +269,7 @@ export function DownloadPageContentClient({
 
       setStep("last-ned");
       setOrderedCards(cards);
+      setOrderEmailProvided(requiresEmail && Boolean(email.trim()));
     });
   };
 
@@ -281,11 +304,21 @@ export function DownloadPageContentClient({
     setStep("bestilling");
     setShowStartNewOrderConfirm(false);
   }
+  const hasProcessingFiles = Boolean(
+    orderResult?.orders.some(
+      (order) =>
+        order.status === "ordered" &&
+        order.files.some(
+          (file) =>
+            file.status !== "ReadyForDownload" && file.status !== "Failed",
+        ),
+    ),
+  );
 
   return (
     <>
       <Heading data-size={"lg"} level={1} ref={headingRef} tabIndex={-1}>
-        Filnedlastning - {step === "bestilling" ? "Bestilling" : "Oppsummering"}
+        Filnedlastning - {step === "bestilling" ? "Bestilling" : "Nedlasting"}
       </Heading>
       <DownloadStepper step={step} />
       <OverwriteConfirmDialog
@@ -346,8 +379,8 @@ export function DownloadPageContentClient({
                 <form onSubmit={handleSubmit}>
                   <div className={styles.userInputs}>
                     <Field>
-                      <Label>
-                        Brukergruppe{" "}
+                      <Label className={styles.labelRow}>
+                        Brukergruppe
                         <Tag
                           data-color="warning"
                           className={
@@ -371,8 +404,8 @@ export function DownloadPageContentClient({
                       />
                     </Field>
                     <Field>
-                      <Label>
-                        Formål{" "}
+                      <Label className={styles.labelRow}>
+                        Formål
                         <Tag
                           data-color="warning"
                           className={
@@ -398,6 +431,37 @@ export function DownloadPageContentClient({
                       />
                     </Field>
                   </div>
+
+                  {requiresEmail ? (
+                    <div className={styles.userInputs}>
+                      <Field>
+                        <Label className={styles.labelRow}>
+                          E-post
+                          <Tag
+                            data-color="warning"
+                            className={
+                              isValidEmail ? styles.hiddenTag : undefined
+                            }
+                          >
+                            Må fylles ut
+                          </Tag>
+                        </Label>
+                        <Field.Description>
+                          {cards.length > 1
+                            ? "Du har valgt ett eller flere datasett som krever e-postadresse for å motta nedlastingslenke."
+                            : "Du har valgt et datasett som krever e-postadresse for å motta nedlastingslenke."}
+                        </Field.Description>
+                        <Input
+                          type="email"
+                          value={email}
+                          onChange={(event) => setEmail(event.target.value)}
+                          disabled={isOrdering}
+                          placeholder="din@epost.no"
+                        />
+                      </Field>
+                      <div aria-hidden="true" />
+                    </div>
+                  ) : null}
 
                   {!hasInsightGroupOptions ? (
                     <Paragraph aria-live="polite">
@@ -425,8 +489,8 @@ export function DownloadPageContentClient({
                     >
                       {!isOrdering && <ArrowRightIcon aria-hidden />}
                       {isOrdering
-                        ? "Henter oppsummering..."
-                        : "Gå videre til oppsummering"}
+                        ? "Bestiller nedlasting..."
+                        : "Bestill nedlasting"}
                     </Button>
                   </div>
                 </form>
@@ -473,6 +537,12 @@ export function DownloadPageContentClient({
                   onProductDownloaded={handleProductDownloaded}
                 />
               </>
+            ) : null}
+            {hasProcessingFiles && orderEmailProvided ? (
+              <Alert data-color="info" className={styles.processingAlert}>
+                Du vil få en e-post med nedlastingslenke når filene er klare.
+                Det er trygt å lukke denne siden i mellomtiden.
+              </Alert>
             ) : null}
             <div className={styles.buttonContainer}>
               <Button
