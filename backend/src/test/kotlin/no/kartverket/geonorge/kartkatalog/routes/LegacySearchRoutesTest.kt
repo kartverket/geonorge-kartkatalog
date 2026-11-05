@@ -5,12 +5,14 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.server.routing.routing
+import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
@@ -518,5 +520,99 @@ class LegacySearchRoutesTest {
             assertEquals(4, paths.count { it.startsWith("/solr/") })
             assertTrue(paths.all { it.startsWith("/solr/") })
             upstream.close()
+        }
+
+    private fun ApplicationTestBuilder.simpleApp(upstream: HttpClient) {
+        application {
+            configureSerialization()
+            val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
+            val register = RegisterClient(upstream, "https://register.example.test")
+            routing { legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test/")) }
+        }
+    }
+
+    @Test
+    fun `datasets-simple queries the metadata core with the fixed legacy query`() =
+        testApplication {
+            simpleApp(upstream(solrBody = solrResponse.replace("\"typename\"", "\"x\"")))
+
+            val browser = client.get("/api/datasets-simple") { header(HttpHeaders.AcceptLanguage, "en-US,en;q=0.9") }
+            assertContains(browser.bodyAsText(), "\"TypeTranslated\":\"Dataset\"")
+            val english = client.get("/api/datasets-simple?lang=en") { header(HttpHeaders.AcceptLanguage, "nb") }
+            assertContains(english.bodyAsText(), "\"TypeTranslated\":\"Dataset\"")
+            assertEquals("en", english.headers[HttpHeaders.ContentLanguage])
+            assertContains(english.headers[HttpHeaders.Vary].orEmpty(), "Accept-Language, Cookie")
+            assertContains(english.headers[HttpHeaders.SetCookie].orEmpty(), "_culture=en")
+            searchForms.clear()
+            val response = client.get("/api/datasets-simple")
+            val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(
+                "Datasett",
+                json
+                    .getValue("Results")
+                    .jsonArray
+                    .first()
+                    .jsonObject
+                    .getValue("TypeTranslated")
+                    .jsonPrimitive.content,
+            )
+            assertTrue("/solr/metadata/select" in paths)
+            val form = searchForms.single()
+            assertContains(form, "ISO19115")
+            assertContains(form, "rows=[1000]")
+            assertFalse("fq=" in form)
+            assertEquals("1000", json.getValue("Limit").jsonPrimitive.content)
+            assertEquals("1", json.getValue("Offset").jsonPrimitive.content)
+            assertEquals("1", json.getValue("NumFound").jsonPrimitive.content)
+            val result =
+                json
+                    .getValue("Results")
+                    .jsonArray
+                    .first()
+                    .jsonObject
+            assertEquals("test-uuid", result.getValue("Uuid").jsonPrimitive.content)
+            assertEquals("Kartverket", result.getValue("Organization").jsonPrimitive.content)
+        }
+
+    @Test
+    fun `datasets-simple filters on organization and returns DatasetName`() =
+        testApplication {
+            simpleApp(
+                upstream(
+                    solrBody =
+                        solrResponse.replace(
+                            "\"type\":\"dataset\"",
+                            "\"type\":\"dataset\",\"resourceReferenceCodeName\":\"N50\"",
+                        ),
+                ),
+            )
+
+            val response = client.get("/api/datasets-simple?organization=Kartverket")
+            val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
+            assertEquals(HttpStatusCode.OK, response.status)
+            val form = searchForms.single()
+            assertContains(form, "organization:\"Kartverket\"")
+            assertContains(form, "{!ex=organization}organization")
+            assertEquals(
+                "N50",
+                json
+                    .getValue("Results")
+                    .jsonArray
+                    .first()
+                    .jsonObject
+                    .getValue("DatasetName")
+                    .jsonPrimitive.content,
+            )
+        }
+
+    @Test
+    fun `datasets-simple answers 204 without body when solr fails`() =
+        testApplication {
+            simpleApp(upstream(solrError = true))
+
+            val response = client.get("/api/datasets-simple")
+            assertEquals(HttpStatusCode.NoContent, response.status)
+            assertEquals("", response.bodyAsText())
         }
 }

@@ -105,6 +105,7 @@ data class SolrDocument(
     val distributions: List<String>? = null,
     val typename: String? = null,
     val spatialscope: List<String>? = null,
+    val resourceReferenceCodeName: String? = null,
 ) : MapCapabilityFields
 
 data class RelatedServiceReference(

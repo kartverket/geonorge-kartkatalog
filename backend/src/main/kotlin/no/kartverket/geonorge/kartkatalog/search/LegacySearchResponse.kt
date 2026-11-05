@@ -18,12 +18,18 @@ internal class LegacySearchResponse(
     fun build(
         request: LegacySearchRequest,
         hits: SearchHits,
+    ): JsonObject = build(request.limit, request.offset, hits)
+
+    fun build(
+        limit: Int,
+        offset: Int,
+        hits: SearchHits,
     ): JsonObject {
         val rows = hits.documents.map(::metadata)
         return buildJsonObject {
             put("NumFound", hits.numFound)
-            put("Limit", request.limit)
-            put("Offset", request.offset)
+            put("Limit", limit)
+            put("Offset", offset)
             put("Results", JsonArray(rows))
             put("Facets", JsonArray(hits.facets.map { (field, counts) -> facet(field, counts) }))
             if (rows.isNotEmpty()) put("Type", "search")
@@ -98,6 +104,7 @@ internal class LegacySearchResponse(
             putNullable("Abstract", doc.abstractText)
             putNullable("Type", type)
             putNullable("TypeName", doc.typename)
+            putNullable("DatasetName", doc.datasetName)
             putNullable("TypeTranslated", translatedType(type))
             putNullable("Theme", doc.theme)
             putNullable("Organization", doc.organizationgroup ?: doc.organization)

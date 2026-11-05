@@ -52,6 +52,7 @@ internal data class SearchHit(
     val productSpecificationUrl: String?,
     val dateUpdated: String?,
     val spatialscope: List<String>?,
+    val datasetName: String? = null,
 ) : MapCapabilityFields
 
 internal data class SearchHits(
@@ -91,6 +92,16 @@ class SearchEngine(
                     solrClient.searchMetadataAll(query, english)
                 }
             }
+        val facets =
+            response.facetCounts
+                ?.facetFields
+                .orEmpty()
+                .mapValues { (_, raw) -> raw.toCounts() }
+        return SearchHits(response.response.numFound, response.response.docs.map { it.toSearchHit() }, facets)
+    }
+
+    internal suspend fun searchMetadataCore(query: MetadataSolrQuery): SearchHits {
+        val response = solrClient.searchMetadata(query)
         val facets =
             response.facetCounts
                 ?.facetFields
@@ -172,4 +183,5 @@ private fun SolrDocument.toSearchHit(): SearchHit =
         productSpecificationUrl = productSpecificationUrl,
         dateUpdated = dateUpdated?.toString(),
         spatialscope = spatialscope,
+        datasetName = resourceReferenceCodeName,
     )
