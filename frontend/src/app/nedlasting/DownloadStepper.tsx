@@ -6,7 +6,7 @@ export type DownloadStep = "bestilling" | "last-ned";
 
 const STEPS: { key: DownloadStep; label: string }[] = [
   { key: "bestilling", label: "Bestilling" },
-  { key: "last-ned", label: "Last ned" },
+  { key: "last-ned", label: "Nedlasting" },
 ];
 
 export function DownloadStepper({ step }: { step: DownloadStep }) {

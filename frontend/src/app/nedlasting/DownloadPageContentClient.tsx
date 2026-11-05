@@ -274,7 +274,7 @@ export function DownloadPageContentClient({
   return (
     <>
       <Heading data-size={"lg"} level={1} ref={headingRef} tabIndex={-1}>
-        Filnedlastning - {step === "bestilling" ? "Bestilling" : "Oppsummering"}
+        Filnedlastning - {step === "bestilling" ? "Bestilling" : "Nedlasting"}
       </Heading>
       <DownloadStepper step={step} />
       <OverwriteConfirmDialog
@@ -403,8 +403,8 @@ export function DownloadPageContentClient({
                     >
                       {!isOrdering && <ArrowRightIcon aria-hidden />}
                       {isOrdering
-                        ? "Henter oppsummering..."
-                        : "Gå videre til oppsummering"}
+                        ? "Bestiller nedlasting..."
+                        : "Bestill nedlasting"}
                     </Button>
                   </div>
                 </form>
