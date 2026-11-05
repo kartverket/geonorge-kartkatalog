@@ -71,7 +71,6 @@ class SearchEngine(
 ) {
     private val log = LoggerFactory.getLogger(SearchEngine::class.java)
 
-
     internal suspend fun search(
         query: MetadataSolrQuery,
         text: String? = null,
