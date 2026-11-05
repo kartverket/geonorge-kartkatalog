@@ -64,7 +64,6 @@ class LegacySearchService(
         organization: String?,
         language: String,
     ): JsonObject {
-        // Unlike the other legacy search, failures propagate so the route can answer 500.
         val hits = engine.searchMetadataCore(SimpleMetadataQuery.build(organization))
         return LegacySearchResponse(language, kartkatalogUrl, loadAreas())
             .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
