@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.search
 import io.ktor.http.Cookie
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import kotlinx.coroutines.CancellationException
@@ -62,6 +63,31 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
                 ),
                 HttpStatusCode.InternalServerError,
             )
+        }
+    }
+
+    /**
+     * Legacy-compatible simple dataset list (used by MetadataEditor). Returns up to 1000 Norwegian-profile
+     * ISO19115 datasets from the metadata core as legacy search JSON. Only organization is honoured.
+     *
+     * Query: organization [String] Optional organization filter; also adds the organization facet to the response.
+     * Query: lang [String] Response language, en or Norwegian; takes precedence over the _culture cookie.
+     * Header: Accept-Language [String] Whole-value culture name used when neither lang nor _culture is supplied.
+     * Cookie: _culture [String] Remembered response language.
+     * Response: 200 application/json Legacy search results as JSON.
+     * Response: 204 The request failed (legacy returns no body on errors).
+     */
+    get("/api/datasets-simple") {
+        val language = call.resolveLegacyCultureLanguage()
+        call.response.headers.append(HttpHeaders.ContentLanguage, language)
+        try {
+            call.respondSearchJson(service.simpleSearch(call.request.queryParameters["organization"], language))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            LoggerFactory.getLogger("LegacySearchRoutes").error("datasets-simple failed", e)
+            // Legacy returns null on any error, which ASP.NET Core serialises as 204 No Content.
+            call.respondText("", status = HttpStatusCode.NoContent)
         }
     }
 }

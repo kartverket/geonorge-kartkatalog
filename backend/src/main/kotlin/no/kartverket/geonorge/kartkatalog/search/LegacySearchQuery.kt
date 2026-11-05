@@ -183,7 +183,7 @@ internal object LegacySearchQuery {
         return clauses.filter { it.isNotBlank() }.joinToString(" OR ")
     }
 
-    private fun escape(value: String): String =
+    internal fun escape(value: String): String =
         buildString {
             value.forEach { c ->
                 if (c in specialChars) append('\\')

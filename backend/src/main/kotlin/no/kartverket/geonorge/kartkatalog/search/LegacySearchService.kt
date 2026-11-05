@@ -56,33 +56,44 @@ class LegacySearchService(
             return LegacySearchResponse(language, kartkatalogUrl, emptyMap()).build(request, outcome.hits)
         }
 
-        // Successful searches still need area names for legacy JSON facets, even with zero hits.
-        val areas =
-            try {
-                areasCache
-                    .getOrFetch("areas") {
-                        listOf("fylkesnummer", "kommunenummer")
-                            .flatMap { list ->
-                                registerClient
-                                    .getSosiCodeList(
-                                        "inndelinger/inndelingsbase/$list",
-                                    ).containedItems
-                                    .mapNotNull { item ->
-                                        val code =
-                                            item.codeValue?.takeIf { it.isNotBlank() && item.status == "Gyldig" }
-                                                ?: return@mapNotNull null
-                                        val key = if (list == "fylkesnummer") "0/$code" else "0/${code.take(2)}/$code"
-                                        key to (item.description ?: item.label).substringBefore(" – ").trim()
-                                    }
-                            }.toMap()
-                    }.orEmpty()
-            } catch (e: RegisterException) {
-                val cause = e.cause
-                if (cause is CancellationException) throw cause
-                // Keep Solr results and retry Register next time rather than caching the fallback.
-                log.warn("Failed to fetch legacy area names; using raw facet codes", e)
-                emptyMap()
-            }
+        val areas = loadAreas()
         return LegacySearchResponse(language, kartkatalogUrl, areas).build(request, outcome.hits)
     }
+
+    internal suspend fun simpleSearch(
+        organization: String?,
+        language: String,
+    ): JsonObject {
+        // Unlike the other legacy search, failures propagate so the route can answer 500.
+        val hits = engine.searchMetadataCore(SimpleMetadataQuery.build(organization))
+        return LegacySearchResponse(language, kartkatalogUrl, loadAreas())
+            .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
+    }
+
+    private suspend fun loadAreas(): Map<String, String> =
+        try {
+            areasCache
+                .getOrFetch("areas") {
+                    listOf("fylkesnummer", "kommunenummer")
+                        .flatMap { list ->
+                            registerClient
+                                .getSosiCodeList(
+                                    "inndelinger/inndelingsbase/$list",
+                                ).containedItems
+                                .mapNotNull { item ->
+                                    val code =
+                                        item.codeValue?.takeIf { it.isNotBlank() && item.status == "Gyldig" }
+                                            ?: return@mapNotNull null
+                                    val key = if (list == "fylkesnummer") "0/$code" else "0/${code.take(2)}/$code"
+                                    key to (item.description ?: item.label).substringBefore(" – ").trim()
+                                }
+                        }.toMap()
+                }.orEmpty()
+        } catch (e: RegisterException) {
+            val cause = e.cause
+            if (cause is CancellationException) throw cause
+            // Keep Solr results and retry Register next time rather than caching the fallback.
+            log.warn("Failed to fetch legacy area names; using raw facet codes", e)
+            emptyMap()
+        }
 }
