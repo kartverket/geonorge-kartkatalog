@@ -43,8 +43,8 @@ internal class LegacyMetadataItem(
 
         val serviceUuid =
             when {
-                type == "dataset" -> doc?.serviceDistributionUuidForDataset
-                type == "servicelayer" && !doc?.parentidentifier.isNullOrEmpty() -> doc?.parentidentifier
+                type == "dataset" -> doc.serviceDistributionUuidForDataset
+                type == "servicelayer" && !doc.parentidentifier.isNullOrEmpty() -> doc.parentidentifier
                 else -> doc?.uuid
             }
 
@@ -127,7 +127,7 @@ internal class LegacyMetadataItem(
         if (doc?.type in SERVICE_TYPES) {
             if (protocol.isNullOrBlank() || url.isNullOrBlank()) return null
             if ("OGC:WMS" !in protocol && "OGC:WFS" !in protocol) return null
-            return commonNorgeskartPart(protocol) + url.removeQueryString() + addLayers(doc?.distributionName)
+            return commonNorgeskartPart(protocol) + url.removeQueryString() + addLayers(doc.distributionName)
         }
         return if (downloadLink(protocol, doc?.type, url)) url else relativeUrl(url)
     }
