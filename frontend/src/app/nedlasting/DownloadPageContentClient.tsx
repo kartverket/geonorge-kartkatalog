@@ -30,12 +30,12 @@ import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import { useAuthInfo } from "@/components/AuthProvider";
 import type { DownloadInsightGroups } from "@/lib/schemas/download";
 import { LOCATIONS, trackEvent } from "@/posthog/posthog";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
 import { type DownloadStep, DownloadStepper } from "./DownloadStepper";
 import { OverwriteConfirmDialog } from "./OverwriteConfirmDialog";
-import { RemoveAllDownloadsConfirmDialog } from "./RemoveAllDownloadsConfirmDialog";
 import { SingleSuggestion } from "./SingleSuggestion";
 import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
@@ -88,6 +88,8 @@ export function DownloadPageContentClient({
   const [pendingBulkSelection, setPendingBulkSelection] =
     useState<DownloadSelection | null>(null);
   const [showRemoveAllConfirm, setShowRemoveAllConfirm] = useState(false);
+  const [showStartNewOrderConfirm, setShowStartNewOrderConfirm] =
+    useState(false);
 
   function handleSelectionChange(uuid: string, selection: DownloadSelection) {
     setSelections((current) => ({ ...current, [uuid]: selection }));
@@ -277,6 +279,7 @@ export function DownloadPageContentClient({
     setUsageGroup("");
     setUsagePurpose([]);
     setStep("bestilling");
+    setShowStartNewOrderConfirm(false);
   }
 
   return (
@@ -291,8 +294,11 @@ export function DownloadPageContentClient({
         onAppendAction={handleAppendOverwrite}
         onCancelAction={handleCancelOverwrite}
       />
-      <RemoveAllDownloadsConfirmDialog
+      <ConfirmDialog
         open={showRemoveAllConfirm}
+        heading="Er du sikker?"
+        description="Dette fjerner alle datasett og valg fra nedlastingskurven. Dette kan ikke angres."
+        confirmLabel="Ja, fjern alle"
         onConfirmAction={() => {
           clearDownloads();
           setSelections({});
@@ -300,6 +306,14 @@ export function DownloadPageContentClient({
           setShowRemoveAllConfirm(false);
         }}
         onCancelAction={() => setShowRemoveAllConfirm(false)}
+      />
+      <ConfirmDialog
+        open={showStartNewOrderConfirm}
+        heading="Er du sikker?"
+        description="Dette tømmer kurven og alle valgene dine, og du blir sendt til en tom bestillingsside. Dette kan ikke angres."
+        confirmLabel="Ja, start ny bestilling"
+        onConfirmAction={handleStartNewOrder}
+        onCancelAction={() => setShowStartNewOrderConfirm(false)}
       />
 
       {step === "bestilling" ? (
@@ -464,7 +478,7 @@ export function DownloadPageContentClient({
               <Button
                 type="button"
                 variant="secondary"
-                onClick={handleStartNewOrder}
+                onClick={() => setShowStartNewOrderConfirm(true)}
               >
                 Start ny bestilling
               </Button>
