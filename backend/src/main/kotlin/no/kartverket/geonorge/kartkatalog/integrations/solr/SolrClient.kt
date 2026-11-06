@@ -66,7 +66,7 @@ class SolrClient(
     suspend fun getMetadataAllByUuid(uuid: String): SolrDocument? =
         querySolr(
             metadataAllPath,
-            MetadataSolrQuery(q = "uuid:${escapeSolrSpecialChars(uuid)}", fl = METADATA_ALL_ITEM_FL, rows = 1),
+            MetadataSolrQuery(q = "uuid:\"${escapeSolrSpecialChars(uuid)}\"", fl = METADATA_ALL_ITEM_FL, rows = 1),
         ).response.docs
             .firstOrNull()
 
