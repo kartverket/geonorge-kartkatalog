@@ -649,7 +649,7 @@ class LegacySearchRoutesTest {
             val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals(listOf("/solr/metadata_all/select"), paths.toList())
-            assertContains(searchForms.single(), "uuid:svc\\-1")
+            assertContains(searchForms.single(), "uuid:\"svc\\-1\"")
             assertEquals("svc-1", json.getValue("Uuid").jsonPrimitive.content)
             assertEquals("Service", json.getValue("TypeTranslated").jsonPrimitive.content)
             assertEquals("label-tjeneste", json.getValue("TypeCssClass").jsonPrimitive.content)
