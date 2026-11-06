@@ -25,6 +25,7 @@ export type DownloadOptionsByUuid = Record<string, DownloadOptionsState>;
 export type DownloadAreaBlock = {
   areaCode: string | null;
   polygon: string | null;
+  gridCellCodes: string[];
   projectionCodes: string[];
   formatNames: string[];
 };
@@ -36,6 +37,7 @@ export type DownloadSelection = {
 const EMPTY_AREA_BLOCK: DownloadAreaBlock = {
   areaCode: null,
   polygon: null,
+  gridCellCodes: [],
   projectionCodes: [],
   formatNames: [],
 };
@@ -52,7 +54,13 @@ export function selectAreaBlockArea(
   return {
     areaBlocks: selection.areaBlocks.map((block, index) =>
       index === blockIndex
-        ? { areaCode, polygon: null, projectionCodes: [], formatNames: [] }
+        ? {
+            areaCode,
+            polygon: null,
+            gridCellCodes: [],
+            projectionCodes: [],
+            formatNames: [],
+          }
         : block,
     ),
   };
@@ -66,7 +74,13 @@ export function selectAreaBlockPolygon(
   return {
     areaBlocks: selection.areaBlocks.map((block, index) =>
       index === blockIndex
-        ? { areaCode: null, polygon, projectionCodes: [], formatNames: [] }
+        ? {
+            areaCode: null,
+            polygon,
+            gridCellCodes: [],
+            projectionCodes: [],
+            formatNames: [],
+          }
         : block,
     ),
   };
@@ -114,9 +128,10 @@ export function canAddAreaBlock(
   }
 
   const usedAreaCodes = new Set(
-    selection.areaBlocks.flatMap((block) =>
-      block.areaCode ? [block.areaCode] : [],
-    ),
+    selection.areaBlocks.flatMap((block) => [
+      ...(block.areaCode ? [block.areaCode] : []),
+      ...block.gridCellCodes,
+    ]),
   );
   const unusedAreaCodes = new Set(
     presentOptionsList.flatMap((options) =>
@@ -126,7 +141,8 @@ export function canAddAreaBlock(
     ),
   );
   const emptyBlockCount = selection.areaBlocks.filter(
-    (block) => !block.areaCode && !block.polygon,
+    (block) =>
+      !block.areaCode && !block.polygon && block.gridCellCodes.length === 0,
   ).length;
   return unusedAreaCodes.size > emptyBlockCount;
 }
@@ -147,7 +163,9 @@ function getMissingAreaBlockFields(
 ): MissingDownloadSelectionField[] {
   const missingFields: MissingDownloadSelectionField[] = [];
 
-  if (!block.areaCode && !block.polygon) missingFields.push("area");
+  if (!block.areaCode && !block.polygon && block.gridCellCodes.length === 0) {
+    missingFields.push("area");
+  }
   if (block.projectionCodes.length === 0) missingFields.push("projection");
   if (block.formatNames.length === 0) missingFields.push("format");
 
@@ -341,6 +359,7 @@ export function filterAreaBlockForProduct(
     return {
       areaCode: null,
       polygon: bulkBlock.polygon,
+      gridCellCodes: [],
       projectionCodes,
       formatNames,
     };
@@ -367,6 +386,7 @@ export function filterAreaBlockForProduct(
   return {
     areaCode: matchingArea.area.code,
     polygon: null,
+    gridCellCodes: [],
     projectionCodes,
     formatNames,
   };
@@ -377,6 +397,7 @@ export function appendBulkAreaBlocks(
   newBlocks: DownloadAreaBlock[],
 ): DownloadAreaBlock[] {
   function keyOf(block: DownloadAreaBlock): string | null {
+    if (block.gridCellCodes.length > 0) return block.gridCellCodes.join(",");
     return block.areaCode ?? block.polygon ?? null;
   }
 

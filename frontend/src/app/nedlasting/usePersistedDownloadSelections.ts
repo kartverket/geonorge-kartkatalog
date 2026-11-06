@@ -18,6 +18,8 @@ function isDownloadAreaBlock(value: unknown): value is DownloadAreaBlock {
   return (
     (candidate.areaCode === null || typeof candidate.areaCode === "string") &&
     isStringArray(candidate.projectionCodes) &&
+    (candidate.gridCellCodes === undefined ||
+      isStringArray(candidate.gridCellCodes)) &&
     isStringArray(candidate.formatNames)
   );
 }
@@ -47,7 +49,13 @@ function readStoredSelections(): Record<string, DownloadSelection> {
       parsed as Record<string, unknown>,
     )) {
       if (isDownloadSelection(value)) {
-        validSelections[uuid] = value;
+        validSelections[uuid] = {
+          areaBlocks: value.areaBlocks.map((block) => ({
+            ...block,
+            // Valg lagret før rutenett ble innført mangler gridCellCodes
+            gridCellCodes: block.gridCellCodes ?? [],
+          })),
+        };
       }
     }
 
