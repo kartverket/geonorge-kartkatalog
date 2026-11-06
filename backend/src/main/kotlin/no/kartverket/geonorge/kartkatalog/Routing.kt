@@ -62,7 +62,12 @@ fun Application.configureRouting(
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)
     val distributionsService = DistributionsService(solrClient, geonetworkClient, codeListTranslator)
-    val embeddingClient = appConfig.vertexAIConfig?.let(::VertexAIClient)
+    val embeddingClient =
+        appConfig.vertexAIConfig?.let {
+            runCatching { VertexAIClient(it) }
+                .onFailure { e -> environment.log.warn("Vertex AI client unavailable, vector search disabled", e) }
+                .getOrNull()
+        }
     val hybridQueryBuilder =
         appConfig.vectorSearchConfig
             .takeIf { it.enabled }
