@@ -130,6 +130,11 @@ class SearchEngine(
         }
     }
 
+    internal suspend fun findUuidByDatasetName(
+        datasetName: String,
+        excludeUuid: String,
+    ): String? = solrClient.findUuidByDatasetName(datasetName, excludeUuid)
+
     suspend fun getMetadataByUuids(uuids: List<String>): List<SolrDocument> = solrClient.getMetadataByUuids(uuids)
 
     fun parseDatasetServices(values: List<String>?): List<RelatedServiceReference> =
