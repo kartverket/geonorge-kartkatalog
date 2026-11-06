@@ -29,6 +29,7 @@ export const DownloadOptionsSchema = z.object({
   areas: z.array(DownloadAreaOptionSchema),
   supportsPolygonSelection: z.boolean().default(false),
   deliveryNotificationByEmail: z.boolean().default(false),
+  gridSelectionLayer: z.string().nullable().default(null),
 });
 
 export type DownloadOptions = z.infer<typeof DownloadOptionsSchema>;
