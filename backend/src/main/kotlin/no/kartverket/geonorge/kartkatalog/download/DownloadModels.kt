@@ -75,6 +75,7 @@ data class DownloadOptions(
     val areas: List<DownloadAreaOption>,
     val supportsPolygonSelection: Boolean = false,
     val deliveryNotificationByEmail: Boolean = false,
+    val gridSelectionLayer: String? = null,
 )
 
 data class DownloadAreaOption(
