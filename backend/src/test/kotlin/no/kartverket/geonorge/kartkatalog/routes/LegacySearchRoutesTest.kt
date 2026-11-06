@@ -615,4 +615,74 @@ class LegacySearchRoutesTest {
             assertEquals(HttpStatusCode.NoContent, response.status)
             assertEquals("", response.bodyAsText())
         }
+
+    private val serviceDoc =
+        """
+        {"responseHeader":{"status":0,"QTime":1},"response":{"numFound":1,"start":0,"docs":[{
+          "uuid":"svc-1","title":"Kart & Data Æøå","type":"service","organizationgroup":"Kartverket",
+          "organization_logo_url":"https://example.test:8080/logos/kv.png?v=1",
+          "distribution_url":"https://wms.example.test/wms?request=GetCapabilities","distribution_protocol":"OGC:WMS",
+          "distribution_name":"layer1","otherconstraintsaccess":"No restrictions",
+          "ServiceDistributionAccessConstraint":"restricted"
+        }]}}
+        """.trimIndent()
+
+    private fun ApplicationTestBuilder.metadataApp(upstream: HttpClient) {
+        application {
+            configureSerialization()
+            val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
+            val register = RegisterClient(upstream, "https://register.example.test")
+            routing {
+                legacySearchRoutes(
+                    LegacySearchService(engine, register, "https://kartkatalog.test/", "https://norgeskart.test/"),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `api metadata uuid reads metadata_all and builds the legacy item`() =
+        testApplication {
+            metadataApp(upstream(solrBody = serviceDoc))
+
+            val response = client.get("/api/metadata/svc-1") { header(HttpHeaders.AcceptLanguage, "en") }
+            val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(listOf("/solr/metadata_all/select"), paths.toList())
+            assertContains(searchForms.single(), "uuid:\"svc\\-1\"")
+            assertEquals("svc-1", json.getValue("Uuid").jsonPrimitive.content)
+            assertEquals("Service", json.getValue("TypeTranslated").jsonPrimitive.content)
+            assertEquals("label-tjeneste", json.getValue("TypeCssClass").jsonPrimitive.content)
+            assertEquals("//example.test/logos/kv.png?v=1", json.getValue("OrganizationLogoUrl").jsonPrimitive.content)
+            val download = "#!?zoom=3&lon=306722&lat=7197864&wms=https://wms.example.test/wms&addLayers=layer1"
+            assertEquals(download, json.getValue("DownloadUrl").jsonPrimitive.content)
+            assertEquals("https://norgeskart.test/$download", json.getValue("MapUrl").jsonPrimitive.content)
+            assertEquals("true", json.getValue("ShowMapLink").jsonPrimitive.content)
+            assertEquals("true", json.getValue("IsOpendata").jsonPrimitive.content)
+            assertEquals("kartverket", json.getValue("OrganizationSeoName").jsonPrimitive.content)
+            assertEquals("kart-and-data-aeoa", json.getValue("TitleSeo").jsonPrimitive.content)
+            assertEquals("svc-1", json.getValue("ServiceUuid").jsonPrimitive.content)
+            assertContains(json.getValue("MapTitleTag").jsonPrimitive.content, "krever spesiell tilgang")
+        }
+
+    @Test
+    fun `api metadata uuid returns an item without Uuid when not found or solr fails`() =
+        testApplication {
+            val empty = """{"responseHeader":{"status":0,"QTime":1},"response":{"numFound":0,"start":0,"docs":[]}}"""
+            metadataApp(upstream(solrBody = empty))
+            val notFound = client.get("/api/metadata/missing")
+            val json = Json.parseToJsonElement(notFound.bodyAsText()).jsonObject
+            assertEquals(HttpStatusCode.OK, notFound.status)
+            assertFalse("Uuid" in json)
+            assertEquals("false", json.getValue("IsOpendata").jsonPrimitive.content)
+        }
+
+    @Test
+    fun `api metadata uuid treats solr errors as not found`() =
+        testApplication {
+            metadataApp(upstream(solrError = true))
+            val response = client.get("/api/metadata/x")
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertFalse("Uuid" in Json.parseToJsonElement(response.bodyAsText()).jsonObject)
+        }
 }

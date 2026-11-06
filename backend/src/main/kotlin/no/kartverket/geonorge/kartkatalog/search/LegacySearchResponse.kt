@@ -337,7 +337,7 @@ internal class LegacySearchResponse(
         }
 }
 
-private fun JsonObjectBuilder.putNullable(
+internal fun JsonObjectBuilder.putNullable(
     key: String,
     value: String?,
 ) {

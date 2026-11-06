@@ -12,41 +12,6 @@ import no.kartverket.geonorge.kartkatalog.config.searchJson
 
 private val textCsv = ContentType.parse("text/csv")
 private val applicationCsv = ContentType.parse("application/csv")
-private val languageTag = Regex("""^[a-zA-Z]{2,8}(?:-[a-zA-Z0-9]{1,8})*$""")
-
-internal fun searchLanguage(
-    lang: String?,
-    cookie: String?,
-    acceptLanguage: String?,
-): String {
-    // An unsupported lang/cookie value falls through to the next priority instead of forcing Norwegian.
-    lang
-        ?.trim()
-        ?.takeIf { it.isNotEmpty() }
-        ?.let(::supportedLanguage)
-        ?.let { return it }
-    cookie
-        ?.trim()
-        ?.takeIf { it.isNotEmpty() }
-        ?.let(::supportedLanguage)
-        ?.let { return it }
-
-    return parseHeaderValue(acceptLanguage)
-        .mapNotNull { preference ->
-            val quality = preference.validQuality()?.takeIf { it > 0.0 } ?: return@mapNotNull null
-            supportedLanguage(preference.value)?.let { it to quality }
-        }.maxByOrNull { it.second }
-        ?.first ?: "no"
-}
-
-// Shared by both /api/search and /search: resolves the request's language using the
-// same lang/cookie/Accept-Language priority.
-internal fun ApplicationCall.resolveSearchLanguage(): String =
-    searchLanguage(
-        request.queryParameters["lang"],
-        request.cookies["_culture"],
-        request.headers[HttpHeaders.AcceptLanguage],
-    )
 
 // Marks the response as varying on the headers search negotiation depends on, and
 // resolves the CSV content type (if any) the same way for both search routes.
@@ -66,16 +31,7 @@ internal suspend inline fun <reified T : Any> ApplicationCall.respondSearchJson(
     respondText(searchJson.encodeToString(message), ContentType.Application.Json, status)
 }
 
-private fun supportedLanguage(tag: String): String? {
-    if (!languageTag.matches(tag)) return null
-    return when (tag.substringBefore('-').lowercase()) {
-        "en" -> "en"
-        "no", "nb", "nn" -> "no"
-        else -> null
-    }
-}
-
-private fun HeaderValue.validQuality(): Double? {
+internal fun HeaderValue.validQuality(): Double? {
     val quality = params.firstOrNull { it.name.equals("q", ignoreCase = true) } ?: return 1.0
     return quality.value.toDoubleOrNull()?.takeIf { it in 0.0..1.0 }
 }

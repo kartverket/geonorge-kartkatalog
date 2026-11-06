@@ -63,6 +63,13 @@ class SolrClient(
 
     suspend fun searchMetadata(query: MetadataSolrQuery): SolrResponse = querySolr(metadataPath, query)
 
+    suspend fun getMetadataAllByUuid(uuid: String): SolrDocument? =
+        querySolr(
+            metadataAllPath,
+            MetadataSolrQuery(q = "uuid:\"${escapeSolrSpecialChars(uuid)}\"", fl = METADATA_ALL_ITEM_FL, rows = 1),
+        ).response.docs
+            .firstOrNull()
+
     suspend fun searchMetadataAll(
         query: MetadataSolrQuery,
         english: Boolean = false,
@@ -180,6 +187,16 @@ data class MetadataSolrQuery(
             append("wt", wt)
         }
 }
+
+private const val METADATA_ALL_ITEM_FL =
+    "uuid,title,abstract,purpose,type,theme,organization,organization_seo_lowercase,placegroups," +
+        "organizationgroup,topic_category,organization_logo_url,thumbnail_url,distribution_url," +
+        "distribution_protocol,distribution_name,product_page_url,date_published,date_updated," +
+        "nationalinitiative,score,ServiceDistributionProtocolForDataset,ServiceDistributionUrlForDataset," +
+        "ServiceDistributionNameForDataset,DistributionProtocols,legend_description_url,product_sheet_url," +
+        "product_specification_url,area,datasetservice,popularMetadata,bundle,servicelayers,accessconstraint," +
+        "servicedataset,otherconstraintsaccess,dataaccess,ServiceDistributionUuidForDataset," +
+        "ServiceDistributionAccessConstraint,parentidentifier"
 
 private val METADATA_FL =
     "uuid,title,abstract,purpose,type,theme,organization,organizations,organization_seo_lowercase,placegroups," +
