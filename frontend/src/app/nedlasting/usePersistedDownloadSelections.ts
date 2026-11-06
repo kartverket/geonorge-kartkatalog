@@ -52,7 +52,6 @@ function readStoredSelections(): Record<string, DownloadSelection> {
         validSelections[uuid] = {
           areaBlocks: value.areaBlocks.map((block) => ({
             ...block,
-            // Valg lagret før rutenett ble innført mangler gridCellCodes
             gridCellCodes: block.gridCellCodes ?? [],
           })),
         };
