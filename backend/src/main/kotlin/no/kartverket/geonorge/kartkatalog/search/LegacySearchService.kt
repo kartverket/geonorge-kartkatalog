@@ -2,6 +2,8 @@ package no.kartverket.geonorge.kartkatalog.search
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
@@ -27,6 +29,33 @@ class LegacySearchService(
 
     private val log = LoggerFactory.getLogger(LegacySearchService::class.java)
     private val areasCache = TimedCache<String, Map<String, String>>(12 * 60 * 60 * 1000L)
+
+    internal suspend fun validDatasetName(
+        datasetName: String?,
+        uuid: String?,
+    ): JsonObject {
+        if (uuid.isNullOrBlank()) return validationResult(false)
+        if (datasetName.isNullOrBlank()) return validationResult(true)
+        return try {
+            val otherUuid = engine.findUuidByDatasetName(datasetName, uuid)
+            validationResult(otherUuid == null, otherUuid)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: SolrException) {
+            // Legacy returns 200 with IsValid=false and the exception message; the message is not exposed here.
+            log.warn("Legacy-compatible dataset name validation failed", e)
+            validationResult(false, "Validation failed")
+        }
+    }
+
+    private fun validationResult(
+        isValid: Boolean,
+        result: String? = null,
+    ): JsonObject =
+        buildJsonObject {
+            put("IsValid", isValid)
+            result?.let { put("Result", it) }
+        }
 
     internal suspend fun searchHits(
         request: LegacySearchRequest,

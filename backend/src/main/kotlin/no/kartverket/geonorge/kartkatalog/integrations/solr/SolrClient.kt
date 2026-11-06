@@ -63,6 +63,23 @@ class SolrClient(
 
     suspend fun searchMetadata(query: MetadataSolrQuery): SolrResponse = querySolr(metadataPath, query)
 
+    suspend fun findUuidByDatasetName(
+        datasetName: String,
+        excludeUuid: String,
+    ): String? =
+        querySolr(
+            metadataPath,
+            MetadataSolrQuery(
+                q =
+                    "resourceReferenceCodeName:\"${escapeSolrSpecialChars(datasetName)}\"" +
+                        " AND -uuid:\"${escapeSolrSpecialChars(excludeUuid)}\"",
+                fl = "uuid",
+                rows = 1,
+            ),
+        ).response.docs
+            .firstOrNull()
+            ?.uuid
+
     suspend fun searchMetadataAll(
         query: MetadataSolrQuery,
         english: Boolean = false,
