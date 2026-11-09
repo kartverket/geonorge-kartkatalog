@@ -707,8 +707,7 @@ class LegacySearchRoutesTest {
             assertContains(form, "resourceReferenceCodespace:http\\:\\/\\/skjema.test\\/N50")
             assertContains(form, "rows=[2000]")
             assertContains(form, "start=[0]")
-            assertEquals("2000", json.getValue("Limit").jsonPrimitive.content)
-            assertEquals("1", json.getValue("Offset").jsonPrimitive.content)
+            assertEquals(setOf("Results"), json.keys)
             val result =
                 json
                     .getValue("Results")
@@ -718,6 +717,7 @@ class LegacySearchRoutesTest {
             assertEquals("test-uuid", result.getValue("Uuid").jsonPrimitive.content)
             assertEquals("Kartverket", result.getValue("Organization").jsonPrimitive.content)
             assertEquals("N50", result.getValue("DatasetName").jsonPrimitive.content)
+            assertEquals(setOf("Uuid", "Title", "Organization", "DatasetName"), result.keys)
         }
 
     @Test

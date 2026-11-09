@@ -82,29 +82,22 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
 
     /**
      * Legacy-compatible list of datasets in a namespace (used by Register to sync namespace datasets).
-     * Searches resourceReferenceCodespace in the metadata core and returns legacy search JSON.
+     * Searches resourceReferenceCodespace in the metadata core. Only the fields Register reads are returned.
      *
      * Query: namespace [String] The namespace (resourceReferenceCodespace) to list datasets for.
      * Query: limit [Int] Maximum number of results (default 10).
      * Query: offset [Int] One-based result offset (default 0, treated as 1).
-     * Query: lang [String] Response language, en or Norwegian; takes precedence over the _culture cookie.
-     * Header: Accept-Language [String] Language preference used when neither lang nor _culture is supplied.
-     * Cookie: _culture [String] Remembered response language.
-     * Response: 200 application/json Legacy search results as JSON.
+     * Response: 200 application/json Results with Uuid, Title, Organization and DatasetName per dataset.
      * Response: 204 The request failed or namespace is missing (legacy returns no body on errors).
      */
     get("/api/datasets-namespace") {
         val params = call.request.queryParameters
         val limit = params["limit"]?.toIntOrNull() ?: NamespaceMetadataQuery.DEFAULT_LIMIT
         val offset = params["offset"]?.toIntOrNull() ?: 0
-        val namespace = params["namespace"]
-        val language = call.resolveSearchLanguage()
-        call.applyLanguageHeaders(language)
-        call.response.headers.append(HttpHeaders.Vary, "Accept-Language, Cookie")
         try {
             // Legacy throws on a missing namespace, which is caught and returned as null (204).
-            requireNotNull(namespace) { "namespace is required" }
-            call.respondSearchJson(service.namespaceSearch(namespace, limit, offset, language))
+            val namespace = requireNotNull(params["namespace"]) { "namespace is required" }
+            call.respondSearchJson(service.namespaceDatasets(namespace, limit, offset))
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

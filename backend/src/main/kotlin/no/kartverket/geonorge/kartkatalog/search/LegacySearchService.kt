@@ -1,7 +1,10 @@
 package no.kartverket.geonorge.kartkatalog.search
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
@@ -70,15 +73,22 @@ class LegacySearchService(
             .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
     }
 
-    internal suspend fun namespaceSearch(
+    internal suspend fun namespaceDatasets(
         namespace: String,
         limit: Int,
         offset: Int,
-        language: String,
     ): JsonObject {
-        val normalizedOffset = NamespaceMetadataQuery.normalizeOffset(offset)
-        val hits = engine.searchMetadataCore(NamespaceMetadataQuery.build(namespace, limit, normalizedOffset))
-        return LegacySearchResponse(language, kartkatalogUrl, loadAreas()).build(limit, normalizedOffset, hits)
+        val query = NamespaceMetadataQuery.build(namespace, limit, NamespaceMetadataQuery.normalizeOffset(offset))
+        val results =
+            engine.searchMetadataCore(query).documents.map { doc ->
+                buildJsonObject {
+                    put("Uuid", doc.uuid)
+                    putNullable("Title", doc.title)
+                    putNullable("Organization", doc.organizationgroup ?: doc.organization)
+                    putNullable("DatasetName", doc.datasetName)
+                }
+            }
+        return buildJsonObject { put("Results", JsonArray(results)) }
     }
 
     internal suspend fun metadataItem(
