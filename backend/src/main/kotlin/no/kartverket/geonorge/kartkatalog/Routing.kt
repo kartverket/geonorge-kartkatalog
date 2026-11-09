@@ -11,6 +11,7 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.openapi.OpenApiDocSource
 import io.ktor.server.routing.path
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.routing.routingRoot
 import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
@@ -106,11 +107,29 @@ fun Application.configureRouting(
         get("/") {
             call.respondText("Hello, World!")
         }
-        searchRoutes(searchService)
+        // Copy of the old Kartkatalog search API; never versioned.
         legacySearchRoutes(legacySearchService)
-        metadataRoutes(metadataService, linkedDistributionsService)
-        distributionsRoutes(distributionsService)
-        downloadRoutes(downloadService, tokenExchangeClient, authentication)
-        authRoutes(authentication)
+
+        route(API_V1) {
+            searchRoutes(searchService)
+            metadataRoutes(metadataService, linkedDistributionsService)
+            distributionsRoutes(distributionsService)
+            downloadRoutes(downloadService, tokenExchangeClient, authentication)
+        }
+
+        // Session endpoints used only by our own frontend; not part of the versioned API.
+        route("/api") {
+            authRoutes(authentication)
+        }
+
+        // Pre-versioning paths, kept until clients have moved to API_V1.
+        deprecatedAlias("/api") {
+            searchRoutes(searchService)
+            distributionsRoutes(distributionsService)
+            downloadRoutes(downloadService, tokenExchangeClient, authentication)
+        }
+        deprecatedAlias("") {
+            metadataRoutes(metadataService, linkedDistributionsService)
+        }
     }
 }

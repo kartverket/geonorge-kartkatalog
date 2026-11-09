@@ -11,8 +11,10 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
+import no.kartverket.geonorge.kartkatalog.API_V1
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
@@ -273,7 +275,7 @@ class MetadataRoutesTest {
             configureHttp()
             configureSerialization()
             configureStatusPages()
-            routing { metadataRoutes(metadataService, linkedDistributionsService) }
+            routing { route(API_V1) { metadataRoutes(metadataService, linkedDistributionsService) } }
         }
         block()
     }
@@ -284,7 +286,7 @@ class MetadataRoutesTest {
             createMetadataService(responseXml)
         testApp(metadataService, linkedDistributionsService) {
             val response =
-                client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
+                client.get("/api/v1/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertContains(response.bodyAsText(), "Matrikkelen - Bygningspunkt WFS")
@@ -298,7 +300,7 @@ class MetadataRoutesTest {
 
         testApp(metadataService, linkedDistributionsService) {
             val response =
-                client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
+                client.get("/api/v1/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689")
 
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()
@@ -314,7 +316,7 @@ class MetadataRoutesTest {
             createMetadataService(emptyGeonetworkXml)
 
         testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/metadata/00000000-0000-0000-0000-000000000000")
+            val response = client.get("/api/v1/metadata/00000000-0000-0000-0000-000000000000")
             assertEquals(HttpStatusCode.NotFound, response.status)
             assertContains(response.bodyAsText(), "error")
         }
@@ -326,7 +328,7 @@ class MetadataRoutesTest {
             createMetadataService(emptyGeonetworkXml)
 
         testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/metadata/not-a-uuid")
+            val response = client.get("/api/v1/metadata/not-a-uuid")
 
             assertEquals(HttpStatusCode.NotFound, response.status)
             assertContains(response.bodyAsText(), "error")
@@ -339,7 +341,7 @@ class MetadataRoutesTest {
             createMetadataService(responseXml)
 
         testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/metadata/%20")
+            val response = client.get("/api/v1/metadata/%20")
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertContains(response.bodyAsText(), "error")
@@ -352,7 +354,7 @@ class MetadataRoutesTest {
             createMetadataService(responseXml)
 
         testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+            val response = client.get("/api/v1/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertContains(response.bodyAsText(), "applications")
@@ -367,7 +369,7 @@ class MetadataRoutesTest {
             createMetadataService(responseXml)
 
         testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/produktspesifikasjon")
+            val response = client.get("/api/v1/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/produktspesifikasjon")
             val body = response.bodyAsText()
 
             assertEquals(HttpStatusCode.OK, response.status)
@@ -384,7 +386,7 @@ class MetadataRoutesTest {
             createMetadataService(responseXmlWithWms, solrDocJson = datasetWithViewServiceSolrJson)
 
         testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+            val response = client.get("/api/v1/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
             val body = response.bodyAsText()
 
             assertEquals(HttpStatusCode.OK, response.status)
@@ -408,7 +410,7 @@ class MetadataRoutesTest {
 
         testApp(metadataService, linkedDistributionsService) {
             val response =
-                client.get("/metadata/%20/linked-distributions")
+                client.get("/api/v1/metadata/%20/linked-distributions")
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertContains(response.bodyAsText(), "error")
@@ -421,7 +423,7 @@ class MetadataRoutesTest {
             createMetadataService(responseXml, solrDocJson = serviceSolrJson)
 
         testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+            val response = client.get("/api/v1/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertContains(response.bodyAsText(), "relatedDatasets")
@@ -435,7 +437,7 @@ class MetadataRoutesTest {
             createMetadataService(responseXml, solrDocJson = servicelayerSolrJson)
 
         testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+            val response = client.get("/api/v1/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertContains(response.bodyAsText(), "relatedDatasets")
@@ -449,7 +451,7 @@ class MetadataRoutesTest {
             createMetadataService(responseXml, solrDocJson = softwareSolrJson)
 
         testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+            val response = client.get("/api/v1/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertContains(response.bodyAsText(), "relatedDatasets")
@@ -462,7 +464,7 @@ class MetadataRoutesTest {
             createMetadataService(responseXml, solrFails = true)
 
         testApp(metadataService, linkedDistributionsService) {
-            val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
+            val response = client.get("/api/v1/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
 
             assertEquals(HttpStatusCode.BadGateway, response.status)
             assertContains(response.bodyAsText(), "Upstream Solr error")

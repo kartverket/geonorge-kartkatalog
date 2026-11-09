@@ -10,5 +10,7 @@ fun Application.configureHttp() {
         anyHost()
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Origin)
+        exposeHeader("Deprecation")
+        exposeHeader(HttpHeaders.Link)
     }
 }

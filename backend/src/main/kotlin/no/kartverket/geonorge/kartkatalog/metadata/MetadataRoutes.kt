@@ -4,6 +4,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import io.ktor.server.routing.openapi.describe
 import io.ktor.server.routing.route
 
 fun Route.metadataRoutes(
@@ -11,6 +12,8 @@ fun Route.metadataRoutes(
     linkedDistributionsService: LinkedDistributionsService,
 ) {
     route("/metadata/") {
+        describe { tag("Metadata") }
+
         /**
          * Returns the mapped catalog metadata record for a UUID.
          *

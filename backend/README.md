@@ -38,6 +38,16 @@ If the server starts successfully, you'll see the following output:
 
 API documentation is generated from the route definitions and available at `http://localhost:8080/swagger`. The OpenAPI JSON document is served at `http://localhost:8080/swagger/openapi.json`. Route documentation is written as KDoc comments above each route (see [Ktor's OpenAPI docs](https://ktor.io/docs/openapi-spec-generation.html#comment-annotations)). Code inference is disabled, so request bodies, responses and parameters must be documented explicitly and kept in sync with the handlers.
 
+## API versioning
+
+The public API is served under `/api/v1` (`API_V1` in `ApiVersioning.kt`). Route functions declare only their own paths; `Routing.kt` decides which version prefix they are mounted under.
+
+- Only breaking changes get a new major version, and only for the endpoints that change: mount the new route under `/api/v2` and give it its own response models, reusing the existing services.
+- Additive changes (new fields) stay in the current version.
+- The pre-versioning paths (`/api/search`, `/api/distributions/*`, `/api/download/*`, `/metadata/*`) are still served through `deprecatedAlias`, which adds `Deprecation` and `Link: <...>; rel="successor-version"` headers. Remove them once clients have moved.
+- Not versioned: the frozen legacy `/search`, the session endpoint `/api/me/geoid` and the OIDC routes, which only our own frontend uses.
+- `ServerTest` fails if an endpoint is registered outside these rules.
+
 ## Restricted downloads
 
 `ALLOWED_DOWNLOAD_CLIENTS` is an optional, comma-separated allowlist of download API origins that may receive a user's GeoID access token for a restricted download order:
@@ -46,11 +56,11 @@ Each value must be an HTTPS origin (scheme, host, and optional port), without a 
 
 ## Legacy search compatibility
 
-Both `GET /search` and `GET /api/search` share Solr execution and neutral search hits/facet counts. Each adapter prepares its own query: `/api/search` uses the original modern `SearchQueryBuilder`, while `/search` uses legacy-specific query rules. `/search` serves the legacy Kartkatalog `/api/search` contract: it accepts legacy `text`, `limit`, `offset`, `orderby`, `listhidden` and indexed `facets[n]name`/`facets[n]value` query parameters; JSON uses PascalCase keys and omits null properties. On **either** search route, `Accept: text/csv` (or `application/csv`), or `mediatype=csv`, produces the same semicolon-delimited export from that route's results, with `Content-Disposition: attachment; filename=kartkatalogen.csv`. The export includes only the requested page; an empty result produces an empty CSV body, as in legacy. For CSV, `lang=en`, the `_culture` cookie or `Accept-Language` select the English `metadata_all_en` core; Norwegian uses `metadata_all`. `/search` also applies this language selection to JSON.
+Both `GET /search` and `GET /api/search` share Solr execution and neutral search hits/facet counts. Each adapter prepares its own query: `/api/v1/search` uses the original modern `SearchQueryBuilder`, while `/search` uses legacy-specific query rules. `/search` serves the legacy Kartkatalog `/api/search` contract: it accepts legacy `text`, `limit`, `offset`, `orderby`, `listhidden` and indexed `facets[n]name`/`facets[n]value` query parameters; JSON uses PascalCase keys and omits null properties. On **either** search route, `Accept: text/csv` (or `application/csv`), or `mediatype=csv`, produces the same semicolon-delimited export from that route's results, with `Content-Disposition: attachment; filename=kartkatalogen.csv`. The export includes only the requested page; an empty result produces an empty CSV body, as in legacy. For CSV, `lang=en`, the `_culture` cookie or `Accept-Language` select the English `metadata_all_en` core; Norwegian uses `metadata_all`. `/search` also applies this language selection to JSON.
 
-Search format selection honors `Accept` quality (`q`) values and exact media types; wildcards alone do not select CSV, and `q=0` excludes it. A nonempty `mediatype` query parameter overrides `Accept` (`csv`, `text/csv`, or `application/csv`; other values select JSON). CSV uses the selected CSV media type in `Content-Type`. Language priority is `lang` query parameter, then `_culture` cookie, then the highest-quality supported `Accept-Language` entry (`en`, `no`, `nb`, `nn` and regional variants). Without a supported choice the default is Norwegian. `/api/search` JSON continues to use the Norwegian core regardless of these language hints.
+Search format selection honors `Accept` quality (`q`) values and exact media types; wildcards alone do not select CSV, and `q=0` excludes it. A nonempty `mediatype` query parameter overrides `Accept` (`csv`, `text/csv`, or `application/csv`; other values select JSON). CSV uses the selected CSV media type in `Content-Type`. Language priority is `lang` query parameter, then `_culture` cookie, then the highest-quality supported `Accept-Language` entry (`en`, `no`, `nb`, `nn` and regional variants). Without a supported choice the default is Norwegian. `/api/v1/search` JSON continues to use the Norwegian core regardless of these language hints.
 
-`/api/search` retains its original query/filter/sort rules and camelCase JSON response contract for the new frontend, including flat facets and modern metadata fields. Its request normalization and upstream-error response (502) are retained for both JSON and CSV; `/search` returns an empty 200 response for Solr search failures.
+`/api/v1/search` retains its original query/filter/sort rules and camelCase JSON response contract for the new frontend, including flat facets and modern metadata fields. Its request normalization and upstream-error response (502) are retained for both JSON and CSV; `/search` returns an empty 200 response for Solr search failures.
 
 Set `KARTKATALOG_BASE_URL` to the public Kartkatalog frontend URL used by legacy `ShowDetailsUrl` and `OrganizationUrl`. It falls back to `PUBLIC_BASE_URL` if not set. Search errors from Solr produce the legacy empty search result; other upstream failures remain errors.
 

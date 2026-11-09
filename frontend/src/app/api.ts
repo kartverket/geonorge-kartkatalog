@@ -36,6 +36,7 @@ import {
 } from "@/lib/schemas/tegneregler";
 
 const API_BASE = process.env.API_BASE;
+const API_V1 = `${API_BASE}/api/v1`;
 const REGISTER_BASE_URL = process.env.REGISTER_BASE_URL;
 const katalogBaseUrl: string | undefined = process.env.KATALOG_BASE_URL;
 export const KATALOG_ORIGIN = new URL(katalogBaseUrl ?? "https://dummy.org")
@@ -200,7 +201,7 @@ async function fetchJson(
 export const getMetadata = cache(
   async (uuid: string, notFoundOn404 = true): Promise<ProductMetadata> => {
     if (!uuid) throw new Error("uuid is required");
-    const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}`;
+    const url = `${API_V1}/metadata/${encodeURIComponent(uuid)}`;
     // Fetch as unknown and validate the shape with Zod before returning typed data
     const body = await fetchJson(url, { method: "GET" }, { notFoundOn404 });
     return parseProductMetadata(body);
@@ -216,7 +217,7 @@ export async function getLinkedDistributions(
   uuid: string,
 ): Promise<LinkedDistributions> {
   if (!uuid) throw new Error("uuid is required");
-  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/linked-distributions`;
+  const url = `${API_V1}/metadata/${encodeURIComponent(uuid)}/linked-distributions`;
   const body = await fetchJson(
     url,
     { method: "GET" },
@@ -272,7 +273,7 @@ export async function getProduktark(
   uuid: string,
 ): Promise<ProduktarkItem | null> {
   if (!uuid) throw new Error("uuid is required");
-  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/produktark`;
+  const url = `${API_V1}/metadata/${encodeURIComponent(uuid)}/produktark`;
   const body = await fetchJson(
     url,
     { method: "GET" },
@@ -293,7 +294,7 @@ export async function getProduktspesifikasjon(
   uuid: string,
 ): Promise<ProduktspesifikasjonItem | null> {
   if (!uuid) throw new Error("uuid is required");
-  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/produktspesifikasjon`;
+  const url = `${API_V1}/metadata/${encodeURIComponent(uuid)}/produktspesifikasjon`;
   const body = await fetchJson(
     url,
     { method: "GET" },
@@ -314,7 +315,7 @@ export async function getTegneregler(
   uuid: string,
 ): Promise<TegnereglerItem | null> {
   if (!uuid) throw new Error("uuid is required");
-  const url = `${API_BASE}/metadata/${encodeURIComponent(uuid)}/tegneregler`;
+  const url = `${API_V1}/metadata/${encodeURIComponent(uuid)}/tegneregler`;
   const body = await fetchJson(
     url,
     { method: "GET" },
@@ -355,7 +356,7 @@ export async function getSearchResults({
     }
   }
 
-  const url = `${API_BASE}/api/search?${params.toString()}`;
+  const url = `${API_V1}/search?${params.toString()}`;
   const body = await fetchJson(url, { method: "GET" });
   return parseSearchResult(body);
 }
@@ -368,7 +369,7 @@ export async function getDownloadOptions(
   const params = new URLSearchParams();
   if (capabilitiesUrl) params.set("capabilitiesUrl", capabilitiesUrl);
   const query = params.toString();
-  const url = `${API_BASE}/api/download/options/${encodeURIComponent(uuid)}${query ? `?${query}` : ""}`;
+  const url = `${API_V1}/download/options/${encodeURIComponent(uuid)}${query ? `?${query}` : ""}`;
   const body = await fetchJson(url, { method: "GET" });
   return parseDownloadOptions(body);
 }
@@ -378,7 +379,7 @@ export async function orderDownload(
   cookie?: string,
   authorization?: string,
 ): Promise<DownloadOrderResult> {
-  let url = `${API_BASE}/api/download/order`;
+  let url = `${API_V1}/download/order`;
   if (authorization) url += `-restricted`;
   const body = await fetchJson(url, {
     method: "POST",
@@ -397,7 +398,7 @@ export async function getDownloadInsightGroups(): Promise<DownloadInsightGroups>
   "use cache";
   cacheLife("days");
 
-  const url = `${API_BASE}/api/download/insight-groups`;
+  const url = `${API_V1}/download/insight-groups`;
   const body = await fetchJson(url, {
     method: "GET",
   });

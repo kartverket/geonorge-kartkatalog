@@ -2,12 +2,21 @@ package no.kartverket.geonorge.kartkatalog.routes
 
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
 import io.ktor.server.application.install
+import io.ktor.server.application.plugin
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
+import io.ktor.server.routing.RoutingRoot
+import io.ktor.server.routing.getAllRoutes
 import io.ktor.server.testing.testApplication
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import no.kartverket.geonorge.kartkatalog.API_V1
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
@@ -15,6 +24,7 @@ import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.configureRouting
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ServerTest {
     @Test
@@ -70,23 +80,81 @@ class ServerTest {
                 configureHttp()
                 configureSerialization()
                 configureStatusPages()
-                configureRouting(
-                    AppConfig(
-                        mapOf(
-                            "GEONETWORK_BASE_URL" to "https://test.example.com/geonetwork",
-                            "REGISTER_BASE_URL" to "https://test.example.com/register",
-                            "SOLR_BASE_URL" to "https://test.example.com/solr",
-                            "NORGESKART_BASE_URL" to "https://test.example.com/norgeskart",
-                            "GEOID_ISSUER" to "https://test.example.com/geoid",
-                            "GEOID_CLIENT_ID" to "kartkatalog-test",
-                            "GEOID_CLIENT_SECRET" to "test-secret",
-                            "PUBLIC_BASE_URL" to "https://test.example.com/kartkatalog",
-                            "TOKEN_EXCHANGE_URL" to "https://test.example.com/token-exchange",
-                        ),
-                    ),
-                    authentication,
-                )
+                configureRouting(appConfig, authentication)
             }
             assertEquals(HttpStatusCode.OK, client.get("/").status)
         }
+
+    @Test
+    fun `every public endpoint is versioned or a deprecated alias`() =
+        testApplication {
+            lateinit var endpoints: List<String>
+            application {
+                val authentication = configureTestAuthentication()
+                configureRouting(appConfig, authentication)
+                endpoints =
+                    plugin(RoutingRoot)
+                        .getAllRoutes()
+                        .map { it.toString().replace(Regex("""\(authenticate [^)]*\)/"""), "") }
+            }
+            startApplication()
+
+            // Endpoints that are intentionally outside the versioned API.
+            val unversioned = setOf("/(method:GET)", "/search/(method:GET)", "/api/me/geoid/(method:GET)")
+            val stray =
+                endpoints.filterNot { endpoint ->
+                    endpoint.startsWith("$API_V1/") ||
+                        endpoint.startsWith("/(deprecated alias of $API_V1)/") ||
+                        endpoint.startsWith("/oidc/") ||
+                        endpoint in unversioned
+                }
+            assertTrue(stray.isEmpty(), "Endpoints outside $API_V1: $stray\nAll: $endpoints")
+        }
+
+    @Test
+    fun `swagger groups endpoints by API area`() =
+        testApplication {
+            application {
+                val authentication = configureTestAuthentication()
+                configureHttp()
+                configureSerialization()
+                configureStatusPages()
+                configureRouting(appConfig, authentication)
+            }
+
+            val openApi = Json.parseToJsonElement(client.get("/swagger/openapi.json").bodyAsText()).jsonObject
+            val paths = openApi.getValue("paths").jsonObject
+
+            fun tags(
+                path: String,
+                method: String = "get",
+            ) = paths
+                .getValue(path)
+                .jsonObject
+                .getValue(method)
+                .jsonObject
+                .getValue("tags")
+                .jsonArray
+                .map { it.jsonPrimitive.content }
+
+            assertEquals(listOf("Search"), tags("/api/v1/search"))
+            assertEquals(listOf("Metadata"), tags("/api/v1/metadata/{uuid}"))
+            assertEquals(listOf("Distributions"), tags("/api/v1/distributions/{uuid}"))
+            assertEquals(listOf("Downloads"), tags("/api/v1/download/order", "post"))
+        }
+
+    private val appConfig =
+        AppConfig(
+            mapOf(
+                "GEONETWORK_BASE_URL" to "https://test.example.com/geonetwork",
+                "REGISTER_BASE_URL" to "https://test.example.com/register",
+                "SOLR_BASE_URL" to "https://test.example.com/solr",
+                "NORGESKART_BASE_URL" to "https://test.example.com/norgeskart",
+                "GEOID_ISSUER" to "https://test.example.com/geoid",
+                "GEOID_CLIENT_ID" to "kartkatalog-test",
+                "GEOID_CLIENT_SECRET" to "test-secret",
+                "PUBLIC_BASE_URL" to "https://test.example.com/kartkatalog",
+                "TOKEN_EXCHANGE_URL" to "https://test.example.com/token-exchange",
+            ),
+        )
 }

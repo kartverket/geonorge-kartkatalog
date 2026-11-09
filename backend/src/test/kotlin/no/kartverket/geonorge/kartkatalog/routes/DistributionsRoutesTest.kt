@@ -11,12 +11,14 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import no.kartverket.geonorge.kartkatalog.API_V1
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
@@ -136,7 +138,7 @@ class DistributionsRoutesTest {
             configureHttp()
             configureSerialization()
             configureStatusPages()
-            routing { distributionsRoutes(service) }
+            routing { route(API_V1) { distributionsRoutes(service) } }
         }
         block()
     }
@@ -144,7 +146,7 @@ class DistributionsRoutesTest {
     @Test
     fun `returns flat list with translated protocol uuid and title`() =
         testApp(recordXml) {
-            val response = client.get("/api/distributions/$uuid?lang=no")
+            val response = client.get("/api/v1/distributions/$uuid?lang=no")
 
             assertEquals(HttpStatusCode.OK, response.status)
             val distribution =
@@ -176,7 +178,7 @@ class DistributionsRoutesTest {
         testApp(xml) {
             val distribution =
                 Json
-                    .parseToJsonElement(client.get("/api/distributions/$uuid?lang=no").bodyAsText())
+                    .parseToJsonElement(client.get("/api/v1/distributions/$uuid?lang=no").bodyAsText())
                     .jsonArray
                     .single()
                     .jsonObject
@@ -197,7 +199,7 @@ class DistributionsRoutesTest {
                     .replace("Matrikkelen - Bygningspunkt WFS", "Relatert tjeneste"),
         ) {
             val distributions =
-                Json.parseToJsonElement(client.get("/api/distributions/$uuid?lang=no").bodyAsText()).jsonArray
+                Json.parseToJsonElement(client.get("/api/v1/distributions/$uuid?lang=no").bodyAsText()).jsonArray
             assertEquals(
                 listOf("Matrikkelen - Bygningspunkt WFS", "Relatert tjeneste"),
                 distributions.map { it.jsonObject["Title"]?.jsonPrimitive?.content },
@@ -211,13 +213,13 @@ class DistributionsRoutesTest {
     @Test
     fun `fails rather than returning an empty list when metadata is missing`() =
         testApp(emptyXml) {
-            assertEquals(HttpStatusCode.InternalServerError, client.get("/api/distributions/$uuid").status)
+            assertEquals(HttpStatusCode.InternalServerError, client.get("/api/v1/distributions/$uuid").status)
         }
 
     @Test
     fun `returns own distributions when metadata Solr lookup fails`() =
         testApp(recordXml, solrStatus = HttpStatusCode.InternalServerError) {
-            val response = client.get("/api/distributions/$uuid")
+            val response = client.get("/api/v1/distributions/$uuid")
             assertEquals(HttpStatusCode.OK, response.status)
             val distributions = Json.parseToJsonElement(response.bodyAsText()).jsonArray
             assertEquals(listOf(uuid), distributions.map { it.jsonObject["Uuid"]?.jsonPrimitive?.content })
@@ -229,7 +231,7 @@ class DistributionsRoutesTest {
             recordXml.replace("codeListValue=\"service\"", "codeListValue=\"dataset\""),
             applicationStatus = HttpStatusCode.InternalServerError,
         ) {
-            val response = client.get("/api/distributions/$uuid")
+            val response = client.get("/api/v1/distributions/$uuid")
             assertEquals(HttpStatusCode.OK, response.status)
             val distributions = Json.parseToJsonElement(response.bodyAsText()).jsonArray
             assertEquals(listOf(uuid), distributions.map { it.jsonObject["Uuid"]?.jsonPrimitive?.content })
@@ -244,7 +246,7 @@ class DistributionsRoutesTest {
                    "docs":[{"uuid":"$uuid","type":"service","servicedataset":["missing-related|Dataset"]}]}}""",
             relatedXml = emptyXml,
         ) {
-            val response = client.get("/api/distributions/$uuid")
+            val response = client.get("/api/v1/distributions/$uuid")
             assertEquals(HttpStatusCode.InternalServerError, response.status)
         }
 
@@ -255,14 +257,14 @@ class DistributionsRoutesTest {
     @Test
     fun `service with distribution name and WMS protocol is reported as servicelayer`() =
         testApp(wmsXml.replace("</gmd:protocol>", nameTag)) {
-            val body = client.get("/api/distributions/$uuid").bodyAsText()
+            val body = client.get("/api/v1/distributions/$uuid").bodyAsText()
             assertContains(body, "\"Protocol\":\"Tjenestelag\"")
         }
 
     @Test
     fun `service without distribution name keeps WMS protocol`() =
         testApp(wmsXml) {
-            val body = client.get("/api/distributions/$uuid").bodyAsText()
+            val body = client.get("/api/v1/distributions/$uuid").bodyAsText()
             assertContains(body, "\"Protocol\":\"WMS-tjeneste\"")
         }
 
@@ -275,7 +277,11 @@ class DistributionsRoutesTest {
                     "<gco:CharacterString>OGC:WMS</gco:CharacterString>$nameTag",
                 )
         testApp(xml) {
-            val distributions = Json.parseToJsonElement(client.get("/api/distributions/$uuid").bodyAsText()).jsonArray
+            val distributions =
+                Json
+                    .parseToJsonElement(
+                        client.get("/api/v1/distributions/$uuid").bodyAsText(),
+                    ).jsonArray
             assertEquals(
                 listOf("WMS-tjeneste", "W3C:AtomFeed"),
                 distributions.map { it.jsonObject["Protocol"]?.jsonPrimitive?.content },
@@ -286,7 +292,11 @@ class DistributionsRoutesTest {
     @Test
     fun `name on first shared resource turns format WMS into service layer`() =
         testApp(xmlWithFormatAndExtraTransferOption("OGC:WMS", wmsXml.replace("</gmd:protocol>", nameTag))) {
-            val distributions = Json.parseToJsonElement(client.get("/api/distributions/$uuid").bodyAsText()).jsonArray
+            val distributions =
+                Json
+                    .parseToJsonElement(
+                        client.get("/api/v1/distributions/$uuid").bodyAsText(),
+                    ).jsonArray
             assertEquals(
                 listOf("Tjenestelag", "W3C:AtomFeed"),
                 distributions.map { it.jsonObject["Protocol"]?.jsonPrimitive?.content },
@@ -296,7 +306,11 @@ class DistributionsRoutesTest {
     @Test
     fun `includes later shared transfer options even when format has its own protocol`() =
         testApp(xmlWithFormatAndExtraTransferOption("OGC:WMS")) {
-            val distributions = Json.parseToJsonElement(client.get("/api/distributions/$uuid").bodyAsText()).jsonArray
+            val distributions =
+                Json
+                    .parseToJsonElement(
+                        client.get("/api/v1/distributions/$uuid").bodyAsText(),
+                    ).jsonArray
             assertEquals(
                 listOf("WMS-tjeneste", "W3C:AtomFeed"),
                 distributions.map { it.jsonObject["Protocol"]?.jsonPrimitive?.content },
@@ -307,7 +321,11 @@ class DistributionsRoutesTest {
     @Test
     fun `uses first shared transfer option when format protocol is empty`() =
         testApp(xmlWithFormatAndExtraTransferOption("")) {
-            val distributions = Json.parseToJsonElement(client.get("/api/distributions/$uuid").bodyAsText()).jsonArray
+            val distributions =
+                Json
+                    .parseToJsonElement(
+                        client.get("/api/v1/distributions/$uuid").bodyAsText(),
+                    ).jsonArray
             assertEquals(
                 listOf("WFS-tjeneste", "W3C:AtomFeed"),
                 distributions.map { it.jsonObject["Protocol"]?.jsonPrimitive?.content },
@@ -320,7 +338,7 @@ class DistributionsRoutesTest {
             val distributions =
                 Json
                     .parseToJsonElement(
-                        client.get("/api/distributions/$uuid?lang=no").bodyAsText(),
+                        client.get("/api/v1/distributions/$uuid?lang=no").bodyAsText(),
                     ).jsonArray
             val application =
                 distributions
