@@ -14,10 +14,7 @@ import {
 import { ArrowLeftIcon, ArrowRightIcon, TrashIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import { type SubmitEventHandler, useEffect, useRef, useState } from "react";
-import {
-  clearDownloads,
-  removeItemsFromDownloads,
-} from "@/app/_components/addToDownloads/downloadStorage";
+import { clearDownloads } from "@/app/_components/addToDownloads/downloadStorage";
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import {
   appendBulkAreaBlocks,
@@ -275,29 +272,6 @@ export function DownloadPageContentClient({
     });
   };
 
-  function handleProductDownloaded(uuid: string) {
-    const card = orderedCards.find((c) => c.uuid === uuid);
-    if (!card) return;
-
-    removeItemsFromDownloads([
-      {
-        accessType: card.accessState,
-        distributionUrl: card.distributionUrl,
-        name: card.title,
-        organizationName: card.organization,
-        uuid: card.uuid,
-      },
-    ]);
-
-    setSelections((current) => {
-      const next: Record<string, DownloadSelection> = {};
-      for (const key of Object.keys(current)) {
-        if (key !== uuid) next[key] = current[key];
-      }
-      return next;
-    });
-  }
-
   function handleStartNewOrder() {
     clearDownloads();
     setSelections({});
@@ -538,7 +512,6 @@ export function DownloadPageContentClient({
                 <DownloadOrderSummary
                   orderResult={orderResult}
                   cards={orderedCards}
-                  onProductDownloaded={handleProductDownloaded}
                 />
               </>
             ) : null}

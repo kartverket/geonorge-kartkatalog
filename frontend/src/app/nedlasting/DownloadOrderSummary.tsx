@@ -129,13 +129,7 @@ function groupOrderedProducts(
   });
 }
 
-function ProductGroup({
-  product,
-  onProductDownloaded,
-}: {
-  product: GroupedProduct;
-  onProductDownloaded: (uuid: string) => void;
-}) {
+function ProductGroup({ product }: { product: GroupedProduct }) {
   const [expanded, setExpanded] = useState(true);
   const detailsId = useId();
   const accessContext =
@@ -212,7 +206,6 @@ function ProductGroup({
                                     format: format.label,
                                   },
                                 );
-                                onProductDownloaded(product.uuid);
                               }}
                             >
                               <DownloadIcon aria-hidden />
@@ -256,11 +249,9 @@ function ProductGroup({
 export function DownloadOrderSummary({
   orderResult,
   cards,
-  onProductDownloaded,
 }: {
   orderResult: DownloadOrderResult;
   cards: DownloadCard[];
-  onProductDownloaded: (uuid: string) => void;
 }) {
   const products = groupOrderedProducts(orderResult, cards);
   const readyProducts = products.filter((product) => product.hasReadyFiles);
@@ -280,11 +271,7 @@ export function DownloadOrderSummary({
           </Heading>
           <div className={styles.productList}>
             {readyProducts.map((product) => (
-              <ProductGroup
-                key={product.uuid}
-                product={product}
-                onProductDownloaded={onProductDownloaded}
-              />
+              <ProductGroup key={product.uuid} product={product} />
             ))}
           </div>
         </section>
@@ -297,11 +284,7 @@ export function DownloadOrderSummary({
           </Heading>
           <div className={styles.productList}>
             {failedProducts.map((product) => (
-              <ProductGroup
-                key={product.uuid}
-                product={product}
-                onProductDownloaded={onProductDownloaded}
-              />
+              <ProductGroup key={product.uuid} product={product} />
             ))}
           </div>
         </section>
@@ -314,11 +297,7 @@ export function DownloadOrderSummary({
           </Heading>
           <div className={styles.productList}>
             {processingProducts.map((product) => (
-              <ProductGroup
-                key={product.uuid}
-                product={product}
-                onProductDownloaded={onProductDownloaded}
-              />
+              <ProductGroup key={product.uuid} product={product} />
             ))}
           </div>
         </section>
