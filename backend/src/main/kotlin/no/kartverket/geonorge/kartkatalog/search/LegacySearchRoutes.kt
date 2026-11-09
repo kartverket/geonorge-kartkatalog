@@ -92,7 +92,7 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
      */
     get("/api/datasets-namespace") {
         val params = call.request.queryParameters
-        val limit = params["limit"]?.toIntOrNull() ?: NamespaceMetadataQuery.DEFAULT_LIMIT
+        val limit = params["limit"]?.toIntOrNull() ?: DEFAULT_NAMESPACE_LIMIT
         val offset = params["offset"]?.toIntOrNull() ?: 0
         try {
             // Legacy throws on a missing namespace, which is caught and returned as null (204).
