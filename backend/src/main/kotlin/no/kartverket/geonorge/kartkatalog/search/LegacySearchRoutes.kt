@@ -81,6 +81,39 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
     }
 
     /**
+     * Legacy-compatible list of datasets in a namespace (used by Register to sync namespace datasets).
+     * Searches resourceReferenceCodespace in the metadata core and returns legacy search JSON.
+     *
+     * Query: namespace [String] The namespace (resourceReferenceCodespace) to list datasets for.
+     * Query: limit [Int] Maximum number of results (default 10).
+     * Query: offset [Int] One-based result offset (default 0, treated as 1).
+     * Query: lang [String] Response language, en or Norwegian; takes precedence over the _culture cookie.
+     * Header: Accept-Language [String] Language preference used when neither lang nor _culture is supplied.
+     * Cookie: _culture [String] Remembered response language.
+     * Response: 200 application/json Legacy search results as JSON.
+     * Response: 204 The request failed or namespace is missing (legacy returns no body on errors).
+     */
+    get("/api/datasets-namespace") {
+        val params = call.request.queryParameters
+        val limit = params["limit"]?.toIntOrNull() ?: NamespaceMetadataQuery.DEFAULT_LIMIT
+        val offset = params["offset"]?.toIntOrNull() ?: 0
+        val namespace = params["namespace"]
+        val language = call.resolveSearchLanguage()
+        call.applyLanguageHeaders(language)
+        call.response.headers.append(HttpHeaders.Vary, "Accept-Language, Cookie")
+        try {
+            // Legacy throws on a missing namespace, which is caught and returned as null (204).
+            requireNotNull(namespace) { "namespace is required" }
+            call.respondSearchJson(service.namespaceSearch(namespace, limit, offset, language))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            LoggerFactory.getLogger("LegacySearchRoutes").error("datasets-namespace failed", e)
+            call.respondText("", status = HttpStatusCode.NoContent)
+        }
+    }
+
+    /**
      * Legacy-compatible single metadata lookup (used by MetadataEditor and Geonorge.ApiServices to check that
      * a record exists in the catalogue). Reads the metadata_all core and returns one flat item.
      *

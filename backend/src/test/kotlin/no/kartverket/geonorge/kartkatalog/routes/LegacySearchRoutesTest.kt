@@ -685,4 +685,70 @@ class LegacySearchRoutesTest {
             assertEquals(HttpStatusCode.OK, response.status)
             assertFalse("Uuid" in Json.parseToJsonElement(response.bodyAsText()).jsonObject)
         }
+
+    @Test
+    fun `datasets-namespace queries resourceReferenceCodespace and returns the results`() =
+        testApplication {
+            simpleApp(
+                upstream(
+                    solrBody =
+                        solrResponse.replace(
+                            "\"type\":\"dataset\"",
+                            "\"type\":\"dataset\",\"resourceReferenceCodeName\":\"N50\"",
+                        ),
+                ),
+            )
+
+            val response = client.get("/api/datasets-namespace?namespace=http://skjema.test/N50&limit=2000")
+            val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertTrue("/solr/metadata/select" in paths)
+            val form = searchForms.single()
+            assertContains(form, "resourceReferenceCodespace:http\\:\\/\\/skjema.test\\/N50")
+            assertContains(form, "rows=[2000]")
+            assertContains(form, "start=[0]")
+            assertEquals("2000", json.getValue("Limit").jsonPrimitive.content)
+            assertEquals("1", json.getValue("Offset").jsonPrimitive.content)
+            val result =
+                json
+                    .getValue("Results")
+                    .jsonArray
+                    .first()
+                    .jsonObject
+            assertEquals("test-uuid", result.getValue("Uuid").jsonPrimitive.content)
+            assertEquals("Kartverket", result.getValue("Organization").jsonPrimitive.content)
+            assertEquals("N50", result.getValue("DatasetName").jsonPrimitive.content)
+        }
+
+    @Test
+    fun `datasets-namespace uses default limit and a one-based offset`() =
+        testApplication {
+            simpleApp(upstream())
+
+            client.get("/api/datasets-namespace?namespace=ns&offset=11")
+            val form = searchForms.single()
+            assertContains(form, "rows=[10]")
+            assertContains(form, "start=[10]")
+        }
+
+    @Test
+    fun `datasets-namespace without namespace returns 204 without querying Solr`() =
+        testApplication {
+            simpleApp(upstream())
+
+            val response = client.get("/api/datasets-namespace")
+            assertEquals(HttpStatusCode.NoContent, response.status)
+            assertEquals("", response.bodyAsText())
+            assertTrue(searchForms.isEmpty())
+        }
+
+    @Test
+    fun `datasets-namespace returns 204 on a Solr failure`() =
+        testApplication {
+            simpleApp(upstream(solrError = true))
+
+            val response = client.get("/api/datasets-namespace?namespace=ns")
+            assertEquals(HttpStatusCode.NoContent, response.status)
+            assertEquals("", response.bodyAsText())
+        }
 }

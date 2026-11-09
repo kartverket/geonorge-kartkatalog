@@ -70,6 +70,17 @@ class LegacySearchService(
             .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
     }
 
+    internal suspend fun namespaceSearch(
+        namespace: String,
+        limit: Int,
+        offset: Int,
+        language: String,
+    ): JsonObject {
+        val normalizedOffset = NamespaceMetadataQuery.normalizeOffset(offset)
+        val hits = engine.searchMetadataCore(NamespaceMetadataQuery.build(namespace, limit, normalizedOffset))
+        return LegacySearchResponse(language, kartkatalogUrl, loadAreas()).build(limit, normalizedOffset, hits)
+    }
+
     internal suspend fun metadataItem(
         uuid: String,
         language: String,
