@@ -9,6 +9,8 @@ import type {
   DownloadAreaBlock,
   DownloadAreaBlockAvailability,
 } from "./downloadUtils";
+import { GridSelectDialog } from "./GridSelectDialog";
+import { isSupportedGridLayer } from "./gridLayers";
 import { MultiSuggestion } from "./MultiSuggestion";
 import { SingleSuggestion } from "./SingleSuggestion";
 
@@ -40,6 +42,7 @@ export function AreaBlockFields({
   onRemoveAction,
 }: AreaBlockFieldsProps) {
   const [isDrawingArea, setIsDrawingArea] = useState(false);
+  const [isSelectingGrid, setIsSelectingGrid] = useState(false);
 
   const areaOptions = availability.areaOptions.filter(
     (option) =>
@@ -57,6 +60,13 @@ export function AreaBlockFields({
   const onChangeGridCells = availability.gridSelectionLayer
     ? onChangeGridCellsAction
     : undefined;
+  // Kartet kan bare vises når vi har rutenettfilen for laget
+  const gridMapLayer =
+    onChangeGridCells &&
+    availability.gridSelectionLayer &&
+    isSupportedGridLayer(availability.gridSelectionLayer)
+      ? availability.gridSelectionLayer
+      : null;
 
   return (
     <div className={styles.areaBlock}>
@@ -134,8 +144,10 @@ export function AreaBlockFields({
               type="button"
               variant="secondary"
               data-size="sm"
-              disabled={!availability.supportsPolygonSelection}
-              onClick={() => setIsDrawingArea(true)}
+              disabled={!availability.supportsPolygonSelection && !gridMapLayer}
+              onClick={() =>
+                gridMapLayer ? setIsSelectingGrid(true) : setIsDrawingArea(true)
+              }
             >
               Velg fra kart
             </Button>
@@ -203,6 +215,18 @@ export function AreaBlockFields({
           setIsDrawingArea(false);
         }}
       />
+      {isSelectingGrid && gridMapLayer && onChangeGridCells ? (
+        <GridSelectDialog
+          layerName={gridMapLayer}
+          availableCodes={areaOptions.map((option) => option.area.code)}
+          selectedCodes={block.gridCellCodes}
+          onCloseAction={() => setIsSelectingGrid(false)}
+          onConfirmAction={(codes) => {
+            onChangeGridCells(codes);
+            setIsSelectingGrid(false);
+          }}
+        />
+      ) : null}
     </div>
   );
 }
