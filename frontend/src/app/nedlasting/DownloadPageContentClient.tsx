@@ -267,6 +267,8 @@ export function DownloadPageContentClient({
         ).length,
       });
 
+      clearDownloads();
+      setSelections({});
       setStep("last-ned");
       setOrderedCards(cards);
       setOrderEmailProvided(requiresEmail && Boolean(email.trim()));
