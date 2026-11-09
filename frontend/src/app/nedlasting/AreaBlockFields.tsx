@@ -3,6 +3,7 @@
 import { Button, Field, Label, Paragraph, Tag } from "@kv-designsystem/react";
 import { XMarkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
+import styles from "./DownloadOptionsForm.module.css";
 import { DrawAreaDialog } from "./DrawAreaDialog";
 import type {
   DownloadAreaBlock,
