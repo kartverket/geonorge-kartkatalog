@@ -229,6 +229,7 @@ class SearchService(
             accessState = access.asAccessState(),
             hierarchyLevel = type,
             seriesType = typename,
+            thematicSeriesDownloadItem = DownloadItem.fromThematicSeries(serie),
         )
     }
 

@@ -101,6 +101,7 @@ data class SearchResultItem(
     val accessState: String? = null,
     val hierarchyLevel: String? = null,
     val seriesType: String? = null,
+    val thematicSeriesDownloadItem: DownloadItem? = null,
 )
 
 @Serializable
