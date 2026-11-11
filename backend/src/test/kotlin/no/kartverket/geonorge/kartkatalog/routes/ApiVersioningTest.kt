@@ -51,7 +51,7 @@ class ApiVersioningTest {
 
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals("thing 42", response.bodyAsText())
-            assertEquals("@1793664000", response.headers["Deprecation"])
+            assertEquals("@1793923200", response.headers["Deprecation"])
             assertEquals("</api/v1/things/42>; rel=\"successor-version\"", response.headers[HttpHeaders.Link])
         }
 

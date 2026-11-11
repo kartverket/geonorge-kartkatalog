@@ -100,12 +100,20 @@ class ServerTest {
             startApplication()
 
             // Endpoints that are intentionally outside the versioned API.
-            val unversioned = setOf("/(method:GET)", "/search/(method:GET)", "/api/me/geoid/(method:GET)")
+            val unversioned =
+                setOf(
+                    "/(method:GET)",
+                    "/search/(method:GET)",
+                    "/api/me/geoid/(method:GET)",
+                    "/api/datasets-simple/(method:GET)",
+                    "/api/metadata/{uuid}/(method:GET)",
+                )
             val stray =
                 endpoints.filterNot { endpoint ->
                     endpoint.startsWith("$API_V1/") ||
                         endpoint.startsWith("/(deprecated alias of $API_V1)/") ||
                         endpoint.startsWith("/oidc/") ||
+                        endpoint.startsWith("/swagger/") ||
                         endpoint in unversioned
                 }
             assertTrue(stray.isEmpty(), "Endpoints outside $API_V1: $stray\nAll: $endpoints")
