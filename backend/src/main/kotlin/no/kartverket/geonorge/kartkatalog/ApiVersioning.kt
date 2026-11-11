@@ -2,7 +2,7 @@ package no.kartverket.geonorge.kartkatalog
 
 import io.ktor.http.HttpHeaders
 import io.ktor.server.application.createRouteScopedPlugin
-import io.ktor.server.request.path
+import io.ktor.server.request.uri
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RouteSelector
 import io.ktor.server.routing.RouteSelectorEvaluation
@@ -24,7 +24,7 @@ private val DeprecatedAlias =
     createRouteScopedPlugin("DeprecatedAlias", ::DeprecatedAliasConfig) {
         val oldPrefix = pluginConfig.oldPrefix
         onCall { call ->
-            val successor = API_V1 + call.request.path().removePrefix(oldPrefix)
+            val successor = API_V1 + call.request.uri.removePrefix(oldPrefix)
             call.response.headers.append("Deprecation", "@${UNVERSIONED_DEPRECATED_AT.epochSeconds}")
             call.response.headers.append(HttpHeaders.Link, "<$successor>; rel=\"successor-version\"")
         }

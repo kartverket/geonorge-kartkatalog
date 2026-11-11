@@ -56,6 +56,17 @@ class ApiVersioningTest {
         }
 
     @Test
+    fun `successor link preserves the query string`() =
+        versionedApp {
+            val response = client.get("/api/things/42?url=a%26b&x=1")
+
+            assertEquals(
+                "</api/v1/things/42?url=a%26b&x=1>; rel=\"successor-version\"",
+                response.headers[HttpHeaders.Link],
+            )
+        }
+
+    @Test
     fun `alias at root points to successor under versioned prefix`() =
         versionedApp {
             val response = client.get("/things/42")
