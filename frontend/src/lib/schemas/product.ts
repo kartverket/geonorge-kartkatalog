@@ -211,6 +211,7 @@ export const LinkedDistributionSchema = z.object({
   hierarchyLevel: z.string().nullable(),
   seriesType: z.string().nullable(),
   accessState: z.enum(accessState).nullable(),
+  thematicSeriesDownloadItem: DownloadItemSchema.nullable().default(null),
 });
 
 export const LinkedDistributionsSchema = z.object({
@@ -220,7 +221,6 @@ export const LinkedDistributionsSchema = z.object({
   seriesMembers: z.array(LinkedDistributionSchema),
   parentSeries: z.array(LinkedDistributionSchema),
   relatedDatasets: z.array(LinkedDistributionSchema),
-  thematicSeriesDownloadItem: DownloadItemSchema.nullable().default(null),
   serviceLayers: z.array(LinkedDistributionSchema),
   parentService: z.array(LinkedDistributionSchema),
 });
