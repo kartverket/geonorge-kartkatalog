@@ -31,7 +31,7 @@ import {
   type DownloadInsightGroups,
   DownloadOrderEmailSchema,
 } from "@/lib/schemas/download";
-import { LOCATIONS, trackEvent } from "@/posthog/posthog";
+import { LOCATIONS, trackClick, trackEvent } from "@/posthog/posthog";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
@@ -231,6 +231,7 @@ export function DownloadPageContentClient({
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
+    trackClick("download-order", LOCATIONS.DownloadPage, { canOrder });
     if (!canOrder) {
       return;
     }
