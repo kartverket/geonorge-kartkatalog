@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DownloadItemSchema } from "./search";
 
 export const ProductDistributionFormatSchema = z.object({
   name: z.string().nullable(),
@@ -219,6 +220,7 @@ export const LinkedDistributionsSchema = z.object({
   seriesMembers: z.array(LinkedDistributionSchema),
   parentSeries: z.array(LinkedDistributionSchema),
   relatedDatasets: z.array(LinkedDistributionSchema),
+  thematicSeriesDownloadItem: DownloadItemSchema.nullable().default(null),
   serviceLayers: z.array(LinkedDistributionSchema),
   parentService: z.array(LinkedDistributionSchema),
 });

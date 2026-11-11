@@ -1,3 +1,5 @@
+import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
+
 export type DatasetCardData = {
   uuid: string;
   title: string;
@@ -12,4 +14,7 @@ export type DatasetCardData = {
   accessState: "restricted" | "open" | "protected" | null;
   hierarchyLevel: string | null;
   seriesType: string | null;
+  // Satt når datasettet er medlem av en tematisk serie. Medlemmet gir samme fil
+  // som serien, så nedlasting skal legge til serien i stedet.
+  thematicSeriesDownloadItem: DownloadItem | null;
 };
