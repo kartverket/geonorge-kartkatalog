@@ -1,12 +1,19 @@
 package no.kartverket.geonorge.kartkatalog.search
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
+import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
+import no.kartverket.geonorge.kartkatalog.integrations.solr.escapeSolrSpecialChars
 import no.kartverket.geonorge.kartkatalog.metadata.TimedCache
 import org.slf4j.LoggerFactory
+
+internal const val DEFAULT_NAMESPACE_LIMIT = 10
 
 class LegacySearchService(
     private val engine: SearchEngine,
@@ -68,6 +75,33 @@ class LegacySearchService(
         val hits = engine.searchMetadataCore(SimpleMetadataQuery.build(organization))
         return LegacySearchResponse(language, kartkatalogUrl, loadAreas())
             .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
+    }
+
+    internal suspend fun namespaceDatasets(
+        namespace: String,
+        limit: Int,
+        offset: Int,
+    ): JsonObject {
+        // Legacy offsets are one-based in the API; 0 is treated as 1.
+        val start = (if (offset == 0) 1 else offset) - 1
+        // Legacy escapes the namespace twice, which only matches tokenized fields; it is escaped once here.
+        val query =
+            MetadataSolrQuery(
+                q = "resourceReferenceCodespace:${escapeSolrSpecialChars(namespace)}",
+                fl = SimpleMetadataQuery.FIELDS,
+                rows = limit,
+                start = start,
+            )
+        val results =
+            engine.searchMetadataCore(query).documents.map { doc ->
+                buildJsonObject {
+                    put("Uuid", doc.uuid)
+                    putNullable("Title", doc.title)
+                    putNullable("Organization", doc.organizationgroup ?: doc.organization)
+                    putNullable("DatasetName", doc.datasetName)
+                }
+            }
+        return buildJsonObject { put("Results", JsonArray(results)) }
     }
 
     internal suspend fun metadataItem(
