@@ -1,6 +1,5 @@
 package no.kartverket.geonorge.kartkatalog.search
 
-import io.ktor.http.Cookie
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respondText
@@ -32,19 +31,8 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
     get("/search") {
         val params = call.request.queryParameters
         val language = call.resolveSearchLanguage()
-        call.response.headers.append(HttpHeaders.ContentLanguage, language)
+        call.applyLanguageHeaders(language)
         val csvContentType = call.resolveSearchCsvContentType()
-        if (!params["lang"].isNullOrBlank() || call.request.cookies["_culture"] == null) {
-            call.response.cookies.append(
-                Cookie(
-                    name = "_culture",
-                    value = language,
-                    path = "/",
-                    maxAge =
-                        365 * 24 * 60 * 60,
-                ),
-            )
-        }
         val request = LegacySearchRequest.fromQuery(params)
         try {
             if (csvContentType != null) {
@@ -79,19 +67,8 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
      */
     get("/api/datasets-simple") {
         val language = call.resolveSearchLanguage()
-        call.response.headers.append(HttpHeaders.ContentLanguage, language)
+        call.applyLanguageHeaders(language)
         call.response.headers.append(HttpHeaders.Vary, "Accept-Language, Cookie")
-        if (!call.request.queryParameters["lang"].isNullOrBlank() || call.request.cookies["_culture"] == null) {
-            call.response.cookies.append(
-                Cookie(
-                    name = "_culture",
-                    value = language,
-                    path = "/",
-                    maxAge =
-                        365 * 24 * 60 * 60,
-                ),
-            )
-        }
         try {
             call.respondSearchJson(service.simpleSearch(call.request.queryParameters["organization"], language))
         } catch (e: CancellationException) {
@@ -99,6 +76,32 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
         } catch (e: Exception) {
             LoggerFactory.getLogger("LegacySearchRoutes").error("datasets-simple failed", e)
             // Legacy returns null on any error, which ASP.NET Core serialises as 204 No Content.
+            call.respondText("", status = HttpStatusCode.NoContent)
+        }
+    }
+
+    /**
+     * Legacy-compatible single metadata lookup (used by MetadataEditor and Geonorge.ApiServices to check that
+     * a record exists in the catalogue). Reads the metadata_all core and returns one flat item.
+     *
+     * Path: uuid [String] Metadata uuid.
+     * Query: lang [String] Response language, en or Norwegian; takes precedence over the _culture cookie.
+     * Header: Accept-Language [String] Language preference used when neither lang nor _culture is supplied.
+     * Cookie: _culture [String] Remembered response language.
+     * Response: 200 application/json The item; for an unknown uuid (or a Solr error) an object without Uuid.
+     * Response: 204 The request failed (legacy returns no body on errors).
+     */
+    get("/api/metadata/{uuid}") {
+        val uuid = call.parameters["uuid"].orEmpty()
+        val language = call.resolveSearchLanguage()
+        call.applyLanguageHeaders(language)
+        call.response.headers.append(HttpHeaders.Vary, "Accept-Language, Cookie")
+        try {
+            call.respondSearchJson(service.metadataItem(uuid, language))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            LoggerFactory.getLogger("LegacySearchRoutes").error("api/metadata/{uuid} failed", e)
             call.respondText("", status = HttpStatusCode.NoContent)
         }
     }

@@ -79,6 +79,8 @@ fun Application.configureRouting(
             hybridQueryBuilder = hybridQueryBuilder,
         )
     val searchService = SearchService(searchEngine, areaResolver, hvdResolver)
+    val legacySearchService =
+        LegacySearchService(searchEngine, registerClient, appConfig.publicBaseUrl, appConfig.staticNorgeskartUrl)
     val downloadApiClient = DownloadApiClient(httpClient, appConfig.allowedDownloadClients)
     val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
     val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
@@ -105,7 +107,7 @@ fun Application.configureRouting(
             call.respondText("Hello, World!")
         }
         searchRoutes(searchService)
-        legacySearchRoutes(LegacySearchService(searchEngine, registerClient, appConfig.publicBaseUrl))
+        legacySearchRoutes(legacySearchService)
         metadataRoutes(metadataService, linkedDistributionsService)
         distributionsRoutes(distributionsService)
         downloadRoutes(downloadService, tokenExchangeClient, authentication)

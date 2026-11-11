@@ -130,6 +130,8 @@ class SearchEngine(
         }
     }
 
+    internal suspend fun getMetadataAllByUuid(uuid: String): SolrDocument? = solrClient.getMetadataAllByUuid(uuid)
+
     internal suspend fun findUuidByDatasetName(
         datasetName: String,
         excludeUuid: String,
