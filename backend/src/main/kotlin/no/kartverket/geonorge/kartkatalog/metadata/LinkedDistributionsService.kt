@@ -11,6 +11,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
+import no.kartverket.geonorge.kartkatalog.search.DownloadItem
 
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
@@ -226,6 +227,7 @@ class LinkedDistributionsService(
             mapCapabilitiesUrl = mapCapability?.mapCapabilitiesUrl ?: ownViewServiceResource?.url,
             hierarchyLevel = hierarchyLevel,
             accessState = resolveAccessState(this),
+            thematicSeriesDownloadItem = DownloadItem.fromThematicSeries(solrDoc?.serie),
         )
     }
 
