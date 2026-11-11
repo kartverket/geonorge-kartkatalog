@@ -35,7 +35,7 @@ class LegacySearchService(
         uuid: String?,
     ): JsonObject {
         if (uuid.isNullOrBlank()) return validationResult(false)
-        if (datasetName.isNullOrBlank()) return validationResult(true)
+        if (datasetName.isNullOrBlank()) return validationResult(false)
         return try {
             val otherUuid = engine.findUuidByDatasetName(datasetName, uuid)
             validationResult(otherUuid == null, otherUuid)

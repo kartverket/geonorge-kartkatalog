@@ -113,8 +113,6 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
      * Response: 200 application/json IsValid, and Result (the conflicting uuid, or an error message when IsValid=false).
      */
     get("/api/valid-dataset-name") {
-        // TODO: namespace is accepted but ignored (legacy also ignores it). To scope uniqueness to a namespace,
-        //  read it here and add resourceReferenceCodespace to the query in SolrClient.findUuidByDatasetName.
         val params = call.request.queryParameters
         call.respondSearchJson(service.validDatasetName(params["datasetName"], params["uuid"]))
     }
