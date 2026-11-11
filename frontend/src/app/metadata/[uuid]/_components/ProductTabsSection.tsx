@@ -1,3 +1,4 @@
+import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import {
   getFairStatus,
   type getMetadata,
@@ -12,6 +13,7 @@ import {
   ProductTabs,
 } from "@/app/metadata/[uuid]/_components/ProductTabs";
 import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
+import { getThematicParentSeriesDownloadItem } from "@/app/metadata/[uuid]/_utils/distributions";
 import { formatDate, unwrapSettled } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
@@ -90,6 +92,8 @@ export async function ProductTabsSection({
     referenceSystems: metadata.referenceSystems,
     dateUpdated: metadata.dateUpdated,
     maintenanceFrequency: metadata.maintenanceFrequency,
+    thematicSeriesDownloadItem:
+      getThematicParentSeriesDownloadItem(linkedDistributions),
   });
 
   return (
@@ -239,6 +243,7 @@ function buildDistributionDetails({
   referenceSystems,
   dateUpdated,
   maintenanceFrequency,
+  thematicSeriesDownloadItem,
 }: {
   uuid: string;
   title: string;
@@ -250,6 +255,7 @@ function buildDistributionDetails({
   referenceSystems: ReferenceSystem[];
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
+  thematicSeriesDownloadItem: DownloadItem | null;
 }): DetailItem[] {
   return groups.map((group) => {
     const urlRows = buildUrlRows(group.entries);
@@ -268,6 +274,7 @@ function buildDistributionDetails({
           group={group}
           formatNames={formatNames}
           urlLabel={firstUrlRowLabel}
+          thematicSeriesDownloadItem={thematicSeriesDownloadItem}
         />
       ),
       title: group.protocolName ?? "Ukjent protokoll",
