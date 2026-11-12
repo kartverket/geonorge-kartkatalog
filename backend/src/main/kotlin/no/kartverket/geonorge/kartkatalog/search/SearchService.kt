@@ -42,6 +42,15 @@ class SearchService(
             )
         }
 
+    private fun List<String>?.firstUrlForProtocol(protocol: String): String? =
+        this
+            .orEmpty()
+            .asSequence()
+            .map { it.split("|") }
+            .firstOrNull { parts -> parts.getOrNull(1) == protocol }
+            ?.getOrNull(2)
+            ?.takeIf { it.isNotBlank() }
+
     private suspend fun getSeriesMemberDetails(doc: SearchHit): List<RelatedServiceReference> {
         val seriesMemberRefs = engine.parseDatasetServices(doc.seriedatasets)
         if (seriesMemberRefs.isEmpty()) return emptyList()
@@ -51,14 +60,7 @@ class SearchService(
 
         return seriesMemberRefs.mapNotNull { ref ->
             val downloadUrl =
-                fullDocsByUuid[ref.uuid]
-                    ?.distributions
-                    .orEmpty()
-                    .asSequence()
-                    .map { it.split("|") }
-                    .firstOrNull { parts -> parts.getOrNull(1) == "GEONORGE:DOWNLOAD" }
-                    ?.getOrNull(2)
-                    ?.takeIf { it.isNotBlank() }
+                fullDocsByUuid[ref.uuid]?.distributions.firstUrlForProtocol("GEONORGE:DOWNLOAD")
                     ?: return@mapNotNull null
 
             ref.copy(protocol = "GEONORGE:DOWNLOAD", distributionUrl = downloadUrl)
@@ -231,6 +233,7 @@ class SearchService(
             hierarchyLevel = type,
             seriesType = typename,
             thematicSeriesDownloadItem = DownloadItem.fromThematicSeries(serie),
+            fileDownloadUrl = distributions.firstUrlForProtocol("GEONORGE:FILEDOWNLOAD"),
         )
     }
 
