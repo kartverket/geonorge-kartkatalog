@@ -1,8 +1,7 @@
-"use client";
-
 import type { ButtonProps } from "@kv-designsystem/react";
 import { Button } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
+import type { MouseEvent } from "react";
 import {
   addItemsToDownloads,
   type DownloadItem,
@@ -19,6 +18,7 @@ export default function AddSeriesToDownloadsButton({
   variant,
   size,
   location,
+  preventAccordionToggle = false,
 }: {
   item: { uuid: string; title: string };
   downloadableItems: DownloadItem[];
@@ -26,6 +26,7 @@ export default function AddSeriesToDownloadsButton({
   variant?: ButtonProps["variant"];
   size?: "sm" | "md" | "lg";
   location: Location;
+  preventAccordionToggle?: boolean;
 }) {
   const authState = useAuthInfo();
   const validItems = downloadableItems.filter(
@@ -44,7 +45,12 @@ export default function AddSeriesToDownloadsButton({
 
   if (validItems.length === 0) return null;
 
-  const handleToggleDownloads = () => {
+  const handleToggleDownloads = (event: MouseEvent<HTMLButtonElement>) => {
+    if (preventAccordionToggle) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     trackClick(
       isRemoving ? "remove-all-from-downloads" : "add-all-to-downloads",
       location,

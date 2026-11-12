@@ -13,7 +13,10 @@ import {
   ProductTabs,
 } from "@/app/metadata/[uuid]/_components/ProductTabs";
 import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
-import { getThematicParentSeriesDownloadItem } from "@/app/metadata/[uuid]/_utils/distributions";
+import {
+  getDownloadableSeriesMembers,
+  getThematicParentSeriesDownloadItem,
+} from "@/app/metadata/[uuid]/_utils/distributions";
 import { formatDate, unwrapSettled } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
@@ -81,6 +84,13 @@ export async function ProductTabsSection({
     constraints,
   });
 
+  const isThematicSeries =
+    metadata.hierarchyLevel === "series" &&
+    metadata.seriesType === "series_thematic";
+  const downloadableSeriesMembers = isThematicSeries
+    ? []
+    : getDownloadableSeriesMembers(linkedDistributions);
+
   const distributionDetails = buildDistributionDetails({
     uuid,
     title: metadata.title,
@@ -94,6 +104,7 @@ export async function ProductTabsSection({
     maintenanceFrequency: metadata.maintenanceFrequency,
     thematicSeriesDownloadItem:
       getThematicParentSeriesDownloadItem(linkedDistributions),
+    downloadableSeriesMembers,
   });
 
   return (
@@ -244,6 +255,7 @@ function buildDistributionDetails({
   dateUpdated,
   maintenanceFrequency,
   thematicSeriesDownloadItem,
+  downloadableSeriesMembers,
 }: {
   uuid: string;
   title: string;
@@ -256,6 +268,7 @@ function buildDistributionDetails({
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
   thematicSeriesDownloadItem: DownloadItem | null;
+  downloadableSeriesMembers: DownloadItem[];
 }): DetailItem[] {
   return groups.map((group) => {
     const urlRows = buildUrlRows(group.entries);
@@ -275,6 +288,7 @@ function buildDistributionDetails({
           formatNames={formatNames}
           urlLabel={firstUrlRowLabel}
           thematicSeriesDownloadItem={thematicSeriesDownloadItem}
+          downloadableSeriesMembers={downloadableSeriesMembers}
         />
       ),
       title: group.protocolName ?? "Ukjent protokoll",
