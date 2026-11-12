@@ -82,9 +82,6 @@ Kopier `.env.example` → `.env.local`.
 | `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, `NEXT_PUBLIC_POSTHOG_HOST` | PostHog (bygges inn ved build)                               |
 | `NEXT_PUBLIC_DISPLAY_FULL_URL`                                  | Full fetch-URL i Next-logging (debug)                        |
 
-`.env.example` dekker ikke alle variablene over; se tabellen.
-
-
 ## Valg og beslutninger
 
 - **Next.js App Router med BFF** – backend-URL og cookies holdes på server; klienten treffer kun `/bff`.

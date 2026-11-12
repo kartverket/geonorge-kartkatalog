@@ -42,7 +42,7 @@ flowchart LR
 | Solr | Søk, fasetter, distribusjoner, tilknyttede distribusjoner | `SOLR_BASE_URL` |
 | Register | Kodelister/oversettelser, områder, HVD, innsiktsgrupper | `REGISTER_BASE_URL` |
 | Norgeskart | Kartlenker i svar | `NORGESKART_BASE_URL` |
-| Nedlasting-API | Nedlastingsbestilling og alternativer | Se «Ting man kan stusse ved» |
+| Nedlasting-API | Nedlastingsbestilling og alternativer | Ingen relatert |
 | GeoID | Innlogging (OIDC) | `GEOID_ISSUER`, `GEOID_CLIENT_ID`, `GEOID_CLIENT_SECRET` |
 | Token exchange | Bytter GeoID-token for nedlastingstoken | `TOKEN_EXCHANGE_URL` |
 | Vertex AI | Embeddings til vektorsøk | `VECTOR_SEARCH_ENABLED`, `VERTEX_AI_PROJECT_ID` (+ valgfrie `VERTEX_AI_*`, `VECTOR_*`) |
@@ -103,7 +103,6 @@ Interne ruter (`/bff`, `/auth`, `/api/me`, `/api/download`) holdes utenfor Swagg
 - **CSV:** wildcard i `Accept` velger ikke CSV, `q=0` ekskluderer, `mediatype` overstyrer `Accept`. Kun etterspurt side eksporteres; tomt resultat gir tom body.
 - **`offset` er 1-basert**; `limit` klemmes til 1–1000.
 - **`/metadata/{uuid}` har ikke `/api`-prefiks**, i motsetning til de fleste andre.
-- **Hardkodet nedlastings-URL:** `TokenExchangeClient` kaller `https://nedlasting.test.geonorge.no/api/v4/order-restricted`, og `NEDLASTING_BASE_URL` i `.env.example` leses ikke av koden.
 - **CORS er `anyHost()`.** Innlogging beskyttes av session-cookie + CSRF-origin, ikke CORS.
 - **Oppstart feiler uten påkrevde miljøvariabler**, og OIDC-discovery forsøkes 3 ganger (5 s mellomrom) – GeoID må være nåbar.
 - **`src/test/resources/response*.xml`** er CSW-eksempelsvar til `MetadataParserTest`.
