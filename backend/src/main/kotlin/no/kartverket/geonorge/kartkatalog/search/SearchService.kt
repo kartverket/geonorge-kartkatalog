@@ -4,6 +4,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
+import no.kartverket.geonorge.kartkatalog.download.DownloadItem
 import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver

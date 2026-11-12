@@ -1,7 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.metadata.models
 
 import kotlinx.serialization.Serializable
-import no.kartverket.geonorge.kartkatalog.search.DownloadItem
+import no.kartverket.geonorge.kartkatalog.download.DownloadItem
 
 @Serializable
 data class LinkedDistribution(

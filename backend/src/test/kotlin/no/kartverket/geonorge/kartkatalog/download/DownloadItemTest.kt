@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.search
+package no.kartverket.geonorge.kartkatalog.download
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
