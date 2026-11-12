@@ -74,7 +74,6 @@
 .buttonGroupContainer button {
   z-index: 1;
   --dsc-button-padding: var(--ds-size-2) var(--ds-size-2);
-  font-size: var(--ds-body-xs-font-size);
 }
 
 .datasetLink {
