@@ -105,4 +105,18 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
             call.respondText("", status = HttpStatusCode.NoContent)
         }
     }
+
+    /**
+     * Legacy-compatible check of whether a dataset name (resourceReferenceCodeName) is already used by another
+     * metadata record (used by MetadataEditor). The name is unique across namespaces.
+     *
+     * Query: datasetName [String] The dataset name to check. If missing, nothing can match and IsValid is true.
+     * Query: uuid [String] The record being edited; excluded from the check. If missing, IsValid is false.
+     * Query: namespace [String] Currently ignored, as in legacy.
+     * Response: 200 application/json IsValid, and Result (the conflicting uuid, or an error message when IsValid=false).
+     */
+    get("/api/valid-dataset-name") {
+        val params = call.request.queryParameters
+        call.respondSearchJson(service.validDatasetName(params["datasetName"], params["uuid"]))
+    }
 }
