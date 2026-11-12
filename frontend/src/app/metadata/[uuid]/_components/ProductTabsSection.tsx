@@ -338,8 +338,12 @@ function buildDistributionDetails({
               content: (
                 <span className={styles.tags}>
                   {referenceSystems.map((rs) => (
-                    <span className="ds-tag" key={rs.codeSpace}>
-                      {rs.code}
+                    <span
+                      className="ds-tag"
+                      key={rs.codeSpace ?? rs.code}
+                      title={rs.code ?? undefined}
+                    >
+                      {rs.title || rs.code}
                     </span>
                   ))}
                 </span>

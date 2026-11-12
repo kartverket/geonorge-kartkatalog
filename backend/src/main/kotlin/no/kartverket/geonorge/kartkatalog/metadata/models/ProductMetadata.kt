@@ -100,6 +100,7 @@ data class ProductMetadataContact(
 data class ProductReferenceSystem(
     val code: String? = null,
     val codeSpace: String? = null,
+    val title: String? = null,
 )
 
 @Serializable
