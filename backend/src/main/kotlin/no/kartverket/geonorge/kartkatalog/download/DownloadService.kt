@@ -81,6 +81,9 @@ class DownloadService(
                                     } else {
                                         file
                                     }
+                                } else if (file.status == "ReadyForDownload") {
+                                    // Oppstrøms tjeneste har noen ganger meldt filen klar uten å oppgi url
+                                    file.copy(status = "Failed", downloadUrl = null)
                                 } else {
                                     file
                                 }
