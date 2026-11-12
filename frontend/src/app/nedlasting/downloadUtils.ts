@@ -25,6 +25,7 @@ export type DownloadOptionsByUuid = Record<string, DownloadOptionsState>;
 export type DownloadAreaBlock = {
   areaCode: string | null;
   polygon: string | null;
+  gridCellCodes: string[];
   projectionCodes: string[];
   formatNames: string[];
 };
@@ -36,6 +37,7 @@ export type DownloadSelection = {
 const EMPTY_AREA_BLOCK: DownloadAreaBlock = {
   areaCode: null,
   polygon: null,
+  gridCellCodes: [],
   projectionCodes: [],
   formatNames: [],
 };
@@ -52,7 +54,13 @@ export function selectAreaBlockArea(
   return {
     areaBlocks: selection.areaBlocks.map((block, index) =>
       index === blockIndex
-        ? { areaCode, polygon: null, projectionCodes: [], formatNames: [] }
+        ? {
+            areaCode,
+            polygon: null,
+            gridCellCodes: [],
+            projectionCodes: [],
+            formatNames: [],
+          }
         : block,
     ),
   };
@@ -66,9 +74,49 @@ export function selectAreaBlockPolygon(
   return {
     areaBlocks: selection.areaBlocks.map((block, index) =>
       index === blockIndex
-        ? { areaCode: null, polygon, projectionCodes: [], formatNames: [] }
+        ? {
+            areaCode: null,
+            polygon,
+            gridCellCodes: [],
+            projectionCodes: [],
+            formatNames: [],
+          }
         : block,
     ),
+  };
+}
+
+export function selectAreaBlockGridCells(
+  selection: DownloadSelection,
+  blockIndex: number,
+  gridCellCodes: string[],
+  options: DownloadOptions | null,
+): DownloadSelection {
+  return {
+    areaBlocks: selection.areaBlocks.map((block, index) => {
+      if (index !== blockIndex) return block;
+
+      // Beholder projeksjoner og formater som fortsatt støttes av alle valgte
+      // ruter, så brukeren slipper å velge på nytt når flere ruter legges til
+      const nextBlock: DownloadAreaBlock = {
+        areaCode: null,
+        polygon: null,
+        gridCellCodes,
+        projectionCodes: [],
+        formatNames: [],
+      };
+      const projectionCodes = resolveAreaBlockAvailability(options, nextBlock)
+        .projectionOptions.map((projection) => projection.code)
+        .filter((code) => block.projectionCodes.includes(code));
+      const formatNames = resolveAreaBlockAvailability(options, {
+        ...nextBlock,
+        projectionCodes,
+      })
+        .formatOptions.map((format) => format.name)
+        .filter((name) => block.formatNames.includes(name));
+
+      return { ...nextBlock, projectionCodes, formatNames };
+    }),
   };
 }
 
@@ -114,9 +162,10 @@ export function canAddAreaBlock(
   }
 
   const usedAreaCodes = new Set(
-    selection.areaBlocks.flatMap((block) =>
-      block.areaCode ? [block.areaCode] : [],
-    ),
+    selection.areaBlocks.flatMap((block) => [
+      ...(block.areaCode ? [block.areaCode] : []),
+      ...block.gridCellCodes,
+    ]),
   );
   const unusedAreaCodes = new Set(
     presentOptionsList.flatMap((options) =>
@@ -126,7 +175,8 @@ export function canAddAreaBlock(
     ),
   );
   const emptyBlockCount = selection.areaBlocks.filter(
-    (block) => !block.areaCode && !block.polygon,
+    (block) =>
+      !block.areaCode && !block.polygon && block.gridCellCodes.length === 0,
   ).length;
   return unusedAreaCodes.size > emptyBlockCount;
 }
@@ -147,7 +197,9 @@ function getMissingAreaBlockFields(
 ): MissingDownloadSelectionField[] {
   const missingFields: MissingDownloadSelectionField[] = [];
 
-  if (!block.areaCode && !block.polygon) missingFields.push("area");
+  if (!block.areaCode && !block.polygon && block.gridCellCodes.length === 0) {
+    missingFields.push("area");
+  }
   if (block.projectionCodes.length === 0) missingFields.push("projection");
   if (block.formatNames.length === 0) missingFields.push("format");
 
@@ -174,6 +226,36 @@ function getMatchingArea(
 ): DownloadAreaOption | null {
   if (!areaCode) return null;
   return options.areas.find((option) => option.area.code === areaCode) ?? null;
+}
+
+// Noen rutenett (f.eks. DTM sjø) har samme rutenummer flere ganger i
+// områdelisten, med ulike formater. Oppføringene slås sammen per rute.
+function getMatchingGridCells(
+  options: DownloadOptions,
+  gridCellCodes: string[],
+): DownloadAreaOption[] {
+  return gridCellCodes.flatMap((code) => {
+    const entries = options.areas.filter((option) => option.area.code === code);
+    if (entries.length === 0) return [];
+
+    const projections = unionByKey(
+      entries.map((entry) => entry.projections),
+      (projection) => projection.code,
+    ).map((projection) => ({
+      ...projection,
+      formats: unionByKey(
+        entries.map(
+          (entry) =>
+            entry.projections.find(
+              (candidate) => candidate.code === projection.code,
+            )?.formats ?? [],
+        ),
+        (format) => format.name,
+      ),
+    }));
+
+    return [{ ...entries[0], projections }];
+  });
 }
 
 function resolvePolygonReferenceArea(
@@ -218,11 +300,16 @@ export type DownloadAreaBlockAvailability = {
   projectionOptions: DownloadProjectionOption[];
   formatOptions: DownloadFormat[];
   supportsPolygonSelection: boolean;
+  selectedGridCells: DownloadAreaOption[];
+  gridSelectionLayer: string | null;
 };
 
 export function resolveAreaBlockAvailability(
   options: DownloadOptions | null,
-  block: Pick<DownloadAreaBlock, "areaCode" | "polygon" | "projectionCodes">,
+  block: Pick<
+    DownloadAreaBlock,
+    "areaCode" | "polygon" | "gridCellCodes" | "projectionCodes"
+  >,
 ): DownloadAreaBlockAvailability {
   const areaOptions = sortAreaOptionsNationwideFirst(
     unionByKey([options?.areas ?? []], (option) => option.area.code),
@@ -241,6 +328,27 @@ export function resolveAreaBlockAvailability(
         block.projectionCodes,
       ),
       supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
+      selectedGridCells: [],
+      gridSelectionLayer: options?.gridSelectionLayer ?? null,
+    };
+  }
+
+  if (block.gridCellCodes.length > 0) {
+    const selectedGridCells = options
+      ? getMatchingGridCells(options, block.gridCellCodes)
+      : [];
+
+    return {
+      areaOptions,
+      selectedArea: null,
+      selectedGridCells,
+      projectionOptions: resolveProjectionOptions(selectedGridCells),
+      formatOptions: resolveFormatOptions(
+        selectedGridCells,
+        block.projectionCodes,
+      ),
+      supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
+      gridSelectionLayer: options?.gridSelectionLayer ?? null,
     };
   }
 
@@ -255,6 +363,8 @@ export function resolveAreaBlockAvailability(
     projectionOptions: resolveProjectionOptions(selectedAreas),
     formatOptions: resolveFormatOptions(selectedAreas, block.projectionCodes),
     supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
+    selectedGridCells: [],
+    gridSelectionLayer: options?.gridSelectionLayer ?? null,
   };
 }
 
@@ -269,6 +379,27 @@ const POLYGON_AREA: DownloadOrderAreaInput = {
   type: "polygon",
 };
 
+function resolveOrderAreas(
+  options: DownloadOptions | null,
+  block: DownloadAreaBlock,
+  availability: DownloadAreaBlockAvailability,
+): DownloadOrderAreaInput[] {
+  if (block.polygon) return [POLYGON_AREA];
+
+  if (block.gridCellCodes.length > 0) {
+    // Sender alle oppføringer for valgte ruter, også duplikater med ulik
+    // type (f.eks. DTM sjø), slik gammel løsning gjorde
+    const gridCellCodeSet = new Set(block.gridCellCodes);
+    return (options?.areas ?? [])
+      .filter((option) => gridCellCodeSet.has(option.area.code))
+      .map(toDownloadOrderArea);
+  }
+
+  return availability.selectedArea
+    ? [toDownloadOrderArea(availability.selectedArea)]
+    : [];
+}
+
 function createOrderItemForBlock(
   uuid: string,
   capabilitiesUrl: string,
@@ -276,7 +407,8 @@ function createOrderItemForBlock(
   block: DownloadAreaBlock,
 ): DownloadOrderItemInput | null {
   const availability = resolveAreaBlockAvailability(options, block);
-  if (!block.polygon && !availability.selectedArea) return null;
+  const areas = resolveOrderAreas(options, block, availability);
+  if (areas.length === 0) return null;
 
   const projectionCodeSet = new Set(block.projectionCodes);
   const projections = availability.projectionOptions.filter((candidate) =>
@@ -291,11 +423,7 @@ function createOrderItemForBlock(
   return {
     uuid,
     capabilitiesUrl,
-    areas: block.polygon
-      ? [POLYGON_AREA]
-      : availability.selectedArea
-        ? [toDownloadOrderArea(availability.selectedArea)]
-        : [],
+    areas,
     projections: projections.map(toDownloadOrderProjection),
     formats: formats.map((format) => ({ name: format.name })),
     ...(block.polygon ? { coordinates: block.polygon } : {}),
@@ -341,6 +469,7 @@ export function filterAreaBlockForProduct(
     return {
       areaCode: null,
       polygon: bulkBlock.polygon,
+      gridCellCodes: [],
       projectionCodes,
       formatNames,
     };
@@ -367,6 +496,7 @@ export function filterAreaBlockForProduct(
   return {
     areaCode: matchingArea.area.code,
     polygon: null,
+    gridCellCodes: [],
     projectionCodes,
     formatNames,
   };
@@ -377,6 +507,7 @@ export function appendBulkAreaBlocks(
   newBlocks: DownloadAreaBlock[],
 ): DownloadAreaBlock[] {
   function keyOf(block: DownloadAreaBlock): string | null {
+    if (block.gridCellCodes.length > 0) return block.gridCellCodes.join(",");
     return block.areaCode ?? block.polygon ?? null;
   }
 
@@ -522,7 +653,7 @@ export function resolveUnionDownloadAvailability(
   optionsList: (DownloadOptions | null)[],
   bulkBlock: Pick<
     DownloadAreaBlock,
-    "areaCode" | "polygon" | "projectionCodes"
+    "areaCode" | "polygon" | "gridCellCodes" | "projectionCodes"
   >,
 ): DownloadAreaBlockAvailability {
   const presentOptionsList = optionsList.flatMap((options) =>
@@ -531,7 +662,10 @@ export function resolveUnionDownloadAvailability(
 
   const areaOptions = sortAreaOptionsNationwideFirst(
     unionByKey(
-      presentOptionsList.map((options) => options.areas),
+      presentOptionsList
+        // Fellesvalg støtter ikke rutenett, så rutene holdes utenfor listen
+        .filter((options) => !options.gridSelectionLayer)
+        .map((options) => options.areas),
       (option) => option.area.code,
     ),
   );
@@ -563,6 +697,8 @@ export function resolveUnionDownloadAvailability(
       supportsPolygonSelection: presentOptionsList.some(
         (options) => options.supportsPolygonSelection,
       ),
+      selectedGridCells: [],
+      gridSelectionLayer: null,
     };
   }
 
@@ -598,5 +734,7 @@ export function resolveUnionDownloadAvailability(
     supportsPolygonSelection: presentOptionsList.some(
       (options) => options.supportsPolygonSelection,
     ),
+    selectedGridCells: [],
+    gridSelectionLayer: null,
   };
 }

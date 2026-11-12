@@ -13,6 +13,7 @@ import {
   resolveAreaBlockAvailability,
   selectAreaBlockArea,
   selectAreaBlockFormats,
+  selectAreaBlockGridCells,
   selectAreaBlockPolygon,
   selectAreaBlockProjections,
 } from "./downloadUtils";
@@ -50,9 +51,10 @@ export function DownloadOptionsForm({
       {selection.areaBlocks.map((block, blockIndex) => {
         const excludedAreaCodes = selection.areaBlocks
           .filter((_, index) => index !== blockIndex)
-          .flatMap((otherBlock) =>
-            otherBlock.areaCode ? [otherBlock.areaCode] : [],
-          );
+          .flatMap((otherBlock) => [
+            ...(otherBlock.areaCode ? [otherBlock.areaCode] : []),
+            ...otherBlock.gridCellCodes,
+          ]);
         const availability = resolveAreaBlockAvailability(options, block);
 
         return (
@@ -75,6 +77,16 @@ export function DownloadOptionsForm({
             onChangePolygonAction={(polygon) =>
               onSelectionChangeAction(
                 selectAreaBlockPolygon(selection, blockIndex, polygon),
+              )
+            }
+            onChangeGridCellsAction={(gridCellCodes) =>
+              onSelectionChangeAction(
+                selectAreaBlockGridCells(
+                  selection,
+                  blockIndex,
+                  gridCellCodes,
+                  options,
+                ),
               )
             }
             onChangeProjectionsAction={(projectionCodes) =>
