@@ -35,13 +35,13 @@ export function ThemeTags({
           data-size="sm"
           className={styles.themesButton}
           onClick={() => {
-            trackClick("show-more-themes", LOCATIONS.MetadataPage, {
+            trackClick("show-all-themes", LOCATIONS.MetadataPage, {
               totalThemes: themes.length,
             });
-            setVisibleCount((count) => count + PAGE_SIZE);
+            setVisibleCount(themes.length);
           }}
         >
-          Vis mer
+          Vis alle
         </Button>
       )}
       {canCollapse && (
