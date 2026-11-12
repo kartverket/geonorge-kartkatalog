@@ -39,6 +39,7 @@ const SearchResultItemSchema = z.object({
   seriesType: z.string().nullable(),
   downloadableSeriesMembers: z.array(DownloadItemSchema).nullable(),
   thematicSeriesDownloadItem: DownloadItemSchema.nullable().default(null),
+  fileDownloadUrl: z.string().nullable().default(null),
 });
 
 export const SearchResultSchema = z.object({

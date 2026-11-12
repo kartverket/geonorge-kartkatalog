@@ -3,6 +3,7 @@
 import { Button, Card, Heading, Tag } from "@kv-designsystem/react";
 import {
   CheckmarkIcon,
+  DownloadIcon,
   ExternalLinkIcon,
   FilesIcon,
 } from "@navikt/aksel-icons";
@@ -49,6 +50,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const canCopy = isService && !!p.getCapabilitiesUrl;
   const applicationUrl =
     p.typeTranslated === "Applikasjon" ? p.distributionUrl : null;
+  const fileDownloadUrl = p.fileDownloadUrl;
   const thumbnailUrl = isAllowedThumbnailUrl(p.thumbnailUrl)
     ? p.thumbnailUrl
     : null;
@@ -146,8 +148,6 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               item={p.thematicSeriesDownloadItem}
               location={analyticsLocation}
               size="sm"
-              addLabel="Last ned serien"
-              removeLabel="Fjern serien"
             />
           ) : canDownload && isDataset && p.distributionUrl ? (
             <AddToDownloadsButton
@@ -160,10 +160,22 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               }}
               location={analyticsLocation}
               size="sm"
-              addLabel="Last ned"
-              removeLabel="Fjern nedlasting"
             />
           ) : null}
+          {fileDownloadUrl && (
+            <CardActionButton
+              onClick={() => {
+                trackClick("download-file-distribution", analyticsLocation, {
+                  datasetTitle: p.title,
+                  datasetUuid: p.uuid,
+                });
+                window.open(fileDownloadUrl, "_blank", "noopener");
+              }}
+              label="Last ned"
+              icon={<DownloadIcon aria-hidden />}
+              variant="primary"
+            />
+          )}
           {canShowMap && (
             <AddToMapButton
               item={{
@@ -201,13 +213,15 @@ function CardActionButton({
   onClick,
   label,
   icon,
+  variant = "secondary",
 }: {
   onClick: () => void;
   label: string;
   icon: ReactNode;
+  variant?: "primary" | "secondary";
 }) {
   return (
-    <Button variant="secondary" data-size="sm" onClick={onClick}>
+    <Button variant={variant} data-size="sm" onClick={onClick}>
       {icon}
       {label}
     </Button>

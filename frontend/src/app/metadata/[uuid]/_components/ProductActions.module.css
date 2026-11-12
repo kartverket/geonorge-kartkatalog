@@ -9,6 +9,14 @@
   height: var(--ds-size-12);
 }
 
+.actionButton[data-variant="primary"] {
+  color: var(--dsc-button-color);
+}
+
+.actionButton[data-variant="primary"]:hover {
+  color: var(--dsc-button-color--hover);
+}
+
 @media (max-width: 800px) {
   .actions {
     flex-direction: column;

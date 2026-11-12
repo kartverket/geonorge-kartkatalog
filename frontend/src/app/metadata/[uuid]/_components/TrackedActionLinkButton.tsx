@@ -11,6 +11,7 @@ export function TrackedActionLinkButton({
   target = "_blank",
   eventName,
   properties,
+  variant = "secondary",
 }: {
   href: string;
   icon: ReactNode;
@@ -18,10 +19,11 @@ export function TrackedActionLinkButton({
   target?: string | "_blank";
   eventName: string;
   properties?: Record<string, unknown>;
+  variant?: "primary" | "secondary";
 }) {
   return (
     <a
-      data-variant="secondary"
+      data-variant={variant}
       target={target}
       rel="noreferrer"
       href={href}

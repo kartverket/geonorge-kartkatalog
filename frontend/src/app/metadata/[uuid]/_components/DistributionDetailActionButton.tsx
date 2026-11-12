@@ -61,8 +61,6 @@ export function DistributionDetailActionButton({
         size="sm"
         location={LOCATIONS.MetadataPageTabs}
         variant="secondary"
-        addLabel="Legg til serien"
-        removeLabel="Fjern serien"
         preventAccordionToggle
       />
     );
