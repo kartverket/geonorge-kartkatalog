@@ -14,7 +14,7 @@ API-dokumentasjon (Swagger/OpenAPI genereres fra KDoc på rutene).
 | Rammeverk | Ktor (Netty), Content Negotiation (kotlinx.serialization), Call Logging, Status Pages, CORS, ForwardedHeaders |
 | Autentisering | Ktor `server-auth-oidc` mot GeoID (OIDC, session-cookie `GEOID_SESSION`) |
 | HTTP-klient | Ktor client (CIO) |
-| Søk | Solr (kjerner `metadata_all` / `metadata_all_en`), valgfritt vektorsøk med Vertex AI embeddings (`google-genai`) |
+| Søk | Solr (kjerner `metadata_all` / `metadata_all_en` / `metadata`), der metadata er indekserte datasett og metadata_all inkluderer alle typer (dataset, series, software, service). Valgfritt vektorsøk med Vertex AI embeddings (`google-genai`med text-multilingual-embedding-002 som embeddingmodell) |
 | Konfigurasjon | `.env` / miljøvariabler via `dotenv-kotlin` |
 | Kodekvalitet | ktlint (`./gradlew ktlintCheck` / `ktlintFormat`) |
 | Test | `kotlin.test`, Ktor `testHost` og `client-mock` |
