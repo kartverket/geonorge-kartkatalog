@@ -251,6 +251,7 @@ export function DownloadPageContentClient({
       authState.status === "authenticated" ? authState.provider : null,
     ).then((result) => {
       if (!result) return;
+      if (result.orders.every((order) => order.status === "failed")) return;
 
       const files = result.orders.flatMap((order) =>
         order.status === "ordered" ? order.files : [],
@@ -296,6 +297,24 @@ export function DownloadPageContentClient({
         ),
     ),
   );
+
+  const failedOrderMessages =
+    orderResult?.orders
+      .filter((order) => order.status === "failed")
+      .map((order) => (
+        <Paragraph
+          key={`failed-${order.metadataUuids.join("-")}`}
+          aria-live="polite"
+        >
+          Kunne ikke bestille{" "}
+          {order.metadataUuids
+            .map(
+              (uuid) => cards.find((card) => card.uuid === uuid)?.title ?? uuid,
+            )
+            .join(", ")}
+          : {order.message ?? "Ukjent feil"}. Du kan prøve på nytt.
+        </Paragraph>
+      )) ?? [];
 
   return (
     <>
@@ -480,6 +499,7 @@ export function DownloadPageContentClient({
                 {orderError ? (
                   <Paragraph aria-live="polite">{orderError}</Paragraph>
                 ) : null}
+                {failedOrderMessages}
                 {authState.status === "error" ? (
                   <Paragraph aria-live="polite">
                     Kunne ikke bekrefte innloggingen. Prøv å laste siden på
@@ -495,24 +515,7 @@ export function DownloadPageContentClient({
           <section className={styles.orderSection}>
             {orderResult ? (
               <>
-                {orderResult.orders
-                  .filter((order) => order.status === "failed")
-                  .map((order) => (
-                    <Paragraph
-                      key={`failed-${order.metadataUuids.join("-")}`}
-                      aria-live="polite"
-                    >
-                      Kunne ikke bestille{" "}
-                      {order.metadataUuids
-                        .map(
-                          (uuid) =>
-                            cards.find((card) => card.uuid === uuid)?.title ??
-                            uuid,
-                        )
-                        .join(", ")}
-                      : {order.message ?? "Ukjent feil"}. Du kan prøve på nytt.
-                    </Paragraph>
-                  ))}
+                {failedOrderMessages}
                 <DownloadOrderSummary
                   orderResult={orderResult}
                   cards={orderedCards}
