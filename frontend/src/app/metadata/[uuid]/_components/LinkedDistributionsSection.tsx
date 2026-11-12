@@ -30,6 +30,7 @@ function toDatasetCardData(d: LinkedDistribution): DatasetCardData {
     hierarchyLevel: d.hierarchyLevel,
     seriesType: d.seriesType,
     thematicSeriesDownloadItem: d.thematicSeriesDownloadItem,
+    fileDownloadUrl: null,
   };
 }
 
