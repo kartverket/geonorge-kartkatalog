@@ -130,7 +130,10 @@ export function DownloadPageContentClient({
       const existing = selections[card.uuid];
       return (
         existing?.areaBlocks.some(
-          (block) => block.areaCode !== null || block.polygon !== null,
+          (block) =>
+            block.areaCode !== null ||
+            block.polygon !== null ||
+            block.gridCellCodes.length > 0,
         ) ?? false
       );
     });

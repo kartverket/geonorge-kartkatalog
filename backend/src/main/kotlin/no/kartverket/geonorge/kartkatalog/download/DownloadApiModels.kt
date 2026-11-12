@@ -16,6 +16,7 @@ data class DownloadApiCapabilities(
     val distributedBy: String? = null,
     val deliveryNotificationByEmail: Boolean = false,
     val accessConstraintRequiredRole: String? = null,
+    val mapSelectionLayer: String? = null,
     @SerialName("_links")
     val links: List<DownloadApiLink> = emptyList(),
 ) {

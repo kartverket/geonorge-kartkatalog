@@ -143,6 +143,7 @@ class DownloadService(
                 areas = emptyList(),
                 supportsPolygonSelection = capabilities.supportsPolygonSelection,
                 deliveryNotificationByEmail = capabilities.deliveryNotificationByEmail,
+                gridSelectionLayer = capabilities.mapSelectionLayer?.takeIf { it.isNotBlank() },
             )
         }
 
@@ -172,6 +173,7 @@ class DownloadService(
                 },
             supportsPolygonSelection = capabilities.supportsPolygonSelection,
             deliveryNotificationByEmail = capabilities.deliveryNotificationByEmail,
+            gridSelectionLayer = capabilities.mapSelectionLayer?.takeIf { it.isNotBlank() },
         )
     }
 
