@@ -141,7 +141,15 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               icon={<ExternalLinkIcon aria-hidden />}
             />
           )}
-          {canDownload && isDataset && p.distributionUrl && (
+          {p.thematicSeriesDownloadItem ? (
+            <AddToDownloadsButton
+              item={p.thematicSeriesDownloadItem}
+              location={analyticsLocation}
+              size="sm"
+              addLabel="Last ned serien"
+              removeLabel="Fjern serien"
+            />
+          ) : canDownload && isDataset && p.distributionUrl ? (
             <AddToDownloadsButton
               item={{
                 accessType: p.accessState,
@@ -155,7 +163,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               addLabel="Last ned"
               removeLabel="Fjern nedlasting"
             />
-          )}
+          ) : null}
           {canShowMap && (
             <AddToMapButton
               item={{

@@ -1,6 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.metadata.models
 
 import kotlinx.serialization.Serializable
+import no.kartverket.geonorge.kartkatalog.download.DownloadItem
 
 @Serializable
 data class LinkedDistribution(
@@ -17,6 +18,7 @@ data class LinkedDistribution(
     val hierarchyLevel: String? = null,
     val accessState: AccessState? = null,
     val seriesType: String? = null,
+    val thematicSeriesDownloadItem: DownloadItem? = null,
 )
 
 @Serializable

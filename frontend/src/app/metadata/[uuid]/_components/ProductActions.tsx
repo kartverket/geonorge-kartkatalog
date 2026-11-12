@@ -6,6 +6,7 @@ import {
   getDownloadableSeriesMembers,
   getDownloadItem,
   getMapItem,
+  getThematicParentSeriesDownloadItem,
 } from "@/app/metadata/[uuid]/_utils/distributions";
 import {
   getEditUrl,
@@ -31,6 +32,8 @@ export async function ProductActions({
   uuid: string;
 }) {
   const downloadItem = getDownloadItem(metadata, uuid);
+  const thematicSeriesDownloadItem =
+    getThematicParentSeriesDownloadItem(linkedDistributions);
   const isThematicSeries =
     metadata.hierarchyLevel === "series" &&
     metadata.seriesType === "series_thematic";
@@ -52,8 +55,10 @@ export async function ProductActions({
       />
       <AddToDownloadsButton
         className={styles.actionButton}
-        item={downloadItem}
+        item={thematicSeriesDownloadItem ?? downloadItem}
         location={LOCATIONS.MetadataPage}
+        addLabel={thematicSeriesDownloadItem ? "Legg til serien" : undefined}
+        removeLabel={thematicSeriesDownloadItem ? "Fjern serien" : undefined}
       />
       <AddToMapButton
         variant="primary"

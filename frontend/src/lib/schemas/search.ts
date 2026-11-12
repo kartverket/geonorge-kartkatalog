@@ -15,7 +15,7 @@ const SearchFacetSchema = z.object({
   values: z.array(SearchFacetValueSchema),
 });
 
-const DownloadItemSchema = z.object({
+export const DownloadItemSchema = z.object({
   accessType: z.string(),
   distributionUrl: z.string().nullable(),
   name: z.string(),
@@ -38,6 +38,7 @@ const SearchResultItemSchema = z.object({
   hierarchyLevel: z.string().nullable(),
   seriesType: z.string().nullable(),
   downloadableSeriesMembers: z.array(DownloadItemSchema).nullable(),
+  thematicSeriesDownloadItem: DownloadItemSchema.nullable().default(null),
 });
 
 export const SearchResultSchema = z.object({

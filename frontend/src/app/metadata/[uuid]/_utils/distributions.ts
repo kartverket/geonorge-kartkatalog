@@ -68,6 +68,17 @@ export function getDownloadableSeriesMembers(
   });
 }
 
+// Et medlem av en tematisk serie gir samme fil som serien selv, så nedlasting
+// fra medlemmets side skal legge til serien i stedet
+export function getThematicParentSeriesDownloadItem(
+  linkedDistributions: LinkedDistributions,
+): DownloadItem | null {
+  const thematicSeries = linkedDistributions.parentSeries.find(
+    (series) => series.seriesType === "series_thematic",
+  );
+  return thematicSeries ? toDownloadItem(thematicSeries) : null;
+}
+
 export function getDownloadItem(
   metadata: ProductMetadata,
   uuid: string,

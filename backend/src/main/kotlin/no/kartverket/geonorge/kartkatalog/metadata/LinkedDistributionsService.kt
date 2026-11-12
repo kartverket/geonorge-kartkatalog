@@ -4,6 +4,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
+import no.kartverket.geonorge.kartkatalog.download.DownloadItem
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
@@ -226,6 +227,7 @@ class LinkedDistributionsService(
             mapCapabilitiesUrl = mapCapability?.mapCapabilitiesUrl ?: ownViewServiceResource?.url,
             hierarchyLevel = hierarchyLevel,
             accessState = resolveAccessState(this),
+            thematicSeriesDownloadItem = DownloadItem.fromThematicSeries(solrDoc?.serie),
         )
     }
 

@@ -29,6 +29,7 @@ function toDatasetCardData(d: LinkedDistribution): DatasetCardData {
     accessState: d.accessState,
     hierarchyLevel: d.hierarchyLevel,
     seriesType: d.seriesType,
+    thematicSeriesDownloadItem: d.thematicSeriesDownloadItem,
   };
 }
 

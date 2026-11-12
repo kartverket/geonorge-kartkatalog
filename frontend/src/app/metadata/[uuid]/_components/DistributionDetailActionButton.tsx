@@ -1,5 +1,6 @@
 import { DownloadIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
+import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
 import { DistributionActionLinkButton } from "@/app/metadata/[uuid]/_components/DistributionActionLinkButton";
 import {
@@ -22,6 +23,7 @@ export function DistributionDetailActionButton({
   group,
   formatNames,
   urlLabel,
+  thematicSeriesDownloadItem,
 }: {
   uuid: string;
   title: string;
@@ -32,6 +34,7 @@ export function DistributionDetailActionButton({
   group: DistributionGroup;
   formatNames: string[];
   urlLabel: string;
+  thematicSeriesDownloadItem: DownloadItem | null;
 }) {
   const firstUrl = group.entries[0]?.url ?? null;
 
@@ -47,6 +50,23 @@ export function DistributionDetailActionButton({
   const canDownloadDirectly =
     hierarchyLevel === "dataset" ||
     (hierarchyLevel === "series" && seriesType === "series_thematic");
+
+  if (
+    isGeonorgeDownloadProtocol(group.protocol) &&
+    thematicSeriesDownloadItem
+  ) {
+    return (
+      <AddToDownloadsButton
+        item={thematicSeriesDownloadItem}
+        size="sm"
+        location={LOCATIONS.MetadataPageTabs}
+        variant="secondary"
+        addLabel="Legg til serien"
+        removeLabel="Fjern serien"
+        preventAccordionToggle
+      />
+    );
+  }
 
   if (isGeonorgeDownloadProtocol(group.protocol) && canDownloadDirectly) {
     return (
