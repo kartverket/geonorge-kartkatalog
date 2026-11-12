@@ -22,7 +22,7 @@
     "@posthog/react": "^1.11.3",
     "next": "^16.4.4",
     "ol": "^10.11.0",
-    "posthog-js": "^1.444.3",
+    "posthog-js": "^1.447.5",
     "posthog-node": "^5.61.2",
     "proj4": "^2.22.0",
     "react": "19.3.1",
