@@ -127,6 +127,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           {p.downloadableSeriesMembers &&
             p.downloadableSeriesMembers.length > 0 && (
               <AddSeriesToDownloadsButton
+                size={"sm"}
                 item={p}
                 downloadableItems={p.downloadableSeriesMembers}
                 location={"header"}
