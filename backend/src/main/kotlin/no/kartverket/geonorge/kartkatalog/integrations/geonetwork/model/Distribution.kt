@@ -7,6 +7,9 @@ data class DistributionFormat(
     val name: String,
     val version: String? = null,
     val onlineResources: List<OnlineResource> = emptyList(),
+    val distributorOrganization: String? = null,
+    val distributorFirstResource: OnlineResource? = null,
+    val distributorUnitsOfDistribution: String? = null,
 )
 
 @Serializable

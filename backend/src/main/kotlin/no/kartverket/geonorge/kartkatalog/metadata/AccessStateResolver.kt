@@ -44,3 +44,13 @@ private fun containsAny(
     val normalized = value.lowercase()
     return searchTerms.any { term -> normalized.contains(term.lowercase()) }
 }
+
+fun describeAccessConstraints(
+    recordAccessConstraints: String?,
+    accessState: AccessState?,
+): String =
+    when {
+        accessState == AccessState.OPEN -> "Åpne data"
+        accessState == AccessState.RESTRICTED -> "Norge digitalt-begrenset"
+        else -> recordAccessConstraints ?: "-"
+    }

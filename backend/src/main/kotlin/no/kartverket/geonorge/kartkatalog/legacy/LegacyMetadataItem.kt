@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.search
+package no.kartverket.geonorge.kartkatalog.legacy
 
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject

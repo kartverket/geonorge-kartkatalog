@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.search
+package no.kartverket.geonorge.kartkatalog.legacy
 
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -7,6 +7,9 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import no.kartverket.geonorge.kartkatalog.search.SearchFacetCount
+import no.kartverket.geonorge.kartkatalog.search.SearchHit
+import no.kartverket.geonorge.kartkatalog.search.SearchHits
 
 internal class LegacySearchResponse(
     language: String,
