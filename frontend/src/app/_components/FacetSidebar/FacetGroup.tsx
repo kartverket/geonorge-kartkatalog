@@ -6,6 +6,15 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import styles from "./FacetGroup.module.css";
 
+function selectedFirst<T extends { name: string }>(
+  items: T[],
+  isSelected: (item: T) => boolean,
+): T[] {
+  return [...items].sort(
+    (a, b) => Number(isSelected(b)) - Number(isSelected(a)),
+  );
+}
+
 export type FacetValue = {
   name: string;
   label?: string | null;
@@ -50,15 +59,17 @@ function ExpandableCheckbox({
       </div>
       {open && (
         <div className={styles.nestedCheckboxes}>
-          {subValues.map((child) => (
-            <Checkbox
-              key={child.name}
-              label={`${child.label ?? child.name} (${child.count})`}
-              value={child.name}
-              checked={selected.includes(child.name)}
-              onChange={() => onToggle(field, child.name)}
-            />
-          ))}
+          {selectedFirst(subValues, (c) => selected.includes(c.name)).map(
+            (child) => (
+              <Checkbox
+                key={child.name}
+                label={`${child.label ?? child.name} (${child.count})`}
+                value={child.name}
+                checked={selected.includes(child.name)}
+                onChange={() => onToggle(field, child.name)}
+              />
+            ),
+          )}
         </div>
       )}
     </div>
@@ -84,7 +95,14 @@ export function FacetGroup({
     childrenByParent.set(v.category, list);
   }
 
-  const topLevel = values.filter((v) => v.category == null);
+  const topLevel = selectedFirst(
+    values.filter((v) => v.category == null),
+    (v) =>
+      selected.includes(v.name) ||
+      (childrenByParent.get(v.name) ?? []).some((c) =>
+        selected.includes(c.name),
+      ),
+  );
 
   const truncate = initialVisibleCount != null && !expanded;
   const visibleTopLevel = truncate
