@@ -1,4 +1,4 @@
-import AddSeriesToDownloadsButton from "@/app/_components/addToDownloads/AddSeriesToDownloadsButton";
+import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import {
   getFairStatus,
