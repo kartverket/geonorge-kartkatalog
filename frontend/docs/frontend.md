@@ -2,7 +2,7 @@
 
 ## Beskrivelse
 
-Brukergrensesnitt for å søke i og vise metadata som er registrert i GeoNetwork, samt bestille nedlasting. Henter alle data fra [kartkatalog-backend](../../backend/docs/backend.md) og fungerer som en BFF (backend-for-frontend) mot nettleseren.
+Brukergrensesnitt for å søke i og vise metadata som er registrert i GeoNetwork, samt bestille nedlasting. Henter alle data fra kartkatalog-backend og fungerer som en BFF (backend-for-frontend) mot nettleseren.
 
 ## Teknologi
 
@@ -17,7 +17,7 @@ Brukergrensesnitt for å søke i og vise metadata som er registrert i GeoNetwork
 | Lint / format      | Biome                                                                               |
 | Bygg               | `output: "standalone"`, Docker (multi-stage, Node 26)                               |
 
-Versjoner: se [`package.json`](../package.json).
+Versjoner: se `package.json`.
 
 ## Prosjektstruktur
 
@@ -35,7 +35,7 @@ src/
 └── posthog/                Analyseoppsett
 ```
 
-Arbeidsregler og konvensjoner (serverkomponenter først, CSS Modules, breakpoints) står i [`../AGENTS.md`](../AGENTS.md).
+Arbeidsregler og konvensjoner (serverkomponenter først, CSS Modules, breakpoints) står i `AGENTS.md`.
 
 ## Ruter
 
@@ -108,7 +108,5 @@ Kopier `.env.example` → `.env.local`.
 ## Annen dokumentasjon
 
 - [Next.js](https://nextjs.org/docs) · [KV Designsystem](https://www.npmjs.com/package/@kv-designsystem/react) · [OpenLayers](https://openlayers.org/) · [Biome](https://biomejs.dev/)
-- Backend: [`backend/docs/backend.md`](../../backend/docs/backend.md) og Swagger (`/swagger`)
-- Konvensjoner: [`../AGENTS.md`](../AGENTS.md), [`../README.md`](../README.md)
 - Legacy: [Geonorge.Kartkatalog.React](https://github.com/kartverket/Geonorge.Kartkatalog.React)
 - [GeoID](https://www.kartverket.no/om-kartverket/it-tjenester/geoid)
