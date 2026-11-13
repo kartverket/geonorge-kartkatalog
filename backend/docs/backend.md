@@ -2,7 +2,7 @@
 
 ## Beskrivelse
 
-Ktor-basert API for søk og visning av metadata som er registrert i GeoNetwork (indeksert i Solr), samt bestilling av nedlasting og GeoID-innlogging. Backend brukes av [frontend](../../frontend/docs/frontend.md) (Next.js) og med rammer for bruk av eksterne konsumenter som er avhengige av legacy-kontrakten (`/search`, `/api/datasets-simple`, `/api/metadata/{uuid}`).
+Ktor-basert API for søk og visning av metadata som er registrert i GeoNetwork (indeksert i Solr), samt bestilling av nedlasting og GeoID-innlogging. Backend brukes av frontend (Next.js) og med rammer for bruk av eksterne konsumenter som er avhengige av legacy-kontrakten (`/search`, `/api/datasets-simple`, `/api/metadata/{uuid}`).
 
 API-dokumentasjon (Swagger/OpenAPI genereres fra KDoc på rutene).
 
@@ -20,7 +20,7 @@ API-dokumentasjon (Swagger/OpenAPI genereres fra KDoc på rutene).
 | Test | `kotlin.test`, Ktor `testHost` og `client-mock` |
 | Bygg / kjøring | Gradle, fat-jar (`application.jar`), Docker (multi-stage, kjører ktlint + test ved bygg) |
 
-Versjoner: se [`build.gradle.kts`](../build.gradle.kts) og [`gradle/libs.versions.toml`](../gradle/libs.versions.toml).
+Versjoner: se `build.gradle.kts` og `gradle/libs.versions.toml`.
 
 ## Avhengigheter (eksterne systemer)
 
@@ -111,7 +111,4 @@ Interne ruter (`/bff`, `/auth`, `/api/me`, `/api/download`) holdes utenfor Swagg
 ## Annen dokumentasjon
 
 - [Ktor](https://ktor.io/docs/home.html) og [OpenAPI-generering](https://ktor.io/docs/openapi-spec-generation.html)
-- Frontend: [`frontend/docs/frontend.md`](../../frontend/docs/frontend.md)
-- Backend README (søk/legacy-kompatibilitet i detalj, begrensede nedlastinger): [`../README.md`](../README.md)
 - Legacy: [Geonorge.Kartkatalog](https://github.com/kartverket/Geonorge.Kartkatalog), Solr-oppsett: [Geonorge.Kartkatalog.Solr](https://github.com/kartverket/Geonorge.Kartkatalog.Solr)
-- Backstage: [`catalog-info.yaml`](../../catalog-info.yaml)
