@@ -32,6 +32,7 @@ export const ProductMetadataContactSchema = z.object({
 export const ReferenceSystemSchema = z.object({
   code: z.string().nullable(),
   codeSpace: z.string().nullable(),
+  title: z.string().nullable().optional(),
 });
 
 export const DistributionEntrySchema = z.object({

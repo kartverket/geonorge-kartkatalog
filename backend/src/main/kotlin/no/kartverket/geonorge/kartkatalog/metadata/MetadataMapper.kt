@@ -62,9 +62,7 @@ class MetadataMapper(
                     it.toProductDistributionFormat()
                 },
             referenceSystems =
-                record.referenceSystems.map {
-                    it.toProductReferenceSystem()
-                },
+                mapReferenceSystems(record.referenceSystems),
             distributionGroups = mapDistributionGroups(record),
             thumbnailUrl = pickThumbnailUrl(record),
             fairStatusPercentFromMetadata = findFairPercent(record),
@@ -299,11 +297,20 @@ class MetadataMapper(
             version = version,
         )
 
-    private fun ReferenceSystem.toProductReferenceSystem() =
-        ProductReferenceSystem(
-            code = code,
-            codeSpace = codeSpace,
-        )
+    private suspend fun mapReferenceSystems(referenceSystems: List<ReferenceSystem>): List<ProductReferenceSystem> {
+        if (referenceSystems.isEmpty()) return emptyList()
+        val items = codeListTranslator.getCodeListItems(CodeList.COORDINATE_SYSTEMS)
+        return referenceSystems.map { rs ->
+            val item =
+                codeListTranslator.findItem(items, rs.codeSpace)
+                    ?: codeListTranslator.findItem(items, rs.code)
+            ProductReferenceSystem(
+                code = rs.code,
+                codeSpace = rs.codeSpace,
+                title = item?.label,
+            )
+        }
+    }
 
     private fun Contact.toProductMetadataContact() =
         ProductMetadataContact(

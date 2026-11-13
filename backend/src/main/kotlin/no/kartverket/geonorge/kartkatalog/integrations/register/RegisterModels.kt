@@ -16,6 +16,8 @@ data class RegisterCodeListItem(
     val codeValue: String? = null,
     val description: String? = null,
     val status: String? = null,
+    @SerialName("documentreference")
+    val documentReference: String? = null,
 ) {
     val effectiveCodeValue: String get() =
         codeValue?.takeIf {
