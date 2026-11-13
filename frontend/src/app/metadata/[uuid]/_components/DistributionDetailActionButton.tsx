@@ -39,6 +39,22 @@ export function DistributionDetailActionButton({
   thematicSeriesDownloadItem: DownloadItem | null;
   downloadableSeriesMembers: DownloadItem[];
 }) {
+  if (
+    isGeonorgeDownloadProtocol(group.protocol) &&
+    downloadableSeriesMembers.length > 0
+  ) {
+    return (
+      <AddSeriesToDownloadsButton
+        item={{ uuid, title }}
+        downloadableItems={downloadableSeriesMembers}
+        size="sm"
+        variant="secondary"
+        location={LOCATIONS.MetadataPageTabs}
+        preventAccordionToggle
+      />
+    );
+  }
+
   const firstUrl = group.entries[0]?.url ?? null;
 
   if (!firstUrl) return null;
@@ -84,22 +100,6 @@ export function DistributionDetailActionButton({
         variant="secondary"
         addLabel="Legg til nedlasting"
         removeLabel="Fjern fra nedlasting"
-        preventAccordionToggle
-      />
-    );
-  }
-
-  if (
-    isGeonorgeDownloadProtocol(group.protocol) &&
-    downloadableSeriesMembers.length > 0
-  ) {
-    return (
-      <AddSeriesToDownloadsButton
-        item={{ uuid, title }}
-        downloadableItems={downloadableSeriesMembers}
-        size="sm"
-        variant="secondary"
-        location={LOCATIONS.MetadataPageTabs}
         preventAccordionToggle
       />
     );
