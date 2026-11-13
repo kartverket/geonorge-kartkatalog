@@ -12,8 +12,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
+import no.kartverket.geonorge.kartkatalog.API_V1
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
@@ -100,10 +102,10 @@ class SearchRoutesTest {
                         AreaResolver(RegisterClient(client, "https://register.example.test")),
                         HvdResolver(RegisterClient(client, "https://register.example.test")),
                     )
-                routing { searchRoutes(searchService) }
+                routing { route(API_V1) { searchRoutes(searchService) } }
             }
 
-            val response = client.get("/api/search?text=matrikkel&limit=25")
+            val response = client.get("/api/v1/search?text=matrikkel&limit=25")
             val body = response.bodyAsText()
             val expectedMapCapabilitiesUrl =
                 "\"mapCapabilitiesUrl\":\"https://wms.geonorge.no/skwms1/" +
@@ -161,10 +163,10 @@ class SearchRoutesTest {
                         AreaResolver(RegisterClient(client, "https://register.example.test")),
                         HvdResolver(RegisterClient(client, "https://register.example.test")),
                     )
-                routing { searchRoutes(searchService) }
+                routing { route(API_V1) { searchRoutes(searchService) } }
             }
 
-            val response = client.get("/api/search")
+            val response = client.get("/api/v1/search")
 
             assertEquals(HttpStatusCode.OK, response.status)
         }
@@ -193,11 +195,11 @@ class SearchRoutesTest {
                         AreaResolver(RegisterClient(client, "https://register.example.test")),
                         HvdResolver(RegisterClient(client, "https://register.example.test")),
                     )
-                routing { searchRoutes(searchService) }
+                routing { route(API_V1) { searchRoutes(searchService) } }
             }
 
             val response =
-                client.get("/api/search?text=matrikkel&mediatype=json") {
+                client.get("/api/v1/search?text=matrikkel&mediatype=json") {
                     headers.append(HttpHeaders.Accept, "text/csv")
                 }
             val body = response.bodyAsText()
@@ -302,10 +304,10 @@ class SearchRoutesTest {
                         AreaResolver(RegisterClient(client, "https://register.example.test")),
                         HvdResolver(RegisterClient(client, "https://register.example.test")),
                     )
-                routing { searchRoutes(searchService) }
+                routing { route(API_V1) { searchRoutes(searchService) } }
             }
 
-            val response = client.get("/api/search?text=sat-skog&limit=25")
+            val response = client.get("/api/v1/search?text=sat-skog&limit=25")
             val body = response.bodyAsText()
 
             assertEquals(HttpStatusCode.OK, response.status)
@@ -386,10 +388,10 @@ class SearchRoutesTest {
                         AreaResolver(RegisterClient(client, "https://register.example.test")),
                         HvdResolver(RegisterClient(client, "https://register.example.test")),
                     )
-                routing { searchRoutes(searchService) }
+                routing { route(API_V1) { searchRoutes(searchService) } }
             }
 
-            val response = client.get("/api/search?text=befolkning&limit=25")
+            val response = client.get("/api/v1/search?text=befolkning&limit=25")
             val body = response.bodyAsText()
 
             assertEquals(HttpStatusCode.OK, response.status)

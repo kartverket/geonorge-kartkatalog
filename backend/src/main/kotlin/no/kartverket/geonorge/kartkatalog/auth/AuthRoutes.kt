@@ -18,7 +18,7 @@ data class AuthInfoResponse(
 
 fun Route.authRoutes(authentication: GeoIdAuthentication) {
     authenticateWith(authentication.provider.session) {
-        route("/api/me/geoid") {
+        route("/me/geoid") {
             /**
              * Returns the authenticated GeoID user's name.
              *

@@ -11,6 +11,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
@@ -18,6 +19,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import no.kartverket.geonorge.kartkatalog.API_V1
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
@@ -135,7 +137,7 @@ class LegacySearchRoutesTest {
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
                     legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test/"))
-                    searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+                    route(API_V1) { searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register))) }
                 }
             }
 
@@ -184,7 +186,7 @@ class LegacySearchRoutesTest {
                     .jsonPrimitive.content,
             )
 
-            val modern = client.get("/api/search?text=Kart&limit=25&offset=2")
+            val modern = client.get("/api/v1/search?text=Kart&limit=25&offset=2")
             assertEquals(HttpStatusCode.OK, modern.status)
             assertContains(modern.bodyAsText(), "\"numFound\":1")
             assertFalse(modern.bodyAsText().contains("\"NumFound\""))
@@ -193,7 +195,7 @@ class LegacySearchRoutesTest {
             // Same engine and core, but modern and legacy retain their own query semantics.
             assertNotEquals(searchForms[0], searchForms[1])
             val legacyCsv = client.get("/search?text=Kart&limit=25&offset=2&mediatype=csv")
-            val modernCsv = client.get("/api/search?text=Kart&limit=25&offset=2&mediatype=csv")
+            val modernCsv = client.get("/api/v1/search?text=Kart&limit=25&offset=2&mediatype=csv")
             assertEquals(HttpStatusCode.OK, modernCsv.status)
             assertContains(modernCsv.headers[HttpHeaders.ContentType].orEmpty(), "text/csv")
             assertEquals(
@@ -214,7 +216,7 @@ class LegacySearchRoutesTest {
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
                     legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
-                    searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+                    route(API_V1) { searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register))) }
                 }
             }
 
@@ -223,10 +225,10 @@ class LegacySearchRoutesTest {
             assertContains(legacy.headers[HttpHeaders.SetCookie].orEmpty(), "_culture=no")
             assertContains(legacy.bodyAsText(), "\"TypeTranslated\":\"Datasett\"")
 
-            val modern = client.get("/api/search")
+            val modern = client.get("/api/v1/search")
             assertContains(modern.bodyAsText(), "\"typeTranslated\":\"Datasett\"")
 
-            val csv = client.get("/api/search?mediatype=csv")
+            val csv = client.get("/api/v1/search?mediatype=csv")
             assertEquals("no", csv.headers[HttpHeaders.ContentLanguage])
             assertTrue(csv.bodyAsText().startsWith("Tittel;Type;Tema;Organisasjon;"))
             assertEquals(List(3) { "/solr/metadata_all/select" }, paths.filter { it.startsWith("/solr/") })
@@ -243,7 +245,7 @@ class LegacySearchRoutesTest {
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
                     legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
-                    searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+                    route(API_V1) { searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register))) }
                 }
             }
 
@@ -261,7 +263,7 @@ class LegacySearchRoutesTest {
             assertTrue(csv.bodyAsText().startsWith("Title;Type;Topic;Organization;Open data;DOK-data;Uuid;"))
             assertContains(csv.bodyAsText(), "\"Kart; \"\"test\"\"\";dataset;Natur;Kartverket;")
             val modernCsv =
-                client.get("/api/search") {
+                client.get("/api/v1/search") {
                     headers.append(HttpHeaders.Accept, "text/csv")
                     headers.append(HttpHeaders.AcceptLanguage, "en-US")
                 }
@@ -291,7 +293,7 @@ class LegacySearchRoutesTest {
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
                     legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
-                    searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+                    route(API_V1) { searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register))) }
                 }
             }
 
@@ -318,7 +320,7 @@ class LegacySearchRoutesTest {
             assertTrue(legacyCsv.bodyAsText().startsWith("Title;Type;Topic;"))
 
             val modernCsv =
-                client.get("/api/search") {
+                client.get("/api/v1/search") {
                     headers.append(HttpHeaders.Accept, "application/json;q=0.2, application/csv;q=0.8")
                     headers.append(HttpHeaders.AcceptLanguage, "nb-NO;q=1")
                     headers.append(HttpHeaders.Cookie, "_culture=en")
@@ -329,7 +331,7 @@ class LegacySearchRoutesTest {
             assertTrue(modernCsv.bodyAsText().startsWith("Title;Type;Topic;"))
 
             val modernJson =
-                client.get("/api/search") {
+                client.get("/api/v1/search") {
                     headers.append(HttpHeaders.Accept, "text/csv;q=0.2, application/json;q=0.9")
                     headers.append(HttpHeaders.AcceptLanguage, "en-US")
                 }
@@ -347,7 +349,7 @@ class LegacySearchRoutesTest {
             assertContains(legacyJsonOverride.bodyAsText(), "\"TypeTranslated\":\"Datasett\"")
 
             val modernJsonOverride =
-                client.get("/api/search?mediatype=json") {
+                client.get("/api/v1/search?mediatype=json") {
                     headers.append(HttpHeaders.Accept, "text/csv")
                 }
             assertEquals(HttpStatusCode.OK, modernJsonOverride.status)
@@ -498,7 +500,7 @@ class LegacySearchRoutesTest {
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
                     legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
-                    searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
+                    route(API_V1) { searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register))) }
                 }
             }
             val response = client.get("/search?offset=2")
@@ -513,9 +515,9 @@ class LegacySearchRoutesTest {
             val csv = client.get("/search?mediatype=csv")
             assertEquals(HttpStatusCode.OK, csv.status)
             assertEquals("", csv.bodyAsText())
-            val modern = client.get("/api/search?offset=2")
+            val modern = client.get("/api/v1/search?offset=2")
             assertEquals(HttpStatusCode.BadGateway, modern.status)
-            val modernCsv = client.get("/api/search?mediatype=csv")
+            val modernCsv = client.get("/api/v1/search?mediatype=csv")
             assertEquals(HttpStatusCode.BadGateway, modernCsv.status)
             assertEquals(4, paths.count { it.startsWith("/solr/") })
             assertTrue(paths.all { it.startsWith("/solr/") })
