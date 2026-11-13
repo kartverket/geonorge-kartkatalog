@@ -47,9 +47,9 @@ class SearchService(
             .orEmpty()
             .asSequence()
             .map { it.split("|") }
+            .filter { parts -> !parts.getOrNull(2).isNullOrBlank() }
             .firstOrNull { parts -> parts.getOrNull(1) == protocol }
             ?.getOrNull(2)
-            ?.takeIf { it.isNotBlank() }
 
     private suspend fun getSeriesMemberDetails(doc: SearchHit): List<RelatedServiceReference> {
         val seriesMemberRefs = engine.parseDatasetServices(doc.seriedatasets)
