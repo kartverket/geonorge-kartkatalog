@@ -20,7 +20,6 @@ import {
 import { isAllowedThumbnailUrl } from "@/lib/isAllowedThumbnailUrl";
 import type { DatasetCardData } from "@/lib/types/dataset";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
-import AddSeriesToDownloadsButton from "../addToDownloads/AddSeriesToDownloadsButton";
 import type { DownloadItem } from "../addToDownloads/downloadStorage";
 import styles from "./DatasetCard.module.css";
 
@@ -128,10 +127,10 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
         <div className={styles.buttonGroupContainer}>
           {p.downloadableSeriesMembers &&
             p.downloadableSeriesMembers.length > 0 && (
-              <AddSeriesToDownloadsButton
+              <AddToDownloadsButton
                 size={"sm"}
-                item={p}
-                downloadableItems={p.downloadableSeriesMembers}
+                item={{ uuid: p.uuid, name: p.title }}
+                items={p.downloadableSeriesMembers}
                 location={"header"}
               />
             )}
@@ -146,19 +145,21 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           )}
           {p.thematicSeriesDownloadItem ? (
             <AddToDownloadsButton
-              item={p.thematicSeriesDownloadItem}
+              items={[p.thematicSeriesDownloadItem]}
               location={analyticsLocation}
               size="sm"
             />
           ) : canDownload && isDataset && p.distributionUrl ? (
             <AddToDownloadsButton
-              item={{
-                accessType: p.accessState,
-                uuid: p.uuid,
-                name: p.title,
-                organizationName: p.organization,
-                distributionUrl: p.distributionUrl,
-              }}
+              items={[
+                {
+                  accessType: p.accessState,
+                  uuid: p.uuid,
+                  name: p.title,
+                  organizationName: p.organization,
+                  distributionUrl: p.distributionUrl,
+                },
+              ]}
               location={analyticsLocation}
               size="sm"
             />

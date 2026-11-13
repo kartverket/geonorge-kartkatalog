@@ -1,5 +1,4 @@
 import { DownloadIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
-import AddSeriesToDownloadsButton from "@/app/_components/addToDownloads/AddSeriesToDownloadsButton";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
@@ -44,9 +43,9 @@ export function DistributionDetailActionButton({
     downloadableSeriesMembers.length > 0
   ) {
     return (
-      <AddSeriesToDownloadsButton
-        item={{ uuid, title }}
-        downloadableItems={downloadableSeriesMembers}
+      <AddToDownloadsButton
+        item={{ uuid, name: title }}
+        items={downloadableSeriesMembers}
         size="sm"
         variant="secondary"
         location={LOCATIONS.MetadataPageTabs}
@@ -76,7 +75,7 @@ export function DistributionDetailActionButton({
   ) {
     return (
       <AddToDownloadsButton
-        item={thematicSeriesDownloadItem}
+        items={[thematicSeriesDownloadItem]}
         size="sm"
         location={LOCATIONS.MetadataPageTabs}
         variant="secondary"
@@ -88,18 +87,18 @@ export function DistributionDetailActionButton({
   if (isGeonorgeDownloadProtocol(group.protocol) && canDownloadDirectly) {
     return (
       <AddToDownloadsButton
-        item={{
-          accessType: accessState,
-          uuid,
-          name: title,
-          organizationName,
-          distributionUrl: getGeonorgeDownloadUrl([group]),
-        }}
+        items={[
+          {
+            accessType: accessState,
+            uuid,
+            name: title,
+            organizationName,
+            distributionUrl: getGeonorgeDownloadUrl([group]),
+          },
+        ]}
         size="sm"
         location={LOCATIONS.MetadataPageTabs}
         variant="secondary"
-        addLabel="Legg til nedlasting"
-        removeLabel="Fjern fra nedlasting"
         preventAccordionToggle
       />
     );

@@ -383,9 +383,9 @@ function buildDistributionDetails({
     ...groupDetails,
     {
       actionButton: (
-        <AddSeriesToDownloadsButton
-          item={{ uuid, title }}
-          downloadableItems={downloadableSeriesMembers}
+        <AddToDownloadsButton
+          item={{ uuid, name: title }}
+          items={downloadableSeriesMembers}
           size="sm"
           variant="secondary"
           location={LOCATIONS.MetadataPageTabs}

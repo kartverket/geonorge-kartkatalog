@@ -9,21 +9,23 @@ import {
   type DownloadItem,
   removeItemsFromDownloads,
 } from "@/app/_components/addToDownloads/downloadStorage";
-import { useIsItemSelectedForDownload } from "@/app/_components/addToDownloads/useDownloads";
+import { useAreAllItemsSelectedForDownload } from "@/app/_components/addToDownloads/useDownloads";
 import { useAuthInfo } from "@/components/AuthProvider";
 import { type Location, trackClick } from "@/posthog/posthog";
 
 export default function AddToDownloadsButton({
+  items,
   item,
   className,
   variant,
   size,
   location,
-  addLabel = "Legg til nedlasting",
-  removeLabel = "Fjern fra nedlasting",
+  addLabel,
+  removeLabel,
   preventAccordionToggle = false,
 }: {
-  item: DownloadItem | null;
+  items: DownloadItem[];
+  item?: { uuid: string; name: string };
   className?: string;
   variant?: ButtonProps["variant"];
   size?: "sm" | "md" | "lg";
@@ -33,14 +35,29 @@ export default function AddToDownloadsButton({
   preventAccordionToggle?: boolean;
 }) {
   const authState = useAuthInfo();
-  const isSelectedForDownload = useIsItemSelectedForDownload(item?.uuid);
-  const canAdd =
-    item?.accessType?.toLocaleLowerCase() === "open" ||
-    authState.status === "authenticated";
+  const validItems = items.filter((i) => i.uuid && i.distributionUrl);
+  const addableItems = validItems.filter(
+    (i) =>
+      i.accessType?.toLocaleLowerCase() === "open" ||
+      authState.status === "authenticated",
+  );
+  const isMultiple = validItems.length > 1;
+  const resolvedAddLabel =
+    addLabel ??
+    (isMultiple ? "Legg alle til nedlasting" : "Legg til nedlasting");
+  const resolvedRemoveLabel =
+    removeLabel ??
+    (isMultiple ? "Fjern alle fra nedlasting" : "Fjern fra nedlasting");
 
-  if (!item?.uuid || !item.distributionUrl) {
-    return null;
-  }
+  const areAllValidItemsSelected =
+    useAreAllItemsSelectedForDownload(validItems);
+  const areAllAddableItemsSelected =
+    useAreAllItemsSelectedForDownload(addableItems);
+  const isRemoving = areAllValidItemsSelected || areAllAddableItemsSelected;
+
+  if (validItems.length === 0) return null;
+
+  const trackingItem = item ?? validItems[0];
 
   const handleToggleDownloads = (event: MouseEvent<HTMLButtonElement>) => {
     if (preventAccordionToggle) {
@@ -49,39 +66,46 @@ export default function AddToDownloadsButton({
     }
 
     trackClick(
-      isSelectedForDownload ? "remove-from-downloads" : "add-to-downloads",
+      isRemoving
+        ? isMultiple
+          ? "remove-all-from-downloads"
+          : "remove-from-downloads"
+        : isMultiple
+          ? "add-all-to-downloads"
+          : "add-to-downloads",
       location,
       {
-        itemName: item.name,
-        itemUuid: item.uuid,
+        itemName: trackingItem.name,
+        itemUuid: trackingItem.uuid,
+        numberOfItems: isRemoving ? validItems.length : addableItems.length,
       },
     );
 
-    if (isSelectedForDownload) {
-      removeItemsFromDownloads([item]);
+    if (isRemoving) {
+      removeItemsFromDownloads(validItems);
       return;
     }
 
-    addItemsToDownloads([item]);
+    addItemsToDownloads(addableItems);
   };
 
   return (
     <Button
-      variant={variant ?? (isSelectedForDownload ? "secondary" : "primary")}
+      variant={variant ?? (isRemoving ? "secondary" : "primary")}
       data-size={size}
       className={className}
-      disabled={!isSelectedForDownload && !canAdd}
+      disabled={!isRemoving && addableItems.length === 0}
       onClick={handleToggleDownloads}
     >
-      {isSelectedForDownload ? (
+      {isRemoving ? (
         <>
           <TrashIcon aria-hidden />
-          {removeLabel}
+          {resolvedRemoveLabel}
         </>
       ) : (
         <>
           <DownloadIcon aria-hidden />
-          {addLabel}
+          {resolvedAddLabel}
         </>
       )}
     </Button>
