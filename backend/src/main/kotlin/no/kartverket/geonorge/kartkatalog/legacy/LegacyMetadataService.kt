@@ -166,21 +166,50 @@ class LegacyMetadataService(
         record: MetadataRecord,
         formats: List<DistributionFormat>,
     ): List<DistributionRow> {
-        val organization =
-            record.contacts.firstOrNull { it.role == "distributor" }?.organization
-                ?: record.metadataContact.organization
-        return formats.flatMap { format ->
-            format.onlineResources.map { resource ->
-                DistributionRow(
-                    protocol = resource.protocol,
-                    protocolName = protocolName(resource.protocol),
-                    formatName = format.name.takeIf { !isFallbackFormat(format) },
-                    formatVersion = format.version,
-                    url = fixUrl(resource),
-                    organization = organization,
-                    unitsOfDistribution = resource.unitsOfDistribution,
-                )
-            }
+        val owner = record.contacts.firstOrNull { it.role == "owner" }?.organization
+        val shared = record.distributionInfo?.transferOptions.orEmpty()
+
+        suspend fun row(
+            format: DistributionFormat?,
+            resource: OnlineResource?,
+            organization: String? = owner,
+            units: String? = resource?.unitsOfDistribution,
+        ) = DistributionRow(
+            protocol = resource?.protocol,
+            protocolName = protocolName(resource?.protocol),
+            formatName = format?.name,
+            formatVersion = format?.version,
+            url = resource?.let(::fixUrl),
+            organization = organization,
+            unitsOfDistribution = units,
+        )
+
+        val realFormats = formats.filterNot(::isFallbackFormat)
+        if (realFormats.isEmpty()) return shared.map { row(null, it) }
+        // Mirrors legacy SimpleMetadata.DistributionsFormats: own link wins, else first shared link,
+        // then one extra row per remaining shared link.
+        return realFormats.flatMap { format ->
+            val own = format.distributorFirstResource?.takeIf { !it.protocol.isNullOrEmpty() }
+            val first =
+                when {
+                    own != null -> {
+                        row(format, own, format.distributorOrganization)
+                    }
+
+                    shared.isNotEmpty() -> {
+                        row(format, shared.first())
+                    }
+
+                    else -> {
+                        row(
+                            format,
+                            null,
+                            format.distributorOrganization,
+                            format.distributorUnitsOfDistribution,
+                        )
+                    }
+                }
+            listOf(first) + shared.drop(1).map { row(format, it) }
         }
     }
 

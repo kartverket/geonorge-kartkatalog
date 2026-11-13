@@ -393,10 +393,24 @@ object MetadataParser {
                                     "erOptions/gmd:MD_DigitalTransferOptions",
                             ).flatMap { parseOnlineResources(it) }
 
+                    val distributor = f.nodes("gmd:formatDistributor/gmd:MD_Distributor").firstOrNull()
+                    val distributorTransfer =
+                        distributor
+                            ?.nodes("gmd:distributorTransferOptions/gmd:MD_DigitalTransferOptions")
+                            ?.firstOrNull()
+                    val distributorResource = distributorTransfer?.let { parseOnlineResources(it) }?.firstOrNull()
+
                     DistributionFormat(
                         name = f.text("gmd:name/gco:CharacterString") ?: "",
                         version = f.text("gmd:version/gco:CharacterString"),
                         onlineResources = ownOnlineResources.ifEmpty { sharedOnlineResources },
+                        distributorOrganization =
+                            distributor?.text(
+                                "gmd:distributorContact/gmd:CI_ResponsibleParty/gmd:organisationName/gco:CharacterString",
+                            ),
+                        distributorFirstResource = distributorResource,
+                        distributorUnitsOfDistribution =
+                            distributorTransfer?.node("gmd:unitsOfDistribution")?.preferredText(),
                     )
                 }
             val fallbackFormats =
