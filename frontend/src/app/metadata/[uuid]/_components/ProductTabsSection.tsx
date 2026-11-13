@@ -1,4 +1,4 @@
-import AddSeriesToDownloadsButton from "@/app/_components/addToDownloads/AddSeriesToDownloadsButton";
+import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import {
   getFairStatus,
@@ -383,9 +383,9 @@ function buildDistributionDetails({
     ...groupDetails,
     {
       actionButton: (
-        <AddSeriesToDownloadsButton
-          item={{ uuid, title }}
-          downloadableItems={downloadableSeriesMembers}
+        <AddToDownloadsButton
+          trackingItem={{ uuid, name: title }}
+          items={downloadableSeriesMembers}
           size="sm"
           variant="secondary"
           location={LOCATIONS.MetadataPageTabs}

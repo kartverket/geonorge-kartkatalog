@@ -1,6 +1,6 @@
 import { DownloadIcon, FileTextIcon, PencilIcon } from "@navikt/aksel-icons";
-import AddSeriesToDownloadsButton from "@/app/_components/addToDownloads/AddSeriesToDownloadsButton";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
+import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
 import {
   getDownloadableSeriesMembers,
@@ -48,18 +48,17 @@ export async function ProductActions({
 
   return (
     <div className={styles.actions}>
-      <AddSeriesToDownloadsButton
-        item={{
-          uuid,
-          title: metadata.title,
-        }}
+      <AddToDownloadsButton
+        trackingItem={{ uuid, name: metadata.title }}
         className={styles.actionButton}
-        downloadableItems={downloadableSeriesMembers}
+        items={downloadableSeriesMembers}
         location={LOCATIONS.MetadataPage}
       />
       <AddToDownloadsButton
         className={styles.actionButton}
-        item={thematicSeriesDownloadItem ?? downloadItem}
+        items={[thematicSeriesDownloadItem ?? downloadItem].filter(
+          (i): i is DownloadItem => i !== null,
+        )}
         location={LOCATIONS.MetadataPage}
       />
       <AddToMapButton
