@@ -71,9 +71,7 @@ class MetadataMapper(
             specificUsage = record.specificUsage,
             supplementalDescription = record.supplementalDescription,
             helpUrl =
-                record.extensionResources
-                    .firstOrNull { it.applicationProfile.equals("hjelp", ignoreCase = true) }
-                    ?.url,
+                record.findExtensionUrl("hjelp"),
             processHistory = record.processHistory,
             constraints = record.legalConstraints?.toProductConstraints(accessState = accessState),
             securityClassification =
@@ -98,16 +96,6 @@ class MetadataMapper(
             coverageData = getCoverageLinks(record.extensionResources),
         )
     }
-
-    private fun describeAccessConstraints(
-        recordAccessConstraints: String?,
-        accessState: AccessState?,
-    ): String =
-        when {
-            accessState == AccessState.OPEN -> "Åpne data"
-            accessState == AccessState.RESTRICTED -> "Norge digitalt-begrenset"
-            else -> recordAccessConstraints ?: "-"
-        }
 
     private suspend fun describeUseConstraints(
         useConstraints: String?,

@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.search
+package no.kartverket.geonorge.kartkatalog.legacy
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.JsonObject
@@ -8,6 +8,8 @@ import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.metadata.TimedCache
+import no.kartverket.geonorge.kartkatalog.search.SearchEngine
+import no.kartverket.geonorge.kartkatalog.search.SearchHits
 import org.slf4j.LoggerFactory
 
 class LegacySearchService(

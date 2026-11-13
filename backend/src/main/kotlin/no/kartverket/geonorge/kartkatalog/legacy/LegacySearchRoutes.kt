@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.search
+package no.kartverket.geonorge.kartkatalog.legacy
 
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -6,6 +6,11 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import kotlinx.coroutines.CancellationException
+import no.kartverket.geonorge.kartkatalog.search.applyLanguageHeaders
+import no.kartverket.geonorge.kartkatalog.search.resolveSearchCsvContentType
+import no.kartverket.geonorge.kartkatalog.search.resolveSearchLanguage
+import no.kartverket.geonorge.kartkatalog.search.respondSearchCsv
+import no.kartverket.geonorge.kartkatalog.search.respondSearchJson
 import org.slf4j.LoggerFactory
 
 fun Route.legacySearchRoutes(service: LegacySearchService) {

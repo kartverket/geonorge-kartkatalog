@@ -69,6 +69,12 @@ object MetadataParser {
                 applicationSchemaInfos = parseApplicationSchemaInfos(),
                 title = titleNode?.preferredText(anchorExpr = "gmx:Anchor") ?: "",
                 abstract = idInfo?.node("gmd:abstract")?.preferredText(),
+                englishTitle = titleNode?.englishText(),
+                englishAbstract = idInfo?.node("gmd:abstract")?.englishText(),
+                englishSpecificUsage =
+                    idInfo
+                        ?.node("gmd:resourceSpecificUsage/gmd:MD_Usage/gmd:specificUsage")
+                        ?.englishText(),
                 purpose = idInfo?.node("gmd:purpose")?.preferredText(),
                 status = idInfo?.attr("gmd:status/gmd:MD_ProgressCode", "codeListValue"),
                 maintenanceFrequency =
@@ -551,6 +557,15 @@ object MetadataParser {
         private fun Node.text(expr: String): String? =
             xpath
                 .node(expr, this)
+                ?.textContent
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+
+        private fun Node.englishText(
+            localizedExpr: String = "gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString",
+        ): String? =
+            nodes(localizedExpr)
+                .firstOrNull { it.attr("locale").isEnglishLocale() }
                 ?.textContent
                 ?.trim()
                 ?.takeIf { it.isNotEmpty() }

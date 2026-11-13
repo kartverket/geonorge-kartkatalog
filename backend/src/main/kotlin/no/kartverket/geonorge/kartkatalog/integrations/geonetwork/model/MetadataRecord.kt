@@ -59,6 +59,9 @@ data class MetadataRecord(
     // Identification — common to dataset and service
     val title: String,
     val abstract: String? = null,
+    val englishTitle: String? = null,
+    val englishAbstract: String? = null,
+    val englishSpecificUsage: String? = null,
     val purpose: String? = null,
     val status: String? = null,
     val maintenanceFrequency: String? = null,
