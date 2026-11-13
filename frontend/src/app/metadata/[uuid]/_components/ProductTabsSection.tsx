@@ -1,3 +1,4 @@
+import AddSeriesToDownloadsButton from "@/app/_components/addToDownloads/AddSeriesToDownloadsButton";
 import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import {
   getFairStatus,
@@ -13,7 +14,11 @@ import {
   ProductTabs,
 } from "@/app/metadata/[uuid]/_components/ProductTabs";
 import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
-import { getThematicParentSeriesDownloadItem } from "@/app/metadata/[uuid]/_utils/distributions";
+import { isGeonorgeDownloadProtocol } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
+import {
+  getDownloadableSeriesMembers,
+  getThematicParentSeriesDownloadItem,
+} from "@/app/metadata/[uuid]/_utils/distributions";
 import { formatDate, unwrapSettled } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
@@ -21,6 +26,7 @@ import type {
   ProductConstraints,
   ReferenceSystem,
 } from "@/lib/schemas/product";
+import { LOCATIONS } from "@/posthog/posthog";
 
 export async function ProductTabsSection({
   uuid,
@@ -81,6 +87,13 @@ export async function ProductTabsSection({
     constraints,
   });
 
+  const isThematicSeries =
+    metadata.hierarchyLevel === "series" &&
+    metadata.seriesType === "series_thematic";
+  const downloadableSeriesMembers = isThematicSeries
+    ? []
+    : getDownloadableSeriesMembers(linkedDistributions);
+
   const distributionDetails = buildDistributionDetails({
     uuid,
     title: metadata.title,
@@ -94,6 +107,7 @@ export async function ProductTabsSection({
     maintenanceFrequency: metadata.maintenanceFrequency,
     thematicSeriesDownloadItem:
       getThematicParentSeriesDownloadItem(linkedDistributions),
+    downloadableSeriesMembers,
   });
 
   return (
@@ -244,6 +258,7 @@ function buildDistributionDetails({
   dateUpdated,
   maintenanceFrequency,
   thematicSeriesDownloadItem,
+  downloadableSeriesMembers,
 }: {
   uuid: string;
   title: string;
@@ -256,8 +271,9 @@ function buildDistributionDetails({
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
   thematicSeriesDownloadItem: DownloadItem | null;
+  downloadableSeriesMembers: DownloadItem[];
 }): DetailItem[] {
-  return groups.map((group) => {
+  const groupDetails = groups.map((group) => {
     const urlRows = buildUrlRows(group.entries);
     const formatNames = getGroupFormatNames(group.entries);
     const firstUrlRowLabel = urlRows[0]?.label ?? "Tilgangs-URL";
@@ -275,6 +291,7 @@ function buildDistributionDetails({
           formatNames={formatNames}
           urlLabel={firstUrlRowLabel}
           thematicSeriesDownloadItem={thematicSeriesDownloadItem}
+          downloadableSeriesMembers={downloadableSeriesMembers}
         />
       ),
       title: group.protocolName ?? "Ukjent protokoll",
@@ -354,6 +371,40 @@ function buildDistributionDetails({
       ),
     };
   });
+  const hasOwnGeonorgeDownloadGroup = groups.some((group) =>
+    isGeonorgeDownloadProtocol(group.protocol),
+  );
+
+  if (downloadableSeriesMembers.length === 0 || hasOwnGeonorgeDownloadGroup) {
+    return groupDetails;
+  }
+
+  return [
+    ...groupDetails,
+    {
+      actionButton: (
+        <AddSeriesToDownloadsButton
+          item={{ uuid, title }}
+          downloadableItems={downloadableSeriesMembers}
+          size="sm"
+          variant="secondary"
+          location={LOCATIONS.MetadataPageTabs}
+          preventAccordionToggle
+        />
+      ),
+      title: "Geonorge nedlasting",
+      content: (
+        <FieldList
+          fields={[
+            {
+              label: "Beskrivelse",
+              content: `Last ned alle ${downloadableSeriesMembers.length} tilgjengelige filer i serien.`,
+            },
+          ]}
+        />
+      ),
+    },
+  ];
 }
 
 type UrlRow = {

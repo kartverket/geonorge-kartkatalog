@@ -1,10 +1,11 @@
-import { FileTextIcon, PencilIcon } from "@navikt/aksel-icons";
+import { DownloadIcon, FileTextIcon, PencilIcon } from "@navikt/aksel-icons";
 import AddSeriesToDownloadsButton from "@/app/_components/addToDownloads/AddSeriesToDownloadsButton";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
 import {
   getDownloadableSeriesMembers,
   getDownloadItem,
+  getGeonorgeFileDownloadUrl,
   getMapItem,
   getThematicParentSeriesDownloadItem,
 } from "@/app/metadata/[uuid]/_utils/distributions";
@@ -40,6 +41,9 @@ export async function ProductActions({
   const downloadableSeriesMembers = isThematicSeries
     ? []
     : getDownloadableSeriesMembers(linkedDistributions);
+  const fileDownloadUrl = getGeonorgeFileDownloadUrl(
+    metadata.distributionGroups,
+  );
   const mapItem = getMapItem(metadata, linkedDistributions, uuid);
 
   return (
@@ -57,8 +61,6 @@ export async function ProductActions({
         className={styles.actionButton}
         item={thematicSeriesDownloadItem ?? downloadItem}
         location={LOCATIONS.MetadataPage}
-        addLabel={thematicSeriesDownloadItem ? "Legg til serien" : undefined}
-        removeLabel={thematicSeriesDownloadItem ? "Fjern serien" : undefined}
       />
       <AddToMapButton
         variant="primary"
@@ -70,6 +72,15 @@ export async function ProductActions({
         shouldShowCoverageMap={shouldShowCoverageMap(metadata)}
         uuid={uuid}
       />
+      {fileDownloadUrl && (
+        <TrackedActionLinkButton
+          eventName="download-file-distribution-from-product-actions"
+          href={fileDownloadUrl}
+          icon={<DownloadIcon aria-hidden />}
+          title="Last ned"
+          variant="primary"
+        />
+      )}
       <TrackedActionLinkButton
         eventName="show-metadata-xml"
         href={getMetadataXmlUrl(uuid)}
