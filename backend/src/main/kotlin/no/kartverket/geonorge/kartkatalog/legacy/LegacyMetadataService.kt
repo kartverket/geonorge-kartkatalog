@@ -89,14 +89,10 @@ class LegacyMetadataService(
             putArray("KeywordsTheme", keywords(record) { it.type == "theme" })
             putText("ServiceUuid", serviceUuid(record, solrDoc, isService))
             if (isService) putText("ServiceType", record.serviceType)
-            put(
-                "Distributions",
-                buildJsonObject { putArray("RelatedViewServices", relatedViewServices(solrDoc, uuid)) },
-            )
-            details?.let { put("DistributionDetails", it.toJson()) }
-            realFormats.firstOrNull()?.let {
-                put("DistributionFormat", formatJson(it))
+            relatedViewServices(solrDoc, uuid).takeIf { it.isNotEmpty() }?.let { viewServices ->
+                put("Distributions", buildJsonObject { putArray("RelatedViewServices", viewServices) })
             }
+            details?.let { put("DistributionDetails", it.toJson()) }
             putArray("DistributionFormats", realFormats.distinctBy { it.name to it.version }.map(::formatJson))
             putArray("DistributionsFormats", distributionRows.map { it.toJson() })
             putText("UnitsOfDistribution", details?.unitsOfDistribution)

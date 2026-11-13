@@ -78,7 +78,8 @@ class LegacyGetDataRoutesTest {
             assertEquals("c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689", body["Uuid"]?.jsonPrimitive?.content)
             assertTrue(body["Title"]?.jsonPrimitive?.content?.contains("Matrikkelen") == true)
             assertNotNull(body["ContactMetadata"])
-            assertNotNull(body["Distributions"]?.jsonObject?.get("RelatedViewServices"))
+            assertFalse(body.containsKey("Distributions"))
+            assertFalse(body.containsKey("DistributionFormat"))
             assertFalse(body.containsKey("ServiceDistributionUrlForDataset"))
         }
 
