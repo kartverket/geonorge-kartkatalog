@@ -87,6 +87,15 @@ export function DownloadPageContentClient({
     headingRef.current?.focus({ preventScroll: true });
   }, [step]);
 
+  // Hvis brukeren har lagt nye datasett i kurven mens vi fortsatt viser
+  // oppsummeringen fra forrige bestilling (f.eks. etter å ha navigert bort
+  // og tilbake uten full sidelasting), gå tilbake til bestillingssteget.
+  useEffect(() => {
+    if (step === "last-ned" && selectedDownloadUuids.length > 0) {
+      setStep("bestilling");
+    }
+  }, [step, selectedDownloadUuids]);
+
   const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
   const [orderEmailProvided, setOrderEmailProvided] = useState(false);
   const [pendingBulkSelection, setPendingBulkSelection] =
