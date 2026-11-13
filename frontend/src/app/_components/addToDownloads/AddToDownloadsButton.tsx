@@ -15,7 +15,7 @@ import { type Location, trackClick } from "@/posthog/posthog";
 
 export default function AddToDownloadsButton({
   items,
-  item,
+  trackingItem,
   className,
   variant,
   size,
@@ -25,7 +25,7 @@ export default function AddToDownloadsButton({
   preventAccordionToggle = false,
 }: {
   items: DownloadItem[];
-  item?: { uuid: string; name: string };
+  trackingItem?: { uuid: string; name: string };
   className?: string;
   variant?: ButtonProps["variant"];
   size?: "sm" | "md" | "lg";
@@ -57,7 +57,7 @@ export default function AddToDownloadsButton({
 
   if (validItems.length === 0) return null;
 
-  const trackingItem = item ?? validItems[0];
+  const resolvedTrackingItem = trackingItem ?? validItems[0];
 
   const handleToggleDownloads = (event: MouseEvent<HTMLButtonElement>) => {
     if (preventAccordionToggle) {
@@ -75,8 +75,8 @@ export default function AddToDownloadsButton({
           : "add-to-downloads",
       location,
       {
-        itemName: trackingItem.name,
-        itemUuid: trackingItem.uuid,
+        itemName: resolvedTrackingItem.name,
+        itemUuid: resolvedTrackingItem.uuid,
         numberOfItems: isRemoving ? validItems.length : addableItems.length,
       },
     );

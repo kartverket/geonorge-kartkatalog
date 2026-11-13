@@ -384,7 +384,7 @@ function buildDistributionDetails({
     {
       actionButton: (
         <AddToDownloadsButton
-          item={{ uuid, name: title }}
+          trackingItem={{ uuid, name: title }}
           items={downloadableSeriesMembers}
           size="sm"
           variant="secondary"

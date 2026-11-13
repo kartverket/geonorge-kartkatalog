@@ -129,7 +129,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
             p.downloadableSeriesMembers.length > 0 && (
               <AddToDownloadsButton
                 size={"sm"}
-                item={{ uuid: p.uuid, name: p.title }}
+                trackingItem={{ uuid: p.uuid, name: p.title }}
                 items={p.downloadableSeriesMembers}
                 location={"header"}
               />

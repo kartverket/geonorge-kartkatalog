@@ -49,7 +49,7 @@ export async function ProductActions({
   return (
     <div className={styles.actions}>
       <AddToDownloadsButton
-        item={{ uuid, name: metadata.title }}
+        trackingItem={{ uuid, name: metadata.title }}
         className={styles.actionButton}
         items={downloadableSeriesMembers}
         location={LOCATIONS.MetadataPage}
