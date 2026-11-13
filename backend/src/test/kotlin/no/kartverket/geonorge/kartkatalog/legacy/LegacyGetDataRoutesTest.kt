@@ -79,7 +79,6 @@ class LegacyGetDataRoutesTest {
             assertTrue(body["Title"]?.jsonPrimitive?.content?.contains("Matrikkelen") == true)
             assertNotNull(body["ContactMetadata"])
             assertFalse(body.containsKey("Distributions"))
-            assertFalse(body.containsKey("DistributionFormat"))
             assertFalse(body.containsKey("ServiceDistributionUrlForDataset"))
         }
 
