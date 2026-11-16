@@ -53,16 +53,6 @@ export function useSelectedDownloadUuids(): string[] {
   );
 }
 
-export function useIsItemSelectedForDownload(
-  uuid: string | null | undefined,
-): boolean {
-  return useSyncExternalStore(
-    subscribeToDownloads,
-    () => (uuid ? isItemSelectedForDownload(uuid) : false),
-    getServerSnapshot,
-  );
-}
-
 export function useAreAllItemsSelectedForDownload(
   items: DownloadItem[],
 ): boolean {
