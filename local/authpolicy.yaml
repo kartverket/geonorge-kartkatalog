@@ -1,0 +1,54 @@
+apiVersion: ztoperator.kartverket.no/v1alpha1
+kind: AuthPolicy
+metadata:
+  name: authpolicy-ansattporten-frontend
+spec:
+  enabled: true
+  selector:
+    matchLabels:
+      app: kartkatalog-frontend
+  wellKnownURI: https://test.ansattporten.no/.well-known/openid-configuration
+  allowedAudiences:
+    - valueFrom:
+        secretKeyRef:
+          name: tilgangsstyring-poc-auth-secrets
+          key: CLIENT_ID
+  ignoreAuthRules:
+    - paths:
+        - /{**}
+  authRules:
+    - paths:
+        - /beta/bff/me
+        - /beta/bff/download/order-restricted
+      denyRedirect: true
+  acceptedResources:
+    - http://localhost:8000
+  autoLogin:
+    enabled: true
+    loginPath: /beta/bff/auth/ansattporten/login
+    logoutPath: /beta/bff/auth/ansattporten/logout
+    redirectPath: /beta/bff/auth/ansattporten/callback
+    postLogoutRedirectUri: http://localhost:8000/
+    scopes:
+      - openid
+      - profile
+    loginParams:
+      authorization_details: |
+        [
+          {
+            "type": "ansattporten:altinn:resource",
+            "resource": "urn:altinn:resource:kv-geonorge",
+            "actions": "access",
+            "allow_multiple_organizations": false,
+            "representation_is_required": true
+          }
+        ]
+  oAuthCredentials:
+    clientIDKey: CLIENT_ID
+    clientSecretKey: CLIENT_SECRET
+    secretRef: tilgangsstyring-poc-auth-secrets
+  outputClaimToHeaders:
+    - claim: name
+      header: X-User-Full-Name
+    - claim: authorization_details
+      header: X-Auth-Details
