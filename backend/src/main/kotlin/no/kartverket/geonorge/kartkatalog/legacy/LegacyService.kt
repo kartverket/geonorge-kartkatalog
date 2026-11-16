@@ -452,10 +452,7 @@ class LegacyService(
         profile: String,
     ): String? =
         record.findExtensionUrl(profile)
-            ?: record.takeIf { profile == "produktspesifikasjon" }?.productSpecificationOtherUrl()
-
-    private fun MetadataRecord.productSpecificationOtherUrl(): String? =
-        qualitySpecifications.firstNotNullOfOrNull { it.specificationHref?.takeIf { h -> h.isNotBlank() } }
+            ?: record.takeIf { profile == "produktspesifikasjon" }?.findExtensionUrl("annen produktspesifikasjon")
 
     private fun accessConstraints(record: MetadataRecord): String? =
         record.legalConstraints?.accessConstraints?.let {
