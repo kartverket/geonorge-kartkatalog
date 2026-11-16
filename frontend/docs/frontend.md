@@ -100,6 +100,7 @@ Kopier `.env.example` → `.env.local`.
 - **To innloggingsleverandører:** GeoID (via backend, `GEOID_SESSION`) og Ansattporten (cookie `BearerToken` satt utenfra; valgt provider lagres i egen cookie). Derfor finnes både `/bff/me` og `/bff/me/geoid`.
 - **Logout er POST med origin-sjekk** mot `KATALOG_ORIGIN`; feil `KATALOG_BASE_URL` gir 403.
 - **Backend får `Origin` og `X-Forwarded-*`** fra `geoIdRequestHeaders` slik at OIDC/CSRF fungerer bak proxy.
+- **Nedlastingsbestilling krever riktig origin:** `KATALOG_BASE_URL` må ha samme origin som backendens `PUBLIC_BASE_URL`; ellers avviser backend POST med 400 før bestillingsruten kjøres.
 - **Miniatyrbilder** tillates kun fra `editor(.test).geonorge.no` (`next.config.ts` + `isAllowedThumbnailUrl`).
 - **Enkelte kall i `app/api.ts` er cachet** (`"use cache"`, `cacheLife("days")`, bl.a. innsiktsgrupper) – endringer kan dukke opp med forsinkelse.
 - **Mapper med `_` er private** og rutes ikke.
