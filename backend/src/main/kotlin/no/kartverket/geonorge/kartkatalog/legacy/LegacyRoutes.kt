@@ -142,6 +142,7 @@ fun Route.legacyRoutes(service: LegacyService) {
         val uuid = call.parameters["uuid"].orEmpty()
         val language = call.resolveSearchLanguage()
         call.applyLanguageHeaders(language)
+        call.response.headers.append(HttpHeaders.Vary, "Accept-Language, Cookie")
         try {
             val data = service.getData(uuid, language)
             if (data == null) {
