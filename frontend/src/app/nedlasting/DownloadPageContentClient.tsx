@@ -66,7 +66,7 @@ export function DownloadPageContentClient({
       capabilitiesUrl: card.distributionUrl,
     })),
   );
-  const { isOrdering, orderError, orderResult, submitOrder } =
+  const { isOrdering, orderError, orderResult, submitOrder, resetOrder } =
     useDownloadOrder();
 
   const [selections, setSelections] = usePersistedDownloadSelections();
@@ -93,8 +93,9 @@ export function DownloadPageContentClient({
   useEffect(() => {
     if (step === "last-ned" && selectedDownloadUuids.length > 0) {
       setStep("bestilling");
+      resetOrder();
     }
-  }, [step, selectedDownloadUuids]);
+  }, [step, selectedDownloadUuids, resetOrder]);
 
   const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
   const [orderEmailProvided, setOrderEmailProvided] = useState(false);
