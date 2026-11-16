@@ -5,6 +5,7 @@ import { setAuthProviderCookie } from "../../providerCookie";
 export function GET(request: NextRequest) {
   const response = NextResponse.redirect(getKatalogUrl("/beta"));
   if (request.cookies.has("BearerToken")) {
+    console.log("BearerToken found");
     setAuthProviderCookie(response, "ansattporten");
   }
   return response;
