@@ -9,6 +9,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
 import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
+import no.kartverket.geonorge.kartkatalog.undocumented
 
 @Serializable
 data class AuthInfoResponse(
@@ -16,25 +17,27 @@ data class AuthInfoResponse(
     val organizationName: String? = null,
 )
 
-fun Route.authRoutes(authentication: GeoIdAuthentication) {
-    authenticateWith(authentication.provider.session) {
-        route("/me/geoid") {
-            /**
-             * Returns the authenticated GeoID user's name.
-             *
-             * Cookie: GEOID_SESSION [String] Authenticated GeoID session cookie.
-             * Response: 200 application/json [AuthInfoResponse] The current user.
-             * Response: 401 The authenticated user has no available name.
-             */
-            get {
-                val info = call.principal.userInfo
-                val name = info.name
-                if (!name.isNullOrBlank()) {
-                    call.respond(AuthInfoResponse(name = name))
-                } else {
-                    call.respond(HttpStatusCode.Unauthorized)
+// Session endpoints used only by our own frontend, so they are kept out of the public API docs.
+fun Route.authRoutes(authentication: GeoIdAuthentication) =
+    undocumented {
+        authenticateWith(authentication.provider.session) {
+            route("/me/geoid") {
+                /**
+                 * Returns the authenticated GeoID user's name.
+                 *
+                 * Cookie: GEOID_SESSION [String] Authenticated GeoID session cookie.
+                 * Response: 200 application/json [AuthInfoResponse] The current user.
+                 * Response: 401 The authenticated user has no available name.
+                 */
+                get {
+                    val info = call.principal.userInfo
+                    val name = info.name
+                    if (!name.isNullOrBlank()) {
+                        call.respond(AuthInfoResponse(name = name))
+                    } else {
+                        call.respond(HttpStatusCode.Unauthorized)
+                    }
                 }
             }
         }
     }
-}

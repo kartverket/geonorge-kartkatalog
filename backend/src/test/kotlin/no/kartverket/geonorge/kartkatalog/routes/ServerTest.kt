@@ -95,7 +95,7 @@ class ServerTest {
                 endpoints =
                     plugin(RoutingRoot)
                         .getAllRoutes()
-                        .map { it.toString().replace(Regex("""\(authenticate [^)]*\)/"""), "") }
+                        .map { it.toString().replace(Regex("""\((authenticate [^)]*|undocumented)\)/"""), "") }
             }
             startApplication()
 
@@ -149,6 +149,9 @@ class ServerTest {
             assertEquals(listOf("Metadata"), tags("/api/v1/metadata/{uuid}"))
             assertEquals(listOf("Distributions"), tags("/api/v1/distributions/{uuid}"))
             assertEquals(listOf("Downloads"), tags("/api/v1/download/order", "post"))
+
+            val hidden = listOf("/", "/api/me/geoid", "/api/download/order", "/api/download/options/{uuid}")
+            assertTrue(hidden.none { it in paths }, "Undocumented paths leaked into swagger: ${paths.keys}")
         }
 
     private val appConfig =

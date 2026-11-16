@@ -15,6 +15,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
 import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
+import no.kartverket.geonorge.kartkatalog.undocumentedRoute
 
 @Serializable
 data class DownloadOrderAreaDto(
@@ -169,7 +170,7 @@ private fun DownloadOrderResult.toDto() =
 
 private fun DownloadOrderGroupResult.toDto(): DownloadOrderGroupResultDto =
     when (this) {
-        is DownloadOrderGroupResult.Success ->
+        is DownloadOrderGroupResult.Success -> {
             DownloadOrderGroupResultDto(
                 status = "ordered",
                 files =
@@ -193,13 +194,15 @@ private fun DownloadOrderGroupResult.toDto(): DownloadOrderGroupResultDto =
                         )
                     },
             )
+        }
 
-        is DownloadOrderGroupResult.Failure ->
+        is DownloadOrderGroupResult.Failure -> {
             DownloadOrderGroupResultDto(
                 status = "failed",
                 metadataUuids = metadataUuids,
                 message = message,
             )
+        }
     }
 
 private fun DownloadOptions.toDto() =
@@ -236,7 +239,7 @@ fun Route.downloadRoutes(
     tokenExchangeClient: TokenExchangeClient,
     authentication: GeoIdAuthentication,
 ) {
-    route("/download") {
+    undocumentedRoute("/download") {
         describe { tag("Downloads") }
 
         authenticateWithOptional(authentication.provider.session) {

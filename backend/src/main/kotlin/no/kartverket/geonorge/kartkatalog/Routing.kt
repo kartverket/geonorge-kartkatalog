@@ -42,12 +42,6 @@ import no.kartverket.geonorge.kartkatalog.search.SearchService
 import no.kartverket.geonorge.kartkatalog.search.legacySearchRoutes
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
 
-// Internal routes used by the frontend (BFF auth, session user and downloads) are left out of the public API docs.
-private val undocumentedPathPrefixes = listOf("/bff", "/beta/bff", "/auth", "/api/me", "/api/download")
-
-private fun String.isUndocumented(): Boolean =
-    this == "/" || undocumentedPathPrefixes.any { this == it || startsWith("$it/") }
-
 fun Application.configureRouting(
     appConfig: AppConfig,
     authentication: GeoIdAuthentication,
@@ -100,12 +94,16 @@ fun Application.configureRouting(
                 )
             source =
                 OpenApiDocSource.Routing(ContentType.Application.Json) {
-                    routingRoot.descendants().filterNot { it.path.isUndocumented() }
+                    routingRoot.descendants().filterNot {
+                        it.isUndocumented || authentication.pluginRoutePaths.any { p -> it.path == p }
+                    }
                 }
             remotePath = "openapi.json"
         }
-        get("/") {
-            call.respondText("Hello, World!")
+        undocumented {
+            get("/") {
+                call.respondText("Hello, World!")
+            }
         }
         // Copy of the old Kartkatalog search API; never versioned.
         legacySearchRoutes(legacySearchService)
