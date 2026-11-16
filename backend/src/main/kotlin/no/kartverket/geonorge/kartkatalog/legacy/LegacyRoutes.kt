@@ -13,7 +13,7 @@ import no.kartverket.geonorge.kartkatalog.search.respondSearchCsv
 import no.kartverket.geonorge.kartkatalog.search.respondSearchJson
 import org.slf4j.LoggerFactory
 
-fun Route.legacySearchRoutes(service: LegacySearchService) {
+fun Route.legacyRoutes(service: LegacyService) {
     /**
      * Legacy-compatible catalog search. Returns the legacy Kartkatalog response contract as JSON or CSV.
      *
@@ -123,5 +123,40 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
     get("/api/valid-dataset-name") {
         val params = call.request.queryParameters
         call.respondSearchJson(service.validDatasetName(params["datasetName"], params["uuid"]))
+    }
+
+    /**
+     * Legacy-compatible metadata lookup (used by Register, ApiServices, Produktark, Rapportgenerator,
+     * Kartografi, MetadataEditor and the download client). Returns a PascalCase subset of the legacy
+     * metadata view model; null fields are omitted.
+     *
+     * Path: uuid [String] Metadata uuid.
+     * Query: lang [String] Response language, en or Norwegian (no, nb, nn).
+     * Header: Accept-Language [String] Language preference used when lang is not supplied.
+     * Cookie: _culture [String] Remembered response language.
+     * Response: 200 application/json The metadata.
+     * Response: 404 The metadata was not found.
+     * Response: 500 The lookup failed.
+     */
+    get("/api/getdata/{uuid}") {
+        val uuid = call.parameters["uuid"].orEmpty()
+        val language = call.resolveSearchLanguage()
+        call.applyLanguageHeaders(language)
+        try {
+            val data = service.getData(uuid, language)
+            if (data == null) {
+                call.respondSearchJson(mapOf("error" to "Record not found"), HttpStatusCode.NotFound)
+            } else {
+                call.respondSearchJson(data)
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            LoggerFactory.getLogger("LegacyMetadataRoutes").error("Legacy-compatible getdata failed", e)
+            call.respondSearchJson(
+                mapOf("error" to "An error occurred while fetching metadata"),
+                HttpStatusCode.InternalServerError,
+            )
+        }
     }
 }

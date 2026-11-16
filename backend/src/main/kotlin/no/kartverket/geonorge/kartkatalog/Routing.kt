@@ -27,10 +27,8 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClie
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
-import no.kartverket.geonorge.kartkatalog.legacy.LegacyMetadataService
-import no.kartverket.geonorge.kartkatalog.legacy.LegacySearchService
-import no.kartverket.geonorge.kartkatalog.legacy.legacyMetadataRoutes
-import no.kartverket.geonorge.kartkatalog.legacy.legacySearchRoutes
+import no.kartverket.geonorge.kartkatalog.legacy.LegacyService
+import no.kartverket.geonorge.kartkatalog.legacy.legacyRoutes
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
@@ -81,10 +79,16 @@ fun Application.configureRouting(
             hybridQueryBuilder = hybridQueryBuilder,
         )
     val searchService = SearchService(searchEngine, areaResolver, hvdResolver)
-    val legacySearchService =
-        LegacySearchService(searchEngine, registerClient, appConfig.publicBaseUrl, appConfig.staticNorgeskartUrl)
-    val legacyMetadataService =
-        LegacyMetadataService(geonetworkClient, solrClient, codeListTranslator, appConfig.staticNorgeskartUrl)
+    val legacyService =
+        LegacyService(
+            searchEngine,
+            registerClient,
+            geonetworkClient,
+            solrClient,
+            codeListTranslator,
+            appConfig.publicBaseUrl,
+            appConfig.staticNorgeskartUrl,
+        )
     val downloadApiClient = DownloadApiClient(httpClient, appConfig.allowedDownloadClients)
     val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
     val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
@@ -111,8 +115,7 @@ fun Application.configureRouting(
             call.respondText("Hello, World!")
         }
         searchRoutes(searchService)
-        legacySearchRoutes(legacySearchService)
-        legacyMetadataRoutes(legacyMetadataService)
+        legacyRoutes(legacyService)
         metadataRoutes(metadataService, linkedDistributionsService)
         distributionsRoutes(distributionsService)
         downloadRoutes(downloadService, tokenExchangeClient, authentication)

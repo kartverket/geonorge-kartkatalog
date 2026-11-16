@@ -11,7 +11,7 @@ import no.kartverket.geonorge.kartkatalog.search.SearchFacetCount
 import no.kartverket.geonorge.kartkatalog.search.SearchHit
 import no.kartverket.geonorge.kartkatalog.search.SearchHits
 
-internal class LegacySearchResponse(
+internal class LegacySearchResponseMapper(
     language: String,
     private val siteUrl: String,
     private val areas: Map<String, String>,

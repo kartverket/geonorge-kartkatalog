@@ -1,13 +1,13 @@
 package no.kartverket.geonorge.kartkatalog.legacy
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
@@ -15,16 +15,24 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordG
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
+import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
+import no.kartverket.geonorge.kartkatalog.legacy.models.DistributionDetails
+import no.kartverket.geonorge.kartkatalog.legacy.models.DistributionRow
+import no.kartverket.geonorge.kartkatalog.legacy.models.SearchOutcome
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
 import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
+import no.kartverket.geonorge.kartkatalog.metadata.TimedCache
 import no.kartverket.geonorge.kartkatalog.metadata.describeAccessConstraints
 import no.kartverket.geonorge.kartkatalog.metadata.findExtensionUrl
 import no.kartverket.geonorge.kartkatalog.metadata.getCoverageLink
 import no.kartverket.geonorge.kartkatalog.metadata.resolveAccessState
+import no.kartverket.geonorge.kartkatalog.search.SearchEngine
+import no.kartverket.geonorge.kartkatalog.search.SearchHits
 import org.slf4j.LoggerFactory
-import kotlin.coroutines.cancellation.CancellationException
 
 private const val NATIONAL_THEME_THESAURUS = "Nasjonal tematisk inndeling (DOK-kategori)"
 private const val NATIONAL_INITIATIVE_THESAURUS = "Nasjonal inndeling i geografiske initiativ og SDI-er"
@@ -38,13 +46,130 @@ private const val FALLBACK_FORMAT_NAME = "Nedlasting"
  * legacy consumers (Register, ApiServices, Produktark, Rapportgenerator, Kartografi, MetadataEditor and
  * the download client) read. Null values are omitted and property names are PascalCase, like the legacy JSON.
  */
-class LegacyMetadataService(
+class LegacyService(
+    private val engine: SearchEngine,
+    private val registerClient: RegisterClient,
     private val geonetworkClient: GeonetworkClient,
     private val solrClient: SolrClient,
     private val codeListTranslator: CodeListTranslator,
-    private val staticNorgeskartUrl: String,
+    private val kartkatalogUrl: String,
+    private val norgeskartUrl: String = "",
 ) {
-    private val log = LoggerFactory.getLogger(LegacyMetadataService::class.java)
+    private val log = LoggerFactory.getLogger(LegacyService::class.java)
+
+    private val areasCache = TimedCache<String, Map<String, String>>(12 * 60 * 60 * 1000L)
+
+    internal suspend fun validDatasetName(
+        datasetName: String?,
+        uuid: String?,
+    ): JsonObject {
+        if (uuid.isNullOrBlank()) return validationResult(false)
+        if (datasetName.isNullOrBlank()) return validationResult(true)
+        return try {
+            val otherUuid = engine.findUuidByDatasetName(datasetName, uuid)
+            validationResult(otherUuid == null, otherUuid)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: SolrException) {
+            // Legacy returns 200 with IsValid=false and the exception message; the message is not exposed here.
+            log.warn("Legacy-compatible dataset name validation failed", e)
+            validationResult(false, "Validation failed")
+        }
+    }
+
+    private fun validationResult(
+        isValid: Boolean,
+        result: String? = null,
+    ): JsonObject =
+        buildJsonObject {
+            put("IsValid", isValid)
+            result?.let { put("Result", it) }
+        }
+
+    internal suspend fun searchHits(
+        request: LegacySearchRequest,
+        language: String,
+    ): SearchHits = searchOutcome(request, language).hits
+
+    private suspend fun searchOutcome(
+        request: LegacySearchRequest,
+        language: String,
+    ): SearchOutcome =
+        try {
+            SearchOutcome.Success(engine.search(LegacySearchQuery.build(request), request.text, language == "en"))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: SolrException) {
+            // SearchServiceAll returns an empty result (HTTP 200) for Solr failures.
+            log.warn("Legacy-compatible Solr search failed", e)
+            SearchOutcome.SolrFailure
+        }
+
+    internal suspend fun search(
+        request: LegacySearchRequest,
+        language: String,
+    ): JsonObject {
+        val outcome = searchOutcome(request, language)
+        if (outcome is SearchOutcome.SolrFailure) {
+            return LegacySearchResponseMapper(language, kartkatalogUrl, emptyMap()).build(request, outcome.hits)
+        }
+
+        val areas = loadAreas()
+        return LegacySearchResponseMapper(language, kartkatalogUrl, areas).build(request, outcome.hits)
+    }
+
+    internal suspend fun simpleSearch(
+        organization: String?,
+        language: String,
+    ): JsonObject {
+        val hits = engine.searchMetadataCore(SimpleMetadataQuery.build(organization))
+        return LegacySearchResponseMapper(language, kartkatalogUrl, loadAreas())
+            .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
+    }
+
+    internal suspend fun metadataItem(
+        uuid: String,
+        language: String,
+    ): JsonObject {
+        // Legacy swallows Solr errors, so a failure looks the same as an unknown uuid.
+        val doc =
+            try {
+                engine.getMetadataAllByUuid(uuid)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                log.warn("Could not look up metadata $uuid in metadata_all", e)
+                null
+            }
+        return LegacyMetadataItemMapper(language, norgeskartUrl).build(doc)
+    }
+
+    private suspend fun loadAreas(): Map<String, String> =
+        try {
+            areasCache
+                .getOrFetch("areas") {
+                    listOf("fylkesnummer", "kommunenummer")
+                        .flatMap { list ->
+                            registerClient
+                                .getSosiCodeList(
+                                    "inndelinger/inndelingsbase/$list",
+                                ).containedItems
+                                .mapNotNull { item ->
+                                    val code =
+                                        item.codeValue?.takeIf { it.isNotBlank() && item.status == "Gyldig" }
+                                            ?: return@mapNotNull null
+                                    val key = if (list == "fylkesnummer") "0/$code" else "0/${code.take(2)}/$code"
+                                    key to (item.description ?: item.label).substringBefore(" – ").trim()
+                                }
+                        }.toMap()
+                }.orEmpty()
+        } catch (e: RegisterException) {
+            val cause = e.cause
+            if (cause is CancellationException) throw cause
+            // Keep Solr results and retry Register next time rather than caching the fallback.
+            log.warn("Failed to fetch legacy area names; using raw facet codes", e)
+            emptyMap()
+        }
 
     /** Returns null when the record does not exist. */
     suspend fun getData(
@@ -79,7 +204,7 @@ class LegacyMetadataService(
             putText("DistributionUrl", distributionUrl)
             putText(
                 "CoverageUrl",
-                getCoverageLink(record.extensionResources, staticNorgeskartUrl = staticNorgeskartUrl),
+                getCoverageLink(record.extensionResources, staticNorgeskartUrl = norgeskartUrl),
             )
             owner?.let { put("ContactOwner", contact(it)) }
             put("ContactMetadata", contact(record.metadataContact))
@@ -123,41 +248,6 @@ class LegacyMetadataService(
             log.warn("Solr lookup failed for {}", uuid, e)
             null
         }
-
-    private data class DistributionRow(
-        val protocol: String?,
-        val protocolName: String?,
-        val formatName: String?,
-        val formatVersion: String?,
-        val url: String?,
-        val organization: String?,
-        val unitsOfDistribution: String?,
-    ) {
-        fun toJson() =
-            buildJsonObject {
-                putText("ProtocolName", protocolName)
-                putText("FormatName", formatName)
-                putText("FormatVersion", formatVersion)
-                putText("URL", url)
-                putText("Protocol", protocol)
-                putText("Organization", organization)
-                putText("UnitsOfDistribution", unitsOfDistribution)
-            }
-    }
-
-    private data class Details(
-        val protocol: String?,
-        val protocolName: String?,
-        val url: String?,
-        val unitsOfDistribution: String?,
-    ) {
-        fun toJson() =
-            buildJsonObject {
-                putText("Protocol", protocol)
-                putText("ProtocolName", protocolName)
-                putText("URL", url)
-            }
-    }
 
     private fun isFallbackFormat(format: DistributionFormat) =
         format.name == FALLBACK_FORMAT_NAME && format.version == null
@@ -225,25 +315,25 @@ class LegacyMetadataService(
     private suspend fun distributionDetails(
         record: MetadataRecord,
         rows: List<DistributionRow>,
-    ): Details? {
+    ): DistributionDetails? {
         val first = record.distributionInfo?.transferOptions?.firstOrNull()
         val download = rows.firstOrNull { it.protocol in DOWNLOAD_PROTOCOLS }
         if (first == null && download == null) return null
         return if (download != null) {
-            Details(
+            DistributionDetails(
                 download.protocol,
                 download.protocolName,
                 download.url,
                 download.unitsOfDistribution ?: first?.unitsOfDistribution,
             )
         } else {
-            Details(first?.protocol, protocolName(first?.protocol), first?.url, first?.unitsOfDistribution)
+            DistributionDetails(first?.protocol, protocolName(first?.protocol), first?.url, first?.unitsOfDistribution)
         }
     }
 
     private fun distributionUrl(
         record: MetadataRecord,
-        details: Details?,
+        details: DistributionDetails?,
         rows: List<DistributionRow>,
     ): String? {
         val url = rows.firstOrNull { it.protocol == "GEONORGE:DOWNLOAD" }?.url ?: details?.url
@@ -382,18 +472,4 @@ class LegacyMetadataService(
     ): String? = if (useEnglish && !english.isNullOrBlank()) english else norwegian
 
     private fun fixMarkDown(text: String) = text.replace(Regex("###(?=[^#\\s])"), "### ")
-}
-
-private fun kotlinx.serialization.json.JsonObjectBuilder.putText(
-    key: String,
-    value: String?,
-) {
-    if (value != null) put(key, JsonPrimitive(value))
-}
-
-private fun kotlinx.serialization.json.JsonObjectBuilder.putArray(
-    key: String,
-    items: List<JsonElement>,
-) {
-    put(key, JsonArray(items))
 }

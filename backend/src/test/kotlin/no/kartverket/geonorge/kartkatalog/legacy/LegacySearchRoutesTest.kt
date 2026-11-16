@@ -20,11 +20,11 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
-import no.kartverket.geonorge.kartkatalog.legacy.LegacySearchService
-import no.kartverket.geonorge.kartkatalog.legacy.legacySearchRoutes
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
+import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
 import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import no.kartverket.geonorge.kartkatalog.search.SearchService
@@ -39,6 +39,22 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class LegacySearchRoutesTest {
+    private fun legacyService(
+        upstream: HttpClient,
+        engine: SearchEngine,
+        register: RegisterClient,
+        kartkatalogUrl: String,
+        norgeskartUrl: String = "",
+    ) = LegacyService(
+        engine,
+        register,
+        GeonetworkClient(upstream, "https://geonetwork.example.test"),
+        SolrClient(upstream, "https://solr.example.test"),
+        CodeListTranslator(register),
+        kartkatalogUrl,
+        norgeskartUrl,
+    )
+
     private val paths = CopyOnWriteArrayList<String>()
     private val searchForms = CopyOnWriteArrayList<String>()
 
@@ -134,7 +150,7 @@ class LegacySearchRoutesTest {
                 val engine = SearchEngine(solr)
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
-                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test/"))
+                    legacyRoutes(legacyService(upstream, engine, register, "https://kartkatalog.test/"))
                     searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
                 }
             }
@@ -213,7 +229,7 @@ class LegacySearchRoutesTest {
                 val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
-                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                    legacyRoutes(legacyService(upstream, engine, register, "https://kartkatalog.test"))
                     searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
                 }
             }
@@ -242,7 +258,7 @@ class LegacySearchRoutesTest {
                 val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
-                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                    legacyRoutes(legacyService(upstream, engine, register, "https://kartkatalog.test"))
                     searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
                 }
             }
@@ -290,7 +306,7 @@ class LegacySearchRoutesTest {
                 val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
-                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                    legacyRoutes(legacyService(upstream, engine, register, "https://kartkatalog.test"))
                     searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
                 }
             }
@@ -377,7 +393,7 @@ class LegacySearchRoutesTest {
                 val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
-                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                    legacyRoutes(legacyService(upstream, engine, register, "https://kartkatalog.test"))
                 }
             }
 
@@ -426,7 +442,7 @@ class LegacySearchRoutesTest {
                 val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
-                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                    legacyRoutes(legacyService(upstream, engine, register, "https://kartkatalog.test"))
                 }
             }
 
@@ -462,7 +478,7 @@ class LegacySearchRoutesTest {
                 val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
-                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                    legacyRoutes(legacyService(upstream, engine, register, "https://kartkatalog.test"))
                 }
             }
 
@@ -497,7 +513,7 @@ class LegacySearchRoutesTest {
                 val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
                 val register = RegisterClient(upstream, "https://register.example.test")
                 routing {
-                    legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test"))
+                    legacyRoutes(legacyService(upstream, engine, register, "https://kartkatalog.test"))
                     searchRoutes(SearchService(engine, AreaResolver(register), HvdResolver(register)))
                 }
             }
@@ -527,7 +543,7 @@ class LegacySearchRoutesTest {
             configureSerialization()
             val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
             val register = RegisterClient(upstream, "https://register.example.test")
-            routing { legacySearchRoutes(LegacySearchService(engine, register, "https://kartkatalog.test/")) }
+            routing { legacyRoutes(legacyService(upstream, engine, register, "https://kartkatalog.test/")) }
         }
     }
 
@@ -633,8 +649,8 @@ class LegacySearchRoutesTest {
             val engine = SearchEngine(SolrClient(upstream, "https://solr.example.test"))
             val register = RegisterClient(upstream, "https://register.example.test")
             routing {
-                legacySearchRoutes(
-                    LegacySearchService(engine, register, "https://kartkatalog.test/", "https://norgeskart.test/"),
+                legacyRoutes(
+                    legacyService(upstream, engine, register, "https://kartkatalog.test/", "https://norgeskart.test/"),
                 )
             }
         }

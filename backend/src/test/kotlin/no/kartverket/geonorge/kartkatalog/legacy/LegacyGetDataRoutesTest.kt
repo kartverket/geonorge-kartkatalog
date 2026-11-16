@@ -17,9 +17,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
-import no.kartverket.geonorge.kartkatalog.legacy.LegacyMetadataService
-import no.kartverket.geonorge.kartkatalog.legacy.legacyMetadataRoutes
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
+import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -58,13 +57,16 @@ class LegacyGetDataRoutesTest {
                 },
             )
         val service =
-            LegacyMetadataService(
+            LegacyService(
+                SearchEngine(SolrClient(http, "https://solr.test")),
+                RegisterClient(http, "https://register.test"),
                 GeonetworkClient(http, "https://geonetwork.test"),
                 SolrClient(http, "https://solr.test"),
                 CodeListTranslator(RegisterClient(http, "https://register.test")),
+                "https://kartkatalog.test",
                 "https://norgeskart.test",
             )
-        application { routing { legacyMetadataRoutes(service) } }
+        application { routing { legacyRoutes(service) } }
         block()
     }
 
