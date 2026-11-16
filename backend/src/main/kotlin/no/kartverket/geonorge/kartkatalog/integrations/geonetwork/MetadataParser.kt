@@ -115,7 +115,12 @@ object MetadataParser {
                 keywordGroups =
                     idInfo
                         ?.nodes("gmd:descriptiveKeywords/gmd:MD_Keywords")
-                        ?.map { parseKeywordGroup(it) }
+                        ?.map {
+                            parseKeywordGroup(
+                                it,
+                                md.attr("gmd:language/gmd:LanguageCode", "codeListValue") == "eng",
+                            )
+                        }
                         ?: emptyList(),
                 legalConstraints = parseLegalConstraints(idInfo),
                 securityConstraints = parseSecurityConstraints(idInfo),
@@ -249,14 +254,17 @@ object MetadataParser {
                 type = node.text("gmd:fileDescription/gco:CharacterString"),
             )
 
-        private fun parseKeywordGroup(node: Node): KeywordGroup {
+        private fun parseKeywordGroup(
+            node: Node,
+            englishMetadata: Boolean,
+        ): KeywordGroup {
             val keywords =
                 node.nodes("gmd:keyword").map { kw ->
                     val anchor = kw.node("gmx:Anchor")
                     val value = kw.preferredText(anchorExpr = "gmx:Anchor") ?: ""
                     val href = anchor?.attr("xlink:href")
-                    val english =
-                        kw.text("gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString")
+                    // Like legacy: only an English localization counts, or the main text for English metadata.
+                    val english = if (englishMetadata) value.takeIf { it.isNotEmpty() } else kw.englishText()
                     Keyword(value = value, englishValue = english, href = href)
                 }
             val thesaurusTitleNode = node.node("gmd:thesaurusName/gmd:CI_Citation/gmd:title")
