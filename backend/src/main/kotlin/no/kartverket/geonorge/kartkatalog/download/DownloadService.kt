@@ -81,6 +81,9 @@ class DownloadService(
                                     } else {
                                         file
                                     }
+                                } else if (file.status == "ReadyForDownload") {
+                                    // Oppstrøms tjeneste har noen ganger meldt filen klar uten å oppgi url
+                                    file.copy(status = "Failed", downloadUrl = null)
                                 } else {
                                     file
                                 }
@@ -140,6 +143,7 @@ class DownloadService(
                 areas = emptyList(),
                 supportsPolygonSelection = capabilities.supportsPolygonSelection,
                 deliveryNotificationByEmail = capabilities.deliveryNotificationByEmail,
+                gridSelectionLayer = capabilities.mapSelectionLayer?.takeIf { it.isNotBlank() },
             )
         }
 
@@ -169,6 +173,7 @@ class DownloadService(
                 },
             supportsPolygonSelection = capabilities.supportsPolygonSelection,
             deliveryNotificationByEmail = capabilities.deliveryNotificationByEmail,
+            gridSelectionLayer = capabilities.mapSelectionLayer?.takeIf { it.isNotBlank() },
         )
     }
 

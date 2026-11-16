@@ -4,6 +4,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
+import no.kartverket.geonorge.kartkatalog.download.DownloadItem
 import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
@@ -41,6 +42,15 @@ class SearchService(
             )
         }
 
+    private fun List<String>?.firstUrlForProtocol(protocol: String): String? =
+        this
+            .orEmpty()
+            .asSequence()
+            .map { it.split("|") }
+            .filter { parts -> !parts.getOrNull(2).isNullOrBlank() }
+            .firstOrNull { parts -> parts.getOrNull(1) == protocol }
+            ?.getOrNull(2)
+
     private suspend fun getSeriesMemberDetails(doc: SearchHit): List<RelatedServiceReference> {
         val seriesMemberRefs = engine.parseDatasetServices(doc.seriedatasets)
         if (seriesMemberRefs.isEmpty()) return emptyList()
@@ -50,14 +60,7 @@ class SearchService(
 
         return seriesMemberRefs.mapNotNull { ref ->
             val downloadUrl =
-                fullDocsByUuid[ref.uuid]
-                    ?.distributions
-                    .orEmpty()
-                    .asSequence()
-                    .map { it.split("|") }
-                    .firstOrNull { parts -> parts.getOrNull(1) == "GEONORGE:DOWNLOAD" }
-                    ?.getOrNull(2)
-                    ?.takeIf { it.isNotBlank() }
+                fullDocsByUuid[ref.uuid]?.distributions.firstUrlForProtocol("GEONORGE:DOWNLOAD")
                     ?: return@mapNotNull null
 
             ref.copy(protocol = "GEONORGE:DOWNLOAD", distributionUrl = downloadUrl)
@@ -229,6 +232,8 @@ class SearchService(
             accessState = access.asAccessState(),
             hierarchyLevel = type,
             seriesType = typename,
+            thematicSeriesDownloadItem = DownloadItem.fromThematicSeries(serie),
+            fileDownloadUrl = distributions.firstUrlForProtocol("GEONORGE:FILEDOWNLOAD"),
         )
     }
 

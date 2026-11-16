@@ -122,6 +122,7 @@ class DownloadRoutesTest {
           "supportsDownloadBundling": true,
           "distributedBy": "Geonorge",
           "deliveryNotificationByEmail": false,
+          "mapSelectionLayer": "raster-33",
           "_links": [
             {"href": "https://nedlasting.geonorge.no/api/codelists/format/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "rel": "http://rel.geonorge.no/download/format"},
             {"href": "https://nedlasting.geonorge.no/api/codelists/area/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b", "rel": "http://rel.geonorge.no/download/area"}
@@ -480,6 +481,7 @@ class DownloadRoutesTest {
             assertContains(body, "{\"area\":{\"code\":\"32\",\"name\":\"Akershus\",\"type\":\"fylke\"}")
             assertEquals(2, body.split("\"formats\":[{\"name\":\"GML\"}]").size - 1)
             assertContains(body, "\"formats\":[{\"name\":\"SOSI\"}]")
+            assertContains(body, "\"gridSelectionLayer\":\"raster-33\"")
             assertEquals(
                 listOf(
                     "/api/capabilities/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b",

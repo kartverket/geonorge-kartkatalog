@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DownloadItemSchema } from "./search";
 
 export const ProductDistributionFormatSchema = z.object({
   name: z.string().nullable(),
@@ -31,6 +32,7 @@ export const ProductMetadataContactSchema = z.object({
 export const ReferenceSystemSchema = z.object({
   code: z.string().nullable(),
   codeSpace: z.string().nullable(),
+  title: z.string().nullable().optional(),
 });
 
 export const DistributionEntrySchema = z.object({
@@ -210,6 +212,7 @@ export const LinkedDistributionSchema = z.object({
   hierarchyLevel: z.string().nullable(),
   seriesType: z.string().nullable(),
   accessState: z.enum(accessState).nullable(),
+  thematicSeriesDownloadItem: DownloadItemSchema.nullable().default(null),
 });
 
 export const LinkedDistributionsSchema = z.object({

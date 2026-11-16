@@ -1,3 +1,5 @@
+import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
+import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import {
   getFairStatus,
   type getMetadata,
@@ -12,6 +14,11 @@ import {
   ProductTabs,
 } from "@/app/metadata/[uuid]/_components/ProductTabs";
 import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
+import { isGeonorgeDownloadProtocol } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
+import {
+  getDownloadableSeriesMembers,
+  getThematicParentSeriesDownloadItem,
+} from "@/app/metadata/[uuid]/_utils/distributions";
 import { formatDate, unwrapSettled } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
@@ -19,6 +26,7 @@ import type {
   ProductConstraints,
   ReferenceSystem,
 } from "@/lib/schemas/product";
+import { LOCATIONS } from "@/posthog/posthog";
 
 export async function ProductTabsSection({
   uuid,
@@ -79,6 +87,13 @@ export async function ProductTabsSection({
     constraints,
   });
 
+  const isThematicSeries =
+    metadata.hierarchyLevel === "series" &&
+    metadata.seriesType === "series_thematic";
+  const downloadableSeriesMembers = isThematicSeries
+    ? []
+    : getDownloadableSeriesMembers(linkedDistributions);
+
   const distributionDetails = buildDistributionDetails({
     uuid,
     title: metadata.title,
@@ -90,6 +105,9 @@ export async function ProductTabsSection({
     referenceSystems: metadata.referenceSystems,
     dateUpdated: metadata.dateUpdated,
     maintenanceFrequency: metadata.maintenanceFrequency,
+    thematicSeriesDownloadItem:
+      getThematicParentSeriesDownloadItem(linkedDistributions),
+    downloadableSeriesMembers,
   });
 
   return (
@@ -239,6 +257,8 @@ function buildDistributionDetails({
   referenceSystems,
   dateUpdated,
   maintenanceFrequency,
+  thematicSeriesDownloadItem,
+  downloadableSeriesMembers,
 }: {
   uuid: string;
   title: string;
@@ -250,8 +270,10 @@ function buildDistributionDetails({
   referenceSystems: ReferenceSystem[];
   dateUpdated: string | null;
   maintenanceFrequency: string | null;
+  thematicSeriesDownloadItem: DownloadItem | null;
+  downloadableSeriesMembers: DownloadItem[];
 }): DetailItem[] {
-  return groups.map((group) => {
+  const groupDetails = groups.map((group) => {
     const urlRows = buildUrlRows(group.entries);
     const formatNames = getGroupFormatNames(group.entries);
     const firstUrlRowLabel = urlRows[0]?.label ?? "Tilgangs-URL";
@@ -268,6 +290,8 @@ function buildDistributionDetails({
           group={group}
           formatNames={formatNames}
           urlLabel={firstUrlRowLabel}
+          thematicSeriesDownloadItem={thematicSeriesDownloadItem}
+          downloadableSeriesMembers={downloadableSeriesMembers}
         />
       ),
       title: group.protocolName ?? "Ukjent protokoll",
@@ -331,8 +355,12 @@ function buildDistributionDetails({
               content: (
                 <span className={styles.tags}>
                   {referenceSystems.map((rs) => (
-                    <span className="ds-tag" key={rs.codeSpace}>
-                      {rs.code}
+                    <span
+                      className="ds-tag"
+                      key={rs.codeSpace ?? rs.code}
+                      title={rs.code ?? undefined}
+                    >
+                      {rs.title || rs.code}
                     </span>
                   ))}
                 </span>
@@ -343,6 +371,40 @@ function buildDistributionDetails({
       ),
     };
   });
+  const hasOwnGeonorgeDownloadGroup = groups.some((group) =>
+    isGeonorgeDownloadProtocol(group.protocol),
+  );
+
+  if (downloadableSeriesMembers.length === 0 || hasOwnGeonorgeDownloadGroup) {
+    return groupDetails;
+  }
+
+  return [
+    ...groupDetails,
+    {
+      actionButton: (
+        <AddToDownloadsButton
+          trackingItem={{ uuid, name: title }}
+          items={downloadableSeriesMembers}
+          size="sm"
+          variant="secondary"
+          location={LOCATIONS.MetadataPageTabs}
+          preventAccordionToggle
+        />
+      ),
+      title: "Geonorge nedlasting",
+      content: (
+        <FieldList
+          fields={[
+            {
+              label: "Beskrivelse",
+              content: `Last ned alle ${downloadableSeriesMembers.length} tilgjengelige filer i serien.`,
+            },
+          ]}
+        />
+      ),
+    },
+  ];
 }
 
 type UrlRow = {

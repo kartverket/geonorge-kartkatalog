@@ -397,4 +397,60 @@ class SearchRoutesTest {
             assertContains(body, "\"uuid\":\"$memberUuid\"")
             assertFalse(body.contains("\"downloadableSeriesMembers\":[]"))
         }
+
+    @Test
+    fun `adds thematicSeriesDownloadItem for members of a thematic series`() =
+        testApplication {
+            val seriesUuid = "44444444-4444-4444-4444-444444444444"
+            val serie =
+                "$seriesUuid|SAT-SKOG||series|NIBIO||GEONORGE:DOWNLOAD|" +
+                    "https://kart8.nibio.no/api/capabilities/|Landbruk|||series_thematic|True|False"
+            val memberSolrJson =
+                """
+                {
+                  "responseHeader": {"status": 0, "QTime": 1},
+                  "response": {
+                    "numFound": 1,
+                    "start": 0,
+                    "docs": [{
+                      "uuid": "55555555-5555-5555-5555-555555555555",
+                      "title": "SAT-SKOG - Treslag",
+                      "type": "dataset",
+                      "serie": "$serie"
+                    }]
+                  }
+                }
+                """.trimIndent()
+
+            application {
+                configureSerialization()
+                configureStatusPages()
+                val client =
+                    HttpClient(
+                        MockEngine {
+                            respond(
+                                content = memberSolrJson,
+                                status = HttpStatusCode.OK,
+                                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                            )
+                        },
+                    ) {
+                        install(ContentNegotiation) { json() }
+                    }
+                val searchService =
+                    SearchService(
+                        SearchEngine(SolrClient(client, "https://solr.example.test")),
+                        AreaResolver(RegisterClient(client, "https://register.example.test")),
+                        HvdResolver(RegisterClient(client, "https://register.example.test")),
+                    )
+                routing { searchRoutes(searchService) }
+            }
+
+            val response = client.get("/api/search?text=sat-skog&limit=25")
+            val body = response.bodyAsText()
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(body, "\"thematicSeriesDownloadItem\":{")
+            assertContains(body, "\"uuid\":\"$seriesUuid\"")
+        }
 }

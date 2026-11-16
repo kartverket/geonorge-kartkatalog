@@ -3,6 +3,7 @@ import type { MapItem } from "@/app/_components/addToMap/mapStorage";
 import {
   DISTRIBUTION_PROTOCOLS,
   isGeonorgeDownloadProtocol,
+  isGeonorgeFileDownloadProtocol,
   isWmsDistributionProtocol,
 } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
 import type {
@@ -39,6 +40,15 @@ export function getGeonorgeDownloadUrl(
   return lastSlash !== -1 ? stripped.substring(0, lastSlash + 1) : stripped;
 }
 
+export function getGeonorgeFileDownloadUrl(
+  distributionGroups: DistributionGroup[],
+): string | null {
+  const group = distributionGroups.find((distributionGroup) =>
+    isGeonorgeFileDownloadProtocol(distributionGroup.protocol),
+  );
+  return getPrimaryGroupUrl(group);
+}
+
 export function toDownloadItem(
   distribution: LinkedDistribution,
 ): DownloadItem | null {
@@ -66,6 +76,17 @@ export function getDownloadableSeriesMembers(
     const downloadItem = toDownloadItem(distribution);
     return downloadItem ? [downloadItem] : [];
   });
+}
+
+// Et medlem av en tematisk serie gir samme fil som serien selv, så nedlasting
+// fra medlemmets side skal legge til serien i stedet
+export function getThematicParentSeriesDownloadItem(
+  linkedDistributions: LinkedDistributions,
+): DownloadItem | null {
+  const thematicSeries = linkedDistributions.parentSeries.find(
+    (series) => series.seriesType === "series_thematic",
+  );
+  return thematicSeries ? toDownloadItem(thematicSeries) : null;
 }
 
 export function getDownloadItem(

@@ -1,5 +1,6 @@
 import { DownloadIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
+import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
 import { DistributionActionLinkButton } from "@/app/metadata/[uuid]/_components/DistributionActionLinkButton";
 import {
@@ -22,6 +23,8 @@ export function DistributionDetailActionButton({
   group,
   formatNames,
   urlLabel,
+  thematicSeriesDownloadItem,
+  downloadableSeriesMembers,
 }: {
   uuid: string;
   title: string;
@@ -32,7 +35,25 @@ export function DistributionDetailActionButton({
   group: DistributionGroup;
   formatNames: string[];
   urlLabel: string;
+  thematicSeriesDownloadItem: DownloadItem | null;
+  downloadableSeriesMembers: DownloadItem[];
 }) {
+  if (
+    isGeonorgeDownloadProtocol(group.protocol) &&
+    downloadableSeriesMembers.length > 0
+  ) {
+    return (
+      <AddToDownloadsButton
+        trackingItem={{ uuid, name: title }}
+        items={downloadableSeriesMembers}
+        size="sm"
+        variant="secondary"
+        location={LOCATIONS.MetadataPageTabs}
+        preventAccordionToggle
+      />
+    );
+  }
+
   const firstUrl = group.entries[0]?.url ?? null;
 
   if (!firstUrl) return null;
@@ -48,21 +69,36 @@ export function DistributionDetailActionButton({
     hierarchyLevel === "dataset" ||
     (hierarchyLevel === "series" && seriesType === "series_thematic");
 
-  if (isGeonorgeDownloadProtocol(group.protocol) && canDownloadDirectly) {
+  if (
+    isGeonorgeDownloadProtocol(group.protocol) &&
+    thematicSeriesDownloadItem
+  ) {
     return (
       <AddToDownloadsButton
-        item={{
-          accessType: accessState,
-          uuid,
-          name: title,
-          organizationName,
-          distributionUrl: getGeonorgeDownloadUrl([group]),
-        }}
+        items={[thematicSeriesDownloadItem]}
         size="sm"
         location={LOCATIONS.MetadataPageTabs}
         variant="secondary"
-        addLabel="Legg til nedlasting"
-        removeLabel="Fjern fra nedlasting"
+        preventAccordionToggle
+      />
+    );
+  }
+
+  if (isGeonorgeDownloadProtocol(group.protocol) && canDownloadDirectly) {
+    return (
+      <AddToDownloadsButton
+        items={[
+          {
+            accessType: accessState,
+            uuid,
+            name: title,
+            organizationName,
+            distributionUrl: getGeonorgeDownloadUrl([group]),
+          },
+        ]}
+        size="sm"
+        location={LOCATIONS.MetadataPageTabs}
+        variant="secondary"
         preventAccordionToggle
       />
     );

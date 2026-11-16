@@ -29,6 +29,8 @@ function toDatasetCardData(d: LinkedDistribution): DatasetCardData {
     accessState: d.accessState,
     hierarchyLevel: d.hierarchyLevel,
     seriesType: d.seriesType,
+    thematicSeriesDownloadItem: d.thematicSeriesDownloadItem,
+    fileDownloadUrl: null,
   };
 }
 
@@ -93,17 +95,17 @@ function DistributionGroup({
           className={styles.loadMoreButton}
           onClick={() => {
             trackClick(
-              "load-more-linked-distributions",
+              "show-all-linked-distributions",
               LOCATIONS.MetadataPageLinkedDistributions,
               {
                 heading,
                 totalItems: items.length,
               },
             );
-            setVisibleCount((count) => count + PAGE_SIZE);
+            setVisibleCount(items.length);
           }}
         >
-          Last inn flere
+          Vis alle
         </Button>
       )}
       {canCollapse && (

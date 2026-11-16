@@ -47,8 +47,6 @@ type GroupedProduct = {
   organization: string | null;
   typeTranslated: string | null;
   accessState: DownloadCard["accessState"];
-  hasReadyFiles: boolean;
-  hasProcessingFiles: boolean;
   areas: GroupedArea[];
 };
 
@@ -73,9 +71,6 @@ function groupOrderedProducts(
 
   return Array.from(filesByUuid.entries()).map(([uuid, productFiles]) => {
     const card = cards.find((c) => c.uuid === uuid);
-    const hasReadyFiles = productFiles.some(
-      (file) => file.status === "ReadyForDownload",
-    );
 
     const areaNames = Array.from(
       new Set(productFiles.map((file) => file.areaName ?? "Ukjent område")),
@@ -112,30 +107,46 @@ function groupOrderedProducts(
       return { areaName, projections };
     });
 
-    const hasProcessingFiles = productFiles.some(
-      (file) => file.status !== "ReadyForDownload" && file.status !== "Failed",
-    );
-
     return {
       uuid,
       title: card?.title ?? productFiles[0]?.metadataName ?? uuid,
       organization: card?.organization ?? null,
       typeTranslated: card?.typeTranslated ?? null,
       accessState: card?.accessState ?? null,
-      hasReadyFiles,
-      hasProcessingFiles,
       areas,
     };
   });
 }
 
-function ProductGroup({
-  product,
-  onProductDownloaded,
-}: {
-  product: GroupedProduct;
-  onProductDownloaded: (uuid: string) => void;
-}) {
+function filterProductByFormats(
+  product: GroupedProduct,
+  predicate: (format: GroupedFormat) => boolean,
+): GroupedProduct | null {
+  const areas = product.areas
+    .map((area) => ({
+      ...area,
+      projections: area.projections
+        .map((projection) => ({
+          ...projection,
+          formats: projection.formats.filter(predicate),
+        }))
+        .filter((projection) => projection.formats.length > 0),
+    }))
+    .filter((area) => area.projections.length > 0);
+
+  return areas.length > 0 ? { ...product, areas } : null;
+}
+
+function filterProducts(
+  products: GroupedProduct[],
+  predicate: (format: GroupedFormat) => boolean,
+): GroupedProduct[] {
+  return products
+    .map((product) => filterProductByFormats(product, predicate))
+    .filter((product): product is GroupedProduct => product !== null);
+}
+
+function ProductGroup({ product }: { product: GroupedProduct }) {
   const [expanded, setExpanded] = useState(true);
   const detailsId = useId();
   const accessContext =
@@ -212,7 +223,6 @@ function ProductGroup({
                                     format: format.label,
                                   },
                                 );
-                                onProductDownloaded(product.uuid);
                               }}
                             >
                               <DownloadIcon aria-hidden />
@@ -256,19 +266,19 @@ function ProductGroup({
 export function DownloadOrderSummary({
   orderResult,
   cards,
-  onProductDownloaded,
 }: {
   orderResult: DownloadOrderResult;
   cards: DownloadCard[];
-  onProductDownloaded: (uuid: string) => void;
 }) {
   const products = groupOrderedProducts(orderResult, cards);
-  const readyProducts = products.filter((product) => product.hasReadyFiles);
-  const failedProducts = products.filter(
-    (product) => !product.hasReadyFiles && !product.hasProcessingFiles,
+  const readyProducts = filterProducts(
+    products,
+    (format) => format.isReady && format.downloadUrl !== null,
   );
-  const processingProducts = products.filter(
-    (product) => !product.hasReadyFiles && product.hasProcessingFiles,
+  const failedProducts = filterProducts(products, (format) => format.isFailed);
+  const processingProducts = filterProducts(
+    products,
+    (format) => !format.isReady && !format.isFailed,
   );
 
   return (
@@ -280,11 +290,7 @@ export function DownloadOrderSummary({
           </Heading>
           <div className={styles.productList}>
             {readyProducts.map((product) => (
-              <ProductGroup
-                key={product.uuid}
-                product={product}
-                onProductDownloaded={onProductDownloaded}
-              />
+              <ProductGroup key={product.uuid} product={product} />
             ))}
           </div>
         </section>
@@ -297,11 +303,7 @@ export function DownloadOrderSummary({
           </Heading>
           <div className={styles.productList}>
             {failedProducts.map((product) => (
-              <ProductGroup
-                key={product.uuid}
-                product={product}
-                onProductDownloaded={onProductDownloaded}
-              />
+              <ProductGroup key={product.uuid} product={product} />
             ))}
           </div>
         </section>
@@ -314,11 +316,7 @@ export function DownloadOrderSummary({
           </Heading>
           <div className={styles.productList}>
             {processingProducts.map((product) => (
-              <ProductGroup
-                key={product.uuid}
-                product={product}
-                onProductDownloaded={onProductDownloaded}
-              />
+              <ProductGroup key={product.uuid} product={product} />
             ))}
           </div>
         </section>

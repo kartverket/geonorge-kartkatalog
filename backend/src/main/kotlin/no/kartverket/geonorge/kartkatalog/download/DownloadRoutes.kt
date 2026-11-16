@@ -93,6 +93,7 @@ data class DownloadOptionsDto(
     val areas: List<DownloadAreaOptionDto>,
     val supportsPolygonSelection: Boolean = false,
     val deliveryNotificationByEmail: Boolean = false,
+    val gridSelectionLayer: String? = null,
 )
 
 @Serializable
@@ -228,6 +229,7 @@ private fun DownloadOptions.toDto() =
             },
         supportsPolygonSelection = supportsPolygonSelection,
         deliveryNotificationByEmail = deliveryNotificationByEmail,
+        gridSelectionLayer = gridSelectionLayer,
     )
 
 fun Route.downloadRoutes(
