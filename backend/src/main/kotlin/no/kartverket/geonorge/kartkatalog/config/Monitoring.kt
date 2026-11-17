@@ -16,7 +16,6 @@ import java.util.UUID
 private const val MAX_CALL_ID_LENGTH = 64
 private const val MAX_USER_AGENT_LENGTH = 512
 
-// The call id is client-controlled and written to every log line, so restrict it to prevent log injection.
 internal fun isValidCallId(callId: String): Boolean =
     callId.length in 1..MAX_CALL_ID_LENGTH &&
         callId.all { it in 'a'..'z' || it in 'A'..'Z' || it in '0'..'9' || it == '-' }
@@ -32,9 +31,6 @@ fun Application.configureMonitoring() {
         level = Level.INFO
         disableDefaultColors()
         callIdMdc("callId")
-        // MDC entries are added to every log line written during the request. CallLogging re-evaluates
-        // missing entries when the response is sent, so status and duration are only set on the
-        // completed-request line. Duration is guarded by status, since a non-null value is cached.
         mdc("method") { call -> call.request.httpMethod.value }
         mdc("status") { call ->
             call.response
