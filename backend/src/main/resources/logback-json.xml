@@ -1,0 +1,17 @@
+<included>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp/>
+                <threadName/>
+                <mdc>
+                    <includeMdcKeyName>callId</includeMdcKeyName>
+                </mdc>
+                <logLevel/>
+                <loggerName/>
+                <message/>
+                <stackTrace/>
+            </providers>
+        </encoder>
+    </appender>
+</included>
