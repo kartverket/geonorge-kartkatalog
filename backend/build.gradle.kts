@@ -41,6 +41,7 @@ tasks.test {
 dependencies {
     implementation(ktorLibs.server.auth.oidc)
     implementation(ktorLibs.server.callLogging)
+    implementation(ktorLibs.server.callId)
     implementation(ktorLibs.server.contentNegotiation)
     implementation(ktorLibs.server.core)
     implementation(ktorLibs.server.cors)
