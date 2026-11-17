@@ -3,13 +3,22 @@
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <timestamp/>
+                <mdc>
+                    <includeMdcKeyName>method</includeMdcKeyName>
+                    <includeMdcKeyName>status</includeMdcKeyName>
+                    <includeMdcKeyName>durationMs</includeMdcKeyName>
+                </mdc>
+                <message/>
+                <mdc>
+                    <includeMdcKeyName>path</includeMdcKeyName>
+                    <includeMdcKeyName>userAgent</includeMdcKeyName>
+                </mdc>
+                <logLevel/>
+                <loggerName/>
                 <threadName/>
                 <mdc>
                     <includeMdcKeyName>callId</includeMdcKeyName>
                 </mdc>
-                <logLevel/>
-                <loggerName/>
-                <message/>
                 <stackTrace/>
             </providers>
         </encoder>
