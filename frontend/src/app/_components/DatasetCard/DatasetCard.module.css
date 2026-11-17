@@ -90,8 +90,8 @@
 /* Andre klikkbare elementer i kortet legges foran pseudo-elementet */
 .productCard:has(.datasetLink)
 :is(a, button, input, select, textarea, summary, label, [tabindex]):not(
-  .datasetLink
-) {
+    .datasetLink
+  ) {
   position: relative;
   z-index: 1;
 }
