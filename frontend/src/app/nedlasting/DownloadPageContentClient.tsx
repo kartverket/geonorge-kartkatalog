@@ -66,7 +66,7 @@ export function DownloadPageContentClient({
       capabilitiesUrl: card.distributionUrl,
     })),
   );
-  const { isOrdering, orderError, orderResult, submitOrder } =
+  const { isOrdering, orderError, orderResult, submitOrder, resetOrder } =
     useDownloadOrder();
 
   const [selections, setSelections] = usePersistedDownloadSelections();
@@ -86,6 +86,16 @@ export function DownloadPageContentClient({
     window.scrollTo(0, 0);
     headingRef.current?.focus({ preventScroll: true });
   }, [step]);
+
+  // Hvis brukeren har lagt nye datasett i kurven mens vi fortsatt viser
+  // oppsummeringen fra forrige bestilling (f.eks. etter å ha navigert bort
+  // og tilbake uten full sidelasting), gå tilbake til bestillingssteget.
+  useEffect(() => {
+    if (step === "last-ned" && selectedDownloadUuids.length > 0) {
+      setStep("bestilling");
+      resetOrder();
+    }
+  }, [step, selectedDownloadUuids, resetOrder]);
 
   const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
   const [orderEmailProvided, setOrderEmailProvided] = useState(false);

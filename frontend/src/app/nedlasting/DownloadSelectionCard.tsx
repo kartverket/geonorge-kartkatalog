@@ -122,16 +122,17 @@ export function DownloadSelectionCard({
             </a>
           </Button>
           <AddToDownloadsButton
-            item={{
-              accessType: accessState,
-              uuid,
-              name: title,
-              organizationName: organization,
-              distributionUrl,
-            }}
+            items={[
+              {
+                accessType: accessState,
+                uuid,
+                name: title,
+                organizationName: organization,
+                distributionUrl,
+              },
+            ]}
             location={LOCATIONS.DownloadPage}
             size="sm"
-            removeLabel="Fjern fra nedlasting"
           />
         </div>
       </div>

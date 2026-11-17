@@ -72,12 +72,28 @@
 }
 
 .buttonGroupContainer button {
-  z-index: 1;
   --dsc-button-padding: var(--ds-size-2) var(--ds-size-2);
 }
 
 .datasetLink {
   text-decoration: none;
+}
+
+/* Stretched link: pseudo-elementet dekker hele kortet (kortet har overflow: clip),
+   slik at høyreklikk hvor som helst gir lenkens kontekstmeny ("Åpne i ny fane"). */
+.datasetLink::after {
+  content: "";
+  position: absolute;
+  inset: -100vmax;
+}
+
+/* Andre klikkbare elementer i kortet legges foran pseudo-elementet */
+.productCard:has(.datasetLink)
+  :is(a, button, input, select, textarea, summary, label, [tabindex]):not(
+    .datasetLink
+  ) {
+  position: relative;
+  z-index: 1;
 }
 
 /* grid */

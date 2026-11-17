@@ -1,10 +1,11 @@
-import { FileTextIcon, PencilIcon } from "@navikt/aksel-icons";
-import AddSeriesToDownloadsButton from "@/app/_components/addToDownloads/AddSeriesToDownloadsButton";
+import { DownloadIcon, FileTextIcon, PencilIcon } from "@navikt/aksel-icons";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
+import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
 import {
   getDownloadableSeriesMembers,
   getDownloadItem,
+  getGeonorgeFileDownloadUrl,
   getMapItem,
   getThematicParentSeriesDownloadItem,
 } from "@/app/metadata/[uuid]/_utils/distributions";
@@ -40,25 +41,25 @@ export async function ProductActions({
   const downloadableSeriesMembers = isThematicSeries
     ? []
     : getDownloadableSeriesMembers(linkedDistributions);
+  const fileDownloadUrl = getGeonorgeFileDownloadUrl(
+    metadata.distributionGroups,
+  );
   const mapItem = getMapItem(metadata, linkedDistributions, uuid);
 
   return (
     <div className={styles.actions}>
-      <AddSeriesToDownloadsButton
-        item={{
-          uuid,
-          title: metadata.title,
-        }}
+      <AddToDownloadsButton
+        trackingItem={{ uuid, name: metadata.title }}
         className={styles.actionButton}
-        downloadableItems={downloadableSeriesMembers}
+        items={downloadableSeriesMembers}
         location={LOCATIONS.MetadataPage}
       />
       <AddToDownloadsButton
         className={styles.actionButton}
-        item={thematicSeriesDownloadItem ?? downloadItem}
+        items={[thematicSeriesDownloadItem ?? downloadItem].filter(
+          (i): i is DownloadItem => i !== null,
+        )}
         location={LOCATIONS.MetadataPage}
-        addLabel={thematicSeriesDownloadItem ? "Legg til serien" : undefined}
-        removeLabel={thematicSeriesDownloadItem ? "Fjern serien" : undefined}
       />
       <AddToMapButton
         variant="primary"
@@ -70,6 +71,15 @@ export async function ProductActions({
         shouldShowCoverageMap={shouldShowCoverageMap(metadata)}
         uuid={uuid}
       />
+      {fileDownloadUrl && (
+        <TrackedActionLinkButton
+          eventName="download-file-distribution-from-product-actions"
+          href={fileDownloadUrl}
+          icon={<DownloadIcon aria-hidden />}
+          title="Last ned"
+          variant="primary"
+        />
+      )}
       <TrackedActionLinkButton
         eventName="show-metadata-xml"
         href={getMetadataXmlUrl(uuid)}

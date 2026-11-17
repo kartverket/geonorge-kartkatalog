@@ -3,6 +3,7 @@ import type { MapItem } from "@/app/_components/addToMap/mapStorage";
 import {
   DISTRIBUTION_PROTOCOLS,
   isGeonorgeDownloadProtocol,
+  isGeonorgeFileDownloadProtocol,
   isWmsDistributionProtocol,
 } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
 import type {
@@ -37,6 +38,15 @@ export function getGeonorgeDownloadUrl(
   const stripped = rawUrl.replace(/\/+$/, "");
   const lastSlash = stripped.lastIndexOf("/");
   return lastSlash !== -1 ? stripped.substring(0, lastSlash + 1) : stripped;
+}
+
+export function getGeonorgeFileDownloadUrl(
+  distributionGroups: DistributionGroup[],
+): string | null {
+  const group = distributionGroups.find((distributionGroup) =>
+    isGeonorgeFileDownloadProtocol(distributionGroup.protocol),
+  );
+  return getPrimaryGroupUrl(group);
 }
 
 export function toDownloadItem(

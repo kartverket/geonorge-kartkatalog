@@ -4,6 +4,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -17,9 +18,11 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineRe
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
+import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
+import no.kartverket.geonorge.kartkatalog.integrations.solr.escapeSolrSpecialChars
 import no.kartverket.geonorge.kartkatalog.legacy.models.DistributionDetails
 import no.kartverket.geonorge.kartkatalog.legacy.models.DistributionRow
 import no.kartverket.geonorge.kartkatalog.legacy.models.SearchOutcome
@@ -40,6 +43,7 @@ private val DOWNLOAD_PROTOCOLS =
     listOf("GEONORGE:DOWNLOAD", "WWW:DOWNLOAD-1.0-http--download", "GEONORGE:FILEDOWNLOAD")
 private const val NIVA = "Norsk institutt for vannforskning"
 private const val FALLBACK_FORMAT_NAME = "Nedlasting"
+internal const val DEFAULT_NAMESPACE_LIMIT = 10
 
 /**
  * Legacy-compatible `api/getdata/{uuid}`. Builds the subset of the legacy MetadataViewModel that the
@@ -469,4 +473,31 @@ class LegacyService(
     ): String? = if (useEnglish && !english.isNullOrBlank()) english else norwegian
 
     private fun fixMarkDown(text: String) = text.replace(Regex("###(?=[^#\\s])"), "### ")
+
+    internal suspend fun namespaceDatasets(
+        namespace: String,
+        limit: Int,
+        offset: Int,
+    ): JsonObject {
+        // Legacy offsets are one-based in the API; 0 is treated as 1.
+        val start = (if (offset == 0) 1 else offset) - 1
+        // Legacy escapes the namespace twice, which only matches tokenized fields; it is escaped once here.
+        val query =
+            MetadataSolrQuery(
+                q = "resourceReferenceCodespace:${escapeSolrSpecialChars(namespace)}",
+                fl = SimpleMetadataQuery.FIELDS,
+                rows = limit,
+                start = start,
+            )
+        val results =
+            engine.searchMetadataCore(query).documents.map { doc ->
+                buildJsonObject {
+                    put("Uuid", doc.uuid)
+                    putNullable("Title", doc.title)
+                    putNullable("Organization", doc.organizationgroup ?: doc.organization)
+                    putNullable("DatasetName", doc.datasetName)
+                }
+            }
+        return buildJsonObject { put("Results", JsonArray(results)) }
+    }
 }

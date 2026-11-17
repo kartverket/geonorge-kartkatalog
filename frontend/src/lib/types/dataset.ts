@@ -17,4 +17,5 @@ export type DatasetCardData = {
   // Satt når datasettet er medlem av en tematisk serie. Medlemmet gir samme fil
   // som serien, så nedlasting skal legge til serien i stedet.
   thematicSeriesDownloadItem: DownloadItem | null;
+  fileDownloadUrl: string | null;
 };

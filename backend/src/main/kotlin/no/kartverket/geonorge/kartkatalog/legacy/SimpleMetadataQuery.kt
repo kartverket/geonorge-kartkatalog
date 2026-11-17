@@ -42,7 +42,7 @@ internal object SimpleMetadataQuery {
         )
     }
 
-    private const val FIELDS =
+    internal const val FIELDS =
         "uuid,title,abstract,purpose,type,theme,organization,organization_seo_lowercase,placegroups," +
             "organizationgroup,topic_category,organization_logo_url,thumbnail_url,distribution_url," +
             "distribution_protocol,distribution_name,product_page_url,date_published,date_updated," +

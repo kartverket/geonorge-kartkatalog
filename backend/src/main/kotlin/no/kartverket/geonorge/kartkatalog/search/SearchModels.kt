@@ -101,6 +101,7 @@ data class SearchResultItem(
     val hierarchyLevel: String? = null,
     val seriesType: String? = null,
     val thematicSeriesDownloadItem: DownloadItem? = null,
+    val fileDownloadUrl: String? = null,
 )
 
 internal fun canonicalFacetName(name: String): String? =

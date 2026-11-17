@@ -24,6 +24,7 @@ export function DistributionDetailActionButton({
   formatNames,
   urlLabel,
   thematicSeriesDownloadItem,
+  downloadableSeriesMembers,
 }: {
   uuid: string;
   title: string;
@@ -35,7 +36,24 @@ export function DistributionDetailActionButton({
   formatNames: string[];
   urlLabel: string;
   thematicSeriesDownloadItem: DownloadItem | null;
+  downloadableSeriesMembers: DownloadItem[];
 }) {
+  if (
+    isGeonorgeDownloadProtocol(group.protocol) &&
+    downloadableSeriesMembers.length > 0
+  ) {
+    return (
+      <AddToDownloadsButton
+        trackingItem={{ uuid, name: title }}
+        items={downloadableSeriesMembers}
+        size="sm"
+        variant="secondary"
+        location={LOCATIONS.MetadataPageTabs}
+        preventAccordionToggle
+      />
+    );
+  }
+
   const firstUrl = group.entries[0]?.url ?? null;
 
   if (!firstUrl) return null;
@@ -57,12 +75,10 @@ export function DistributionDetailActionButton({
   ) {
     return (
       <AddToDownloadsButton
-        item={thematicSeriesDownloadItem}
+        items={[thematicSeriesDownloadItem]}
         size="sm"
         location={LOCATIONS.MetadataPageTabs}
         variant="secondary"
-        addLabel="Legg til serien"
-        removeLabel="Fjern serien"
         preventAccordionToggle
       />
     );
@@ -71,18 +87,18 @@ export function DistributionDetailActionButton({
   if (isGeonorgeDownloadProtocol(group.protocol) && canDownloadDirectly) {
     return (
       <AddToDownloadsButton
-        item={{
-          accessType: accessState,
-          uuid,
-          name: title,
-          organizationName,
-          distributionUrl: getGeonorgeDownloadUrl([group]),
-        }}
+        items={[
+          {
+            accessType: accessState,
+            uuid,
+            name: title,
+            organizationName,
+            distributionUrl: getGeonorgeDownloadUrl([group]),
+          },
+        ]}
         size="sm"
         location={LOCATIONS.MetadataPageTabs}
         variant="secondary"
-        addLabel="Legg til nedlasting"
-        removeLabel="Fjern fra nedlasting"
         preventAccordionToggle
       />
     );
