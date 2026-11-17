@@ -85,5 +85,10 @@ export function useDownloadOrder() {
     }
   }
 
-  return { isOrdering, orderError, orderResult, submitOrder };
+  function resetOrder() {
+    setOrderError(null);
+    setOrderResult(null);
+  }
+
+  return { isOrdering, orderError, orderResult, submitOrder, resetOrder };
 }
