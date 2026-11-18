@@ -288,6 +288,8 @@ object MetadataParser {
             var otherConstraintsLink: String? = null
             var otherConstraintsLinkText: String? = null
             var otherConstraintsAccess: String? = null
+            var otherConstraintsAccessText: String? = null
+            var otherConstraintsAccessCode: String? = null
 
             idInfo.nodes("gmd:resourceConstraints/gmd:MD_Constraints").forEach { c ->
                 c.nodes("gmd:useLimitation").forEach { n ->
@@ -301,6 +303,12 @@ object MetadataParser {
                 if (ac != null) {
                     accessConstraints = ac
                     otherConstraintsAccess = anchor?.attr("xlink:href")
+                    otherConstraintsAccessText = anchor?.textContent?.trim()?.takeIf { it.isNotEmpty() }
+                    otherConstraintsAccessCode =
+                        c
+                            .nodes("gmd:otherConstraints/gco:CharacterString")
+                            .map { it.textContent.trim() }
+                            .firstOrNull { it in ACCESS_CODES }
                 }
                 if (uc != null) {
                     useConstraints = uc
@@ -320,6 +328,8 @@ object MetadataParser {
                 otherConstraintsLink = otherConstraintsLink,
                 otherConstraintsLinkText = otherConstraintsLinkText,
                 otherConstraintsAccess = otherConstraintsAccess,
+                otherConstraintsAccessText = otherConstraintsAccessText,
+                otherConstraintsAccessCode = otherConstraintsAccessCode,
             )
         }
 
@@ -657,6 +667,7 @@ object MetadataParser {
         )
 
         private companion object {
+            val ACCESS_CODES = setOf("no restrictions", "norway digital restricted")
             private val norwegianLocales =
                 setOf(
                     "locale-nor",

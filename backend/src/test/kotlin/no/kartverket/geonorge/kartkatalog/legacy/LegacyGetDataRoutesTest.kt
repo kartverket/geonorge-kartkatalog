@@ -45,8 +45,23 @@ class LegacyGetDataRoutesTest {
                     when {
                         request.url.encodedPath.endsWith("/srv/nor/csw") ->
                             respond(xml, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/xml"))
-                        request.url.encodedPath.startsWith("/api/kodelister") ->
-                            respond("""{"containeditems": []}""", HttpStatusCode.OK, json)
+                        request.url.encodedPath.startsWith("/api/kodelister") -> {
+                            val english = request.url.parameters["lang"] == "en"
+                            val label = if (english) "Restricted" else "Beskyttet"
+                            respond(
+                                """{"containeditems": [{"label": "$label", "codevalue": "restricted"}]}""",
+                                HttpStatusCode.OK,
+                                json,
+                            )
+                        }
+                        request.url.encodedPath.startsWith("/api/metadata-kodelister") -> {
+                            val label = if (request.url.parameters["lang"] == "en") "Open data" else "Åpne data"
+                            respond(
+                                """{"containeditems": [{"label": "$label", "codevalue": "http://x/noLimitations"}]}""",
+                                HttpStatusCode.OK,
+                                json,
+                            )
+                        }
                         else ->
                             respond(
                                 """{"response": {"numFound": 0, "start": 0, "docs": []}}""",
@@ -90,5 +105,42 @@ class LegacyGetDataRoutesTest {
             val response = client.get("/api/getdata/00000000-0000-0000-0000-000000000000")
 
             assertEquals(HttpStatusCode.NotFound, response.status)
+        }
+
+    @Test
+    fun `maps the INSPIRE access link to AccessConstraints like legacy`() =
+        app(responseXml) {
+            suspend fun accessConstraints(path: String) =
+                Json
+                    .parseToJsonElement(client.get(path).bodyAsText())
+                    .jsonObject["Constraints"]
+                    ?.jsonObject
+                    ?.get("AccessConstraints")
+                    ?.jsonPrimitive
+                    ?.content
+
+            val uuid = "/api/getdata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689"
+            assertEquals("Åpne data", accessConstraints(uuid))
+            assertEquals("Open data", accessConstraints("$uuid?lang=en"))
+        }
+
+    @Test
+    fun `maps the restricted INSPIRE link to the restriction code list label`() =
+        app(
+            responseXml.replace(
+                "LimitationsOnPublicAccess/noLimitations",
+                "LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1b",
+            ),
+        ) {
+            val body = client.get("/api/getdata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689").bodyAsText()
+            val value =
+                Json
+                    .parseToJsonElement(body)
+                    .jsonObject["Constraints"]
+                    ?.jsonObject
+                    ?.get("AccessConstraints")
+                    ?.jsonPrimitive
+                    ?.content
+            assertEquals("Beskyttet", value)
         }
 }

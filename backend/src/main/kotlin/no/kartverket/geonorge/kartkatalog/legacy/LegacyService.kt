@@ -29,10 +29,8 @@ import no.kartverket.geonorge.kartkatalog.legacy.models.SearchOutcome
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
 import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
 import no.kartverket.geonorge.kartkatalog.metadata.TimedCache
-import no.kartverket.geonorge.kartkatalog.metadata.describeAccessConstraints
 import no.kartverket.geonorge.kartkatalog.metadata.findExtensionUrl
 import no.kartverket.geonorge.kartkatalog.metadata.getCoverageLink
-import no.kartverket.geonorge.kartkatalog.metadata.resolveAccessState
 import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import no.kartverket.geonorge.kartkatalog.search.SearchHits
 import org.slf4j.LoggerFactory
@@ -61,6 +59,7 @@ class LegacyService(
 ) {
     private val log = LoggerFactory.getLogger(LegacyService::class.java)
 
+    private val accessConstraintsTranslator = LegacyAccessConstraintsTranslator(registerClient)
     private val areasCache = TimedCache<String, Map<String, String>>(12 * 60 * 60 * 1000L)
 
     internal suspend fun validDatasetName(
@@ -225,7 +224,7 @@ class LegacyService(
             putArray("DistributionFormats", realFormats.distinctBy { it.name to it.version }.map(::formatJson))
             putArray("DistributionsFormats", distributionRows.map { it.toJson() })
             putText("UnitsOfDistribution", details?.unitsOfDistribution)
-            put("Constraints", buildJsonObject { putText("AccessConstraints", accessConstraints(record)) })
+            put("Constraints", buildJsonObject { putText("AccessConstraints", accessConstraints(record, language)) })
             putText("SpatialRepresentation", spatialRepresentation(record))
             putArray(
                 "QualitySpecifications",
@@ -458,10 +457,28 @@ class LegacyService(
         record.findExtensionUrl(profile)
             ?: record.takeIf { profile == "produktspesifikasjon" }?.findExtensionUrl("annen produktspesifikasjon")
 
-    private fun accessConstraints(record: MetadataRecord): String? =
-        record.legalConstraints?.accessConstraints?.let {
-            describeAccessConstraints(it, resolveAccessState(record))
-        } ?: resolveAccessState(record)?.let { describeAccessConstraints(null, it) }
+    private suspend fun accessConstraints(
+        record: MetadataRecord,
+        language: String,
+    ): String? =
+        record.legalConstraints?.let { lc ->
+            // Legacy GeoNorgeAPI: the INSPIRE access link is mapped to a code (FixConstraints), otherwise a
+            // "no restrictions"/"norway digital restricted" string, then the anchor text, then the raw code.
+            val href = lc.otherConstraintsAccess.orEmpty()
+            val code = lc.otherConstraintsAccessCode
+            val linkCode =
+                when {
+                    "noLimitations" in href -> "no restrictions"
+                    "INSPIRE_Directive_Article13_1d" in href -> "norway digital restricted"
+                    "INSPIRE_Directive_Article13_1b" in href -> "restricted"
+                    else -> null
+                }
+            accessConstraintsTranslator.translate(
+                linkCode ?: code ?: lc.otherConstraintsAccessText ?: lc.accessConstraints,
+                code ?: lc.otherConstraintsAccess,
+                language,
+            )
+        }
 
     private suspend fun spatialRepresentation(record: MetadataRecord): String? =
         codeListTranslator.translate(CodeList.SPATIAL_REPRESENTATIONS, record.spatialRepresentationTypes.firstOrNull())
