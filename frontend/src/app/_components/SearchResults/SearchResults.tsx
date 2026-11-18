@@ -50,7 +50,7 @@ export function SearchResults({
   const topRef = useRef<HTMLElement>(null);
   const scopeRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const hidden = useHideOnScrollDown(isMobileFilterOpen);
+  const hidden = useHideOnScrollDown(isMobileFilterOpen, scopeRef);
 
   useEffect(() => {
     const scope = scopeRef.current;
@@ -87,7 +87,7 @@ export function SearchResults({
 
   return (
     <div className={styles.stickyScope} data-hidden={hidden} ref={scopeRef}>
-      <div className={styles.heroSticky} ref={heroRef}>
+      <div className={styles.heroSticky} ref={heroRef} inert={hidden}>
         {hero}
       </div>
       <main className={styles.page} ref={topRef}>
@@ -97,7 +97,7 @@ export function SearchResults({
             <div
               className={`${styles.content} ${isMobileFilterOpen ? styles.mobileFilterOpen : ""}`}
             >
-              <div className={styles.controls}>
+              <div className={styles.controls} inert={hidden}>
                 <div className={styles.activeFilters}>
                   <Suspense fallback={null}>
                     <ActiveFilters facets={facets} />

@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type RefObject, useEffect, useState } from "react";
 
 const MOBILE_QUERY = "(max-width: 799px)";
 const SCROLL_THRESHOLD = 8;
 
 /** Returns true while the user scrolls down on mobile; false on scroll up, at the top, or on larger screens. */
-export function useHideOnScrollDown(disabled: boolean) {
+export function useHideOnScrollDown(
+  disabled: boolean,
+  scopeRef: RefObject<HTMLElement | null>,
+) {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
@@ -20,6 +23,16 @@ export function useHideOnScrollDown(disabled: boolean) {
       if (!mql.matches || y <= SCROLL_THRESHOLD) {
         setHidden(false);
       } else if (y - lastY > SCROLL_THRESHOLD) {
+        // Keep visible while a field inside the scope has focus (e.g. typing with the keyboard open)
+        const active = document.activeElement;
+        if (
+          active &&
+          scopeRef.current?.contains(active) &&
+          active.matches("input, textarea, select")
+        ) {
+          lastY = y;
+          return;
+        }
         setHidden(true);
       } else if (lastY - y > SCROLL_THRESHOLD) {
         setHidden(false);
@@ -44,7 +57,7 @@ export function useHideOnScrollDown(disabled: boolean) {
       mql.removeEventListener("change", onChange);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [scopeRef]);
 
   return hidden && !disabled;
 }
