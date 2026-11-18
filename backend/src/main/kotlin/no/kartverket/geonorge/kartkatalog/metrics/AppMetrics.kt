@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.metrics
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.core.instrument.Timer
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlin.coroutines.cancellation.CancellationException
 
 // Meters are registered on Micrometer's global registry. The Prometheus registry is attached to it in
@@ -30,7 +31,8 @@ suspend fun <T> observeUpstream(
         outcome = if (failed(result)) OUTCOME_ERROR else OUTCOME_SUCCESS
         return result
     } catch (e: CancellationException) {
-        outcome = OUTCOME_CANCELLED
+        // A timeout is an upstream failure, not a caller cancellation.
+        outcome = if (e is TimeoutCancellationException) OUTCOME_ERROR else OUTCOME_CANCELLED
         throw e
     } finally {
         sample.stop(

@@ -103,7 +103,7 @@ class DownloadApiClient(
 
     suspend fun checkAvailability(url: String): DownloadAvailability =
         try {
-            observeUpstream(UPSTREAM, "availability") {
+            observeUpstream(UPSTREAM, "availability", failed = { it == DownloadAvailability.UNKNOWN }) {
                 withTimeout(3.seconds) {
                     httpClient.prepareGet(url).execute { response ->
                         when {
