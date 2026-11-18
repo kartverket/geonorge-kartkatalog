@@ -10,6 +10,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
+import no.kartverket.geonorge.kartkatalog.metrics.observeUpstream
 import org.slf4j.LoggerFactory
 import java.net.URLEncoder.encode
 import kotlin.text.Charsets.UTF_8
@@ -36,23 +37,23 @@ class RegisterClient(
     private val log = LoggerFactory.getLogger(RegisterClient::class.java)
 
     suspend fun getCodeList(codeList: CodeList): RegisterCodeListResponse =
-        fetch("/api/kodelister/${codeList.systemId}", RegisterCodeListResponse.serializer())
+        fetch("code_list", "/api/kodelister/${codeList.systemId}", RegisterCodeListResponse.serializer())
 
     suspend fun getCodeListByName(name: String): RegisterCodeListResponse =
-        fetch("/api/metadata-kodelister/$name", RegisterCodeListResponse.serializer())
+        fetch("metadata_code_list", "/api/metadata-kodelister/$name", RegisterCodeListResponse.serializer())
 
     suspend fun getSosiCodeList(path: String): RegisterCodeListResponse =
-        fetch("/api/sosi-kodelister/$path", RegisterCodeListResponse.serializer())
+        fetch("sosi_code_list", "/api/sosi-kodelister/$path", RegisterCodeListResponse.serializer())
 
     suspend fun getSubRegister(registerName: String): RegisterSubRegisterResponse =
-        fetch("/api/subregister/$registerName", RegisterSubRegisterResponse.serializer())
+        fetch("sub_register", "/api/subregister/$registerName", RegisterSubRegisterResponse.serializer())
 
     suspend fun getOrganizations(): RegisterOrganizationsResponse =
-        fetch("/api/register/organisasjoner", RegisterOrganizationsResponse.serializer())
+        fetch("organizations", "/api/register/organisasjoner", RegisterOrganizationsResponse.serializer())
 
     suspend fun getTegneregler(seoname: String): RegisterTegnereglerItem? {
         val path = "/api/tegneregler/${encode(seoname, UTF_8)}"
-        val response = getResponse(path)
+        val response = getResponse(path, "tegneregler")
 
         return when {
             response.status == HttpStatusCode.NotFound -> {
@@ -75,7 +76,7 @@ class RegisterClient(
 
     suspend fun getProduktark(seoname: String): RegisterProduktarkItem? {
         val path = "/api/produktark/${encode(seoname, UTF_8)}"
-        val response = getResponse(path)
+        val response = getResponse(path, "produktark")
 
         return when {
             response.status == HttpStatusCode.NotFound -> {
@@ -98,7 +99,7 @@ class RegisterClient(
 
     suspend fun getProduktspesifikasjon(seoname: String): RegisterProduktspesifikasjonItem? {
         val path = "/api/produktspesifikasjoner/${encode(seoname, UTF_8)}"
-        val response = getResponse(path)
+        val response = getResponse(path, "produktspesifikasjon")
 
         return when {
             response.status == HttpStatusCode.NotFound -> {
@@ -124,10 +125,11 @@ class RegisterClient(
     }
 
     private suspend fun <T> fetch(
+        operation: String,
         path: String,
         deserializer: DeserializationStrategy<T>,
     ): T {
-        val response = getResponse(path)
+        val response = getResponse(path, operation)
 
         if (!response.status.isSuccess()) {
             log.warn("Register request to {} failed with status: {}", path, response.status)
@@ -142,10 +144,16 @@ class RegisterClient(
         }
     }
 
-    private suspend fun getResponse(path: String): HttpResponse =
+    private suspend fun getResponse(
+        path: String,
+        operation: String,
+    ): HttpResponse =
         try {
-            httpClient.get("$baseUrl$path") {
-                headers { append(HttpHeaders.AcceptLanguage, "no") }
+            // 4xx is not counted as an error: Register answers 404 for unknown items, which callers treat as absent.
+            observeUpstream("register", operation, failed = { it.status.value >= 500 }) {
+                httpClient.get("$baseUrl$path") {
+                    headers { append(HttpHeaders.AcceptLanguage, "no") }
+                }
             }
         } catch (e: Exception) {
             throw RegisterException("Register request to $path failed", e)

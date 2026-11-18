@@ -8,6 +8,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.metrics.observeUpstream
 
 class GeonetworkClient(
     private val httpClient: HttpClient,
@@ -15,7 +16,10 @@ class GeonetworkClient(
 ) {
     private val cswUrl: String = "$baseUrl/srv/nor/csw"
 
-    suspend fun getRecordByUuid(uuid: String): MetadataRecord? {
+    suspend fun getRecordByUuid(uuid: String): MetadataRecord? =
+        observeUpstream("geonetwork", "get_record_by_id") { fetchRecord(uuid) }
+
+    private suspend fun fetchRecord(uuid: String): MetadataRecord? {
         val requestXml = buildGetRecordByIdRequest(uuid)
 
         val responseXml =

@@ -18,6 +18,7 @@ import io.ktor.http.isSuccess
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import no.kartverket.geonorge.kartkatalog.metrics.observeUpstream
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.URISyntaxException
@@ -53,7 +54,7 @@ class DownloadApiClient(
     }
 
     private suspend fun fetchCapabilities(url: String): DownloadApiCapabilities {
-        val response = getResponse(url)
+        val response = getResponse(url, "capabilities")
 
         if (!response.status.isSuccess()) {
             log.warn("Nedlasting request to {} failed with status: {}", url, response.status)
@@ -70,7 +71,7 @@ class DownloadApiClient(
 
     suspend fun getAreas(url: String): List<DownloadApiAreaCodelistEntry> {
         val validatedUrl = parseHttpUrl(url, "area")
-        val response = getResponse(validatedUrl.toString())
+        val response = getResponse(validatedUrl.toString(), "areas")
 
         if (!response.status.isSuccess()) {
             log.warn("Nedlasting request to {} failed with status: {}", url, response.status)
@@ -84,9 +85,12 @@ class DownloadApiClient(
         }
     }
 
-    private suspend fun getResponse(url: String): HttpResponse =
+    private suspend fun getResponse(
+        url: String,
+        operation: String,
+    ): HttpResponse =
         try {
-            httpClient.get(url)
+            observeUpstream(UPSTREAM, operation, failed = { it.status.value >= 500 }) { httpClient.get(url) }
         } catch (e: Exception) {
             throw DownloadApiException("Download API request to $url failed", e)
         }
@@ -99,13 +103,15 @@ class DownloadApiClient(
 
     suspend fun checkAvailability(url: String): DownloadAvailability =
         try {
-            withTimeout(3.seconds) {
-                httpClient.prepareGet(url).execute { response ->
-                    when {
-                        response.status.isSuccess() -> DownloadAvailability.AVAILABLE
-                        response.status == HttpStatusCode.NotFound ||
-                            response.status == HttpStatusCode.Gone -> DownloadAvailability.CONFIRMED_UNAVAILABLE
-                        else -> DownloadAvailability.UNKNOWN
+            observeUpstream(UPSTREAM, "availability") {
+                withTimeout(3.seconds) {
+                    httpClient.prepareGet(url).execute { response ->
+                        when {
+                            response.status.isSuccess() -> DownloadAvailability.AVAILABLE
+                            response.status == HttpStatusCode.NotFound ||
+                                response.status == HttpStatusCode.Gone -> DownloadAvailability.CONFIRMED_UNAVAILABLE
+                            else -> DownloadAvailability.UNKNOWN
+                        }
                     }
                 }
             }
@@ -127,10 +133,12 @@ class DownloadApiClient(
 
         val response =
             try {
-                httpClient.post(requestUrl) {
-                    geoIdAccessToken?.let { bearerAuth(it) }
-                    contentType(ContentType.Application.Json)
-                    setBody(json.encodeToString(DownloadApiOrderRequest.serializer(), request))
+                observeUpstream(UPSTREAM, "order", failed = { it.status.value >= 500 }) {
+                    httpClient.post(requestUrl) {
+                        geoIdAccessToken?.let { bearerAuth(it) }
+                        contentType(ContentType.Application.Json)
+                        setBody(json.encodeToString(DownloadApiOrderRequest.serializer(), request))
+                    }
                 }
             } catch (e: Exception) {
                 throw DownloadApiException("Download API order request to $requestUrl failed", e)
@@ -155,6 +163,10 @@ class DownloadApiClient(
         } catch (e: Exception) {
             throw DownloadApiException("Failed to parse download API order response from $requestUrl", e)
         }
+    }
+
+    private companion object {
+        const val UPSTREAM = "download_api"
     }
 
     private fun parseHttpUrl(

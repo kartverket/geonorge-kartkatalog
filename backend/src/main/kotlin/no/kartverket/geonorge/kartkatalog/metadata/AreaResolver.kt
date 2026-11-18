@@ -8,7 +8,7 @@ class AreaResolver(
     private val registerClient: RegisterClient,
 ) {
     private val log = LoggerFactory.getLogger(AreaResolver::class.java)
-    private val cache = TimedCache<String, Map<String, String>>(ttlMillis = 24 * 60 * 60 * 1000)
+    private val cache = TimedCache<String, Map<String, String>>("areas", ttlMillis = 24 * 60 * 60 * 1000)
 
     suspend fun getFylkeNames(): Map<String, String>? =
         cache.getOrFetch("fylkesnummer") {
