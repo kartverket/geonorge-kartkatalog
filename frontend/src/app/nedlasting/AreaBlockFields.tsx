@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Field, Label, Tag } from "@kv-designsystem/react";
+import { Button, Field, Label, Paragraph, Tag } from "@kv-designsystem/react";
 import { XMarkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import styles from "./DownloadOptionsForm.module.css";
@@ -9,6 +9,8 @@ import type {
   DownloadAreaBlock,
   DownloadAreaBlockAvailability,
 } from "./downloadUtils";
+import { GridSelectDialog } from "./GridSelectDialog";
+import { isSupportedGridLayer } from "./gridLayers";
 import { MultiSuggestion } from "./MultiSuggestion";
 import { SingleSuggestion } from "./SingleSuggestion";
 
@@ -20,6 +22,7 @@ type AreaBlockFieldsProps = {
   canRemove: boolean;
   onChangeAreaAction: (areaCode: string | null) => void;
   onChangePolygonAction: (polygon: string | null) => void;
+  onChangeGridCellsAction?: (gridCellCodes: string[]) => void;
   onChangeProjectionsAction: (projectionCodes: string[]) => void;
   onChangeFormatsAction: (formatNames: string[]) => void;
   onRemoveAction: () => void;
@@ -33,19 +36,37 @@ export function AreaBlockFields({
   canRemove,
   onChangeAreaAction,
   onChangePolygonAction,
+  onChangeGridCellsAction,
   onChangeProjectionsAction,
   onChangeFormatsAction,
   onRemoveAction,
 }: AreaBlockFieldsProps) {
   const [isDrawingArea, setIsDrawingArea] = useState(false);
+  const [isSelectingGrid, setIsSelectingGrid] = useState(false);
 
   const areaOptions = availability.areaOptions.filter(
     (option) =>
       option.area.code === block.areaCode ||
+      block.gridCellCodes.includes(option.area.code) ||
       !excludedAreaCodes.includes(option.area.code),
   );
 
-  const hasArea = Boolean(block.areaCode || block.polygon);
+  const hasArea = Boolean(
+    block.areaCode || block.polygon || block.gridCellCodes.length > 0,
+  );
+
+  // Rutenett støttes bare per datasett, ikke i fellesvalg, så feltet for
+  // flere ruter vises kun når datasettet har rutenett og en handler er gitt
+  const onChangeGridCells = availability.gridSelectionLayer
+    ? onChangeGridCellsAction
+    : undefined;
+  // Kartet kan bare vises når vi har rutenettfilen for laget
+  const gridMapLayer =
+    onChangeGridCells &&
+    availability.gridSelectionLayer &&
+    isSupportedGridLayer(availability.gridSelectionLayer)
+      ? availability.gridSelectionLayer
+      : null;
 
   return (
     <div className={styles.areaBlock}>
@@ -83,6 +104,27 @@ export function AreaBlockFields({
                 Fjern
               </Button>
             </div>
+          ) : onChangeGridCells ? (
+            <>
+              <MultiSuggestion
+                selectedValues={block.gridCellCodes}
+                onChangeAction={onChangeGridCells}
+                options={areaOptions.map((option) => ({
+                  label: option.area.name,
+                  value: option.area.code,
+                }))}
+                placeholder="Velg en eller flere ruter"
+                noOptionsLabel="Ingen ruter tilgjengelig"
+                isOrdering={isOrdering}
+              />
+              {block.gridCellCodes.length > 0 ? (
+                <Paragraph data-size="sm">
+                  {block.gridCellCodes.length === 1
+                    ? "1 rute valgt"
+                    : `${block.gridCellCodes.length} ruter valgt`}
+                </Paragraph>
+              ) : null}
+            </>
           ) : (
             <SingleSuggestion
               selectedValue={block.areaCode}
@@ -102,8 +144,10 @@ export function AreaBlockFields({
               type="button"
               variant="secondary"
               data-size="sm"
-              disabled={!availability.supportsPolygonSelection}
-              onClick={() => setIsDrawingArea(true)}
+              disabled={!availability.supportsPolygonSelection && !gridMapLayer}
+              onClick={() =>
+                gridMapLayer ? setIsSelectingGrid(true) : setIsDrawingArea(true)
+              }
             >
               Velg fra kart
             </Button>
@@ -171,6 +215,18 @@ export function AreaBlockFields({
           setIsDrawingArea(false);
         }}
       />
+      {isSelectingGrid && gridMapLayer && onChangeGridCells ? (
+        <GridSelectDialog
+          layerName={gridMapLayer}
+          availableCodes={areaOptions.map((option) => option.area.code)}
+          selectedCodes={block.gridCellCodes}
+          onCloseAction={() => setIsSelectingGrid(false)}
+          onConfirmAction={(codes) => {
+            onChangeGridCells(codes);
+            setIsSelectingGrid(false);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

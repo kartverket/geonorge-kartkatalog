@@ -18,6 +18,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordG
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
 import kotlin.test.Test
@@ -179,7 +180,39 @@ class MetadataMapperTest {
             assertEquals(1, requestCount)
         }
 
+    @Test
+    fun `maps reference systems to register title by link, falling back to code`() =
+        runBlocking {
+            val mapper =
+                MetadataMapper(
+                    createTranslator(
+                        responseContent =
+                            """
+                            {"containeditems": [
+                              {"label": "EUREF89 UTM33", "documentreference": "http://www.opengis.net/def/crs/EPSG/0/25833"}
+                            ]}
+                            """.trimIndent(),
+                    ),
+                    staticNorgeskartUrl = staticNorgeskartUrl,
+                )
+            val record =
+                minimalRecord(
+                    referenceSystems =
+                        listOf(
+                            ReferenceSystem("EPSG:25833", "http://www.opengis.net/def/crs/EPSG/0/25833"),
+                            ReferenceSystem("EPSG:9999", null),
+                        ),
+                )
+
+            val mapped = mapper.toProductMetadata(record).referenceSystems
+
+            assertEquals("EUREF89 UTM33", mapped[0].title)
+            assertEquals(null, mapped[1].title)
+            assertEquals("EPSG:9999", mapped[1].code)
+        }
+
     private fun minimalRecord(
+        referenceSystems: List<ReferenceSystem> = emptyList(),
         legalConstraints: LegalConstraints? = null,
         distributionInfo: DistributionInfo? = null,
         keywordGroups: List<KeywordGroup> = emptyList(),
@@ -194,6 +227,7 @@ class MetadataMapperTest {
             legalConstraints = legalConstraints,
             distributionInfo = distributionInfo,
             keywordGroups = keywordGroups,
+            referenceSystems = referenceSystems,
         )
 
     private fun createTranslator(

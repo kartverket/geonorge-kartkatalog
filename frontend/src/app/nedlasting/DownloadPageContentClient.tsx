@@ -14,10 +14,7 @@ import {
 import { ArrowLeftIcon, ArrowRightIcon, TrashIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import { type SubmitEventHandler, useEffect, useRef, useState } from "react";
-import {
-  clearDownloads,
-  removeItemsFromDownloads,
-} from "@/app/_components/addToDownloads/downloadStorage";
+import { clearDownloads } from "@/app/_components/addToDownloads/downloadStorage";
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import {
   appendBulkAreaBlocks,
@@ -34,7 +31,7 @@ import {
   type DownloadInsightGroups,
   DownloadOrderEmailSchema,
 } from "@/lib/schemas/download";
-import { LOCATIONS, trackEvent } from "@/posthog/posthog";
+import { LOCATIONS, trackClick, trackEvent } from "@/posthog/posthog";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
@@ -69,7 +66,7 @@ export function DownloadPageContentClient({
       capabilitiesUrl: card.distributionUrl,
     })),
   );
-  const { isOrdering, orderError, orderResult, submitOrder } =
+  const { isOrdering, orderError, orderResult, submitOrder, resetOrder } =
     useDownloadOrder();
 
   const [selections, setSelections] = usePersistedDownloadSelections();
@@ -89,6 +86,16 @@ export function DownloadPageContentClient({
     window.scrollTo(0, 0);
     headingRef.current?.focus({ preventScroll: true });
   }, [step]);
+
+  // Hvis brukeren har lagt nye datasett i kurven mens vi fortsatt viser
+  // oppsummeringen fra forrige bestilling (f.eks. etter å ha navigert bort
+  // og tilbake uten full sidelasting), gå tilbake til bestillingssteget.
+  useEffect(() => {
+    if (step === "last-ned" && selectedDownloadUuids.length > 0) {
+      setStep("bestilling");
+      resetOrder();
+    }
+  }, [step, selectedDownloadUuids, resetOrder]);
 
   const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
   const [orderEmailProvided, setOrderEmailProvided] = useState(false);
@@ -133,7 +140,10 @@ export function DownloadPageContentClient({
       const existing = selections[card.uuid];
       return (
         existing?.areaBlocks.some(
-          (block) => block.areaCode !== null || block.polygon !== null,
+          (block) =>
+            block.areaCode !== null ||
+            block.polygon !== null ||
+            block.gridCellCodes.length > 0,
         ) ?? false
       );
     });
@@ -234,6 +244,7 @@ export function DownloadPageContentClient({
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
+    trackClick("download-order", LOCATIONS.DownloadPage, { canOrder });
     if (!canOrder) {
       return;
     }
@@ -250,6 +261,7 @@ export function DownloadPageContentClient({
       authState.status === "authenticated" ? authState.provider : null,
     ).then((result) => {
       if (!result) return;
+      if (result.orders.every((order) => order.status === "failed")) return;
 
       const files = result.orders.flatMap((order) =>
         order.status === "ordered" ? order.files : [],
@@ -267,34 +279,13 @@ export function DownloadPageContentClient({
         ).length,
       });
 
+      clearDownloads();
+      setSelections({});
       setStep("last-ned");
       setOrderedCards(cards);
       setOrderEmailProvided(requiresEmail && Boolean(email.trim()));
     });
   };
-
-  function handleProductDownloaded(uuid: string) {
-    const card = orderedCards.find((c) => c.uuid === uuid);
-    if (!card) return;
-
-    removeItemsFromDownloads([
-      {
-        accessType: card.accessState,
-        distributionUrl: card.distributionUrl,
-        name: card.title,
-        organizationName: card.organization,
-        uuid: card.uuid,
-      },
-    ]);
-
-    setSelections((current) => {
-      const next: Record<string, DownloadSelection> = {};
-      for (const key of Object.keys(current)) {
-        if (key !== uuid) next[key] = current[key];
-      }
-      return next;
-    });
-  }
 
   function handleStartNewOrder() {
     clearDownloads();
@@ -316,6 +307,24 @@ export function DownloadPageContentClient({
         ),
     ),
   );
+
+  const failedOrderMessages =
+    orderResult?.orders
+      .filter((order) => order.status === "failed")
+      .map((order) => (
+        <Paragraph
+          key={`failed-${order.metadataUuids.join("-")}`}
+          aria-live="polite"
+        >
+          Kunne ikke bestille{" "}
+          {order.metadataUuids
+            .map(
+              (uuid) => cards.find((card) => card.uuid === uuid)?.title ?? uuid,
+            )
+            .join(", ")}
+          : {order.message ?? "Ukjent feil"}. Du kan prøve på nytt.
+        </Paragraph>
+      )) ?? [];
 
   return (
     <>
@@ -500,6 +509,7 @@ export function DownloadPageContentClient({
                 {orderError ? (
                   <Paragraph aria-live="polite">{orderError}</Paragraph>
                 ) : null}
+                {failedOrderMessages}
                 {authState.status === "error" ? (
                   <Paragraph aria-live="polite">
                     Kunne ikke bekrefte innloggingen. Prøv å laste siden på
@@ -515,28 +525,10 @@ export function DownloadPageContentClient({
           <section className={styles.orderSection}>
             {orderResult ? (
               <>
-                {orderResult.orders
-                  .filter((order) => order.status === "failed")
-                  .map((order) => (
-                    <Paragraph
-                      key={`failed-${order.metadataUuids.join("-")}`}
-                      aria-live="polite"
-                    >
-                      Kunne ikke bestille{" "}
-                      {order.metadataUuids
-                        .map(
-                          (uuid) =>
-                            cards.find((card) => card.uuid === uuid)?.title ??
-                            uuid,
-                        )
-                        .join(", ")}
-                      : {order.message ?? "Ukjent feil"}. Du kan prøve på nytt.
-                    </Paragraph>
-                  ))}
+                {failedOrderMessages}
                 <DownloadOrderSummary
                   orderResult={orderResult}
                   cards={orderedCards}
-                  onProductDownloaded={handleProductDownloaded}
                 />
               </>
             ) : null}

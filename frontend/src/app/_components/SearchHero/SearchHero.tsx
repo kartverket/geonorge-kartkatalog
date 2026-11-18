@@ -59,6 +59,7 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
                   value={searchText}
                   onChange={(event) => setSearchText(event.target.value)}
                   type="search"
+                  autoComplete="off"
                 />
                 <Search.Clear
                   onClick={() => {

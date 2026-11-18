@@ -81,6 +81,32 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
     }
 
     /**
+     * Legacy-compatible list of datasets in a namespace (used by Register to sync namespace datasets).
+     * Searches resourceReferenceCodespace in the metadata core. Only the fields Register reads are returned.
+     *
+     * Query: namespace [String] The namespace (resourceReferenceCodespace) to list datasets for.
+     * Query: limit [Int] Maximum number of results (default 10).
+     * Query: offset [Int] One-based result offset (default 0, treated as 1).
+     * Response: 200 application/json Results with Uuid, Title, Organization and DatasetName per dataset.
+     * Response: 204 The request failed or namespace is missing (legacy returns no body on errors).
+     */
+    get("/api/datasets-namespace") {
+        val params = call.request.queryParameters
+        val limit = params["limit"]?.toIntOrNull() ?: DEFAULT_NAMESPACE_LIMIT
+        val offset = params["offset"]?.toIntOrNull() ?: 0
+        try {
+            // Legacy throws on a missing namespace, which is caught and returned as null (204).
+            val namespace = requireNotNull(params["namespace"]) { "namespace is required" }
+            call.respondSearchJson(service.namespaceDatasets(namespace, limit, offset))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            LoggerFactory.getLogger("LegacySearchRoutes").error("datasets-namespace failed", e)
+            call.respondText("", status = HttpStatusCode.NoContent)
+        }
+    }
+
+    /**
      * Legacy-compatible single metadata lookup (used by MetadataEditor and Geonorge.ApiServices to check that
      * a record exists in the catalogue). Reads the metadata_all core and returns one flat item.
      *
@@ -104,5 +130,19 @@ fun Route.legacySearchRoutes(service: LegacySearchService) {
             LoggerFactory.getLogger("LegacySearchRoutes").error("api/metadata/{uuid} failed", e)
             call.respondText("", status = HttpStatusCode.NoContent)
         }
+    }
+
+    /**
+     * Legacy-compatible check of whether a dataset name (resourceReferenceCodeName) is already used by another
+     * metadata record (used by MetadataEditor). The name is unique across namespaces.
+     *
+     * Query: datasetName [String] The dataset name to check. If missing, nothing can match and IsValid is true.
+     * Query: uuid [String] The record being edited; excluded from the check. If missing, IsValid is false.
+     * Query: namespace [String] Currently ignored, as in legacy.
+     * Response: 200 application/json IsValid, and Result (the conflicting uuid, or an error message when IsValid=false).
+     */
+    get("/api/valid-dataset-name") {
+        val params = call.request.queryParameters
+        call.respondSearchJson(service.validDatasetName(params["datasetName"], params["uuid"]))
     }
 }

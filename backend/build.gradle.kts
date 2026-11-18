@@ -41,6 +41,7 @@ tasks.test {
 dependencies {
     implementation(ktorLibs.server.auth.oidc)
     implementation(ktorLibs.server.callLogging)
+    implementation(ktorLibs.server.callId)
     implementation(ktorLibs.server.contentNegotiation)
     implementation(ktorLibs.server.core)
     implementation(ktorLibs.server.cors)
@@ -59,7 +60,7 @@ dependencies {
     implementation(ktorLibs.serialization.kotlinx.json)
 
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
-    implementation("com.google.genai:google-genai:1.80.0")
+    implementation("com.google.genai:google-genai:2.0.0")
 
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)
@@ -67,5 +68,5 @@ dependencies {
 
     // INFO: Guide gradle to use jackson 2.22.3 (up from 2.22.0 in our case) to mitigate CVE's
     // Jackson 2.22.0 was imported by auth.oidc. This line should be removed if auth.oidc updates to a secure version of jackson.
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.22.4"))
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.23.0"))
 }

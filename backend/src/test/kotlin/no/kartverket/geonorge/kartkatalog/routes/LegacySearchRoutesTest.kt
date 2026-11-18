@@ -687,4 +687,126 @@ class LegacySearchRoutesTest {
             assertEquals(HttpStatusCode.OK, response.status)
             assertFalse("Uuid" in Json.parseToJsonElement(response.bodyAsText()).jsonObject)
         }
+
+    @Test
+    fun `datasets-namespace queries resourceReferenceCodespace and returns the results`() =
+        testApplication {
+            simpleApp(
+                upstream(
+                    solrBody =
+                        solrResponse.replace(
+                            "\"type\":\"dataset\"",
+                            "\"type\":\"dataset\",\"resourceReferenceCodeName\":\"N50\"",
+                        ),
+                ),
+            )
+
+            val response = client.get("/api/datasets-namespace?namespace=http://skjema.test/N50&limit=2000")
+            val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertTrue("/solr/metadata/select" in paths)
+            val form = searchForms.single()
+            assertContains(form, "resourceReferenceCodespace:http\\:\\/\\/skjema.test\\/N50")
+            assertContains(form, "rows=[2000]")
+            assertContains(form, "start=[0]")
+            assertEquals(setOf("Results"), json.keys)
+            val result =
+                json
+                    .getValue("Results")
+                    .jsonArray
+                    .first()
+                    .jsonObject
+            assertEquals("test-uuid", result.getValue("Uuid").jsonPrimitive.content)
+            assertEquals("Kartverket", result.getValue("Organization").jsonPrimitive.content)
+            assertEquals("N50", result.getValue("DatasetName").jsonPrimitive.content)
+            assertEquals(setOf("Uuid", "Title", "Organization", "DatasetName"), result.keys)
+        }
+
+    @Test
+    fun `datasets-namespace uses default limit and a one-based offset`() =
+        testApplication {
+            simpleApp(upstream())
+
+            client.get("/api/datasets-namespace?namespace=ns&offset=11")
+            val form = searchForms.single()
+            assertContains(form, "rows=[10]")
+            assertContains(form, "start=[10]")
+        }
+
+    @Test
+    fun `datasets-namespace without namespace returns 204 without querying Solr`() =
+        testApplication {
+            simpleApp(upstream())
+
+            val response = client.get("/api/datasets-namespace")
+            assertEquals(HttpStatusCode.NoContent, response.status)
+            assertEquals("", response.bodyAsText())
+            assertTrue(searchForms.isEmpty())
+        }
+
+    @Test
+    fun `datasets-namespace returns 204 on a Solr failure`() =
+        testApplication {
+            simpleApp(upstream(solrError = true))
+
+            val response = client.get("/api/datasets-namespace?namespace=ns")
+            assertEquals(HttpStatusCode.NoContent, response.status)
+            assertEquals("", response.bodyAsText())
+        }
+
+    private val noHits = """{"responseHeader":{"status":0,"QTime":1},"response":{"numFound":0,"start":0,"docs":[]}}"""
+
+    @Test
+    fun `valid-dataset-name is invalid with the other uuid when the name is used by another record`() =
+        testApplication {
+            simpleApp(upstream(solrBody = solrResponse))
+
+            val response = client.get("/api/valid-dataset-name?namespace=http://ns&datasetName=N50&uuid=my-uuid")
+            val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals("false", json.getValue("IsValid").jsonPrimitive.content)
+            assertEquals("test-uuid", json.getValue("Result").jsonPrimitive.content)
+            assertTrue("/solr/metadata/select" in paths)
+            val form = searchForms.single()
+            assertContains(form, "resourceReferenceCodeName:\"N50\" AND -uuid:\"my\\-uuid\"")
+        }
+
+    @Test
+    fun `valid-dataset-name is valid without Result when there is no hit and namespace is ignored`() =
+        testApplication {
+            simpleApp(upstream(solrBody = noHits))
+
+            val response = client.get("/api/valid-dataset-name?datasetName=N50&uuid=my-uuid")
+            assertEquals("""{"IsValid":true}""", response.bodyAsText())
+        }
+
+    @Test
+    fun `valid-dataset-name without uuid is invalid and does not query Solr`() =
+        testApplication {
+            simpleApp(upstream(solrBody = noHits))
+
+            val response = client.get("/api/valid-dataset-name?datasetName=N50")
+            assertEquals("""{"IsValid":false}""", response.bodyAsText())
+            assertTrue(searchForms.isEmpty())
+        }
+
+    @Test
+    fun `valid-dataset-name without datasetName is valid`() =
+        testApplication {
+            simpleApp(upstream(solrBody = noHits))
+
+            val response = client.get("/api/valid-dataset-name?uuid=my-uuid")
+            assertEquals("""{"IsValid":true}""", response.bodyAsText())
+            assertTrue(searchForms.isEmpty())
+        }
+
+    @Test
+    fun `valid-dataset-name reports a Solr failure as invalid with 200`() =
+        testApplication {
+            simpleApp(upstream(solrError = true))
+
+            val response = client.get("/api/valid-dataset-name?datasetName=N50&uuid=my-uuid")
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals("""{"IsValid":false,"Result":"Validation failed"}""", response.bodyAsText())
+        }
 }

@@ -16,6 +16,7 @@ Here's a list of features included in this project:
 |-----------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
 | [Content Negotiation](https://start.ktor.io/p/io.ktor/server-content-negotiation) | Provides automatic content conversion according to Content-Type and Accept headers |
 | [Call Logging](https://start.ktor.io/p/io.ktor/server-call-logging)               | Logs client requests                                                               |
+| [Call ID](https://start.ktor.io/p/io.ktor/server-call-id)                         | Assigns a request id to each call for log correlation                              |
 | [Status Pages](https://start.ktor.io/p/io.ktor/server-status-pages)               | Provides exception handling for routes                                             |
 | [CORS](https://start.ktor.io/p/io.ktor/server-cors)                               | Enables Cross-Origin Resource Sharing (CORS)                                       |
 
@@ -32,9 +33,17 @@ To build or run the project, use one of the following tasks:
 If the server starts successfully, you'll see the following output:
 
 ```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
+2024-12-04 14:32:45.584 [main] [] INFO  Application - Application started in 0.303 seconds.
+2024-12-04 14:32:45.682 [main] [] INFO  Application - Responding at http://0.0.0.0:8080
 ```
+
+## Request logging
+
+Each request is logged once on completion (status, method, path and duration; query strings are not logged). The health check route `/` is excluded.
+
+Every request gets a request id, shown as `[callId]` in all log lines written while the request is handled, so log lines from the same request can be correlated. The id is read from the `X-Request-Id` request header, or generated as a UUID if the header is missing or invalid (only `a-z`, `A-Z`, `0-9` and `-`, at most 64 characters, to prevent log injection). It is returned in the `X-Request-Id` response header.
+
+## API documentation
 
 API documentation is generated from the route definitions and available at `http://localhost:8080/swagger`. The OpenAPI JSON document is served at `http://localhost:8080/swagger/openapi.json`. Route documentation is written as KDoc comments above each route (see [Ktor's OpenAPI docs](https://ktor.io/docs/openapi-spec-generation.html#comment-annotations)). Code inference is disabled, so request bodies, responses and parameters must be documented explicitly and kept in sync with the handlers.
 

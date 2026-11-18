@@ -187,7 +187,6 @@ import type { Route } from "next";
 
 Use **[@navikt/aksel-icons](https://aksel.nav.no/ikoner)** for all icons. It's already installed as a transitive dependency of the design system.
 
-
 ## Further reading
 
 - [Kartverket Designsystem](https://design.kartverket.no/?path=/docs/kom-i-gang-som-utvikler--docs)

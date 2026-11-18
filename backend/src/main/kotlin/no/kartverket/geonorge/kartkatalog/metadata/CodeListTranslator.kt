@@ -49,6 +49,7 @@ class CodeListTranslator(
                 codeValue,
                 ignoreCase = true,
             ) ||
+                item.documentReference.equals(codeValue, ignoreCase = true) ||
                 item.label.equals(codeValue, ignoreCase = true)
         }
     }

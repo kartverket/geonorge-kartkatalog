@@ -23,7 +23,13 @@ import {
 
 const EMPTY_BULK_SELECTION: DownloadSelection = {
   areaBlocks: [
-    { areaCode: null, polygon: null, projectionCodes: [], formatNames: [] },
+    {
+      areaCode: null,
+      polygon: null,
+      gridCellCodes: [],
+      projectionCodes: [],
+      formatNames: [],
+    },
   ],
 };
 

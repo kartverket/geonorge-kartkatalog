@@ -1,274 +1,26 @@
-"use client";
-
-import { Button, Card, Heading, Tag } from "@kv-designsystem/react";
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  DownloadIcon,
-} from "@navikt/aksel-icons";
-import { useId, useState } from "react";
-import {
-  AccessStateTag,
-  type AccessTagContext,
-} from "@/components/AccessStateTag/AccessStateTag";
+import { Heading } from "@kv-designsystem/react";
 import type { DownloadOrderResult } from "@/lib/schemas/download";
-import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./DownloadOrderSummary.module.css";
+import { filterProducts, groupOrderedProducts } from "./downloadOrderGrouping";
 import type { DownloadCard } from "./downloadUtils";
-
-const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
-  Tjeneste: "tjeneste",
-  Tjenestelag: "tjenestelag",
-  Applikasjon: "applikasjon",
-  Datasettserie: "datasettserie",
-};
-
-type GroupedFormat = {
-  key: string;
-  label: string;
-  downloadUrl: string | null;
-  isReady: boolean;
-  isFailed: boolean;
-};
-
-type GroupedProjection = {
-  projectionName: string;
-  formats: GroupedFormat[];
-};
-
-type GroupedArea = {
-  areaName: string;
-  projections: GroupedProjection[];
-};
-
-type GroupedProduct = {
-  uuid: string;
-  title: string;
-  organization: string | null;
-  typeTranslated: string | null;
-  accessState: DownloadCard["accessState"];
-  hasReadyFiles: boolean;
-  hasProcessingFiles: boolean;
-  areas: GroupedArea[];
-};
-
-function groupOrderedProducts(
-  orderResult: DownloadOrderResult,
-  cards: DownloadCard[],
-): GroupedProduct[] {
-  const files = orderResult.orders.flatMap((order) =>
-    order.status === "ordered" ? order.files : [],
-  );
-
-  const filesByUuid = new Map<string, typeof files>();
-  for (const file of files) {
-    if (!file.metadataUuid) continue;
-    const existing = filesByUuid.get(file.metadataUuid);
-    if (existing) {
-      existing.push(file);
-    } else {
-      filesByUuid.set(file.metadataUuid, [file]);
-    }
-  }
-
-  return Array.from(filesByUuid.entries()).map(([uuid, productFiles]) => {
-    const card = cards.find((c) => c.uuid === uuid);
-    const hasReadyFiles = productFiles.some(
-      (file) => file.status === "ReadyForDownload",
-    );
-
-    const areaNames = Array.from(
-      new Set(productFiles.map((file) => file.areaName ?? "Ukjent område")),
-    );
-
-    const areas: GroupedArea[] = areaNames.map((areaName) => {
-      const areaFiles = productFiles.filter(
-        (file) => (file.areaName ?? "Ukjent område") === areaName,
-      );
-      const projectionNames = Array.from(
-        new Set(
-          areaFiles.map((file) => file.projectionName ?? "Ukjent projeksjon"),
-        ),
-      );
-
-      const projections: GroupedProjection[] = projectionNames.map(
-        (projectionName) => ({
-          projectionName,
-          formats: areaFiles
-            .filter(
-              (file) =>
-                (file.projectionName ?? "Ukjent projeksjon") === projectionName,
-            )
-            .map((file, index) => ({
-              key: `${file.metadataUuid}-${areaName}-${projectionName}-${index}`,
-              label: file.format ?? file.name ?? "Fil",
-              downloadUrl: file.downloadUrl ?? null,
-              isReady: file.status === "ReadyForDownload",
-              isFailed: file.status === "Failed",
-            })),
-        }),
-      );
-
-      return { areaName, projections };
-    });
-
-    const hasProcessingFiles = productFiles.some(
-      (file) => file.status !== "ReadyForDownload" && file.status !== "Failed",
-    );
-
-    return {
-      uuid,
-      title: card?.title ?? productFiles[0]?.metadataName ?? uuid,
-      organization: card?.organization ?? null,
-      typeTranslated: card?.typeTranslated ?? null,
-      accessState: card?.accessState ?? null,
-      hasReadyFiles,
-      hasProcessingFiles,
-      areas,
-    };
-  });
-}
-
-function ProductGroup({
-  product,
-  onProductDownloaded,
-}: {
-  product: GroupedProduct;
-  onProductDownloaded: (uuid: string) => void;
-}) {
-  const [expanded, setExpanded] = useState(true);
-  const detailsId = useId();
-  const accessContext =
-    TYPE_TO_ACCESS_CONTEXT[product.typeTranslated ?? ""] ?? "datasett";
-
-  return (
-    <Card className={styles.card}>
-      <div className={styles.header}>
-        <Button
-          variant="tertiary"
-          data-size="sm"
-          aria-expanded={expanded}
-          aria-controls={detailsId}
-          aria-label={expanded ? "Skjul detaljer" : "Vis detaljer"}
-          onClick={() => setExpanded((isExpanded) => !isExpanded)}
-        >
-          {expanded ? (
-            <ChevronUpIcon aria-hidden />
-          ) : (
-            <ChevronDownIcon aria-hidden />
-          )}
-        </Button>
-        <div className={styles.titleAndTags}>
-          <div className={styles.badgeRow}>
-            <AccessStateTag
-              accessState={product.accessState}
-              context={accessContext}
-            />
-            {product.typeTranslated ? (
-              <Tag data-color="neutral" data-size="sm">
-                {product.organization ?? product.typeTranslated}
-              </Tag>
-            ) : null}
-          </div>
-          <Heading level={3} data-size="xs">
-            {product.title}
-          </Heading>
-        </div>
-      </div>
-      {expanded ? (
-        <div id={detailsId} className={styles.areas}>
-          {product.areas.map((area) => (
-            <div key={area.areaName} className={styles.area}>
-              <Heading level={4} data-size="2xs">
-                {area.areaName}
-              </Heading>
-              <div className={styles.columnHeaderRow}>
-                <span>Projeksjon</span>
-                <span>Formater</span>
-              </div>
-              {area.projections.map((projection) => (
-                <div
-                  key={projection.projectionName}
-                  className={styles.projectionRow}
-                >
-                  <span className={styles.projectionName}>
-                    {projection.projectionName}
-                  </span>
-                  <div className={styles.formatButtons}>
-                    {projection.formats.map((format) => {
-                      if (format.isReady && format.downloadUrl) {
-                        return (
-                          <Button key={format.key} asChild variant="primary">
-                            <a
-                              className={styles.downloadLink}
-                              href={format.downloadUrl}
-                              target="_blank"
-                              rel="noopener"
-                              onClick={() => {
-                                trackClick(
-                                  "download-file",
-                                  LOCATIONS.DownloadPage,
-                                  {
-                                    format: format.label,
-                                  },
-                                );
-                                onProductDownloaded(product.uuid);
-                              }}
-                            >
-                              <DownloadIcon aria-hidden />
-                              {format.label}
-                            </a>
-                          </Button>
-                        );
-                      }
-
-                      if (format.isFailed) {
-                        return (
-                          <span
-                            key={format.key}
-                            className={styles.formatPending}
-                          >
-                            {format.label}{" "}
-                            <Tag data-color="danger" data-size="sm">
-                              Ikke tilgjengelig hos leverandøren
-                            </Tag>
-                          </span>
-                        );
-                      }
-
-                      return (
-                        <span key={format.key} className={styles.formatPending}>
-                          {format.label} (under behandling)
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      ) : null}
-    </Card>
-  );
-}
+import { ProductGroup } from "./ProductGroup";
 
 export function DownloadOrderSummary({
   orderResult,
   cards,
-  onProductDownloaded,
 }: {
   orderResult: DownloadOrderResult;
   cards: DownloadCard[];
-  onProductDownloaded: (uuid: string) => void;
 }) {
   const products = groupOrderedProducts(orderResult, cards);
-  const readyProducts = products.filter((product) => product.hasReadyFiles);
-  const failedProducts = products.filter(
-    (product) => !product.hasReadyFiles && !product.hasProcessingFiles,
+  const readyProducts = filterProducts(
+    products,
+    (format) => format.isReady && format.downloadUrl !== null,
   );
-  const processingProducts = products.filter(
-    (product) => !product.hasReadyFiles && product.hasProcessingFiles,
+  const failedProducts = filterProducts(products, (format) => format.isFailed);
+  const processingProducts = filterProducts(
+    products,
+    (format) => !format.isReady && !format.isFailed,
   );
 
   return (
@@ -280,11 +32,7 @@ export function DownloadOrderSummary({
           </Heading>
           <div className={styles.productList}>
             {readyProducts.map((product) => (
-              <ProductGroup
-                key={product.uuid}
-                product={product}
-                onProductDownloaded={onProductDownloaded}
-              />
+              <ProductGroup key={product.uuid} product={product} />
             ))}
           </div>
         </section>
@@ -297,11 +45,7 @@ export function DownloadOrderSummary({
           </Heading>
           <div className={styles.productList}>
             {failedProducts.map((product) => (
-              <ProductGroup
-                key={product.uuid}
-                product={product}
-                onProductDownloaded={onProductDownloaded}
-              />
+              <ProductGroup key={product.uuid} product={product} />
             ))}
           </div>
         </section>
@@ -314,11 +58,7 @@ export function DownloadOrderSummary({
           </Heading>
           <div className={styles.productList}>
             {processingProducts.map((product) => (
-              <ProductGroup
-                key={product.uuid}
-                product={product}
-                onProductDownloaded={onProductDownloaded}
-              />
+              <ProductGroup key={product.uuid} product={product} />
             ))}
           </div>
         </section>

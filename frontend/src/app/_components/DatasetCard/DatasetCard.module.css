@@ -72,13 +72,28 @@
 }
 
 .buttonGroupContainer button {
-  z-index: 1;
   --dsc-button-padding: var(--ds-size-2) var(--ds-size-2);
-  font-size: var(--ds-body-xs-font-size);
 }
 
 .datasetLink {
   text-decoration: none;
+}
+
+/* Stretched link: pseudo-elementet dekker hele kortet (kortet har overflow: clip),
+   slik at høyreklikk hvor som helst gir lenkens kontekstmeny ("Åpne i ny fane"). */
+.datasetLink::after {
+  content: "";
+  position: absolute;
+  inset: -100vmax;
+}
+
+/* Andre klikkbare elementer i kortet legges foran pseudo-elementet */
+.productCard:has(.datasetLink)
+  :is(a, button, input, select, textarea, summary, label, [tabindex]):not(
+    .datasetLink
+  ) {
+  position: relative;
+  z-index: 1;
 }
 
 /* grid */
@@ -97,13 +112,16 @@
 }
 
 .gridMode .buttonGroupContainer {
+  flex-direction: column;
+  align-items: stretch;
   margin-top: auto;
   width: 100%;
   padding: var(--ds-size-4) var(--ds-size-4) var(--ds-size-6);
 }
 
-.gridMode .buttonGroupContainer :global(.ds-button) {
-  flex: 1;
+.gridMode .buttonGroupContainer > *,
+.gridMode .buttonGroupContainer button {
+  width: 100%;
 }
 
 /* Liste */
@@ -136,11 +154,6 @@
     min-width: 0;
   }
 
-  .buttonGroupContainer > * {
-    width: 100%;
-    min-width: 0;
-  }
-
   .listMode .productCard {
     flex-direction: column;
     align-items: stretch;
@@ -151,8 +164,12 @@
     width: 100%;
   }
 
+  .listMode .buttonGroupContainer > * {
+    width: 100%;
+    min-width: 0;
+  }
+
   .listMode .buttonGroupContainer {
-    margin-left: 0;
-    justify-content: flex-start;
+    width: 100%;
   }
 }
