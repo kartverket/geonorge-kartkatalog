@@ -171,6 +171,19 @@
 
 @media (width <= 800px) {
   .hero {
-    padding-block: 40px;
+    padding-block: 24px;
+  }
+
+  .inner {
+    gap: 0;
+  }
+
+  .title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
