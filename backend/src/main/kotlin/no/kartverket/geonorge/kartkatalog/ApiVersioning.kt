@@ -7,6 +7,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RouteSelector
 import io.ktor.server.routing.RouteSelectorEvaluation
 import io.ktor.server.routing.RoutingResolveContext
+import io.ktor.server.routing.openapi.describe
 import io.ktor.server.routing.route
 import kotlin.time.Instant
 
@@ -52,4 +53,36 @@ fun Route.deprecatedAlias(
     val alias = createChild(DeprecatedAliasSelector(oldPrefix))
     alias.install(DeprecatedAlias) { this.oldPrefix = oldPrefix }
     if (oldPrefix.isEmpty()) alias.build() else alias.route(oldPrefix, build)
+}
+
+private data class ApiVersionSelector(
+    val label: String,
+) : RouteSelector() {
+    override suspend fun evaluate(
+        context: RoutingResolveContext,
+        segmentIndex: Int,
+    ): RouteSelectorEvaluation = RouteSelectorEvaluation.Transparent
+
+    override fun toString(): String = "(api version $label)"
+}
+
+/** Registers the routes in [build] at [API_V1], so [tagArea] labels them as `v1` in the OpenAPI docs. */
+fun Route.apiV1(build: Route.() -> Unit) {
+    createChild(ApiVersionSelector("v1")).route(API_V1, build)
+}
+
+/**
+ * Tags the routes below with [area] plus the API version they are mounted under (see [apiV1] and
+ * [deprecatedAlias]), so Swagger shows e.g. "Search (v1)" and "Search (deprecated)" as separate groups.
+ */
+fun Route.tagArea(area: String) {
+    val version =
+        generateSequence(this) { it.parent }.firstNotNullOfOrNull {
+            when (val selector = it.selector) {
+                is ApiVersionSelector -> selector.label
+                is DeprecatedAliasSelector -> "deprecated"
+                else -> null
+            }
+        }
+    describe { tag(if (version == null) area else "$area ($version)") }
 }

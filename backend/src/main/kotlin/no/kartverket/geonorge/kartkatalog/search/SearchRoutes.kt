@@ -3,12 +3,12 @@ package no.kartverket.geonorge.kartkatalog.search
 import io.ktor.http.HttpHeaders
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
-import io.ktor.server.routing.openapi.describe
 import io.ktor.server.routing.route
+import no.kartverket.geonorge.kartkatalog.tagArea
 
 fun Route.searchRoutes(searchService: SearchService) {
     route("/search") {
-        describe { tag("Search") }
+        tagArea("Search")
 
         /**
          * Searches the catalog. Returns JSON by default; CSV can be selected through Accept or mediatype.

@@ -2,15 +2,12 @@ package no.kartverket.geonorge.kartkatalog.download
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticateWithOptional
-import io.ktor.server.auth.authentication
 import io.ktor.server.auth.principalOrNull
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
-import io.ktor.server.routing.openapi.describe
 import io.ktor.server.routing.post
-import io.ktor.server.routing.route
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
@@ -240,8 +237,6 @@ fun Route.downloadRoutes(
     authentication: GeoIdAuthentication,
 ) {
     undocumentedRoute("/download") {
-        describe { tag("Downloads") }
-
         authenticateWithOptional(authentication.provider.session) {
             /**
              * Places one or more download orders. Restricted products require a valid GeoID session.

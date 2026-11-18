@@ -104,11 +104,12 @@ fun Application.configureRouting(
             get("/") {
                 call.respondText("Hello, World!")
             }
-        }
-        // Copy of the old Kartkatalog search API; never versioned.
-        legacySearchRoutes(legacySearchService)
 
-        route(API_V1) {
+            // Copy of the old Kartkatalog search API; never versioned.
+            legacySearchRoutes(legacySearchService)
+        }
+
+        apiV1 {
             searchRoutes(searchService)
             metadataRoutes(metadataService, linkedDistributionsService)
             distributionsRoutes(distributionsService)

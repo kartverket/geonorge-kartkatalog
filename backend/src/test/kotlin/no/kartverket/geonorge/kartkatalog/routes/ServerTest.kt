@@ -95,7 +95,12 @@ class ServerTest {
                 endpoints =
                     plugin(RoutingRoot)
                         .getAllRoutes()
-                        .map { it.toString().replace(Regex("""\((authenticate [^)]*|undocumented)\)/"""), "") }
+                        .map {
+                            it.toString().replace(
+                                Regex("""\((authenticate [^)]*|undocumented|api version [^)]*)\)/"""),
+                                "",
+                            )
+                        }
             }
             startApplication()
 
@@ -145,12 +150,39 @@ class ServerTest {
                 .jsonArray
                 .map { it.jsonPrimitive.content }
 
-            assertEquals(listOf("Search"), tags("/api/v1/search"))
-            assertEquals(listOf("Metadata"), tags("/api/v1/metadata/{uuid}"))
-            assertEquals(listOf("Distributions"), tags("/api/v1/distributions/{uuid}"))
-            assertEquals(listOf("Downloads"), tags("/api/v1/download/order", "post"))
+            assertEquals(listOf("Search (v1)"), tags("/api/v1/search"))
+            assertEquals(listOf("Metadata (v1)"), tags("/api/v1/metadata/{uuid}"))
+            assertEquals(listOf("Distributions (v1)"), tags("/api/v1/distributions/{uuid}"))
+            assertEquals(listOf("Search (deprecated)"), tags("/api/search"))
+            assertEquals(listOf("Metadata (deprecated)"), tags("/metadata/{uuid}"))
+            assertEquals(listOf("Distributions (deprecated)"), tags("/api/distributions/{uuid}"))
 
-            val hidden = listOf("/", "/api/me/geoid", "/api/download/order", "/api/download/options/{uuid}")
+            val summary =
+                paths
+                    .getValue("/api/v1/distributions/{uuid}")
+                    .jsonObject
+                    .getValue("get")
+                    .jsonObject
+                    .getValue("summary")
+                    .jsonPrimitive.content
+            assertTrue(summary.startsWith("Returns the distributions"), "Unexpected summary: $summary")
+            println(
+                paths.entries.map { (p, v) ->
+                    p to
+                        v.jsonObject.values
+                            .first()
+                            .jsonObject["tags"]
+                },
+            )
+
+            val hidden =
+                listOf(
+                    "/",
+                    "/api/me/geoid",
+                    "/api/v1/download/order",
+                    "/api/download/order",
+                    "/api/download/options/{uuid}",
+                )
             assertTrue(hidden.none { it in paths }, "Undocumented paths leaked into swagger: ${paths.keys}")
         }
 

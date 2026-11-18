@@ -4,15 +4,16 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
-import io.ktor.server.routing.openapi.describe
 import io.ktor.server.routing.route
+import no.kartverket.geonorge.kartkatalog.tagArea
+import no.kartverket.geonorge.kartkatalog.undocumented
 
 fun Route.metadataRoutes(
     metadataService: MetadataService,
     linkedDistributionsService: LinkedDistributionsService,
 ) {
     route("/metadata/") {
-        describe { tag("Metadata") }
+        tagArea("Metadata")
 
         /**
          * Returns the mapped catalog metadata record for a UUID.
@@ -31,21 +32,23 @@ fun Route.metadataRoutes(
             val result = metadataService.getMetadata(uuid)
             call.respond(result)
         }
-        /**
-         * Returns metadata records and services related to the specified record.
-         *
-         * Path: uuid [String] Metadata record UUID.
-         * Response: 200 application/json [no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions] Related records and services.
-         * Response: 400 Missing UUID.
-         */
-        get("{uuid}/linked-distributions") {
-            val uuid =
-                call.parameters["uuid"]?.takeIf {
-                    it.isNotBlank()
-                }
-                    ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
-            val result = linkedDistributionsService.getLinkedDistributions(uuid)
-            call.respond(result)
+        undocumented {
+            /**
+             * Returns metadata records and services related to the specified record.
+             *
+             * Path: uuid [String] Metadata record UUID.
+             * Response: 200 application/json [no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions] Related records and services.
+             * Response: 400 Missing UUID.
+             */
+            get("{uuid}/linked-distributions") {
+                val uuid =
+                    call.parameters["uuid"]?.takeIf {
+                        it.isNotBlank()
+                    }
+                        ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing id"))
+                val result = linkedDistributionsService.getLinkedDistributions(uuid)
+                call.respond(result)
+            }
         }
         /**
          * Returns map styling rules for a metadata record.

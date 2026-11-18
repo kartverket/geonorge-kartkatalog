@@ -13,7 +13,7 @@ import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 fun main() {
     val config = AppConfig()
 
-    embeddedServer(Netty, port = 8080) {
+    embeddedServer(Netty, port = 8092) {
         install(XForwardedHeaders)
         configureHttp()
         configureSerialization()
