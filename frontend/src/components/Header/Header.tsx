@@ -42,6 +42,7 @@ export function Header() {
 
   const mapCount = useMapItems().length;
   const downloadCount = useSelectedDownloadUuids().length;
+  const menuCount = mapCount + downloadCount;
 
   const geonorgeHref = isBeta ? "https://www.geonorge.no/" : "/";
   const findDataHref = "/";
@@ -185,11 +186,24 @@ export function Header() {
               aria-controls="header-menu-panel"
               onClick={() => togglePanel("menu")}
             >
-              {openPanel === "menu" ? (
-                <XMarkIcon aria-hidden />
-              ) : (
-                <MenuHamburgerIcon aria-hidden />
-              )}
+              <Badge.Position
+                overlap="circle"
+                placement="top-left"
+                className={styles.badge}
+              >
+                {menuCount > 0 && (
+                  <Badge
+                    count={menuCount}
+                    data-color="danger"
+                    className={styles.menuBadge}
+                  />
+                )}
+                {openPanel === "menu" ? (
+                  <XMarkIcon aria-hidden />
+                ) : (
+                  <MenuHamburgerIcon aria-hidden />
+                )}
+              </Badge.Position>
               <span className={styles.showFromSm}>Meny</span>
             </Button>
           </div>
