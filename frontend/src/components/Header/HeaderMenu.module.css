@@ -112,12 +112,6 @@ må matche de andre Header-filene */
 }
 
 @media (max-width: 800px) {
-  .inMenuFromXl {
-    /* Kart og Nedlasting skal
-    ikke vises på mobil */
-    display: none;
-  }
-
   .inMenuFromSm {
     display: inline-flex;
   }
@@ -125,6 +119,10 @@ må matche de andre Header-filene */
   .panelInner {
     padding: var(--ds-size-8) var(--ds-size-4);
     gap: var(--ds-size-6);
+  }
+
+  .menuActions {
+    flex-wrap: wrap;
   }
 
   .divider {
