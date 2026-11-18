@@ -4,8 +4,6 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Extensio
 import no.kartverket.geonorge.kartkatalog.metadata.models.CoverageData
 import no.kartverket.geonorge.kartkatalog.metadata.models.CoverageDataSource
 import no.kartverket.geonorge.kartkatalog.metadata.models.CoverageDataType
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 const val COVERAGE_BASE_URL = "https://wms.geonorge.no/skwms1/wms.geonorge_dekningskart?datasett="
 const val GRID_BASE_URL = "https://wms.geonorge.no/skwms1/wms.gp_dek_oversikt?datasett="
