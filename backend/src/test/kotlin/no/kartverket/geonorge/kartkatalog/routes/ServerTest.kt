@@ -111,7 +111,9 @@ class ServerTest {
                     "/search/(method:GET)",
                     "/api/me/geoid/(method:GET)",
                     "/api/datasets-simple/(method:GET)",
+                    "/api/datasets-namespace/(method:GET)",
                     "/api/metadata/{uuid}/(method:GET)",
+                    "/api/valid-dataset-name/(method:GET)",
                 )
             val stray =
                 endpoints.filterNot { endpoint ->

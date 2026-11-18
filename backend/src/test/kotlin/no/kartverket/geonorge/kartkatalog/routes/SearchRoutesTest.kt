@@ -445,10 +445,10 @@ class SearchRoutesTest {
                         AreaResolver(RegisterClient(client, "https://register.example.test")),
                         HvdResolver(RegisterClient(client, "https://register.example.test")),
                     )
-                routing { searchRoutes(searchService) }
+                routing { route(API_V1) { searchRoutes(searchService) } }
             }
 
-            val response = client.get("/api/search?text=sat-skog&limit=25")
+            val response = client.get("/api/v1/search?text=sat-skog&limit=25")
             val body = response.bodyAsText()
 
             assertEquals(HttpStatusCode.OK, response.status)
