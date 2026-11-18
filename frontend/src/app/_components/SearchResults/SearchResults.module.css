@@ -137,6 +137,10 @@
 }
 
 @media (max-width: 799px) {
+  .layout {
+    gap: 0;
+  }
+
   .heroSticky,
   .controls {
     position: sticky;
