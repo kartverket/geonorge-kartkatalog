@@ -141,6 +141,10 @@
     gap: 0;
   }
 
+  .page {
+    background: var(--ds-color-neutral-background-default);
+  }
+
   .pageInner {
     padding-top: 0;
   }
