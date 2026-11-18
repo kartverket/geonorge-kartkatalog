@@ -26,7 +26,6 @@ export const ProductMetadataContactSchema = z.object({
   name: z.string().nullable(),
   organization: z.string().nullable(),
   organizationEnglish: z.string().nullable(),
-  role: z.string().nullable(),
 });
 
 export const ReferenceSystemSchema = z.object({

@@ -92,7 +92,6 @@ data class ProductMetadataContact(
     var name: String? = null,
     var organization: String? = null,
     var organizationEnglish: String? = null,
-    var role: String? = null,
 )
 
 @Serializable

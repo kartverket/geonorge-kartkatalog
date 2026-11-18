@@ -312,7 +312,6 @@ class MetadataMapper(
             email = email,
             organization = organization,
             organizationEnglish = organizationEnglish,
-            role = role,
         )
 
     private suspend fun LegalConstraints.toProductConstraints(accessState: AccessState?) =
