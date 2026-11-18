@@ -20,10 +20,13 @@ export async function POST(request: Request) {
     }
 
     if (error instanceof HttpError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
+      const body =
+        typeof error.body === "object" &&
+        error.body !== null &&
+        "error" in error.body
+          ? error.body
+          : { error: error.message };
+      return NextResponse.json(body, { status: error.status });
     }
 
     return NextResponse.json(
