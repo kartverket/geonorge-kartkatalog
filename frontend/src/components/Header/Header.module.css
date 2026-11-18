@@ -48,7 +48,7 @@ Brukes via composes fra de andre Header-filene */
 }
 
 .badge {
-  --dsc-badge-left: -1px;
+  --dsc-badge-left: -2px;
 }
 
 /* Summen vises bare når Kart og Nedlasting ligger i menyen */

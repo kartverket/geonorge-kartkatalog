@@ -27,6 +27,10 @@ må matche de andre Header-filene */
   --dsc-button-color: var(--ds-color-neutral-text-default);
 }
 
+.badge {
+  composes: badge from "./Header.module.css";
+}
+
 .inMenuFromXl,
 .inMenuFromSm {
   display: none;
