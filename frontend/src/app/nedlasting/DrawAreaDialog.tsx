@@ -111,7 +111,7 @@ export function DrawAreaDialog({
           Tegn område på kart
         </Heading>
         <Paragraph>
-          Tegn en polygon i kartet for å velge et egendefinert
+          Tegn et polygon i kartet for å velge et egendefinert
           nedlastingsområde.
         </Paragraph>
       </Dialog.Block>
