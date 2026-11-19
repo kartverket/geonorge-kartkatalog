@@ -10,7 +10,9 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import no.kartverket.geonorge.kartkatalog.download.DownloadApiException
 
 @Serializable
 data class ExchangeRequest(
@@ -61,10 +63,14 @@ class TokenExchangeClient(
                 )
             }
         val exchangeResponse =
-            json.decodeFromString(
-                ExchangeResponse.serializer(),
-                response.bodyAsText(),
-            )
+            try {
+                json.decodeFromString(
+                    ExchangeResponse.serializer(),
+                    response.bodyAsText(),
+                )
+            } catch (e: SerializationException) {
+                throw DownloadApiException("Uventet svar fra token exchange", e)
+            }
 
         // TODO: Remove at some point when no longer needed
         try {
