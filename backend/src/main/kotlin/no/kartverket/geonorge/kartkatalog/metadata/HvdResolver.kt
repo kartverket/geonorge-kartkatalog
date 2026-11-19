@@ -8,7 +8,7 @@ class HvdResolver(
     private val registerClient: RegisterClient,
 ) {
     private val log = LoggerFactory.getLogger(HvdResolver::class.java)
-    private val cache = TimedCache<String, Set<String>>(ttlMillis = 24 * 60 * 60 * 1000)
+    private val cache = TimedCache<String, Set<String>>("hvd_categories", ttlMillis = 24 * 60 * 60 * 1000)
 
     suspend fun getCategories(): Set<String>? =
         cache.getOrFetch("hvd-kategorier") {

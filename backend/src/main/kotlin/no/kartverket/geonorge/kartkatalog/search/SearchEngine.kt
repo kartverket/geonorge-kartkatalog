@@ -9,6 +9,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceRefere
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
+import no.kartverket.geonorge.kartkatalog.metrics.countEvent
 import org.slf4j.LoggerFactory
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -79,19 +80,25 @@ class SearchEngine(
     ): SearchHits {
         val text = text?.trim().orEmpty()
         val hybridQuery = buildHybridQuery(query, text)
+        var engine = "solr"
         val response =
             if (hybridQuery == null) {
                 solrClient.searchMetadataAll(query, english)
             } else {
                 try {
-                    solrClient.searchMetadataAll(hybridQuery, english)
+                    solrClient.searchMetadataAll(hybridQuery, english).also { engine = "hybrid" }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
                     log.warn("Vector search failed, falling back to plain Solr search", e)
+                    recordVectorFallback("solr_query_failed")
                     solrClient.searchMetadataAll(query, english)
                 }
             }
+        countEvent("search.requests", "Searches by engine used", "engine" to engine)
+        if (response.response.numFound == 0) {
+            countEvent("search.zero_results", "Searches without any hits", "engine" to engine)
+        }
         val facets =
             response.facetCounts
                 ?.facetFields
@@ -118,17 +125,24 @@ class SearchEngine(
             return null
         }
         return try {
-            embeddingClient
-                .embed(text)
-                ?.takeIf { it.isNotEmpty() }
-                ?.let { hybridQueryBuilder.build(query = query, text = text, embedding = it) }
+            val embedding = embeddingClient.embed(text)?.takeIf { it.isNotEmpty() }
+            if (embedding == null) {
+                recordVectorFallback("embedding_unavailable")
+                null
+            } else {
+                hybridQueryBuilder.build(query = query, text = text, embedding = embedding)
+            }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             log.warn("Could not build vector search query, falling back to plain Solr search", e)
+            recordVectorFallback("query_build_failed")
             null
         }
     }
+
+    private fun recordVectorFallback(reason: String) =
+        countEvent("search.vector.fallbacks", "Vector searches that fell back to plain Solr", "reason" to reason)
 
     internal suspend fun getMetadataAllByUuid(uuid: String): SolrDocument? = solrClient.getMetadataAllByUuid(uuid)
 

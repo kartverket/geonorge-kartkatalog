@@ -34,7 +34,7 @@ class LegacySearchService(
     }
 
     private val log = LoggerFactory.getLogger(LegacySearchService::class.java)
-    private val areasCache = TimedCache<String, Map<String, String>>(12 * 60 * 60 * 1000L)
+    private val areasCache = TimedCache<String, Map<String, String>>("legacy_areas", 12 * 60 * 60 * 1000L)
 
     internal suspend fun validDatasetName(
         datasetName: String?,

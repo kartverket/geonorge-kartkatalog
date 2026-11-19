@@ -2,6 +2,7 @@ package no.kartverket.geonorge.kartkatalog.config
 
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
@@ -12,6 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class MonitoringTest {
     private fun ApplicationTestBuilder.setup() {
@@ -55,5 +57,17 @@ class MonitoringTest {
             val tooLong = "a".repeat(65)
             val response = client.get("/test") { header(HttpHeaders.XRequestId, tooLong) }
             assertNotEquals(tooLong, response.headers[HttpHeaders.XRequestId])
+        }
+
+    @Test
+    fun `exposes Prometheus metrics`() =
+        testApplication {
+            setup()
+            client.get("/test")
+
+            val response = client.get("/metrics")
+
+            assertEquals(200, response.status.value)
+            assertTrue(response.bodyAsText().contains("ktor_http_server_requests"))
         }
 }
