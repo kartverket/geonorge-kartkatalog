@@ -13,6 +13,7 @@ import kotlinx.serialization.json.Json
 import no.kartverket.geonorge.kartkatalog.metrics.observeUpstream
 import org.slf4j.LoggerFactory
 import java.net.URLEncoder.encode
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.text.Charsets.UTF_8
 
 enum class CodeList(
@@ -53,74 +54,77 @@ class RegisterClient(
 
     suspend fun getTegneregler(seoname: String): RegisterTegnereglerItem? {
         val path = "/api/tegneregler/${encode(seoname, UTF_8)}"
-        val response = getResponse(path, "tegneregler")
-
-        return when {
-            response.status == HttpStatusCode.NotFound -> {
-                log.debug("Tegneregler not found for seoname: {}", seoname)
-                null
-            }
-            !response.status.isSuccess() -> {
-                log.warn("Tegneregler request failed for seoname: {} with status: {}", seoname, response.status)
-                throw RegisterException("Register request to $path failed with status ${response.status}")
-            }
-            else ->
-                try {
-                    json.decodeFromString(RegisterTegnereglerItem.serializer(), response.bodyAsText())
-                } catch (e: Exception) {
-                    log.error("Failed to parse Tegneregler response for seoname: {}", seoname, e)
-                    throw RegisterException("Failed to parse Register response from $path", e)
+        return observe("tegneregler", path) {
+            val response = get(path)
+            when {
+                response.status == HttpStatusCode.NotFound -> {
+                    log.debug("Tegneregler not found for seoname: {}", seoname)
+                    null
                 }
+                !response.status.isSuccess() -> {
+                    log.warn("Tegneregler request failed for seoname: {} with status: {}", seoname, response.status)
+                    throw RegisterException("Register request to $path failed with status ${response.status}")
+                }
+                else ->
+                    try {
+                        json.decodeFromString(RegisterTegnereglerItem.serializer(), response.bodyAsText())
+                    } catch (e: Exception) {
+                        log.error("Failed to parse Tegneregler response for seoname: {}", seoname, e)
+                        throw RegisterException("Failed to parse Register response from $path", e)
+                    }
+            }
         }
     }
 
     suspend fun getProduktark(seoname: String): RegisterProduktarkItem? {
         val path = "/api/produktark/${encode(seoname, UTF_8)}"
-        val response = getResponse(path, "produktark")
-
-        return when {
-            response.status == HttpStatusCode.NotFound -> {
-                log.debug("Produktark not found for seoname: {}", seoname)
-                null
-            }
-            !response.status.isSuccess() -> {
-                log.warn("Produktark request failed for seoname: {} with status: {}", seoname, response.status)
-                throw RegisterException("Register request failed with status ${response.status}")
-            }
-            else ->
-                try {
-                    json.decodeFromString(RegisterProduktarkItem.serializer(), response.bodyAsText())
-                } catch (e: Exception) {
-                    log.error("Failed to parse Produktark response for seoname: {}", seoname, e)
-                    throw RegisterException("Failed to parse Register response from $path", e)
+        return observe("produktark", path) {
+            val response = get(path)
+            when {
+                response.status == HttpStatusCode.NotFound -> {
+                    log.debug("Produktark not found for seoname: {}", seoname)
+                    null
                 }
+                !response.status.isSuccess() -> {
+                    log.warn("Produktark request failed for seoname: {} with status: {}", seoname, response.status)
+                    throw RegisterException("Register request failed with status ${response.status}")
+                }
+                else ->
+                    try {
+                        json.decodeFromString(RegisterProduktarkItem.serializer(), response.bodyAsText())
+                    } catch (e: Exception) {
+                        log.error("Failed to parse Produktark response for seoname: {}", seoname, e)
+                        throw RegisterException("Failed to parse Register response from $path", e)
+                    }
+            }
         }
     }
 
     suspend fun getProduktspesifikasjon(seoname: String): RegisterProduktspesifikasjonItem? {
         val path = "/api/produktspesifikasjoner/${encode(seoname, UTF_8)}"
-        val response = getResponse(path, "produktspesifikasjon")
-
-        return when {
-            response.status == HttpStatusCode.NotFound -> {
-                log.debug("Produktspesifikasjon not found for seoname: {}", seoname)
-                null
-            }
-            !response.status.isSuccess() -> {
-                log.warn(
-                    "Produktspesifikasjon request failed for seoname: {} with status: {}",
-                    seoname,
-                    response.status,
-                )
-                throw RegisterException("Register request failed with status ${response.status}")
-            }
-            else ->
-                try {
-                    json.decodeFromString(RegisterProduktspesifikasjonItem.serializer(), response.bodyAsText())
-                } catch (e: Exception) {
-                    log.error("Failed to parse Produktspesifikasjon response for seoname: {}", seoname, e)
-                    throw RegisterException("Failed to parse Register response from $path", e)
+        return observe("produktspesifikasjon", path) {
+            val response = get(path)
+            when {
+                response.status == HttpStatusCode.NotFound -> {
+                    log.debug("Produktspesifikasjon not found for seoname: {}", seoname)
+                    null
                 }
+                !response.status.isSuccess() -> {
+                    log.warn(
+                        "Produktspesifikasjon request failed for seoname: {} with status: {}",
+                        seoname,
+                        response.status,
+                    )
+                    throw RegisterException("Register request failed with status ${response.status}")
+                }
+                else ->
+                    try {
+                        json.decodeFromString(RegisterProduktspesifikasjonItem.serializer(), response.bodyAsText())
+                    } catch (e: Exception) {
+                        log.error("Failed to parse Produktspesifikasjon response for seoname: {}", seoname, e)
+                        throw RegisterException("Failed to parse Register response from $path", e)
+                    }
+            }
         }
     }
 
@@ -128,35 +132,43 @@ class RegisterClient(
         operation: String,
         path: String,
         deserializer: DeserializationStrategy<T>,
-    ): T {
-        val response = getResponse(path, operation)
+    ): T =
+        observe(operation, path) {
+            val response = get(path)
 
-        if (!response.status.isSuccess()) {
-            log.warn("Register request to {} failed with status: {}", path, response.status)
-            throw RegisterException("Register request to $path failed with status ${response.status}")
-        }
-
-        return try {
-            json.decodeFromString(deserializer, response.bodyAsText())
-        } catch (e: Exception) {
-            log.error("Failed to parse Register response from {}", path, e)
-            throw RegisterException("Failed to parse Register response from $path", e)
-        }
-    }
-
-    private suspend fun getResponse(
-        path: String,
-        operation: String,
-    ): HttpResponse =
-        try {
-            // 4xx is not counted as an error: Register answers 404 for unknown items, which callers treat as absent.
-            observeUpstream("register", operation, failed = { it.status.value >= 500 }) {
-                httpClient.get("$baseUrl$path") {
-                    headers { append(HttpHeaders.AcceptLanguage, "no") }
-                }
+            if (!response.status.isSuccess()) {
+                log.warn("Register request to {} failed with status: {}", path, response.status)
+                throw RegisterException("Register request to $path failed with status ${response.status}")
             }
+
+            try {
+                json.decodeFromString(deserializer, response.bodyAsText())
+            } catch (e: Exception) {
+                log.error("Failed to parse Register response from {}", path, e)
+                throw RegisterException("Failed to parse Register response from $path", e)
+            }
+        }
+
+    // Times the request together with the status check and decoding, so every call that throws counts as an error.
+    // A 404 from the nullable item lookups returns null and therefore counts as success.
+    private suspend fun <T> observe(
+        operation: String,
+        path: String,
+        block: suspend () -> T,
+    ): T =
+        try {
+            observeUpstream("register", operation, block = block)
+        } catch (e: RegisterException) {
+            throw e
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             throw RegisterException("Register request to $path failed", e)
+        }
+
+    private suspend fun get(path: String): HttpResponse =
+        httpClient.get("$baseUrl$path") {
+            headers { append(HttpHeaders.AcceptLanguage, "no") }
         }
 }
 
