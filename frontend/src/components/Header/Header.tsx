@@ -191,7 +191,7 @@ export function Header() {
                 placement="top-left"
                 className={styles.badge}
               >
-                {menuCount > 0 && (
+                {menuCount > 0 && openPanel !== "menu" && (
                   <Badge
                     count={menuCount}
                     data-color="danger"
