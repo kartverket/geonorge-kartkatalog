@@ -47,7 +47,7 @@ spec:
     clientIDKey: CLIENT_ID
     clientSecretKey: CLIENT_SECRET
     secretRef: tilgangsstyring-poc-auth-secrets
-  outputClaimToHeaders:
+  outputClaimToHeaders: #Dette fungerer ikke lokalt. Har det her til det eventuelt blir støttet i fremtiden
     - claim: name
       header: X-User-Full-Name
     - claim: authorization_details
