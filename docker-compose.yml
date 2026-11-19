@@ -22,7 +22,7 @@ services:
       args:
         # Trenger basepath ved buildtime
         - NEXT_PUBLIC_BASE_PATH=/beta
-        - RUN_VERIFICATIONS:false
+        - RUN_VERIFICATIONS=false
     restart: unless-stopped
     ports:
       - "3000:3000"
