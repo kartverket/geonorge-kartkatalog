@@ -7,6 +7,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.metrics.observeUpstream
 
@@ -22,13 +23,19 @@ class GeonetworkClient(
     private suspend fun fetchRecord(uuid: String): MetadataRecord? {
         val requestXml = buildGetRecordByIdRequest(uuid)
 
-        val responseXml =
-            httpClient
-                .post(cswUrl) {
-                    accept(ContentType.Application.Xml)
-                    contentType(ContentType.Application.Xml)
-                    setBody(requestXml)
-                }.bodyAsText()
+        val response =
+            httpClient.post(cswUrl) {
+                accept(ContentType.Application.Xml)
+                contentType(ContentType.Application.Xml)
+                setBody(requestXml)
+            }
+
+        // CSW answers a missing record with 200 and an empty response, so a non-success status is a real failure.
+        if (!response.status.isSuccess()) {
+            throw GeoNetworkException("CSW request failed with status ${response.status}")
+        }
+
+        val responseXml = response.bodyAsText()
 
         if (responseXml.contains("ExceptionReport")) {
             throw GeoNetworkException("CSW service returned an ExceptionReport: $responseXml")

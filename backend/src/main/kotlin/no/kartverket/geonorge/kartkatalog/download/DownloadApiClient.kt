@@ -6,7 +6,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.prepareGet
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -15,6 +14,8 @@ import io.ktor.http.Url
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.URISyntaxException
 import java.util.UUID
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.seconds
 
 class DownloadApiClient(
@@ -53,46 +55,56 @@ class DownloadApiClient(
         return fetchCapabilities(capabilitiesUrlWithUuid)
     }
 
-    private suspend fun fetchCapabilities(url: String): DownloadApiCapabilities {
-        val response = getResponse(url, "capabilities")
+    private suspend fun fetchCapabilities(url: String): DownloadApiCapabilities =
+        observe("capabilities", "Download API request to $url failed") {
+            val response = httpClient.get(url)
 
-        if (!response.status.isSuccess()) {
-            log.warn("Nedlasting request to {} failed with status: {}", url, response.status)
-            throw DownloadApiException("Download API request to $url failed with status ${response.status}")
-        }
+            if (!response.status.isSuccess()) {
+                log.warn("Nedlasting request to {} failed with status: {}", url, response.status)
+                throw DownloadApiException("Download API request to $url failed with status ${response.status}")
+            }
 
-        return try {
-            json.decodeFromString(DownloadApiCapabilities.serializer(), response.bodyAsText())
-        } catch (e: Exception) {
-            log.error("Failed to parse download API capabilities response from {}", url, e)
-            throw DownloadApiException("Failed to parse download API capabilities response from $url", e)
+            try {
+                json.decodeFromString(DownloadApiCapabilities.serializer(), response.bodyAsText())
+            } catch (e: Exception) {
+                log.error("Failed to parse download API capabilities response from {}", url, e)
+                throw DownloadApiException("Failed to parse download API capabilities response from $url", e)
+            }
         }
-    }
 
     suspend fun getAreas(url: String): List<DownloadApiAreaCodelistEntry> {
         val validatedUrl = parseHttpUrl(url, "area")
-        val response = getResponse(validatedUrl.toString(), "areas")
+        return observe("areas", "Download API request to $url failed") {
+            val response = httpClient.get(validatedUrl.toString())
 
-        if (!response.status.isSuccess()) {
-            log.warn("Nedlasting request to {} failed with status: {}", url, response.status)
-            throw DownloadApiException("Download API request to $url failed with status ${response.status}")
-        }
+            if (!response.status.isSuccess()) {
+                log.warn("Nedlasting request to {} failed with status: {}", url, response.status)
+                throw DownloadApiException("Download API request to $url failed with status ${response.status}")
+            }
 
-        return try {
-            json.decodeFromString(ListSerializer(DownloadApiAreaCodelistEntry.serializer()), response.bodyAsText())
-        } catch (e: Exception) {
-            throw DownloadApiException("Failed to parse download API area response from $url", e)
+            try {
+                json.decodeFromString(ListSerializer(DownloadApiAreaCodelistEntry.serializer()), response.bodyAsText())
+            } catch (e: Exception) {
+                throw DownloadApiException("Failed to parse download API area response from $url", e)
+            }
         }
     }
 
-    private suspend fun getResponse(
-        url: String,
+    // Times the request together with the status check and decoding, so every call that throws counts as an error.
+    // Other exceptions (network failures, timeouts) are wrapped with [failureMessage]; cancellation is rethrown as is.
+    private suspend fun <T> observe(
         operation: String,
-    ): HttpResponse =
+        failureMessage: String,
+        block: suspend () -> T,
+    ): T =
         try {
-            observeUpstream(UPSTREAM, operation, failed = { it.status.value >= 500 }) { httpClient.get(url) }
+            observeUpstream(UPSTREAM, operation, block = block)
+        } catch (e: DownloadApiException) {
+            throw e
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            throw DownloadApiException("Download API request to $url failed", e)
+            throw DownloadApiException(failureMessage, e)
         }
 
     enum class DownloadAvailability {
@@ -116,6 +128,8 @@ class DownloadApiClient(
                 }
             }
         } catch (e: Exception) {
+            // Our own 3s timeout leaves this coroutine active and yields UNKNOWN; a cancelled caller is rethrown here.
+            currentCoroutineContext().ensureActive()
             log.warn("Nedlasting availability check failed for {}: {}", url, e.message)
             DownloadAvailability.UNKNOWN
         }
@@ -131,37 +145,33 @@ class DownloadApiClient(
             throw DownloadTokenDestinationNotAllowedException()
         }
 
-        val response =
-            try {
-                observeUpstream(UPSTREAM, "order", failed = { it.status.value >= 500 }) {
-                    httpClient.post(requestUrl) {
-                        geoIdAccessToken?.let { bearerAuth(it) }
-                        contentType(ContentType.Application.Json)
-                        setBody(json.encodeToString(DownloadApiOrderRequest.serializer(), request))
-                    }
+        return observe("order", "Download API order request to $requestUrl failed") {
+            val response =
+                httpClient.post(requestUrl) {
+                    geoIdAccessToken?.let { bearerAuth(it) }
+                    contentType(ContentType.Application.Json)
+                    setBody(json.encodeToString(DownloadApiOrderRequest.serializer(), request))
                 }
-            } catch (e: Exception) {
-                throw DownloadApiException("Download API order request to $requestUrl failed", e)
+
+            if (!response.status.isSuccess()) {
+                val errorBody = runCatching { response.bodyAsText() }.getOrNull()
+                log.warn(
+                    "Nedlasting order request to {} failed with status: {}, body: {}",
+                    requestUrl,
+                    response.status,
+                    errorBody,
+                )
+                throw DownloadApiException(
+                    "Download API order request to $requestUrl failed with status ${response.status}" +
+                        (errorBody?.takeIf { it.isNotBlank() }?.let { ": $it" } ?: ""),
+                )
             }
 
-        if (!response.status.isSuccess()) {
-            val errorBody = runCatching { response.bodyAsText() }.getOrNull()
-            log.warn(
-                "Nedlasting order request to {} failed with status: {}, body: {}",
-                requestUrl,
-                response.status,
-                errorBody,
-            )
-            throw DownloadApiException(
-                "Download API order request to $requestUrl failed with status ${response.status}" +
-                    (errorBody?.takeIf { it.isNotBlank() }?.let { ": $it" } ?: ""),
-            )
-        }
-
-        return try {
-            json.decodeFromString(DownloadApiOrderResponse.serializer(), response.bodyAsText())
-        } catch (e: Exception) {
-            throw DownloadApiException("Failed to parse download API order response from $requestUrl", e)
+            try {
+                json.decodeFromString(DownloadApiOrderResponse.serializer(), response.bodyAsText())
+            } catch (e: Exception) {
+                throw DownloadApiException("Failed to parse download API order response from $requestUrl", e)
+            }
         }
     }
 
