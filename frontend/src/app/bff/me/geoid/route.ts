@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
       if (error.status === 401) {
         const response = NextResponse.json({ authenticated: false });
         clearAuthProviderCookieIfMatches(request, response, "geoid");
+        response.cookies.delete({ name: "GEOID_SESSION", path: "/" });
         return response;
       }
 
