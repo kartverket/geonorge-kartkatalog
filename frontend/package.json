@@ -20,7 +20,7 @@
     "@kv-designsystem/react": "^1.0.0-alpha.6",
     "@navikt/aksel-icons": "^8.22.1",
     "@posthog/react": "^1.11.3",
-    "next": "^16.4.5",
+    "next": "^16.4.6",
     "ol": "^10.11.0",
     "posthog-js": "^1.447.5",
     "posthog-node": "^5.64.0",
