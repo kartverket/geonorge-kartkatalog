@@ -24,9 +24,11 @@ import {
   EMPTY_DOWNLOAD_SELECTION,
   filterAreaBlockForProduct,
   getMissingDownloadSelectionFields,
-} from "@/app/nedlasting/downloadUtils";
-import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
+} from "@/app/[lang]/nedlasting/downloadUtils";
+import { MultiSuggestion } from "@/app/[lang]/nedlasting/MultiSuggestion";
 import { useAuthInfo } from "@/components/AuthProvider";
+import { useLocale } from "@/components/I18nProvider";
+import { localizedPath } from "@/lib/i18n";
 import {
   type DownloadInsightGroups,
   DownloadOrderEmailSchema,
@@ -43,7 +45,6 @@ import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
 import { usePersistedDownloadSelections } from "./usePersistedDownloadSelections";
-import { usePersistedOrderInfo } from "./usePersistedOrderInfo";
 
 type DownloadPageContentClientProps = {
   insightGroups: DownloadInsightGroups;
@@ -52,6 +53,7 @@ type DownloadPageContentClientProps = {
 export function DownloadPageContentClient({
   insightGroups,
 }: DownloadPageContentClientProps) {
+  const locale = useLocale();
   const authState = useAuthInfo();
   const selectedDownloadUuids = useSelectedDownloadUuids();
   const [hasHydrated, setHasHydrated] = useState(false);
@@ -71,8 +73,8 @@ export function DownloadPageContentClient({
     useDownloadOrder();
 
   const [selections, setSelections] = usePersistedDownloadSelections();
-  const { usageGroup, setUsageGroup, usagePurpose, setUsagePurpose } =
-    usePersistedOrderInfo();
+  const [usageGroup, setUsageGroup] = useState("");
+  const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<DownloadStep>("bestilling");
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -549,7 +551,10 @@ export function DownloadPageContentClient({
                 Opprett en ny bestilling
               </Button>
               <Button type="button" variant="primary" asChild>
-                <Link href="/" className={styles.finishLink}>
+                <Link
+                  href={localizedPath(locale, "/")}
+                  className={styles.finishLink}
+                >
                   Avslutt og gå til kartkatalogen
                 </Link>
               </Button>

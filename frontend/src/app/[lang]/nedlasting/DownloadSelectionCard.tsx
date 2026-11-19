@@ -12,6 +12,8 @@ import {
   AccessStateTag,
   type AccessTagContext,
 } from "@/components/AccessStateTag/AccessStateTag";
+import { useLocale } from "@/components/I18nProvider";
+import { localizedPath } from "@/lib/i18n";
 import type { DownloadOptions } from "@/lib/schemas/download";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import { DownloadOptionsForm } from "./DownloadOptionsForm";
@@ -57,6 +59,7 @@ export function DownloadSelectionCard({
   defaultExpanded = false,
 }: DownloadSelectionCardProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
+  const locale = useLocale();
 
   const detailsId = useId();
   const accessContext =
@@ -109,7 +112,7 @@ export function DownloadSelectionCard({
             data-size={"sm"}
           >
             <a
-              href={`/metadata/${uuid}`}
+              href={localizedPath(locale, `/metadata/${uuid}`)}
               onClick={() =>
                 trackClick("open-dataset-card", LOCATIONS.DownloadPage, {
                   datasetTitle: title,

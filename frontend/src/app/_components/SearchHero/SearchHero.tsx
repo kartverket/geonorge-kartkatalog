@@ -4,8 +4,9 @@ import { Heading, Search, Tag } from "@kv-designsystem/react";
 import { LocationPinFillIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import { useState } from "react";
-import { isBeta } from "@/lib/basePath";
-import { getProductTypeString } from "@/lib/productType";
+import { useDictionary, useLocale } from "@/components/I18nProvider";
+import { basePath } from "@/lib/basePath";
+import { localizedPath } from "@/lib/i18n";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./SearchHero.module.css";
 import { useSearchAutocomplete } from "./useSearchAutocomplete";
@@ -15,6 +16,8 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
   const [isFocused, setIsFocused] = useState(false);
   const { suggestions } = useSearchAutocomplete(searchText);
   const showSuggestions = isFocused && suggestions.length > 0;
+  const locale = useLocale();
+  const { searchHero: t, productTypes } = useDictionary();
 
   return (
     <section className={styles.hero}>
@@ -32,10 +35,10 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
       </div>
       <div className={styles.inner}>
         <Heading data-size="lg" level={1} className={styles.title}>
-          Finn data
+          {t.heading}
         </Heading>
         <form
-          action={isBeta ? "/beta" : "/"}
+          action={`${basePath}${localizedPath(locale, "/")}`}
           method="get"
           className={styles.form}
           onFocusCapture={() => setIsFocused(true)}
@@ -46,7 +49,7 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
           }}
         >
           <label htmlFor="hero-search" className={styles.label}>
-            Søk i Kartkatalogen
+            {t.label}
           </label>
           <div className={styles.searchRow}>
             <div className={styles.searchInputWrapper}>
@@ -54,8 +57,8 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
                 <Search.Input
                   id="hero-search"
                   name="text"
-                  aria-label="Søk i Kartkatalogen"
-                  placeholder="Naturvernområder, FKB-Bygning..."
+                  aria-label={t.label}
+                  placeholder={t.placeholder}
                   value={searchText}
                   onChange={(event) => setSearchText(event.target.value)}
                   type="search"
@@ -69,14 +72,21 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
                 />
               </Search>
               {showSuggestions ? (
-                <ul className={styles.suggestions} aria-label="Søkeforslag">
+                <ul className={styles.suggestions} aria-label={t.suggestions}>
                   {suggestions.map((suggestion) => (
                     <li key={suggestion.uuid}>
-                      <Link href={`/metadata/${suggestion.uuid}`}>
+                      <Link
+                        href={localizedPath(
+                          locale,
+                          `/metadata/${suggestion.uuid}`,
+                        )}
+                      >
                         <span>{suggestion.title}</span>
                         <Tag className={styles.hierarchyTag}>
                           {" "}
-                          {getProductTypeString(suggestion.hierarchyLevel)}{" "}
+                          {productTypes[
+                            suggestion.hierarchyLevel as keyof typeof productTypes
+                          ] ?? productTypes.default}{" "}
                         </Tag>
                       </Link>
                     </li>
@@ -84,7 +94,9 @@ export function SearchHero({ initialValue = "" }: { initialValue?: string }) {
                 </ul>
               ) : null}
             </div>
-            <Search.Button className={styles.searchButton} variant="primary" />
+            <Search.Button className={styles.searchButton} variant="primary">
+              {t.button}
+            </Search.Button>
           </div>
         </form>
       </div>

@@ -1,4 +1,7 @@
+"use client";
+
 import { PadlockLockedIcon, PadlockUnlockedIcon } from "@navikt/aksel-icons";
+import { useDictionary } from "@/components/I18nProvider";
 import type { AccessState } from "@/lib/schemas/product";
 import styles from "./AccessStateTag.module.css";
 
@@ -9,39 +12,6 @@ export type AccessTagContext =
   | "tjenestelag"
   | "applikasjon"
   | "datasettserie";
-
-const LABEL: Record<AccessTagContext, Record<AccessState, string>> = {
-  tilgang: {
-    open: "Åpen tilgang",
-    restricted: "Begrenset tilgang",
-    protected: "Beskyttet tilgang",
-  },
-  datasett: {
-    open: "Åpent datasett",
-    restricted: "Begrenset datasett",
-    protected: "Beskyttet datasett",
-  },
-  tjeneste: {
-    open: "Åpen tjeneste",
-    restricted: "Begrenset tjeneste",
-    protected: "Beskyttet tjeneste",
-  },
-  tjenestelag: {
-    open: "Åpent tjenestelag",
-    restricted: "Begrenset tjenestelag",
-    protected: "Beskyttet tjenestelag",
-  },
-  applikasjon: {
-    open: "Åpen applikasjon",
-    restricted: "Begrenset applikasjon",
-    protected: "Beskyttet applikasjon",
-  },
-  datasettserie: {
-    open: "Åpen datasettserie",
-    restricted: "Begrenset datasettserie",
-    protected: "Beskyttet datasettserie",
-  },
-};
 
 const COLOR: Record<AccessState, string> = {
   open: "success",
@@ -58,6 +28,7 @@ export function AccessStateTag({
   context: AccessTagContext;
   showIcon?: boolean;
 }) {
+  const labels = useDictionary().accessState;
   if (!accessState) return null;
 
   return (
@@ -72,7 +43,7 @@ export function AccessStateTag({
         ) : (
           <PadlockLockedIcon aria-hidden className={styles.tagIcon} />
         ))}
-      {LABEL[context][accessState]}
+      {labels[context][accessState]}
     </span>
   );
 }

@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "titleTemplate": "%s | Map catalogue",
+    "title": "Map catalogue",
+    "description": "Map catalogue | Geonorge"
+  },
+  "searchHero": {
+    "heading": "Find data",
+    "label": "Search the Map catalogue",
+    "placeholder": "Nature reserves, FKB-Building...",
+    "button": "Search",
+    "suggestions": "Search suggestions"
+  },
+  "searchResults": {
+    "showingCount": "Showing {shown} of {total} results",
+    "showFilter": "Show filters",
+    "hideFilter": "Hide filters",
+    "showResults": "Show {total} results",
+    "page": "Page {page}",
+    "toTop": "Back to top"
+  },
+  "viewToggle": {
+    "label": "View",
+    "list": "List",
+    "grid": "Grid"
+  },
+  "sort": {
+    "label": "Sort search results",
+    "options": {
+      "score": "Most relevant",
+      "newest": "Newest",
+      "updated": "Last updated",
+      "title": "Title A-Z",
+      "title_desc": "Title Z-A",
+      "organization": "Organisation A-Z",
+      "organization_desc": "Organisation Z-A"
+    }
+  },
+  "facets": {
+    "showSubcategories": "Show subcategories",
+    "hideSubcategories": "Hide subcategories",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "searchIn": "Search {label}",
+    "searchPlaceholder": "Search"
+  },
+  "datasetCard": {
+    "noPreview": "No preview",
+    "website": "Website",
+    "download": "Download",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied"
+  },
+  "addToMap": {
+    "add": "Add to map",
+    "remove": "Remove from map"
+  },
+  "addToDownloads": {
+    "add": "Add to download",
+    "addAll": "Add all to download",
+    "remove": "Remove from download",
+    "removeAll": "Remove all from download"
+  },
+  "accessState": {
+    "tilgang": {
+      "open": "Open access",
+      "restricted": "Restricted access",
+      "protected": "Protected access"
+    },
+    "datasett": {
+      "open": "Open dataset",
+      "restricted": "Restricted dataset",
+      "protected": "Protected dataset"
+    },
+    "tjeneste": {
+      "open": "Open service",
+      "restricted": "Restricted service",
+      "protected": "Protected service"
+    },
+    "tjenestelag": {
+      "open": "Open service layer",
+      "restricted": "Restricted service layer",
+      "protected": "Protected service layer"
+    },
+    "applikasjon": {
+      "open": "Open application",
+      "restricted": "Restricted application",
+      "protected": "Protected application"
+    },
+    "datasettserie": {
+      "open": "Open dataset series",
+      "restricted": "Restricted dataset series",
+      "protected": "Protected dataset series"
+    }
+  },
+  "productTypes": {
+    "dataset": "Dataset",
+    "series": "Dataset series",
+    "service": "Service",
+    "servicelayer": "Service layer",
+    "software": "Application",
+    "default": "Product"
+  }
+}

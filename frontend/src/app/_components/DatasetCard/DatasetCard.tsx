@@ -17,6 +17,8 @@ import {
   AccessStateTag,
   type AccessTagContext,
 } from "@/components/AccessStateTag/AccessStateTag";
+import { useDictionary, useLocale } from "@/components/I18nProvider";
+import { localizedPath } from "@/lib/i18n";
 import { isAllowedThumbnailUrl } from "@/lib/isAllowedThumbnailUrl";
 import type { DatasetCardData } from "@/lib/types/dataset";
 import { LOCATIONS, type Location, trackClick } from "@/posthog/posthog";
@@ -38,6 +40,8 @@ const TYPE_TO_ACCESS_CONTEXT: Record<string, AccessTagContext> = {
 
 export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
   const [copied, setCopied] = useState(false);
+  const locale = useLocale();
+  const t = useDictionary().datasetCard;
   const analyticsLocation = p.analyticsLocation ?? LOCATIONS.SearchPage;
 
   const isService = p.typeTranslated === "Tjeneste";
@@ -81,7 +85,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           className={styles.thumbnail}
         />
       ) : (
-        <div className={styles.thumbnailFallback}>Ingen forhåndsvisning</div>
+        <div className={styles.thumbnailFallback}>{t.noPreview}</div>
       )}
     </div>
   );
@@ -112,7 +116,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           <Heading level={3} data-size={"sm"}>
             <Link
               className={styles.datasetLink}
-              href={`/metadata/${p.uuid}`}
+              href={localizedPath(locale, `/metadata/${p.uuid}`)}
               onClick={() =>
                 trackClick("open-dataset-card", analyticsLocation, {
                   datasetTitle: p.title,
@@ -139,7 +143,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
               onClick={() => {
                 window.open(applicationUrl, "_blank", "noopener");
               }}
-              label="Nettside"
+              label={t.website}
               icon={<ExternalLinkIcon aria-hidden />}
             />
           )}
@@ -173,7 +177,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
                 });
                 window.open(fileDownloadUrl, "_blank", "noopener");
               }}
-              label="Last ned"
+              label={t.download}
               icon={<DownloadIcon aria-hidden />}
               variant="primary"
             />
@@ -195,7 +199,7 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
           {canCopy && (
             <CardActionButton
               onClick={copyUrl}
-              label={copied ? "Lenke kopiert" : "Kopier lenke"}
+              label={copied ? t.linkCopied : t.copyLink}
               icon={
                 copied ? (
                   <CheckmarkIcon aria-hidden />

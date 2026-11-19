@@ -1,6 +1,6 @@
 import { ErrorSummary } from "@kv-designsystem/react";
 import { useLayoutEffect, useRef } from "react";
-import type { MissingDownloadSelectionField } from "@/app/nedlasting/downloadUtils";
+import type { MissingDownloadSelectionField } from "@/app/[lang]/nedlasting/downloadUtils";
 
 export function MissingInputSummary({
   productsWithMissingFields,

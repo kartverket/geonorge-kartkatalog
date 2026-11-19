@@ -11,6 +11,7 @@ import {
 } from "@/app/_components/addToDownloads/downloadStorage";
 import { useAreAllItemsSelectedForDownload } from "@/app/_components/addToDownloads/useDownloads";
 import { useAuthInfo } from "@/components/AuthProvider";
+import { useDictionary } from "@/components/I18nProvider";
 import { type Location, trackClick } from "@/posthog/posthog";
 
 export default function AddToDownloadsButton({
@@ -35,6 +36,7 @@ export default function AddToDownloadsButton({
   preventAccordionToggle?: boolean;
 }) {
   const authState = useAuthInfo();
+  const t = useDictionary().addToDownloads;
   const validItems = items.filter((i) => i.uuid && i.distributionUrl);
   const addableItems = validItems.filter(
     (i) =>
@@ -42,12 +44,9 @@ export default function AddToDownloadsButton({
       authState.status === "authenticated",
   );
   const isMultiple = validItems.length > 1;
-  const resolvedAddLabel =
-    addLabel ??
-    (isMultiple ? "Legg alle til nedlasting" : "Legg til nedlasting");
+  const resolvedAddLabel = addLabel ?? (isMultiple ? t.addAll : t.add);
   const resolvedRemoveLabel =
-    removeLabel ??
-    (isMultiple ? "Fjern alle fra nedlasting" : "Fjern fra nedlasting");
+    removeLabel ?? (isMultiple ? t.removeAll : t.remove);
 
   const areAllValidItemsSelected =
     useAreAllItemsSelectedForDownload(validItems);

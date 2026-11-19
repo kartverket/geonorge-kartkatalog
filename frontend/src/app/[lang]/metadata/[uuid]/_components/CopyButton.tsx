@@ -3,7 +3,7 @@
 import { Button } from "@kv-designsystem/react";
 import { CheckmarkIcon, FilesIcon } from "@navikt/aksel-icons";
 import type { MouseEvent } from "react";
-import { useCopyUrl } from "@/app/metadata/[uuid]/_utils/hooks";
+import { useCopyUrl } from "@/app/[lang]/metadata/[uuid]/_utils/hooks";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./CopyButton.module.css";
 

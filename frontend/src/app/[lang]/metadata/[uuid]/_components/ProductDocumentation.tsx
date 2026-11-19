@@ -5,7 +5,7 @@ import {
   PencilBoardIcon,
   TasklistStartIcon,
 } from "@navikt/aksel-icons";
-import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
+import { formatDate } from "@/app/[lang]/metadata/[uuid]/_utils/utils";
 import type { ProduktarkItem } from "@/lib/schemas/produktark";
 import type { ProduktspesifikasjonItem } from "@/lib/schemas/produktspesifikasjon";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";

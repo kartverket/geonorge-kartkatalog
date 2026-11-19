@@ -2,13 +2,13 @@ import { getServerConsent } from "@cookieyes/nextjs/server";
 import { cookies } from "next/headers";
 import { RESERVED_SEARCH_PARAMS } from "@/lib/facets";
 import type { DatasetCardData } from "@/lib/types/dataset";
-import { SearchHero } from "./_components/SearchHero/SearchHero";
-import { SearchResults } from "./_components/SearchResults/SearchResults";
+import { SearchHero } from "../_components/SearchHero/SearchHero";
+import { SearchResults } from "../_components/SearchResults/SearchResults";
 import {
   isViewMode,
   VIEW_MODE_COOKIE_NAME,
-} from "./_components/SearchResults/viewMode";
-import { getSearchResults } from "./api";
+} from "../_components/SearchResults/viewMode";
+import { getSearchResults } from "../api";
 
 export const instant = false;
 const PAGE_SIZE = 20;
@@ -46,16 +46,18 @@ export default async function Home({
   const results: DatasetCardData[] = searchResult.results;
 
   return (
-    <SearchResults
-      hero={<SearchHero initialValue={text ?? ""} />}
-      initialViewMode={isViewMode(storedViewMode) ? storedViewMode : "grid"}
-      initialResults={results}
-      currentPage={page}
-      totalCount={searchResult.numFound}
-      pageSize={PAGE_SIZE}
-      searchText={text ?? ""}
-      orderby={orderby || "score"}
-      facets={searchResult.facets}
-    />
+    <>
+      <SearchHero initialValue={text ?? ""} />
+      <SearchResults
+        initialViewMode={isViewMode(storedViewMode) ? storedViewMode : "grid"}
+        initialResults={results}
+        currentPage={page}
+        totalCount={searchResult.numFound}
+        pageSize={PAGE_SIZE}
+        searchText={text ?? ""}
+        orderby={orderby || "score"}
+        facets={searchResult.facets}
+      />
+    </>
   );
 }

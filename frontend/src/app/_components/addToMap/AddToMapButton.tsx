@@ -9,6 +9,7 @@ import {
   removeItemFromMap,
 } from "@/app/_components/addToMap/mapStorage";
 import { useIsItemInMap } from "@/app/_components/addToMap/useMap";
+import { useDictionary } from "@/components/I18nProvider";
 import { type Location, trackClick } from "@/posthog/posthog";
 
 export default function AddToMapButton({
@@ -25,6 +26,7 @@ export default function AddToMapButton({
   location: Location;
 }) {
   const isInMap = useIsItemInMap(item?.Uuid);
+  const t = useDictionary().addToMap;
 
   if (!item?.Uuid) return null;
 
@@ -52,12 +54,12 @@ export default function AddToMapButton({
       {isInMap ? (
         <>
           <LayerMinusIcon aria-hidden />
-          Fjern fra kart
+          {t.remove}
         </>
       ) : (
         <>
           <LayersPlusIcon aria-hidden />
-          Legg til i kart
+          {t.add}
         </>
       )}
     </Button>

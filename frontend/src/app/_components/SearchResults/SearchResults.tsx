@@ -8,6 +8,8 @@ import {
 } from "@kv-designsystem/react";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import { type ReactNode, Suspense, useEffect, useRef, useState } from "react";
+import { useDictionary } from "@/components/I18nProvider";
+import { format } from "@/lib/i18n/dictionary";
 import type { SearchResult } from "@/lib/schemas/search";
 import type { DatasetCardData } from "@/lib/types/dataset";
 import { DatasetCard } from "../DatasetCard/DatasetCard";
@@ -65,6 +67,7 @@ export function SearchResults({
     observer.observe(heroEl);
     return () => observer.disconnect();
   }, []);
+  const t = useDictionary().searchResults;
 
   const updateUrlProp = useUpdateUrlProp();
 
@@ -86,7 +89,7 @@ export function SearchResults({
   }`;
 
   return (
-    <div className={styles.stickyScope} data-hidden={hidden} ref={scopeRef}>
+    <main className={styles.stickyScope} data-hidden={hidden} ref={scopeRef}>
       <div className={styles.heroSticky} ref={heroRef} inert={hidden}>
         {hero}
       </div>
@@ -105,7 +108,10 @@ export function SearchResults({
                 </div>
                 <div className={styles.header}>
                   <Heading level={2} data-size="sm">
-                    Viser {initialResults.length} av {totalCount} treff
+                    {format(t.showingCount, {
+                  shown: initialResults.length,
+                  total: totalCount,
+                })}
                   </Heading>
                   <div className={styles.headerControls}>
                     <ViewToggle value={viewMode} onChange={setViewMode} />
@@ -119,7 +125,7 @@ export function SearchResults({
                       data-icon
                       aria-pressed={isMobileFilterOpen}
                       aria-label={
-                        isMobileFilterOpen ? "Skjul filter" : "Vis filter"
+                        isMobileFilterOpen ? t.hideFilter : t.showFilter
                       }
                       className={styles.mobileFilterToggle}
                       onClick={() => setIsMobileFilterOpen((open) => !open)}
@@ -138,7 +144,7 @@ export function SearchResults({
                   className={styles.showResultsButton}
                   onClick={() => setIsMobileFilterOpen(false)}
                 >
-                  Vis {totalCount} treff
+                  {format(t.showResults, { total: totalCount })}
                 </Button>
               </div>
               <div className={resultsClassName}>
@@ -159,7 +165,7 @@ export function SearchResults({
                         {typeof page === "number" && (
                           <Pagination.Button
                             asChild
-                            aria-label={`Side ${page}`}
+                            aria-label={format(t.page, { page })}
                             {...buttonProps}
                           >
                             <p>{page}</p>
@@ -182,6 +188,6 @@ export function SearchResults({
           </div>
         </div>
       </main>
-    </div>
+    </main>
   );
 }

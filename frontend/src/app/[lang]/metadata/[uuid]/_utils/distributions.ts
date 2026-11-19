@@ -5,7 +5,7 @@ import {
   isGeonorgeDownloadProtocol,
   isGeonorgeFileDownloadProtocol,
   isWmsDistributionProtocol,
-} from "@/app/metadata/[uuid]/_utils/distributionProtocols";
+} from "@/app/[lang]/metadata/[uuid]/_utils/distributionProtocols";
 import type {
   DistributionGroup,
   LinkedDistribution,

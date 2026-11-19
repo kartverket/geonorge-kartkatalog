@@ -4,7 +4,9 @@ import { Button, Heading, Paragraph } from "@kv-designsystem/react";
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import Link from "next/link";
 import { useEffect } from "react";
-import styles from "@/app/metadata/[uuid]/error.module.css";
+import styles from "@/app/[lang]/metadata/[uuid]/error.module.css";
+import { useLocale } from "@/components/I18nProvider";
+import { localizedPath } from "@/lib/i18n";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 
 export default function ErrorPage({
@@ -14,6 +16,7 @@ export default function ErrorPage({
   error: Error & { digest?: string };
   retry: () => void;
 }) {
+  const locale = useLocale();
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -38,7 +41,7 @@ export default function ErrorPage({
         >
           Last på nytt
         </Button>
-        <Link href="/">Tilbake til forsiden</Link>
+        <Link href={localizedPath(locale, "/")}>Tilbake til forsiden</Link>
       </div>
     </div>
   );

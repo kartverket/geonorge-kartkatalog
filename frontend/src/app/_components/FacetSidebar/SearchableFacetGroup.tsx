@@ -2,6 +2,8 @@
 
 import { Search } from "@kv-designsystem/react";
 import { useState } from "react";
+import { useDictionary, useLocale } from "@/components/I18nProvider";
+import { format } from "@/lib/i18n/dictionary";
 import {
   FacetGroup,
   type FacetGroupProps,
@@ -21,6 +23,8 @@ export function SearchableFacetGroup({
   ...props
 }: FacetGroupProps) {
   const [search, setSearch] = useState("");
+  const t = useDictionary().facets;
+  const locale = useLocale();
   const searchTerm = search.trim().toLocaleLowerCase("nb-NO");
   const isSearching = searchTerm.length > 0;
   const filteredValues = isSearching
@@ -36,8 +40,10 @@ export function SearchableFacetGroup({
       filterControl={
         <Search>
           <Search.Input
-            aria-label={`Søk etter ${label.toLocaleLowerCase("nb-NO")}`}
-            placeholder="Søk"
+            aria-label={format(t.searchIn, {
+              label: label.toLocaleLowerCase(locale === "en" ? "en" : "nb-NO"),
+            })}
+            placeholder={t.searchPlaceholder}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />

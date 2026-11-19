@@ -106,7 +106,7 @@ Add `"use client"` at the top of a file the moment you need:
 
 - **`src/app/_components/`** — components tied to specific routes (e.g., `SearchResults` renders the home page's UI).
 - **`src/components/`** — will hold truly reusable components once the app has more than one route needing them. Create when the second consumer appears.
-- **Route-local `_components/`** — e.g. `app/metadata/[uuid]/_components/`. Use when a piece exists only to serve one route. Not created yet; add as needed.
+- **Route-local `_components/`** — e.g. `app/[lang]/metadata/[uuid]/_components/`. Use when a piece exists only to serve one route. Not created yet; add as needed.
 
 Each component gets its own folder with its `.tsx` and `.module.css` colocated.
 
@@ -144,7 +144,7 @@ Do fetches in Server Components whenever possible. Client-side fetches only for 
 ### Routing
 
 - File-system based: `app/foo/bar/page.tsx` → `/foo/bar`.
-- Dynamic segments use square brackets: `app/metadata/[uuid]/page.tsx` → `/metadata/<uuid>`. Inside the page, `params` is a Promise that must be awaited:
+- Dynamic segments use square brackets: `app/[lang]/metadata/[uuid]/page.tsx` → `/<lang>/metadata/<uuid>`. Inside the page, `params` is a Promise that must be awaited:
 
 ```tsx
 type Props = { params: Promise<{ uuid: string }> };

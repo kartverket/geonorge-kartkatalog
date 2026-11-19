@@ -24,14 +24,18 @@ Versjoner: se `package.json`.
 ```
 src/
 ├── app/
-│   ├── page.tsx            Søkeside
-│   ├── metadata/[uuid]/    Detaljside (+ dekningskart)
-│   ├── nedlasting/         Nedlastingsbestilling
+│   ├── [lang]/             Alle sider ligger under språksegmentet (`no`/`en`)
+│   │   ├── layout.tsx      Rot-layout (`<html lang>`, `I18nProvider`)
+│   │   ├── dictionaries/   Oversettelser (`no.json`, `en.json`)
+│   │   ├── page.tsx        Søkeside
+│   │   ├── metadata/[uuid]/ Detaljside (+ dekningskart)
+│   │   └── nedlasting/     Nedlastingsbestilling
 │   ├── bff/                Route handlers (proxy mot backend)
 │   ├── api.ts              Server-side klient mot backend
 │   └── _components/        Route-nære komponenter (private mapper)
 ├── components/             Gjenbrukbare komponenter (Header, Footer, AuthProvider …)
-├── lib/                    Hjelpere, Zod-skjemaer (`schemas/`), typer
+├── lib/                    Hjelpere, Zod-skjemaer (`schemas/`), typer, `i18n/`
+├── proxy.ts                Språk-redirect for stier uten `/no` eller `/en`
 └── posthog/                Analyseoppsett
 ```
 
@@ -39,12 +43,26 @@ Arbeidsregler og konvensjoner (serverkomponenter først, CSS Modules, breakpoint
 
 ## Ruter
 
-| Rute                            | Beskrivelse                                     |
-| ------------------------------- | ----------------------------------------------- |
-| `/`                             | Søk med fasetter, sortering, kort-/listevisning |
-| `/metadata/[uuid]`              | Detaljvisning av metadata                       |
-| `/metadata/[uuid]/dekningskart` | Dekningskart                                    |
-| `/nedlasting`                   | Nedlastingsbestilling (stegvis)                 |
+Alle sider har språkprefiks: `/no/...` eller `/en/...` (se [Språk (i18n)](#språk-i18n)).
+
+| Rute                                   | Beskrivelse                                     |
+| -------------------------------------- | ----------------------------------------------- |
+| `/[lang]`                              | Søk med fasetter, sortering, kort-/listevisning |
+| `/[lang]/metadata/[uuid]`              | Detaljvisning av metadata                       |
+| `/[lang]/metadata/[uuid]/dekningskart` | Dekningskart                                    |
+| `/[lang]/nedlasting`                   | Nedlastingsbestilling (stegvis)                 |
+
+## Språk (i18n)
+
+POC basert på [Next.js-guiden for internasjonalisering](https://nextjs.org/docs/app/guides/internationalization). Foreløpig er bare søkesiden oversatt; øvrige sider, Header og Footer er på norsk.
+
+- **Routing:** `src/proxy.ts` sender stier uten gyldig språk videre til `/{språk}{sti}` med redirect, og beholder query-parameterne. Språket velges ut fra cookien `NEXT_LOCALE`, som settes av språkvelgeren i Header. Finnes ikke cookien, brukes `Accept-Language` (`nb`/`nn`/`no` gir `no`, `en` gir `en`). Standard er `no`. `/bff`, `_next` og statiske filer berøres ikke.
+- **Ordbøker:** `src/app/[lang]/dictionaries/{no,en}.json`. `no.json` definerer typen `Dictionary`, så alle nøkler må finnes i begge filene. Tekster med variabler bruker `{navn}` og fylles inn med `format()` fra `@/lib/i18n/dictionary`.
+- **Serverkomponenter:** `getDictionary()` og `getLocale()` fra `src/app/[lang]/dictionaries.ts` (leser `lang` via `next/root-params`).
+- **Klientkomponenter:** `useDictionary()` og `useLocale()` fra `@/components/I18nProvider`. Provideren ligger i `[lang]/layout.tsx`.
+- **Lenker:** interne lenker bygges med `localizedPath(locale, "/sti")` fra `@/lib/i18n`.
+- **Backend:** `lang` sendes ikke til backend ennå, så titler og fasettverdier vises slik backend returnerer dem.
+- **Nytt språk:** legg det til i `LOCALES` i `@/lib/i18n`, lag en ny JSON-fil og registrer den i `dictionaries.ts`.
 
 ## BFF-endepunkt (`/bff/*`)
 
