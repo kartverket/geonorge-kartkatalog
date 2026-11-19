@@ -136,7 +136,7 @@
   }
 }
 
-@media (max-width: 799px) {
+@media (max-width: 800px) {
   .layout {
     gap: 0;
   }
@@ -189,7 +189,7 @@
   }
 }
 
-@media (max-width: 799px) and (prefers-reduced-motion: reduce) {
+@media (max-width: 800px) and (prefers-reduced-motion: reduce) {
   .heroSticky,
   .controls {
     transition: none;
