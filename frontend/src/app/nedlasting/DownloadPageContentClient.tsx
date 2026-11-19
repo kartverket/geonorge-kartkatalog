@@ -43,6 +43,7 @@ import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
 import { usePersistedDownloadSelections } from "./usePersistedDownloadSelections";
+import { usePersistedOrderInfo } from "./usePersistedOrderInfo";
 
 type DownloadPageContentClientProps = {
   insightGroups: DownloadInsightGroups;
@@ -70,8 +71,8 @@ export function DownloadPageContentClient({
     useDownloadOrder();
 
   const [selections, setSelections] = usePersistedDownloadSelections();
-  const [usageGroup, setUsageGroup] = useState("");
-  const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
+  const { usageGroup, setUsageGroup, usagePurpose, setUsagePurpose } =
+    usePersistedOrderInfo();
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<DownloadStep>("bestilling");
   const headingRef = useRef<HTMLHeadingElement>(null);
