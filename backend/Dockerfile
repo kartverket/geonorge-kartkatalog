@@ -15,7 +15,7 @@ RUN --mount=type=cache,id=kartkatalog-backend-gradle-cache,target=/root/.gradle 
     fi && \
     ./gradlew buildFatJar --no-daemon
     
-FROM dhi.io/eclipse-temurin:25-alpine3.24@sha256:7f6fe5ca802ecb2e6de576a47813213949b11a1116030e57151b6c8b94adfa26 AS runtime
+FROM dhi.io/eclipse-temurin:25-alpine3.24@sha256:c3ccf9d5785e5495b910bd2d628729466bb9e1858adf4aae358d5d46003786f6 AS runtime 
 
 WORKDIR /app
 
