@@ -46,18 +46,16 @@ export default async function Home({
   const results: DatasetCardData[] = searchResult.results;
 
   return (
-    <>
-      <SearchHero initialValue={text ?? ""} />
-      <SearchResults
-        initialViewMode={isViewMode(storedViewMode) ? storedViewMode : "grid"}
-        initialResults={results}
-        currentPage={page}
-        totalCount={searchResult.numFound}
-        pageSize={PAGE_SIZE}
-        searchText={text ?? ""}
-        orderby={orderby || "score"}
-        facets={searchResult.facets}
-      />
-    </>
+    <SearchResults
+      hero={<SearchHero initialValue={text ?? ""} />}
+      initialViewMode={isViewMode(storedViewMode) ? storedViewMode : "grid"}
+      initialResults={results}
+      currentPage={page}
+      totalCount={searchResult.numFound}
+      pageSize={PAGE_SIZE}
+      searchText={text ?? ""}
+      orderby={orderby || "score"}
+      facets={searchResult.facets}
+    />
   );
 }

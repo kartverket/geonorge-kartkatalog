@@ -7,7 +7,7 @@ import {
   usePagination,
 } from "@kv-designsystem/react";
 import { FunnelIcon } from "@navikt/aksel-icons";
-import { Suspense, useRef, useState } from "react";
+import { type ReactNode, Suspense, useEffect, useRef, useState } from "react";
 import type { SearchResult } from "@/lib/schemas/search";
 import type { DatasetCardData } from "@/lib/types/dataset";
 import { DatasetCard } from "../DatasetCard/DatasetCard";
@@ -17,12 +17,14 @@ import styles from "./SearchResults.module.css";
 import { Sidebar } from "./Sidebar";
 import { SortDropdown } from "./SortDropdown";
 import { ToTopButton } from "./ToTopButton";
+import { useHideOnScrollDown } from "./useHideOnScrollDown";
 import { usePersistedViewMode } from "./usePersistedViewMode";
 import { useUpdateUrlProp } from "./useUpdateUrlProp";
 import { ViewToggle } from "./ViewToggle";
 import type { ViewMode } from "./viewMode";
 
 type SearchResultsProps = {
+  hero: ReactNode;
   initialViewMode?: ViewMode;
   initialResults: DatasetCardData[];
   pageSize: number;
@@ -34,6 +36,7 @@ type SearchResultsProps = {
 };
 
 export function SearchResults({
+  hero,
   initialViewMode = "grid",
   initialResults,
   currentPage,
@@ -45,6 +48,23 @@ export function SearchResults({
   const [viewMode, setViewMode] = usePersistedViewMode(initialViewMode);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const topRef = useRef<HTMLElement>(null);
+  const scopeRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const hidden = useHideOnScrollDown(isMobileFilterOpen, scopeRef);
+
+  useEffect(() => {
+    const scope = scopeRef.current;
+    const heroEl = heroRef.current;
+    if (!scope || !heroEl) return;
+    const observer = new ResizeObserver(() => {
+      scope.style.setProperty(
+        "--search-hero-height",
+        `${heroEl.offsetHeight}px`,
+      );
+    });
+    observer.observe(heroEl);
+    return () => observer.disconnect();
+  }, []);
 
   const updateUrlProp = useUpdateUrlProp();
 
@@ -66,93 +86,102 @@ export function SearchResults({
   }`;
 
   return (
-    <main className={styles.page} ref={topRef}>
-      <div className={styles.pageInner}>
-        <div className={styles.layout}>
-          <Sidebar facets={facets} />
-          <div
-            className={`${styles.content} ${isMobileFilterOpen ? styles.mobileFilterOpen : ""}`}
-          >
-            <Suspense fallback={null}>
-              <ActiveFilters facets={facets} />
-            </Suspense>
-            <div className={styles.header}>
-              <Heading level={2} data-size="sm">
-                Viser {initialResults.length} av {totalCount} treff
-              </Heading>
-              <div className={styles.headerControls}>
-                <ViewToggle value={viewMode} onChange={setViewMode} />
-                <div className={styles.sortDropdown}>
+    <div className={styles.stickyScope} data-hidden={hidden} ref={scopeRef}>
+      <div className={styles.heroSticky} ref={heroRef} inert={hidden}>
+        {hero}
+      </div>
+      <main className={styles.page} ref={topRef}>
+        <div className={styles.pageInner}>
+          <div className={styles.layout}>
+            <Sidebar facets={facets} />
+            <div
+              className={`${styles.content} ${isMobileFilterOpen ? styles.mobileFilterOpen : ""}`}
+            >
+              <div className={styles.controls} inert={hidden}>
+                <div className={styles.activeFilters}>
                   <Suspense fallback={null}>
-                    <SortDropdown value={orderby} />
+                    <ActiveFilters facets={facets} />
                   </Suspense>
                 </div>
+                <div className={styles.header}>
+                  <Heading level={2} data-size="sm">
+                    Viser {initialResults.length} av {totalCount} treff
+                  </Heading>
+                  <div className={styles.headerControls}>
+                    <ViewToggle value={viewMode} onChange={setViewMode} />
+                    <div className={styles.sortDropdown}>
+                      <Suspense fallback={null}>
+                        <SortDropdown value={orderby} />
+                      </Suspense>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      data-icon
+                      aria-pressed={isMobileFilterOpen}
+                      aria-label={
+                        isMobileFilterOpen ? "Skjul filter" : "Vis filter"
+                      }
+                      className={styles.mobileFilterToggle}
+                      onClick={() => setIsMobileFilterOpen((open) => !open)}
+                    >
+                      <FunnelIcon aria-hidden />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.mobileFilterPanel}>
+                <Suspense fallback={null}>
+                  <FacetSidebar facets={facets} variant="mobile" />
+                </Suspense>
                 <Button
-                  variant="secondary"
-                  data-icon
-                  aria-pressed={isMobileFilterOpen}
-                  aria-label={
-                    isMobileFilterOpen ? "Skjul filter" : "Vis filter"
-                  }
-                  className={styles.mobileFilterToggle}
-                  onClick={() => setIsMobileFilterOpen((open) => !open)}
+                  variant="primary"
+                  className={styles.showResultsButton}
+                  onClick={() => setIsMobileFilterOpen(false)}
                 >
-                  <FunnelIcon aria-hidden />
+                  Vis {totalCount} treff
                 </Button>
               </div>
-            </div>
-            <div className={styles.mobileFilterPanel}>
-              <Suspense fallback={null}>
-                <FacetSidebar facets={facets} variant="mobile" />
-              </Suspense>
-              <Button
-                variant="primary"
-                className={styles.showResultsButton}
-                onClick={() => setIsMobileFilterOpen(false)}
-              >
-                Vis {totalCount} treff
-              </Button>
-            </div>
-            <div className={resultsClassName}>
-              {initialResults.map((r) => (
-                <DatasetCard key={r.uuid} viewMode={viewMode} {...r} />
-              ))}
-            </div>
+              <div className={resultsClassName}>
+                {initialResults.map((r) => (
+                  <DatasetCard key={r.uuid} viewMode={viewMode} {...r} />
+                ))}
+              </div>
 
-            <div className={styles.loadMoreSection}>
-              <Pagination>
-                <Pagination.List>
-                  <Pagination.Item>
-                    <Pagination.Button {...prevButtonProps} />
-                  </Pagination.Item>
-
-                  {pages.map(({ page, itemKey, buttonProps }) => (
-                    <Pagination.Item key={itemKey}>
-                      {typeof page === "number" && (
-                        <Pagination.Button
-                          asChild
-                          aria-label={`Side ${page}`}
-                          {...buttonProps}
-                        >
-                          <p>{page}</p>
-                        </Pagination.Button>
-                      )}
+              <div className={styles.loadMoreSection}>
+                <Pagination>
+                  <Pagination.List>
+                    <Pagination.Item>
+                      <Pagination.Button {...prevButtonProps} />
                     </Pagination.Item>
-                  ))}
 
-                  <Pagination.Item>
-                    <Pagination.Button {...nextButtonProps} />
-                  </Pagination.Item>
-                </Pagination.List>
-              </Pagination>
+                    {pages.map(({ page, itemKey, buttonProps }) => (
+                      <Pagination.Item key={itemKey}>
+                        {typeof page === "number" && (
+                          <Pagination.Button
+                            asChild
+                            aria-label={`Side ${page}`}
+                            {...buttonProps}
+                          >
+                            <p>{page}</p>
+                          </Pagination.Button>
+                        )}
+                      </Pagination.Item>
+                    ))}
 
-              <div className={styles.toTopButton}>
-                <ToTopButton />
+                    <Pagination.Item>
+                      <Pagination.Button {...nextButtonProps} />
+                    </Pagination.Item>
+                  </Pagination.List>
+                </Pagination>
+
+                <div className={styles.toTopButton}>
+                  <ToTopButton />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

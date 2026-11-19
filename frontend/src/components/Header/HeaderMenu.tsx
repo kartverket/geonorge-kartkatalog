@@ -214,9 +214,10 @@ export function HeaderMenu({
                 overlap="circle"
                 placement="top-left"
                 className={styles.badge}
-                data-color="danger"
               >
-                {downloadCount > 0 && <Badge count={downloadCount} />}
+                {downloadCount > 0 && (
+                  <Badge count={downloadCount} data-color="danger" />
+                )}
                 <DownloadIcon aria-hidden />
               </Badge.Position>
               Nedlasting
