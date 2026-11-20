@@ -11,6 +11,7 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.openapi.OpenApiDocSource
 import io.ktor.server.routing.path
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.routing.routingRoot
 import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
@@ -40,12 +41,6 @@ import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import no.kartverket.geonorge.kartkatalog.search.SearchService
 import no.kartverket.geonorge.kartkatalog.search.legacySearchRoutes
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
-
-// Internal routes used by the frontend (BFF auth, session user and downloads) are left out of the public API docs.
-private val undocumentedPathPrefixes = listOf("/bff", "/beta/bff", "/auth", "/api/me", "/api/download")
-
-private fun String.isUndocumented(): Boolean =
-    this == "/" || undocumentedPathPrefixes.any { this == it || startsWith("$it/") }
 
 fun Application.configureRouting(
     appConfig: AppConfig,
@@ -99,18 +94,41 @@ fun Application.configureRouting(
                 )
             source =
                 OpenApiDocSource.Routing(ContentType.Application.Json) {
-                    routingRoot.descendants().filterNot { it.path.isUndocumented() }
+                    routingRoot.descendants().filterNot {
+                        it.isUndocumented || authentication.pluginRoutePaths.any { p -> it.path == p }
+                    }
                 }
             remotePath = "openapi.json"
         }
-        get("/") {
-            call.respondText("Hello, World!")
+        undocumented {
+            get("/") {
+                call.respondText("Hello, World!")
+            }
+
+            // Copy of the old Kartkatalog search API; never versioned.
+            legacySearchRoutes(legacySearchService)
         }
-        searchRoutes(searchService)
-        legacySearchRoutes(legacySearchService)
-        metadataRoutes(metadataService, linkedDistributionsService)
-        distributionsRoutes(distributionsService)
-        downloadRoutes(downloadService, tokenExchangeClient, authentication)
-        authRoutes(authentication)
+
+        apiV1 {
+            searchRoutes(searchService)
+            metadataRoutes(metadataService, linkedDistributionsService)
+            distributionsRoutes(distributionsService)
+            downloadRoutes(downloadService, tokenExchangeClient, authentication)
+        }
+
+        // Session endpoints used only by our own frontend; not part of the versioned API.
+        route("/api") {
+            authRoutes(authentication)
+        }
+
+        // Pre-versioning paths, kept until clients have moved to API_V1.
+        deprecatedAlias("/api") {
+            searchRoutes(searchService)
+            distributionsRoutes(distributionsService)
+            downloadRoutes(downloadService, tokenExchangeClient, authentication)
+        }
+        deprecatedAlias("") {
+            metadataRoutes(metadataService, linkedDistributionsService)
+        }
     }
 }

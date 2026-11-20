@@ -13,7 +13,13 @@ import kotlin.time.Duration.Companion.seconds
 
 data class GeoIdAuthentication(
     val provider: OidcProvider,
+    // Paths the OIDC plugin registers itself, so they can't be marked with `undocumented`.
+    val pluginRoutePaths: List<String> = emptyList(),
 )
+
+private const val LOGIN_PATH = "/auth/geoid/login"
+private const val LOGOUT_PATH = "/auth/geoid/logout"
+private const val CALLBACK_SUFFIX = "/bff/auth/geoid/callback"
 
 private val log = LoggerFactory.getLogger("Authentication")
 
@@ -29,6 +35,8 @@ suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuth
             null,
             null,
         ).toString()
+
+    val callbackUrl = "${appConfig.publicBaseUrl}$CALLBACK_SUFFIX"
 
     val oidc =
         install(Oidc) {
@@ -55,11 +63,11 @@ suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuth
                     )
 
                 loginUri = {
-                    path("auth", "geoid", "login")
+                    path(*LOGIN_PATH.trim('/').split('/').toTypedArray())
                 }
 
                 redirectUri = {
-                    takeFrom("${appConfig.publicBaseUrl}/bff/auth/geoid/callback")
+                    takeFrom(callbackUrl)
                 }
 
                 sessions {
@@ -82,7 +90,7 @@ suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuth
                 }
 
                 logout(
-                    path = "/auth/geoid/logout",
+                    path = LOGOUT_PATH,
                     postLogoutRedirectUri = {
                         takeFrom(appConfig.publicBaseUrl)
                     },
@@ -109,5 +117,8 @@ suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuth
             }
         }
 
-    return GeoIdAuthentication(provider)
+    return GeoIdAuthentication(
+        provider,
+        pluginRoutePaths = listOf(LOGIN_PATH, LOGOUT_PATH, URI(callbackUrl).path),
+    )
 }

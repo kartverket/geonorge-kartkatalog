@@ -4,9 +4,12 @@ import io.ktor.http.HttpHeaders
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import no.kartverket.geonorge.kartkatalog.tagArea
 
 fun Route.searchRoutes(searchService: SearchService) {
-    route("/api") {
+    route("/search") {
+        tagArea("Search")
+
         /**
          * Searches the catalog. Returns JSON by default; CSV can be selected through Accept or mediatype.
          *
@@ -27,7 +30,7 @@ fun Route.searchRoutes(searchService: SearchService) {
          * Response: 200 application/json [SearchResponse] Search results as JSON, or CSV when requested.
          * Response: 502 The upstream search service failed.
          */
-        get("/search") {
+        get {
             val request =
                 SearchRequest(
                     text = call.request.queryParameters["text"] ?: call.request.queryParameters["q"],

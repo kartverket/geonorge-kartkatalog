@@ -16,8 +16,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
+import no.kartverket.geonorge.kartkatalog.API_V1
 import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
@@ -182,11 +184,11 @@ class DownloadRoutesTest {
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
-                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
+                routing { route(API_V1) { downloadRoutes(downloadService, tokenExchangeClient, authentication) } }
             }
 
             val response =
-                client.post("/api/download/order") {
+                client.post("/api/v1/download/order") {
                     header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                     setBody(
                         """
@@ -274,11 +276,11 @@ class DownloadRoutesTest {
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
-                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
+                routing { route(API_V1) { downloadRoutes(downloadService, tokenExchangeClient, authentication) } }
             }
 
             val response =
-                client.post("/api/download/order") {
+                client.post("/api/v1/download/order") {
                     header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                     setBody(
                         """
@@ -336,11 +338,11 @@ class DownloadRoutesTest {
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
-                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
+                routing { route(API_V1) { downloadRoutes(downloadService, tokenExchangeClient, authentication) } }
             }
 
             val response =
-                client.post("/api/download/order") {
+                client.post("/api/v1/download/order") {
                     header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                     setBody(
                         """
@@ -403,11 +405,11 @@ class DownloadRoutesTest {
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
-                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
+                routing { route(API_V1) { downloadRoutes(downloadService, tokenExchangeClient, authentication) } }
             }
 
             val response =
-                client.post("/api/download/order") {
+                client.post("/api/v1/download/order") {
                     header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                     setBody(
                         """
@@ -466,12 +468,12 @@ class DownloadRoutesTest {
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
-                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
+                routing { route(API_V1) { downloadRoutes(downloadService, tokenExchangeClient, authentication) } }
             }
 
             val response =
                 client.get(
-                    "/api/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b" +
+                    "/api/v1/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b" +
                         "?capabilitiesUrl=https://nedlasting.geonorge.no/api/capabilities",
                 )
 
@@ -507,10 +509,10 @@ class DownloadRoutesTest {
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
-                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
+                routing { route(API_V1) { downloadRoutes(downloadService, tokenExchangeClient, authentication) } }
             }
 
-            val response = client.get("/api/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b")
+            val response = client.get("/api/v1/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b")
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
         }
@@ -546,12 +548,12 @@ class DownloadRoutesTest {
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
-                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
+                routing { route(API_V1) { downloadRoutes(downloadService, tokenExchangeClient, authentication) } }
             }
 
             val response =
                 client.get(
-                    "/api/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b" +
+                    "/api/v1/download/options/041f1e6e-bdbc-4091-b48f-8a5990f3cc5b" +
                         "?capabilitiesUrl=https://nedlasting.geonorge.no/api/capabilities",
                 )
 
@@ -595,11 +597,11 @@ class DownloadRoutesTest {
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
                 val downloadService = DownloadService(nedlastingClient, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
-                routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
+                routing { route(API_V1) { downloadRoutes(downloadService, tokenExchangeClient, authentication) } }
             }
 
             val response =
-                client.post("/api/download/order") {
+                client.post("/api/v1/download/order") {
                     header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                     setBody(
                         """
