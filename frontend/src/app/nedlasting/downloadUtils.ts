@@ -461,9 +461,11 @@ export function filterAreaBlockForProduct(
       .map((projection) => projection.code);
 
     const formatOptions = resolveFormatOptions(referenceAreas, projectionCodes);
-    const formatNameSet = new Set(bulkBlock.formatNames);
+    const formatNameSet = new Set(
+      bulkBlock.formatNames.map((name) => name.trim()),
+    );
     const formatNames = formatOptions
-      .filter((format) => formatNameSet.has(format.name))
+      .filter((format) => formatNameSet.has(formatKey(format)))
       .map((format) => format.name);
 
     return {
@@ -488,9 +490,11 @@ export function filterAreaBlockForProduct(
     .map((projection) => projection.code);
 
   const formatOptions = resolveFormatOptions(matchingAreas, projectionCodes);
-  const formatNameSet = new Set(bulkBlock.formatNames);
+  const formatNameSet = new Set(
+    bulkBlock.formatNames.map((name) => name.trim()),
+  );
   const formatNames = formatOptions
-    .filter((format) => formatNameSet.has(format.name))
+    .filter((format) => formatNameSet.has(formatKey(format)))
     .map((format) => format.name);
 
   return {
@@ -555,6 +559,12 @@ function toDownloadOrderProjection(
 ): DownloadOrderProjectionInput {
   const { code, name, codespace } = projection;
   return { code, name, codespace };
+}
+
+// Noen datasett har registrert formatnavn med mellomrom, f.eks. "PPTX " og "PPTX",
+// så vi sammenligner uten mellomrom i start og slutt.
+function formatKey(format: DownloadFormat): string {
+  return format.name.trim();
 }
 
 function intersectByKey<T>(lists: T[][], key: (item: T) => string): T[] {
@@ -645,7 +655,7 @@ function unionFormatsAcrossAreas(
     areas.flatMap((area) =>
       area.projections.map((projection) => projection.formats),
     ),
-    (format) => format.name,
+    formatKey,
   );
 }
 
@@ -692,7 +702,7 @@ export function resolveUnionDownloadAvailability(
         displayAreasByProduct.map((areas) =>
           resolveFormatOptions(areas, bulkBlock.projectionCodes),
         ),
-        (format) => format.name,
+        formatKey,
       ),
       supportsPolygonSelection: presentOptionsList.some(
         (options) => options.supportsPolygonSelection,
@@ -729,7 +739,7 @@ export function resolveUnionDownloadAvailability(
           ? unionFormatsAcrossAreas(areas)
           : resolveFormatOptions(areas, bulkBlock.projectionCodes),
       ),
-      (format) => format.name,
+      formatKey,
     ),
     supportsPolygonSelection: presentOptionsList.some(
       (options) => options.supportsPolygonSelection,
