@@ -13,6 +13,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import MapComponent from "@/app/_components/MapComponent/MapComponent";
 import styles from "./DrawAreaDialog.module.css";
 
+// Brukes når nedlastings-API-et ikke oppgir maxArea for datasettet. API-et
+// sjekker ikke arealet ved bestilling, så uten grense ville et for stort
+// område først feilet hos leverandøren. 1000 km² er laveste kjente grense.
+const DEFAULT_MAX_AREA_KM2 = 1000;
+
 type DrawAreaDialogProps = {
   open: boolean;
   // null betyr at nedlastings-API-et ikke har oppgitt noen grense
@@ -98,8 +103,9 @@ export function DrawAreaDialog({
     };
   }, [draw, modify, vectorSource]);
 
+  const effectiveMaxAreaKm2 = maxAreaKm2 ?? DEFAULT_MAX_AREA_KM2;
   const isTooLarge =
-    areaM2 !== null && maxAreaKm2 !== null && areaM2 > maxAreaKm2 * 1_000_000;
+    areaM2 !== null && areaM2 > effectiveMaxAreaKm2 * 1_000_000;
 
   const interactions = useMemo(() => [draw, modify], [draw, modify]);
 
