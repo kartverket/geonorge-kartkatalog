@@ -38,8 +38,20 @@ export function setAuthProviderCookie(
   response.cookies.set(AUTH_PROVIDER_COOKIE_NAME, provider, COOKIE_OPTIONS);
 }
 
+export function setBearerTokenCookie(response: NextResponse, token: string) {
+  response.cookies.set("BearerToken", token, COOKIE_OPTIONS);
+}
+
 export function clearAuthProviderCookie(response: NextResponse) {
   response.cookies.set(AUTH_PROVIDER_COOKIE_NAME, "", {
+    ...COOKIE_OPTIONS,
+    expires: new Date(0),
+    maxAge: 0,
+  });
+}
+
+export function clearBearerTokenCookie(response: NextResponse) {
+  response.cookies.set("BearerToken", "", {
     ...COOKIE_OPTIONS,
     expires: new Date(0),
     maxAge: 0,

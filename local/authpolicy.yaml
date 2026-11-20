@@ -8,6 +8,7 @@ spec:
     matchLabels:
       app: kartkatalog-frontend
   wellKnownURI: https://test.ansattporten.no/.well-known/openid-configuration
+  #wellKnownURI: http://host.docker.internal:8091/.well-known/openid-configuration
   allowedAudiences:
     - valueFrom:
         secretKeyRef:

@@ -73,11 +73,19 @@ type OrgNo = {
   ID: string;
   authority: string;
 };
+function decodeToken(token: string): Record<string, unknown> | null {
+  try {
+    return jwtDecode<Record<string, unknown>>(token);
+  } catch {
+    return null;
+  }
+}
+
 function getGetOrgNameFromToken(request: NextRequest): string | null {
   const tokenString = request.cookies.get("BearerToken")?.value;
   if (!tokenString) return null;
-  // biome-ignore lint/suspicious/noExplicitAny: <for local stuff when forwarding does not work and token is unencrypted>
-  const decodedToken = jwtDecode(tokenString) as Record<string, any>;
+  const decodedToken = decodeToken(tokenString);
+  if (!decodedToken) return null;
 
   const authDetails = decodedToken?.authorization_details as
     | AuthDetail[]
@@ -110,8 +118,8 @@ function getGetOrgNameFromToken(request: NextRequest): string | null {
 function getNameFromToken(request: NextRequest): string | null {
   const tokenString = request.cookies.get("BearerToken")?.value;
   if (!tokenString) return null;
-  // biome-ignore lint/suspicious/noExplicitAny: <for local stuff when forwarding does not work and token is unencrypted>
-  const decodedToken = jwtDecode(tokenString) as Record<string, any>;
+  const decodedToken = decodeToken(tokenString);
+  if (!decodedToken) return null;
 
   const name = decodedToken?.name;
   if (typeof name === "string" && name.trim()) {

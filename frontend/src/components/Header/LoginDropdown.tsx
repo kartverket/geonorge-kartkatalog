@@ -12,6 +12,7 @@ export function LoginDropdown({
   className,
   geoIdHref,
   ansattportenHref,
+  localLoginHref,
   onOpen,
   onNavigate,
 }: {
@@ -19,9 +20,12 @@ export function LoginDropdown({
   className?: string;
   geoIdHref: Route;
   ansattportenHref: Route;
+  localLoginHref: Route;
   onOpen: () => void;
   onNavigate: (provider: "geoid" | "ansattporten") => void;
 }) {
+  const isLocal =
+    typeof window !== "undefined" && window.location.hostname === "localhost";
   return (
     <>
       <Button
@@ -66,6 +70,13 @@ export function LoginDropdown({
               </a>
             </Dropdown.Button>
           </Dropdown.Item>
+          {isLocal && (
+            <Dropdown.Item>
+              <Dropdown.Button asChild>
+                <a href={localLoginHref}>Mock login</a>
+              </Dropdown.Button>
+            </Dropdown.Item>
+          )}
         </Dropdown.List>
       </Dropdown>
     </>
