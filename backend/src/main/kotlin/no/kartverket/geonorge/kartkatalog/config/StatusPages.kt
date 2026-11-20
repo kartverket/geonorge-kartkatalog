@@ -27,8 +27,7 @@ fun Application.configureStatusPages() {
             call.respond(HttpStatusCode.NotFound, mapOf("error" to "Record not found"))
         }
         exception<SerializationException> { call, cause ->
-            log.warn("Ugyldig eller utdatert sesjon, nullstiller cookie", cause)
-            call.response.cookies.append(Cookie(name = "GEOID_SESSION", value = "", path = "/", maxAge = 0))
+            log.warn("Ugyldig eller utdatert sesjon", cause)
             call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "invalid_session"))
         }
         exception<IllegalArgumentException> { call, cause ->
