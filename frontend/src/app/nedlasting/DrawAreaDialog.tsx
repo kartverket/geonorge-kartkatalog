@@ -1,6 +1,12 @@
 "use client";
 
-import { Button, Dialog, Heading, Paragraph } from "@kv-designsystem/react";
+import {
+  Alert,
+  Button,
+  Dialog,
+  Heading,
+  Paragraph,
+} from "@kv-designsystem/react";
 import { Polygon } from "ol/geom";
 import Draw, { type DrawEvent } from "ol/interaction/Draw";
 import Modify, { type ModifyEvent } from "ol/interaction/Modify";
@@ -17,6 +23,11 @@ import styles from "./DrawAreaDialog.module.css";
 // sjekker ikke arealet ved bestilling, så uten grense ville et for stort
 // område først feilet hos leverandøren. 1000 km² er laveste kjente grense.
 const DEFAULT_MAX_AREA_KM2 = 1000;
+
+// Norsk tallformat, f.eks. "15 953,3"
+function formatKm2(km2: number): string {
+  return km2.toLocaleString("nb-NO", { maximumFractionDigits: 1 });
+}
 
 type DrawAreaDialogProps = {
   open: boolean;
@@ -103,9 +114,9 @@ export function DrawAreaDialog({
     };
   }, [draw, modify, vectorSource]);
 
+  const areaKm2 = areaM2 === null ? null : areaM2 / 1_000_000;
   const effectiveMaxAreaKm2 = maxAreaKm2 ?? DEFAULT_MAX_AREA_KM2;
-  const isTooLarge =
-    areaM2 !== null && areaM2 > effectiveMaxAreaKm2 * 1_000_000;
+  const isTooLarge = areaKm2 !== null && areaKm2 > effectiveMaxAreaKm2;
 
   const interactions = useMemo(() => [draw, modify], [draw, modify]);
 
@@ -132,17 +143,17 @@ export function DrawAreaDialog({
             />
           ) : null}
         </div>
-        {areaM2 !== null ? (
+        {areaKm2 !== null ? (
           <Paragraph data-size="sm">
-            Valgt areal: {(areaM2 / 1_000_000).toFixed(1)} km²
-            {isTooLarge ? (
-              <span className={styles.areaWarning}>
-                {" "}
-                Området er for stort til å laste ned, vennligst velg mindre
-                område.
-              </span>
-            ) : null}
+            Valgt areal: {formatKm2(areaKm2)} km² (maks{" "}
+            {formatKm2(effectiveMaxAreaKm2)} km²)
           </Paragraph>
+        ) : null}
+        {isTooLarge ? (
+          <Alert data-color="danger" data-size="sm">
+            Området er for stort til å laste ned. Dra i hjørnene eller kantene
+            på polygonet for å gjøre det mindre.
+          </Alert>
         ) : null}
       </Dialog.Block>
       <Dialog.Block>
