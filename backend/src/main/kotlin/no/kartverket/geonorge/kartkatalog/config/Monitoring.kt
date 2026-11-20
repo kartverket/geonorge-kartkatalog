@@ -26,7 +26,7 @@ internal fun isValidCallId(callId: String): Boolean =
     callId.length in 1..MAX_CALL_ID_LENGTH &&
         callId.all { it in 'a'..'z' || it in 'A'..'Z' || it in '0'..'9' || it == '-' }
 
-fun Application.configureMonitoring() {
+fun Application.configureMetrics() {
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     // Application meters (upstream calls, caches, search, downloads) are recorded on the global registry.
     Metrics.addRegistry(prometheusRegistry)
@@ -34,6 +34,15 @@ fun Application.configureMonitoring() {
     install(MicrometerMetrics) {
         registry = prometheusRegistry
     }
+
+    routing {
+        get("/actuator/prometheus") {
+            call.respondText(prometheusRegistry.scrape())
+        }
+    }
+}
+
+fun Application.configureCallLogging() {
     install(CallId) {
         retrieveFromHeader(HttpHeaders.XRequestId)
         generate { UUID.randomUUID().toString() }
@@ -46,11 +55,6 @@ fun Application.configureMonitoring() {
         filter { call -> call.request.path() != "/" && call.request.path() != "/actuator/prometheus" }
         format { call ->
             "${call.request.httpMethod.value} ${call.request.path()} - ${call.response.status()}"
-        }
-    }
-    routing {
-        get("/actuator/prometheus") {
-            call.respondText(prometheusRegistry.scrape())
         }
     }
 }

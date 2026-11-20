@@ -4,7 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.server.testing.testApplication
-import no.kartverket.geonorge.kartkatalog.config.configureMonitoring
+import no.kartverket.geonorge.kartkatalog.config.configureMetrics
 import no.kartverket.geonorge.kartkatalog.metadata.TimedCache
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -21,7 +21,7 @@ class AppMetricsTest {
     @Test
     fun `records upstream calls by outcome`() =
         testApplication {
-            application { configureMonitoring() }
+            application { configureMetrics() }
             startApplication()
 
             observeUpstream("test_upstream", "ok_op") { "fine" }
@@ -39,7 +39,7 @@ class AppMetricsTest {
     @Test
     fun `records cache hits and misses`() =
         testApplication {
-            application { configureMonitoring() }
+            application { configureMetrics() }
             startApplication()
 
             val cache = TimedCache<String, String>("test_cache", 60_000)

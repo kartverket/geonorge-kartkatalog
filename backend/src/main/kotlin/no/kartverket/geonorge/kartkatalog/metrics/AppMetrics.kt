@@ -7,7 +7,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlin.coroutines.cancellation.CancellationException
 
 // Meters are registered on Micrometer's global registry. The Prometheus registry is attached to it in
-// configureMonitoring, so code running without it (e.g. unit tests) records to a no-op composite.
+// configureMetrics, so code running without it (e.g. unit tests) records to a no-op composite.
 private val registry get() = Metrics.globalRegistry
 
 private const val OUTCOME_SUCCESS = "success"
