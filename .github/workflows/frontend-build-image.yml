@@ -24,8 +24,8 @@ env:
   NAME: kartverket/geonorge-kartkatalog-nfe
   #   ENV_SUFFIX: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
   #   DEPLOY_PATH_DEV: ${{ github.ref_name == 'main' && 'env/atkv3-prod/geonorge-kartkatalog/kartkatalog-frontend-version' || 'env/atkv3-dev/geonorge-kartkatalog-dev/kartkatalog-frontend-version' }}
-  DEPLOY_PATH_DEV: "env/atkv3-dev/geonorge-ny-kartkatalog-dev/kartkatalog-frontend-version"
-  DEPLOY_PATH_PROD: "env/atkv3-prod/geonorge-ny-kartkatalog/kartkatalog-frontend-version"
+  DEPLOY_PATH_DEV: "env/atkv3-dev/geonorge-kartkatalog-dev/kartkatalog-frontend-version"
+  DEPLOY_PATH_PROD: "env/atkv3-prod/geonorge-kartkatalog/kartkatalog-frontend-version"
 
 jobs:
   #   test:

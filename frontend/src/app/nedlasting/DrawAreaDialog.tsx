@@ -19,13 +19,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import MapComponent from "@/app/_components/MapComponent/MapComponent";
 import styles from "./DrawAreaDialog.module.css";
 
-// TODO: maxArea kommer snart som eget felt i capabilities-kallet fra
-// nedlastings-API-et (per datasett). Bytt denne faste placeholderen ut med
-// den verdien når den er tilgjengelig.
-const MAX_AREA_M2_PLACEHOLDER = 1_000_000_000; // 1000 km²
+// Brukes når nedlastings-API-et ikke oppgir maxArea for datasettet. API-et
+// sjekker ikke arealet ved bestilling, så uten grense ville et for stort
+// område først feilet hos leverandøren. 1000 km² er laveste kjente grense.
+const DEFAULT_MAX_AREA_KM2 = 1000;
 
 type DrawAreaDialogProps = {
   open: boolean;
+  // null betyr at nedlastings-API-et ikke har oppgitt noen grense
+  maxAreaKm2: number | null;
   onCloseAction: () => void;
   onConfirmAction: (coordinates: string) => void;
 };
@@ -37,6 +39,7 @@ function polygonToCoordinateString(polygon: Polygon): string {
 
 export function DrawAreaDialog({
   open,
+  maxAreaKm2,
   onCloseAction,
   onConfirmAction,
 }: DrawAreaDialogProps) {
@@ -106,7 +109,9 @@ export function DrawAreaDialog({
     };
   }, [draw, modify, vectorSource]);
 
-  const isTooLarge = areaM2 !== null && areaM2 > MAX_AREA_M2_PLACEHOLDER;
+  const effectiveMaxAreaKm2 = maxAreaKm2 ?? DEFAULT_MAX_AREA_KM2;
+  const isTooLarge =
+    areaM2 !== null && areaM2 > effectiveMaxAreaKm2 * 1_000_000;
 
   const interactions = useMemo(() => [draw, modify], [draw, modify]);
 

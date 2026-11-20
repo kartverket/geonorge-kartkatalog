@@ -17,6 +17,8 @@ data class DownloadApiCapabilities(
     val deliveryNotificationByEmail: Boolean = false,
     val accessConstraintRequiredRole: String? = null,
     val mapSelectionLayer: String? = null,
+    // Oppgis i km², og bare når datasettet støtter polygon
+    val maxArea: Int? = null,
     @SerialName("_links")
     val links: List<DownloadApiLink> = emptyList(),
 ) {
