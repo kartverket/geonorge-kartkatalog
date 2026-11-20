@@ -21,6 +21,13 @@ class MetadataParserTest {
     }
 
     @Test
+    fun `only exposes an English localization as englishValue`() {
+        val keywords = recordWithNorwegianPreferredLocale.keywordGroups.flatMap { it.keywords }
+        assertNull(keywords.first { it.value == "geodataloven" }.englishValue)
+        assertEquals("NSDI data", keywords.first { it.value == "Det offentlige kartgrunnlaget" }.englishValue)
+    }
+
+    @Test
     fun `parses basic identity fields`() {
         assertEquals("c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689", record.uuid)
         assertNull(record.parentIdentifier)

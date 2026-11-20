@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.search
+package no.kartverket.geonorge.kartkatalog.legacy
 
 import io.ktor.http.Parameters
 import kotlin.test.Test
