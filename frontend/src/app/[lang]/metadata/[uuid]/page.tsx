@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { ContactInfoCard } from "@/app/[lang]/metadata/[uuid]/_components/ContactInfoCard";
+import ProductAlert from "@/app/[lang]/metadata/[uuid]/_components/ProductAlert";
+import { ProductTabsSection } from "@/app/[lang]/metadata/[uuid]/_components/ProductTabsSection";
+import {
+  decodeRouteUuid,
+  getAlertDetailsUrl,
+} from "@/app/[lang]/metadata/[uuid]/_utils/productPage";
+import {
+  getRelevantAlerts,
+  getUniqueItemsFromListByKey,
+  unwrapSettled,
+} from "@/app/[lang]/metadata/[uuid]/_utils/utils";
 import {
   getLinkedDistributions,
   getMetadata,
   getProductAlerts,
 } from "@/app/api";
-import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
-import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
-import { ProductTabsSection } from "@/app/metadata/[uuid]/_components/ProductTabsSection";
-import {
-  decodeRouteUuid,
-  getAlertDetailsUrl,
-} from "@/app/metadata/[uuid]/_utils/productPage";
-import {
-  getRelevantAlerts,
-  getUniqueItemsFromListByKey,
-  unwrapSettled,
-} from "@/app/metadata/[uuid]/_utils/utils";
 import type { LinkedDistributions } from "@/lib/schemas/product";
 import { DatasetStructuredData } from "./_components/DatasetStructuredData";
 import { ProductActions } from "./_components/ProductActions";

@@ -1,5 +1,21 @@
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
+import { CopyButton } from "@/app/[lang]/metadata/[uuid]/_components/CopyButton";
+import { DistributionDetailActionButton } from "@/app/[lang]/metadata/[uuid]/_components/DistributionDetailActionButton";
+import {
+  type DetailItem,
+  ProductTabs,
+} from "@/app/[lang]/metadata/[uuid]/_components/ProductTabs";
+import styles from "@/app/[lang]/metadata/[uuid]/_components/ProductTabs.module.css";
+import { isGeonorgeDownloadProtocol } from "@/app/[lang]/metadata/[uuid]/_utils/distributionProtocols";
+import {
+  getDownloadableSeriesMembers,
+  getThematicParentSeriesDownloadItem,
+} from "@/app/[lang]/metadata/[uuid]/_utils/distributions";
+import {
+  formatDate,
+  unwrapSettled,
+} from "@/app/[lang]/metadata/[uuid]/_utils/utils";
 import {
   getFairStatus,
   type getMetadata,
@@ -7,19 +23,6 @@ import {
   getProduktspesifikasjon,
   getTegneregler,
 } from "@/app/api";
-import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
-import { DistributionDetailActionButton } from "@/app/metadata/[uuid]/_components/DistributionDetailActionButton";
-import {
-  type DetailItem,
-  ProductTabs,
-} from "@/app/metadata/[uuid]/_components/ProductTabs";
-import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
-import { isGeonorgeDownloadProtocol } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
-import {
-  getDownloadableSeriesMembers,
-  getThematicParentSeriesDownloadItem,
-} from "@/app/metadata/[uuid]/_utils/distributions";
-import { formatDate, unwrapSettled } from "@/app/metadata/[uuid]/_utils/utils";
 import type {
   DistributionGroup,
   LinkedDistributions,

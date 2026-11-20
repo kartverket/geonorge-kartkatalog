@@ -8,11 +8,11 @@ import {
   getGeonorgeFileDownloadUrl,
   getMapItem,
   getThematicParentSeriesDownloadItem,
-} from "@/app/metadata/[uuid]/_utils/distributions";
+} from "@/app/[lang]/metadata/[uuid]/_utils/distributions";
 import {
   getEditUrl,
   getMetadataXmlUrl,
-} from "@/app/metadata/[uuid]/_utils/urls";
+} from "@/app/[lang]/metadata/[uuid]/_utils/urls";
 import type {
   LinkedDistributions,
   ProductMetadata,

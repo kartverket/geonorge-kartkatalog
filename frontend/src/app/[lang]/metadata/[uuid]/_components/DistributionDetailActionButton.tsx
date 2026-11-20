@@ -1,15 +1,15 @@
 import { DownloadIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
-import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
-import { DistributionActionLinkButton } from "@/app/metadata/[uuid]/_components/DistributionActionLinkButton";
+import { CopyButton } from "@/app/[lang]/metadata/[uuid]/_components/CopyButton";
+import { DistributionActionLinkButton } from "@/app/[lang]/metadata/[uuid]/_components/DistributionActionLinkButton";
 import {
   isCopyableDistributionProtocol,
   isDirectDownloadPageProtocol,
   isGeonorgeDownloadProtocol,
   isGeonorgeFileDownloadProtocol,
-} from "@/app/metadata/[uuid]/_utils/distributionProtocols";
-import { getGeonorgeDownloadUrl } from "@/app/metadata/[uuid]/_utils/distributions";
+} from "@/app/[lang]/metadata/[uuid]/_utils/distributionProtocols";
+import { getGeonorgeDownloadUrl } from "@/app/[lang]/metadata/[uuid]/_utils/distributions";
 import type { AccessState, DistributionGroup } from "@/lib/schemas/product";
 import { LOCATIONS } from "@/posthog/posthog";
 

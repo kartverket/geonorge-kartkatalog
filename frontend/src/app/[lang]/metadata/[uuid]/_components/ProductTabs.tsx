@@ -2,9 +2,9 @@
 
 import { Details, Heading, Tabs } from "@kv-designsystem/react";
 import type { MouseEvent } from "react";
-import { FairSection } from "@/app/metadata/[uuid]/_components/FairSection";
-import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
-import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
+import { FairSection } from "@/app/[lang]/metadata/[uuid]/_components/FairSection";
+import { LinkedDistributionsSection } from "@/app/[lang]/metadata/[uuid]/_components/LinkedDistributionsSection";
+import { ProductDocumentation } from "@/app/[lang]/metadata/[uuid]/_components/ProductDocumentation";
 import { getProductTypeDefiniteString } from "@/lib/productType";
 import type {
   LinkedDistributions,

@@ -1,7 +1,7 @@
 "use client";
 
 import { Skeleton } from "@kv-designsystem/react";
-import styles from "@/app/metadata/[uuid]/loading.module.css";
+import styles from "@/app/[lang]/metadata/[uuid]/loading.module.css";
 import { isBeta } from "@/lib/basePath";
 
 const metaFieldSkeletons = [

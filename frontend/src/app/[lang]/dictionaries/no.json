@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "titleTemplate": "%s | Kartkatalogen",
+    "title": "Kartkatalogen",
+    "description": "Kartkatalogen | Geonorge"
+  },
+  "searchHero": {
+    "heading": "Finn data",
+    "label": "Søk i Kartkatalogen",
+    "placeholder": "Naturvernområder, FKB-Bygning...",
+    "button": "Søk",
+    "suggestions": "Søkeforslag"
+  },
+  "searchResults": {
+    "showingCount": "Viser {shown} av {total} treff",
+    "showFilter": "Vis filter",
+    "hideFilter": "Skjul filter",
+    "showResults": "Vis {total} treff",
+    "page": "Side {page}",
+    "toTop": "Til toppen"
+  },
+  "viewToggle": {
+    "label": "Visning",
+    "list": "Liste",
+    "grid": "Rutenett"
+  },
+  "sort": {
+    "label": "Sorter søkeresultater",
+    "options": {
+      "score": "Mest relevant",
+      "newest": "Nyeste",
+      "updated": "Sist oppdatert",
+      "title": "Tittel A-Å",
+      "title_desc": "Tittel Å-A",
+      "organization": "Organisasjon A-Å",
+      "organization_desc": "Organisasjon Å-A"
+    }
+  },
+  "facets": {
+    "showSubcategories": "Vis underkategorier",
+    "hideSubcategories": "Skjul underkategorier",
+    "showMore": "Vis flere",
+    "showLess": "Vis mindre",
+    "searchIn": "Søk etter {label}",
+    "searchPlaceholder": "Søk"
+  },
+  "datasetCard": {
+    "noPreview": "Ingen forhåndsvisning",
+    "website": "Nettside",
+    "download": "Last ned",
+    "copyLink": "Kopier lenke",
+    "linkCopied": "Lenke kopiert"
+  },
+  "addToMap": {
+    "add": "Legg til i kart",
+    "remove": "Fjern fra kart"
+  },
+  "addToDownloads": {
+    "add": "Legg til nedlasting",
+    "addAll": "Legg alle til nedlasting",
+    "remove": "Fjern fra nedlasting",
+    "removeAll": "Fjern alle fra nedlasting"
+  },
+  "accessState": {
+    "tilgang": {
+      "open": "Åpen tilgang",
+      "restricted": "Begrenset tilgang",
+      "protected": "Beskyttet tilgang"
+    },
+    "datasett": {
+      "open": "Åpent datasett",
+      "restricted": "Begrenset datasett",
+      "protected": "Beskyttet datasett"
+    },
+    "tjeneste": {
+      "open": "Åpen tjeneste",
+      "restricted": "Begrenset tjeneste",
+      "protected": "Beskyttet tjeneste"
+    },
+    "tjenestelag": {
+      "open": "Åpent tjenestelag",
+      "restricted": "Begrenset tjenestelag",
+      "protected": "Beskyttet tjenestelag"
+    },
+    "applikasjon": {
+      "open": "Åpen applikasjon",
+      "restricted": "Begrenset applikasjon",
+      "protected": "Beskyttet applikasjon"
+    },
+    "datasettserie": {
+      "open": "Åpen datasettserie",
+      "restricted": "Begrenset datasettserie",
+      "protected": "Beskyttet datasettserie"
+    }
+  },
+  "productTypes": {
+    "dataset": "Datasett",
+    "series": "Datasettserie",
+    "service": "Tjeneste",
+    "servicelayer": "Tjenestelag",
+    "software": "Applikasjon",
+    "default": "Produkt"
+  }
+}

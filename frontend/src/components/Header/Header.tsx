@@ -16,17 +16,22 @@ import { useEffect, useRef, useState } from "react";
 import { useSelectedDownloadUuids } from "@/app/_components/addToDownloads/useDownloads";
 import { useMapItems } from "@/app/_components/addToMap/useMap";
 import { useAuthInfo } from "@/components/AuthProvider";
+import { useLocale } from "@/components/I18nProvider";
 import { basePath, bffPath, isBeta } from "@/lib/basePath";
+import { localizedPath } from "@/lib/i18n";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 import styles from "./Header.module.css";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderProfile } from "./HeaderProfile";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { LoginDropdown } from "./LoginDropdown";
 import { ProfileDropdown } from "./ProfileDropdown";
 
 export function Header() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
+  const locale = useLocale();
+  const findDataHref = localizedPath(locale, "/");
+  const isHome = pathname === findDataHref;
   const authState = useAuthInfo();
   const user = authState.status === "authenticated" ? authState.user : null;
   const authReady = authState.status !== "loading";
@@ -44,11 +49,10 @@ export function Header() {
   const downloadCount = useSelectedDownloadUuids().length;
   const menuCount = mapCount + downloadCount;
 
-  const geonorgeHref = isBeta ? "https://www.geonorge.no/" : "/";
-  const findDataHref = "/";
+  const geonorgeHref = isBeta ? "https://www.geonorge.no/" : findDataHref;
   const mapHref =
     "https://kartkatalog.geonorge.no/kart?lat=7197860&lon=396722&zoom=4";
-  const downloadHref = "/nedlasting";
+  const downloadHref = localizedPath(locale, "/nedlasting");
   const geoIdLoginHref = `${bffPath}/auth/geoid/login` as Route;
   const ansattportenLoginHref = `${bffPath}/auth/ansattporten/login` as Route;
 
@@ -146,6 +150,9 @@ export function Header() {
                 Nedlasting
               </Link>
             </Button>
+            <LanguageSwitcher
+              onSwitch={(target) => trackHeaderClick(`language-${target}`)}
+            />
             {authReady &&
               (user ? (
                 <>

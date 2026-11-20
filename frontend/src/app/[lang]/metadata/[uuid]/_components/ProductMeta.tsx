@@ -1,4 +1,4 @@
-import { MetaField } from "@/app/metadata/[uuid]/_components/MetaField";
+import { MetaField } from "@/app/[lang]/metadata/[uuid]/_components/MetaField";
 import styles from "./ProductMeta.module.css";
 import { ThemeTags } from "./ThemeTags";
 

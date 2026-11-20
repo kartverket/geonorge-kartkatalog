@@ -4,6 +4,7 @@ import { Button, Checkbox, Heading } from "@kv-designsystem/react";
 import { ChevronDownIcon } from "@navikt/aksel-icons";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { useDictionary } from "@/components/I18nProvider";
 import styles from "./FacetGroup.module.css";
 
 export type FacetValue = {
@@ -27,6 +28,7 @@ function ExpandableCheckbox({
   onToggle: (field: string, value: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const t = useDictionary().facets;
 
   return (
     <div>
@@ -40,7 +42,7 @@ function ExpandableCheckbox({
         <Button
           variant="tertiary"
           data-size="sm"
-          aria-label={open ? "Skjul underkategorier" : "Vis underkategorier"}
+          aria-label={open ? t.hideSubcategories : t.showSubcategories}
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
           className={open ? styles.chevronOpen : undefined}
@@ -75,6 +77,7 @@ export function FacetGroup({
   onToggle,
 }: FacetGroupProps) {
   const [expanded, setExpanded] = useState(false);
+  const t = useDictionary().facets;
 
   const childrenByParent = new Map<string, FacetValue[]>();
   for (const v of values) {
@@ -137,7 +140,7 @@ export function FacetGroup({
           onClick={() => setExpanded((e) => !e)}
         >
           <ChevronDownIcon aria-hidden />
-          {expanded ? "Vis mindre" : "Vis flere"}
+          {expanded ? t.showLess : t.showMore}
         </Button>
       )}
     </fieldset>
