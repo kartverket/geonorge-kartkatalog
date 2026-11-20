@@ -17,6 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class MonitoringTest {
     private fun ApplicationTestBuilder.setup() {
@@ -87,10 +88,10 @@ class MonitoringTest {
         val inside = appender.list.single { it.message == "inside" }
         assertEquals("GET", inside.mdcPropertyMap["method"])
         assertNull(inside.mdcPropertyMap["status"])
-        assertNull(inside.mdcPropertyMap["durationMs"])
+        assertTrue(assertNotNull(inside.mdcPropertyMap["durationMs"]?.toLongOrNull()) >= 0)
 
         val completed = appender.list.single { it.formattedMessage == "OK" }
-        assertNotNull(completed.mdcPropertyMap["durationMs"]?.toLongOrNull())
+        assertTrue(assertNotNull(completed.mdcPropertyMap["durationMs"]?.toLongOrNull()) >= 0)
         assertEquals(
             mapOf("method" to "GET", "status" to "200", "path" to "/test", "userAgent" to "test-agent"),
             completed.mdcPropertyMap.filterKeys { it in setOf("method", "status", "path", "userAgent") },
