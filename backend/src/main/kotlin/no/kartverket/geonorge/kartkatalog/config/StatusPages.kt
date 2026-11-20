@@ -1,6 +1,5 @@
 package no.kartverket.geonorge.kartkatalog.config
 
-import io.ktor.http.Cookie
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -8,7 +7,7 @@ import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
-import kotlinx.serialization.SerializationException
+import no.kartverket.geonorge.kartkatalog.auth.InvalidGeoIdSessionException
 import no.kartverket.geonorge.kartkatalog.download.DownloadApiException
 import no.kartverket.geonorge.kartkatalog.download.DownloadAuthenticationRequiredException
 import no.kartverket.geonorge.kartkatalog.download.DownloadException
@@ -26,7 +25,7 @@ fun Application.configureStatusPages() {
             log.warn("Metadata record not found", cause)
             call.respond(HttpStatusCode.NotFound, mapOf("error" to "Record not found"))
         }
-        exception<SerializationException> { call, cause ->
+        exception<InvalidGeoIdSessionException> { call, cause ->
             log.warn("Ugyldig eller utdatert sesjon", cause)
             call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "invalid_session"))
         }
