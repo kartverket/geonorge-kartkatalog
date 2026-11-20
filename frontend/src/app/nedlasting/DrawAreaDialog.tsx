@@ -1,6 +1,12 @@
 "use client";
 
-import { Button, Dialog, Heading, Paragraph } from "@kv-designsystem/react";
+import {
+  Alert,
+  Button,
+  Dialog,
+  Heading,
+  Paragraph,
+} from "@kv-designsystem/react";
 import { Polygon } from "ol/geom";
 import Draw, { type DrawEvent } from "ol/interaction/Draw";
 import Modify, { type ModifyEvent } from "ol/interaction/Modify";
@@ -130,14 +136,12 @@ export function DrawAreaDialog({
         {areaM2 !== null ? (
           <Paragraph data-size="sm">
             Valgt areal: {(areaM2 / 1_000_000).toFixed(1)} km²
-            {isTooLarge ? (
-              <span className={styles.areaWarning}>
-                {" "}
-                Området er for stort til å laste ned, vennligst velg mindre
-                område.
-              </span>
-            ) : null}
           </Paragraph>
+        ) : null}
+        {isTooLarge ? (
+          <Alert data-color="danger" data-size="sm">
+            Området er for stort til å laste ned. Velg et mindre område.
+          </Alert>
         ) : null}
       </Dialog.Block>
       <Dialog.Block>
