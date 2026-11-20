@@ -52,6 +52,7 @@ dependencies {
     implementation(ktorLibs.server.swagger)
     implementation(libs.kotlinx.datetime)
     implementation(libs.logback.classic)
+    implementation(libs.logstash.logback.encoder)
     implementation(ktorLibs.utils)
 
     implementation(ktorLibs.client.core)
