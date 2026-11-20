@@ -7,8 +7,12 @@
                 </timestamp>
                 <mdc>
                     <includeMdcKeyName>method</includeMdcKeyName>
+                </mdc>
+                <mdc>
                     <includeMdcKeyName>status</includeMdcKeyName>
                     <includeMdcKeyName>durationMs</includeMdcKeyName>
+                    <!-- durationMs as Long not string -->
+                    <mdcEntryWriter class="net.logstash.logback.composite.loggingevent.mdc.LongMdcEntryWriter"/>
                 </mdc>
                 <message/>
                 <mdc>

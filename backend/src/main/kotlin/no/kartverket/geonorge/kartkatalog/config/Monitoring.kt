@@ -38,10 +38,13 @@ fun Application.configureMonitoring() {
                 ?.value
                 ?.toString()
         }
-        mdc("durationMs") { call -> call.response.status()?.let { call.processingTimeMillis().toString() } }
+        mdc("durationMs") { call -> call.processingTimeMillis().toString() }
         mdc("path") { call -> call.request.path() }
         mdc("userAgent") { call -> call.request.userAgent()?.take(MAX_USER_AGENT_LENGTH) }
         format { call -> call.response.status()?.description ?: "Unhandled" }
-        filter { call -> call.request.path() != "/" }
+        filter { call ->
+            val path = call.request.path()
+            path != "/" && !path.startsWith("/actuator/")
+        }
     }
 }
