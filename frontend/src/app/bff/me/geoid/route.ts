@@ -9,31 +9,29 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ authenticated: true, user: authInfo });
   } catch (error: unknown) {
     if (error instanceof HttpError) {
-      if (error instanceof HttpError) {
-        if (error.status === 401) {
-          const response = NextResponse.json({ authenticated: false });
-          clearAuthProviderCookieIfMatches(request, response, "geoid");
-          if (
-            typeof error.body === "object" &&
-            error.body !== null &&
-            "error" in error.body &&
-            error.body.error === "invalid_session"
-          ) {
-            response.cookies.delete({ name: "GEOID_SESSION", path: "/" });
-          }
-          return response;
+      if (error.status === 401) {
+        const response = NextResponse.json({ authenticated: false });
+        clearAuthProviderCookieIfMatches(request, response, "geoid");
+        if (
+          typeof error.body === "object" &&
+          error.body !== null &&
+          "error" in error.body &&
+          error.body.error === "invalid_session"
+        ) {
+          response.cookies.delete({ name: "GEOID_SESSION", path: "/" });
         }
-
-        return NextResponse.json(
-          { error: error.message },
-          { status: error.status },
-        );
+        return response;
       }
 
       return NextResponse.json(
-        { error: "Could not fetch authentication information." },
-        { status: 500 },
+        { error: error.message },
+        { status: error.status },
       );
     }
+
+    return NextResponse.json(
+      { error: "Could not fetch authentication information." },
+      { status: 500 },
+    );
   }
 }
