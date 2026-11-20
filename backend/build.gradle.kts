@@ -61,7 +61,7 @@ dependencies {
     implementation(ktorLibs.serialization.kotlinx.json)
 
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
-    implementation("com.google.genai:google-genai:2.0.0")
+    implementation("com.google.genai:google-genai:2.3.0")
 
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)

@@ -144,6 +144,7 @@ class DownloadService(
                 supportsPolygonSelection = capabilities.supportsPolygonSelection,
                 deliveryNotificationByEmail = capabilities.deliveryNotificationByEmail,
                 gridSelectionLayer = capabilities.mapSelectionLayer?.takeIf { it.isNotBlank() },
+                maxAreaKm2 = capabilities.maxArea,
             )
         }
 
@@ -174,6 +175,7 @@ class DownloadService(
             supportsPolygonSelection = capabilities.supportsPolygonSelection,
             deliveryNotificationByEmail = capabilities.deliveryNotificationByEmail,
             gridSelectionLayer = capabilities.mapSelectionLayer?.takeIf { it.isNotBlank() },
+            maxAreaKm2 = capabilities.maxArea,
         )
     }
 
