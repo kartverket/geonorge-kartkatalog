@@ -65,7 +65,7 @@ class MonitoringTest {
             setup()
             client.get("/test")
 
-            val response = client.get("/metrics")
+            val response = client.get("/actuator/prometheus")
 
             assertEquals(200, response.status.value)
             assertTrue(response.bodyAsText().contains("ktor_http_server_requests"))

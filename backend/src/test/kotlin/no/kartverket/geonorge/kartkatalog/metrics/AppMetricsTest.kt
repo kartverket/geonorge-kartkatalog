@@ -11,7 +11,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class AppMetricsTest {
-    private suspend fun scrape(client: HttpClient) = client.get("/metrics").bodyAsText()
+    private suspend fun scrape(client: HttpClient) = client.get("/actuator/prometheus").bodyAsText()
 
     private fun upstreamCount(
         operation: String,

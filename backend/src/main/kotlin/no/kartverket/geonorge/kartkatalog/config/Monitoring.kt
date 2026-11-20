@@ -43,13 +43,13 @@ fun Application.configureMonitoring() {
     install(CallLogging) {
         level = Level.INFO
         callIdMdc("callId")
-        filter { call -> call.request.path() != "/" && call.request.path() != "/metrics" }
+        filter { call -> call.request.path() != "/" && call.request.path() != "/actuator/prometheus" }
         format { call ->
             "${call.request.httpMethod.value} ${call.request.path()} - ${call.response.status()}"
         }
     }
     routing {
-        get("/metrics") {
+        get("/actuator/prometheus") {
             call.respondText(prometheusRegistry.scrape())
         }
     }
