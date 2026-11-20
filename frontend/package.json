@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@cookieyes/nextjs": "^0.9.0",
-    "@kv-designsystem/react": "^1.0.0-alpha.6",
+    "@kv-designsystem/react": "^1.0.0-alpha.7",
     "@navikt/aksel-icons": "^8.23.0",
     "@posthog/react": "^1.11.3",
     "next": "^16.4.6",
