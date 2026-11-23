@@ -1,15 +1,11 @@
 "use client";
 
-import { Details, Heading, Tabs } from "@kv-designsystem/react";
-import type { MouseEvent } from "react";
-import { FairSection } from "@/app/metadata/[uuid]/_components/FairSection";
-import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
-import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
+import { Tabs } from "@kv-designsystem/react";
+import type { ReactNode } from "react";
+import { FairTab } from "@/app/metadata/[uuid]/_components/FairTab";
+import { ProductDocumentationTab } from "@/app/metadata/[uuid]/_components/ProductDocumentationTab";
 import { getProductTypeDefiniteString } from "@/lib/productType";
-import type {
-  LinkedDistributions,
-  ProductFairStatus,
-} from "@/lib/schemas/product";
+import type { ProductFairStatus } from "@/lib/schemas/product";
 import type { ProduktarkItem } from "@/lib/schemas/produktark";
 import type { ProduktspesifikasjonItem } from "@/lib/schemas/produktspesifikasjon";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
@@ -18,24 +14,20 @@ import styles from "./ProductTabs.module.css";
 
 export function ProductTabs({
   hierarchyLevel,
-  abstract,
-  linkedDistributions,
+  distributionContent,
+  infoContent,
   fairStatus,
   tegneregler,
   produktark,
   produktspesifikasjon,
-  distributionDetails,
-  infoDetails,
 }: {
   hierarchyLevel: string | null;
-  abstract: string | null;
-  linkedDistributions: LinkedDistributions;
+  distributionContent: ReactNode;
+  infoContent: ReactNode;
   fairStatus: ProductFairStatus | null;
   tegneregler: TegnereglerItem | null;
   produktark: ProduktarkItem | null;
   produktspesifikasjon: ProduktspesifikasjonItem | null;
-  distributionDetails: DetailItem[];
-  infoDetails: DetailItem[];
 }) {
   const productTypeDefinite = getProductTypeDefiniteString(hierarchyLevel);
 
@@ -82,26 +74,14 @@ export function ProductTabs({
         </Tabs.List>
 
         <Tabs.Panel value="distribution" className={styles.panel}>
-          <Heading data-size="xs">Tilganger til {productTypeDefinite}</Heading>
-          <div className={styles.accordionGroup}>
-            <DetailAccordion items={distributionDetails} />
-          </div>
-          <LinkedDistributionsSection
-            linkedDistributions={linkedDistributions}
-          />
+          {distributionContent}
         </Tabs.Panel>
         <Tabs.Panel value="info" className={styles.panel}>
-          <div className={styles.headingGroup}>
-            <Heading data-size="xs">Om {productTypeDefinite}</Heading>
-            <p className={styles.abstract}>{abstract ?? "-"}</p>
-          </div>
-          <div className={styles.accordionGroup}>
-            <DetailAccordion items={infoDetails} />
-          </div>
+          {infoContent}
         </Tabs.Panel>
         {hasDocumentation && (
           <Tabs.Panel value="documentation" className={styles.panel}>
-            <ProductDocumentation
+            <ProductDocumentationTab
               tegneregler={tegneregler}
               produktark={produktark}
               produktspesifikasjon={produktspesifikasjon}
@@ -110,51 +90,10 @@ export function ProductTabs({
         )}
         {fairStatus && (
           <Tabs.Panel value="quality" className={styles.panel}>
-            <FairSection fairStatus={fairStatus} />
+            <FairTab fairStatus={fairStatus} />
           </Tabs.Panel>
         )}
       </Tabs>
     </div>
-  );
-}
-
-export type DetailItem = {
-  actionButton?: React.ReactNode | null;
-  title: string;
-  content: React.ReactNode;
-};
-
-function DetailAccordion({ items }: { items: DetailItem[] }) {
-  const onAccordionClick = (
-    event: MouseEvent<HTMLElement>,
-    accordionTitle: string,
-  ) => {
-    const detailsElement = event.currentTarget.closest("details");
-
-    trackClick("toggle-accordion", LOCATIONS.MetadataPageTabs, {
-      accordionTitle,
-      isExpanded: !detailsElement?.open,
-    });
-  };
-
-  return (
-    <>
-      {items.map((item, i) => {
-        const key = `${i}-${item.title}`;
-        return (
-          <Details key={key}>
-            <Details.Summary
-              className={styles.detailsSummary}
-              onClick={(event) => onAccordionClick(event, item.title)}
-            >
-              <div className={styles.accordionSummary}>
-                {item.title} {item.actionButton}
-              </div>
-            </Details.Summary>
-            <Details.Content>{item.content}</Details.Content>
-          </Details>
-        );
-      })}
-    </>
   );
 }

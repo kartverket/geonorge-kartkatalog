@@ -51,7 +51,7 @@ const PRODUKTARK_DESCRIPTION =
 const PRODUCT_SPECIFICATION_DESCRIPTION =
   "Produktspesifikasjon beskriver i detalje struktur, krav og innhold i datasettet, inkludert standarder og kvalitetskrav.";
 
-export function ProductDocumentation({
+export function ProductDocumentationTab({
   tegneregler,
   produktark,
   produktspesifikasjon,

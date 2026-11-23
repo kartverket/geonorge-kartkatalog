@@ -12,7 +12,7 @@ function CriterionStatus({ fulfilled }: { fulfilled: boolean | null }) {
   return fulfilled ? <CheckmarkIcon aria-hidden /> : <XMarkIcon aria-hidden />;
 }
 
-export function FairSection({ fairStatus }: { fairStatus: ProductFairStatus }) {
+export function FairTab({ fairStatus }: { fairStatus: ProductFairStatus }) {
   const [showLevels, setShowLevels] = useState(false);
 
   const onAccordionClick = (
