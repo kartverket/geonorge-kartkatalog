@@ -196,12 +196,12 @@ private data class ParsedCoverage(
     val layer: String,
 )
 
-private fun String?.removeQueryString(): String = this?.substringBefore('?') ?: ""
-
 private fun parseCoverage(input: String?): ParsedCoverage? {
     val m = Regex("""^TYPE:(.+?)@PATH:(.+?)@LAYER:(.+)$""").find(input?.trim() ?: return null) ?: return null
     return ParsedCoverage(m.groupValues[1].trim(), m.groupValues[2].trim(), m.groupValues[3].trim())
 }
+
+private fun String?.removeQueryString(): String = this?.substringBefore('?') ?: ""
 
 private fun addSurveyAreaMap(
     incomingLink: String,

@@ -7,6 +7,7 @@ import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
+import no.kartverket.geonorge.kartkatalog.auth.InvalidGeoIdSessionException
 import no.kartverket.geonorge.kartkatalog.download.DownloadApiException
 import no.kartverket.geonorge.kartkatalog.download.DownloadAuthenticationRequiredException
 import no.kartverket.geonorge.kartkatalog.download.DownloadException
@@ -23,6 +24,10 @@ fun Application.configureStatusPages() {
         exception<MetadataRecordNotFoundException> { call, cause ->
             log.warn("Metadata record not found", cause)
             call.respond(HttpStatusCode.NotFound, mapOf("error" to "Record not found"))
+        }
+        exception<InvalidGeoIdSessionException> { call, cause ->
+            log.warn("Ugyldig eller utdatert sesjon", cause)
+            call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "invalid_session"))
         }
         exception<IllegalArgumentException> { call, cause ->
             log.warn("Invalid request", cause)

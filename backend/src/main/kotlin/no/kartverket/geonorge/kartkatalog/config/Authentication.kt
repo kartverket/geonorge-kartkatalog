@@ -7,6 +7,8 @@ import io.ktor.server.application.install
 import io.ktor.server.auth.oidc.Oidc
 import io.ktor.server.auth.oidc.OidcProvider
 import io.ktor.server.response.respondRedirect
+import io.ktor.server.sessions.SessionStorageMemory
+import no.kartverket.geonorge.kartkatalog.auth.ValidatingSessionStorage
 import org.slf4j.LoggerFactory
 import java.net.URI
 import kotlin.time.Duration.Companion.seconds
@@ -64,6 +66,7 @@ suspend fun Application.configureAuthentication(appConfig: AppConfig): GeoIdAuth
 
                 sessions {
                     name = "GEOID_SESSION"
+                    storage = ValidatingSessionStorage(SessionStorageMemory())
 
                     csrfProtection {
                         allowOrigin(publicOrigin)

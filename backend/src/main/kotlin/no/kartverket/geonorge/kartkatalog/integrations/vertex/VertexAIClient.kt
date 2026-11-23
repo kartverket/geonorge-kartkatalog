@@ -7,6 +7,7 @@ import com.google.genai.types.HttpOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.kartverket.geonorge.kartkatalog.config.VertexAIConfig
+import no.kartverket.geonorge.kartkatalog.metrics.observeUpstream
 import org.slf4j.LoggerFactory
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -31,7 +32,11 @@ class VertexAIClient(
 
     suspend fun embed(text: String): FloatArray? {
         if (text.isBlank()) return null
-        return try {
+        return observeUpstream("vertex_ai", "embed", failed = { it == null }) { requestEmbedding(text) }
+    }
+
+    private suspend fun requestEmbedding(text: String): FloatArray? =
+        try {
             withContext(Dispatchers.IO) {
                 val conf =
                     EmbedContentConfig
@@ -75,7 +80,6 @@ class VertexAIClient(
             log.warn("Vertex AI embedding request failed", e)
             null
         }
-    }
 
     override fun close() {
         client.close()

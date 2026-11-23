@@ -16,7 +16,11 @@ internal class LegacyAccessConstraintsTranslator(
     private val registerClient: RegisterClient,
 ) {
     private val log = LoggerFactory.getLogger(LegacyAccessConstraintsTranslator::class.java)
-    private val cache = TimedCache<Pair<String, String>, List<RegisterCodeListItem>>(24 * 60 * 60 * 1000L)
+    private val cache =
+        TimedCache<Pair<String, String>, List<RegisterCodeListItem>>(
+            "legacy_access_constraints",
+            12 * 60 * 60 * 1000L,
+        )
 
     suspend fun translate(
         accessConstraints: String?,

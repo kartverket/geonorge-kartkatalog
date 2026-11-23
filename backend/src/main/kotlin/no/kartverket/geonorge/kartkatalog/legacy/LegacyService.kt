@@ -34,6 +34,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.getCoverageLink
 import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import no.kartverket.geonorge.kartkatalog.search.SearchHits
 import org.slf4j.LoggerFactory
+import kotlin.time.times
 
 private const val NATIONAL_THEME_THESAURUS = "Nasjonal tematisk inndeling (DOK-kategori)"
 private const val NATIONAL_INITIATIVE_THESAURUS = "Nasjonal inndeling i geografiske initiativ og SDI-er"
@@ -60,7 +61,11 @@ class LegacyService(
     private val log = LoggerFactory.getLogger(LegacyService::class.java)
 
     private val accessConstraintsTranslator = LegacyAccessConstraintsTranslator(registerClient)
-    private val areasCache = TimedCache<String, Map<String, String>>(12 * 60 * 60 * 1000L)
+    private val areasCache =
+        TimedCache<String, Map<String, String>>(
+            "legacy_areas",
+            12 * 60 * 60 * 1000L,
+        )
 
     internal suspend fun validDatasetName(
         datasetName: String?,
