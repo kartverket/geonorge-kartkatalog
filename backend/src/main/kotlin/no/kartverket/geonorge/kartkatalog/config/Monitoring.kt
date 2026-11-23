@@ -70,9 +70,5 @@ fun Application.configureCallLogging() {
             val path = call.request.path()
             path != "/" && !path.startsWith("/actuator/")
         }
-        filter { call -> call.request.path() != "/" && call.request.path() != "/actuator/prometheus" }
-        format { call ->
-            "${call.request.httpMethod.value} ${call.request.path()} - ${call.response.status()}"
-        }
     }
 }

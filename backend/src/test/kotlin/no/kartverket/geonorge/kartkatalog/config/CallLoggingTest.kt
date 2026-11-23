@@ -71,7 +71,7 @@ class CallLoggingTest {
         try {
             testApplication {
                 application {
-                    configureMonitoring()
+                    configureCallLogging()
                     routing {
                         get("/test") {
                             LoggerFactory.getLogger("handler").info("inside")
