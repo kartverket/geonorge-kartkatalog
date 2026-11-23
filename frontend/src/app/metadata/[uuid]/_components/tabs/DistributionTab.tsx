@@ -135,10 +135,10 @@ function DistributionGroupAccordion({
       label: "Referansesystem",
       content: product.referenceSystems.length > 0 && (
         <span className={styles.tags}>
-          {product.referenceSystems.map((rs) => (
+          {product.referenceSystems.map((rs, i) => (
             <span
               className="ds-tag"
-              key={rs.codeSpace ?? rs.code}
+              key={rs.code ?? i}
               title={rs.code ?? undefined}
             >
               {rs.title || rs.code}
