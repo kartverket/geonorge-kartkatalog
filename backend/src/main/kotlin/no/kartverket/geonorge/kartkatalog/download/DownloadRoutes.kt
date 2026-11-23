@@ -2,18 +2,17 @@ package no.kartverket.geonorge.kartkatalog.download
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticateWithOptional
-import io.ktor.server.auth.authentication
 import io.ktor.server.auth.principalOrNull
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import io.ktor.server.routing.route
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.kartverket.geonorge.kartkatalog.auth.TokenExchangeClient
 import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
+import no.kartverket.geonorge.kartkatalog.undocumentedRoute
 
 @Serializable
 data class DownloadOrderAreaDto(
@@ -170,7 +169,7 @@ private fun DownloadOrderResult.toDto() =
 
 private fun DownloadOrderGroupResult.toDto(): DownloadOrderGroupResultDto =
     when (this) {
-        is DownloadOrderGroupResult.Success ->
+        is DownloadOrderGroupResult.Success -> {
             DownloadOrderGroupResultDto(
                 status = "ordered",
                 files =
@@ -194,13 +193,15 @@ private fun DownloadOrderGroupResult.toDto(): DownloadOrderGroupResultDto =
                         )
                     },
             )
+        }
 
-        is DownloadOrderGroupResult.Failure ->
+        is DownloadOrderGroupResult.Failure -> {
             DownloadOrderGroupResultDto(
                 status = "failed",
                 metadataUuids = metadataUuids,
                 message = message,
             )
+        }
     }
 
 private fun DownloadOptions.toDto() =
@@ -239,7 +240,7 @@ fun Route.downloadRoutes(
     tokenExchangeClient: TokenExchangeClient,
     authentication: GeoIdAuthentication,
 ) {
-    route("/api/download") {
+    undocumentedRoute("/download") {
         authenticateWithOptional(authentication.provider.session) {
             /**
              * Places one or more download orders. Restricted products require a valid GeoID session.
