@@ -9,6 +9,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineRe
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductBoundingBox
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductConstraints
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionEntry
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
@@ -47,7 +48,15 @@ class MetadataMapper(
                 mapKeywords(
                     record,
                 ) { it.type.equals("place", ignoreCase = true) }.mapNotNull { it.keywordValue },
-            boundingBox = record.boundingBox,
+            boundingBox =
+                record.boundingBox?.let {
+                    ProductBoundingBox(
+                        westBoundLongitude = it.westBoundLongitude,
+                        eastBoundLongitude = it.eastBoundLongitude,
+                        southBoundLatitude = it.southBoundLatitude,
+                        northBoundLatitude = it.northBoundLatitude,
+                    )
+                },
             cloudCoverPercentage = record.cloudCoverPercentage,
             maintenanceFrequency =
                 codeListTranslator.translate(
