@@ -1,0 +1,19 @@
+.markdown {
+  display: grid;
+  gap: var(--ds-size-4);
+}
+
+.markdown > * {
+  margin: 0;
+}
+
+.markdown ul,
+.markdown ol {
+  padding-left: var(--ds-size-6);
+}
+
+/* Overskrifter i fritekst skal ikke konkurrere med sidens egne overskrifter */
+.markdown :is(h1, h2, h3, h4, h5, h6) {
+  font-size: inherit;
+  font-weight: 600;
+}
