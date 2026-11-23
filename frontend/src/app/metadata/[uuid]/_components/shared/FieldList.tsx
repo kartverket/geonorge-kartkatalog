@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
+import styles from "@/app/metadata/[uuid]/_components/tabs/ProductTabs.module.css";
 
 export type Field = { label: string; content?: ReactNode };
 

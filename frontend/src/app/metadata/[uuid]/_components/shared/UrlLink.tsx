@@ -1,5 +1,5 @@
 import { CopyButton } from "@/app/metadata/[uuid]/_components/CopyButton";
-import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
+import styles from "@/app/metadata/[uuid]/_components/tabs/ProductTabs.module.css";
 
 export function UrlLink({
   url,

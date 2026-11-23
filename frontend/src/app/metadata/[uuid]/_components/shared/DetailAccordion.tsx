@@ -2,12 +2,12 @@
 
 import { Details } from "@kv-designsystem/react";
 import type { MouseEvent, ReactNode } from "react";
-import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
 import {
   type Field,
   FieldList,
   getVisibleFields,
 } from "@/app/metadata/[uuid]/_components/shared/FieldList";
+import styles from "@/app/metadata/[uuid]/_components/tabs/ProductTabs.module.css";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
 
 export function DetailAccordion({

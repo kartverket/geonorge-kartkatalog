@@ -1,3 +1,5 @@
+"use client";
+
 import { Button, Card, Heading, Paragraph, Tag } from "@kv-designsystem/react";
 import {
   ExternalLinkIcon,
@@ -5,12 +7,13 @@ import {
   PencilBoardIcon,
   TasklistStartIcon,
 } from "@navikt/aksel-icons";
+import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import type { ProduktarkItem } from "@/lib/schemas/produktark";
 import type { ProduktspesifikasjonItem } from "@/lib/schemas/produktspesifikasjon";
 import type { TegnereglerItem } from "@/lib/schemas/tegneregler";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
-import styles from "./ProductDocumentation.module.css";
+import styles from "./ProductDocumentationTab.module.css";
 
 type ProductDocumentationProps = {
   tegneregler: TegnereglerItem | null;
@@ -63,11 +66,13 @@ export function ProductDocumentationTab({
   ].filter(isDefined);
 
   return (
-    <div className={styles.cardWrapper}>
-      {cards.map((card) => (
-        <DocumentationCard key={card.title} card={card} />
-      ))}
-    </div>
+    <TabPanel value="documentation">
+      <div className={styles.cardWrapper}>
+        {cards.map((card) => (
+          <DocumentationCard key={card.title} card={card} />
+        ))}
+      </div>
+    </TabPanel>
   );
 }
 

@@ -1,9 +1,10 @@
 import { Heading } from "@kv-designsystem/react";
-import styles from "@/app/metadata/[uuid]/_components/ProductTabs.module.css";
 import {
   DetailAccordion,
   FieldAccordion,
 } from "@/app/metadata/[uuid]/_components/shared/DetailAccordion";
+import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
+import styles from "@/app/metadata/[uuid]/_components/tabs/ProductTabs.module.css";
 import { getProductTypeDefiniteString } from "@/lib/productType";
 import type { ProductConstraints } from "@/lib/schemas/product";
 
@@ -31,7 +32,7 @@ export function InfoTab({
   const productTypeDefinite = getProductTypeDefiniteString(hierarchyLevel);
 
   return (
-    <>
+    <TabPanel value="info">
       {abstract && (
         <div className={styles.headingGroup}>
           <Heading data-size="xs">Om {productTypeDefinite}</Heading>
@@ -50,7 +51,7 @@ export function InfoTab({
           <p className={styles.pending}>Innhold kommer</p>
         </DetailAccordion>
       </div>
-    </>
+    </TabPanel>
   );
 }
 
