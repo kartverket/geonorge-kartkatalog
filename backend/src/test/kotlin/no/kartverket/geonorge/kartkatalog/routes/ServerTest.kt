@@ -19,6 +19,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import no.kartverket.geonorge.kartkatalog.API_V1
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
+import no.kartverket.geonorge.kartkatalog.config.configureMetrics
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.configureRouting
@@ -77,6 +78,7 @@ class ServerTest {
         testApplication {
             application {
                 val authentication = configureTestAuthentication()
+                configureMetrics()
                 configureHttp()
                 configureSerialization()
                 configureStatusPages()
@@ -184,6 +186,7 @@ class ServerTest {
                     "/api/v1/download/order",
                     "/api/download/order",
                     "/api/download/options/{uuid}",
+                    "/actuator/prometheus",
                 )
             assertTrue(hidden.none { it in paths }, "Undocumented paths leaked into swagger: ${paths.keys}")
         }

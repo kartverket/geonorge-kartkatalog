@@ -18,6 +18,7 @@ import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.kartverket.geonorge.kartkatalog.undocumented
 import org.slf4j.event.Level
 import java.util.UUID
 
@@ -38,8 +39,10 @@ fun Application.configureMetrics() {
     }
 
     routing {
-        get("/actuator/prometheus") {
-            call.respondText(prometheusRegistry.scrape())
+        undocumented {
+            get("/actuator/prometheus") {
+                call.respondText(prometheusRegistry.scrape())
+            }
         }
     }
 }
