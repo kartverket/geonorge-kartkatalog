@@ -1,10 +1,11 @@
 import { Heading } from "@kv-designsystem/react";
+import accordionGroupStyles from "@/app/metadata/[uuid]/_components/shared/AccordionGroup.module.css";
 import {
   DetailAccordion,
   FieldAccordion,
 } from "@/app/metadata/[uuid]/_components/shared/DetailAccordion";
 import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
-import styles from "@/app/metadata/[uuid]/_components/tabs/ProductTabs.module.css";
+import styles from "@/app/metadata/[uuid]/_components/tabs/InfoTab.module.css";
 import { getProductTypeDefiniteString } from "@/lib/productType";
 import type { ProductConstraints } from "@/lib/schemas/product";
 
@@ -39,7 +40,7 @@ export function InfoTab({
           <p className={styles.abstract}>{abstract}</p>
         </div>
       )}
-      <div className={styles.accordionGroup}>
+      <div className={accordionGroupStyles.accordionGroup}>
         <UsageAccordion specificUsage={specificUsage} purpose={purpose} />
         <LicenseAccordion constraints={constraints} />
         <ProcessHistoryAccordion processHistory={processHistory} />

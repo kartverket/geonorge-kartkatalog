@@ -1,0 +1,31 @@
+.abstract {
+  white-space: pre-line;
+}
+
+.headingGroup {
+  display: grid;
+  gap: var(--ds-size-1);
+}
+
+.pending {
+  color: var(--ds-color-neutral-text-subtle);
+  font-style: italic;
+}
+
+.helpLink {
+  margin-left: var(--ds-size-8);
+  text-decoration: underline;
+  color: inherit;
+}
+
+/*
+ * På mobil er det ikke plass til etikett og verdi ved siden av hverandre
+ * (14rem etikettkolonne ville latt ~60px stå igjen til verdien), så
+ * feltene stables og margene strammes inn.
+ */
+@media (max-width: 800px) {
+  /* Samme venstremargin på helpLink som accordiongroup -> rett plassering */
+  .helpLink {
+    margin-left: var(--ds-size-2);
+  }
+}

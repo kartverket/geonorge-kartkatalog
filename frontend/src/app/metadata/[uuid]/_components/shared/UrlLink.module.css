@@ -1,0 +1,83 @@
+.urlBox {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  border: 1px solid var(--ds-color-neutral-border-default);
+  border-radius: var(--ds-border-radius-md);
+  overflow: hidden;
+}
+
+.urlValue {
+  flex: 1;
+  min-width: 0;
+  padding: var(--ds-size-2) var(--ds-size-3);
+  display: flex;
+  align-items: center;
+}
+
+.urlText {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: underline;
+  font-size: var(--ds-body-md-font-size);
+}
+
+.copyButton {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  padding-inline: var(--ds-size-12);
+  border: none;
+  border-left: 1px solid var(--ds-color-neutral-border-default);
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: var(--ds-body-md-font-size);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.copyButton svg {
+  width: 24px;
+  height: 24px;
+}
+
+/*
+ * Wrap kopierknapp i accordion under url på mobil
+ */
+@media (max-width: 800px) {
+  .urlBox {
+    flex-wrap: wrap;
+  }
+
+  .urlValue {
+    flex-basis: 100%;
+  }
+
+  .copyButton {
+    flex-basis: 100%;
+    justify-content: center;
+    padding-inline: var(--ds-size-3);
+    padding-block: var(--ds-size-2);
+    border-left: none;
+    border-top: 1px solid var(--ds-color-neutral-border-default);
+  }
+}
+
+/*
+ * På mobil er det ikke plass til etikett og verdi ved siden av hverandre
+ * (14rem etikettkolonne ville latt ~60px stå igjen til verdien), så
+ * feltene stables og margene strammes inn.
+ */
+@media (max-width: 800px) {
+  /* Gjør url-text scrollbar på små skjermer */
+  .urlText {
+    text-overflow: clip;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+}

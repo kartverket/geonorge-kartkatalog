@@ -1,0 +1,34 @@
+.accordionGroup {
+  border: 1px solid var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-lg);
+  overflow: hidden;
+}
+
+.accordionGroup :global(.ds-details) {
+  border: none;
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
+.accordionGroup :global(.ds-details:last-child) {
+  border-bottom: none;
+}
+
+.accordionGroup :global(.ds-details[open] summary) {
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
+.accordionGroup p {
+  margin: var(--ds-size-8);
+}
+
+/*
+ * På mobil er det ikke plass til etikett og verdi ved siden av hverandre
+ * (14rem etikettkolonne ville latt ~60px stå igjen til verdien), så
+ * feltene stables og margene strammes inn.
+ */
+@media (max-width: 800px) {
+  /* Reduser margin  */
+  .accordionGroup p {
+    margin: var(--ds-size-5) var(--ds-size-2);
+  }
+}

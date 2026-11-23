@@ -3,10 +3,10 @@ import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownload
 import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import { DistributionDetailActionButton } from "@/app/metadata/[uuid]/_components/DistributionDetailActionButton";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
+import accordionGroupStyles from "@/app/metadata/[uuid]/_components/shared/AccordionGroup.module.css";
 import { FieldAccordion } from "@/app/metadata/[uuid]/_components/shared/DetailAccordion";
 import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
 import { UrlLink } from "@/app/metadata/[uuid]/_components/shared/UrlLink";
-import styles from "@/app/metadata/[uuid]/_components/tabs/ProductTabs.module.css";
 import { isGeonorgeDownloadProtocol } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import { getProductTypeDefiniteString } from "@/lib/productType";
@@ -16,6 +16,7 @@ import type {
   ReferenceSystem,
 } from "@/lib/schemas/product";
 import { LOCATIONS } from "@/posthog/posthog";
+import styles from "./DistributionTab.module.css";
 
 type ProductInfo = {
   uuid: string;
@@ -55,7 +56,7 @@ export function DistributionTab({
   return (
     <TabPanel value="distribution">
       <Heading data-size="xs">Tilganger til {productTypeDefinite}</Heading>
-      <div className={styles.accordionGroup}>
+      <div className={accordionGroupStyles.accordionGroup}>
         {groups.map((group, i) => {
           const key = `${i}-${group.protocolName}`;
           return (

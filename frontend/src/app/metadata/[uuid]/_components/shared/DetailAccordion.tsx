@@ -7,8 +7,8 @@ import {
   FieldList,
   getVisibleFields,
 } from "@/app/metadata/[uuid]/_components/shared/FieldList";
-import styles from "@/app/metadata/[uuid]/_components/tabs/ProductTabs.module.css";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
+import styles from "./DetailAccordion.module.css";
 
 export function DetailAccordion({
   title,

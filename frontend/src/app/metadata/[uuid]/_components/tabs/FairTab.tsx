@@ -3,6 +3,7 @@
 import { Button, Details, Heading } from "@kv-designsystem/react";
 import { CheckmarkIcon, MinusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { type MouseEvent, useState } from "react";
+import accordionGroupStyles from "@/app/metadata/[uuid]/_components/shared/AccordionGroup.module.css";
 import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
 import type { ProductFairStatus } from "@/lib/schemas/product";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
@@ -62,7 +63,7 @@ export function FairTab({ fairStatus }: { fairStatus: ProductFairStatus }) {
         <Heading data-size="sm">Resultater for dette datasettet</Heading>
         <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
       </div>
-      <div className={styles.accordionGroup}>
+      <div className={accordionGroupStyles.accordionGroup}>
         {fairStatus.principles.map((principle) => (
           <Details key={principle.Code}>
             <Details.Summary
