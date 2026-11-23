@@ -1,9 +1,6 @@
 .fieldTable tbody tr:last-child td {
   border-bottom: none;
-}
-
-.paddingBottom {
-  padding-bottom: var(--ds-size-4);
+  padding-bottom: var(--ds-size-4)
 }
 
 /* På mobil stables etikett og verdi i stedet for å dele bredden. */
