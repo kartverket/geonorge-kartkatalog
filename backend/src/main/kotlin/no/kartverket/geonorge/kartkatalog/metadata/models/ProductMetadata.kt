@@ -2,6 +2,7 @@ package no.kartverket.geonorge.kartkatalog.metadata.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.BoundingBox
 
 @Serializable
 data class ProductMetadata(
@@ -10,7 +11,13 @@ data class ProductMetadata(
     val hierarchyLevel: String,
     val seriesType: String? = null,
     val accessState: AccessState? = null,
+    val datePublished: String? = null,
     val dateUpdated: String? = null,
+    val dateMetadataUpdated: String? = null,
+    val validityPeriod: ProductValidityPeriod? = null,
+    val geographicAreas: List<String> = emptyList(),
+    val boundingBox: BoundingBox? = null,
+    val cloudCoverPercentage: Double? = null,
     val maintenanceFrequency: String? = null,
     val spatialRepresentation: String? = null,
     val spatialScope: String? = null,
@@ -37,6 +44,12 @@ data class ProductMetadata(
     val referenceSystems: List<ProductReferenceSystem> = emptyList(),
     val distributionGroups: List<ProductDistributionGroup> = emptyList(),
     val coverageData: CoverageData? = null,
+)
+
+@Serializable
+data class ProductValidityPeriod(
+    val from: String? = null,
+    val to: String? = null,
 )
 
 @Serializable

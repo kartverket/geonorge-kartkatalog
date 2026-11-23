@@ -115,6 +115,8 @@ object MetadataParser {
                 securityConstraints = parseSecurityConstraints(idInfo),
                 boundingBox = parseBoundingBox(idInfo),
                 temporalExtents = parseTemporalExtents(idInfo),
+                cloudCoverPercentage =
+                    md.text("gmd:contentInfo//gmd:cloudCoverPercentage/gco:Real")?.toDoubleOrNull(),
                 resourceLanguages =
                     idInfo
                         ?.nodes("gmd:language")

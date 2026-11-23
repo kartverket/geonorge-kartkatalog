@@ -74,6 +74,7 @@ data class MetadataRecord(
     val securityConstraints: SecurityConstraints? = null,
     val boundingBox: BoundingBox? = null,
     val temporalExtents: List<TemporalExtent> = emptyList(),
+    val cloudCoverPercentage: Double? = null,
     // Identification — dataset specific
     val resourceLanguages: List<String> = emptyList(),
     val topicCategories: List<String> = emptyList(),

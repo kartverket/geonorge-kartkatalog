@@ -17,6 +17,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductReferenceSystem
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductValidityPeriod
 
 class MetadataMapper(
     private val codeListTranslator: CodeListTranslator,
@@ -38,7 +39,16 @@ class MetadataMapper(
             hierarchyLevel = record.hierarchyLevel,
             seriesType = record.hierarchyLevelName,
             accessState = accessState,
+            datePublished = record.dates.firstOrNull { it.type == "publication" }?.date,
             dateUpdated = record.dates.firstOrNull { it.type == "revision" }?.date,
+            dateMetadataUpdated = record.dateStamp.takeIf { it.isNotBlank() },
+            validityPeriod = mapValidityPeriod(record),
+            geographicAreas =
+                mapKeywords(
+                    record,
+                ) { it.type.equals("place", ignoreCase = true) }.mapNotNull { it.keywordValue },
+            boundingBox = record.boundingBox,
+            cloudCoverPercentage = record.cloudCoverPercentage,
             maintenanceFrequency =
                 codeListTranslator.translate(
                     CodeList.MAINTENANCE_FREQUENCY,
@@ -91,6 +101,13 @@ class MetadataMapper(
                     ?.toProductMetadataContact(),
             coverageData = getCoverageLinks(record.extensionResources),
         )
+    }
+
+    private fun mapValidityPeriod(record: MetadataRecord): ProductValidityPeriod? {
+        val extent = record.temporalExtents.firstOrNull() ?: return null
+        val from = extent.begin.takeUnless { it.isNullOrBlank() || it == "unknown" }
+        val to = extent.end.takeUnless { it.isNullOrBlank() || it == "unknown" }
+        return if (from == null && to == null) null else ProductValidityPeriod(from = from, to = to)
     }
 
     private fun describeAccessConstraints(
