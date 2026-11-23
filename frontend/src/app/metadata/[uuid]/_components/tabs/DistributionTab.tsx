@@ -4,10 +4,12 @@ import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStor
 import { DistributionDetailActionButton } from "@/app/metadata/[uuid]/_components/DistributionDetailActionButton";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import accordionGroupStyles from "@/app/metadata/[uuid]/_components/shared/AccordionGroup.module.css";
-import { FieldAccordion } from "@/app/metadata/[uuid]/_components/shared/DetailAccordion";
+import { DetailAccordion } from "@/app/metadata/[uuid]/_components/shared/DetailAccordion";
+import { FieldList } from "@/app/metadata/[uuid]/_components/shared/FieldList";
 import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
 import { UrlLink } from "@/app/metadata/[uuid]/_components/shared/UrlLink";
 import { isGeonorgeDownloadProtocol } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
+import { hasVisibleFields } from "@/app/metadata/[uuid]/_utils/tableContent";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import { getProductTypeDefiniteString } from "@/lib/productType";
 import type {
@@ -97,8 +99,60 @@ function DistributionGroupAccordion({
     .map((unit) => unit.trim())
     .filter(Boolean);
 
+  const fields = [
+    { label: "Beskrivelse", content: group.protocolDescription },
+    ...urlRows.map((row) => ({
+      label: row.label,
+      content: (
+        <UrlLink
+          url={row.url}
+          protocol={group.protocol}
+          protocolName={group.protocolName}
+          format={row.formatNames.join(", ")}
+          urlLabel={row.label}
+        />
+      ),
+    })),
+    {
+      label: "Formater",
+      content: formatNames.length > 0 && (
+        <Tags values={formatNames} color="info" />
+      ),
+    },
+    {
+      label: "Oppdateringsfrekvens",
+      content: product.maintenanceFrequency,
+    },
+    {
+      label: "Ressurs sist oppdatert",
+      content: product.dateUpdated && formatDate(product.dateUpdated),
+    },
+    {
+      label: "Geografisk distribusjonsinndeling",
+      content: units && units.length > 0 && <Tags values={units} />,
+    },
+    {
+      label: "Referansesystem",
+      content: product.referenceSystems.length > 0 && (
+        <span className={styles.tags}>
+          {product.referenceSystems.map((rs) => (
+            <span
+              className="ds-tag"
+              key={rs.codeSpace ?? rs.code}
+              title={rs.code ?? undefined}
+            >
+              {rs.title || rs.code}
+            </span>
+          ))}
+        </span>
+      ),
+    },
+  ];
+
+  if (!hasVisibleFields(fields)) return null;
+
   return (
-    <FieldAccordion
+    <DetailAccordion
       title={group.protocolName ?? "Ukjent protokoll"}
       actionButton={
         <DistributionDetailActionButton
@@ -117,56 +171,9 @@ function DistributionGroupAccordion({
           downloadableSeriesMembers={seriesDownloads.downloadableSeriesMembers}
         />
       }
-      fields={[
-        { label: "Beskrivelse", content: group.protocolDescription },
-        ...urlRows.map((row) => ({
-          label: row.label,
-          content: (
-            <UrlLink
-              url={row.url}
-              protocol={group.protocol}
-              protocolName={group.protocolName}
-              format={row.formatNames.join(", ")}
-              urlLabel={row.label}
-            />
-          ),
-        })),
-        {
-          label: "Formater",
-          content: formatNames.length > 0 && (
-            <Tags values={formatNames} color="info" />
-          ),
-        },
-        {
-          label: "Oppdateringsfrekvens",
-          content: product.maintenanceFrequency,
-        },
-        {
-          label: "Ressurs sist oppdatert",
-          content: product.dateUpdated && formatDate(product.dateUpdated),
-        },
-        {
-          label: "Geografisk distribusjonsinndeling",
-          content: units && units.length > 0 && <Tags values={units} />,
-        },
-        {
-          label: "Referansesystem",
-          content: product.referenceSystems.length > 0 && (
-            <span className={styles.tags}>
-              {product.referenceSystems.map((rs) => (
-                <span
-                  className="ds-tag"
-                  key={rs.codeSpace ?? rs.code}
-                  title={rs.code ?? undefined}
-                >
-                  {rs.title || rs.code}
-                </span>
-              ))}
-            </span>
-          ),
-        },
-      ]}
-    />
+    >
+      <FieldList fields={fields} />
+    </DetailAccordion>
   );
 }
 
@@ -182,7 +189,7 @@ function SeriesDownloadAccordion({
   if (items.length === 0) return null;
 
   return (
-    <FieldAccordion
+    <DetailAccordion
       title="Geonorge nedlasting"
       actionButton={
         <AddToDownloadsButton
@@ -194,13 +201,16 @@ function SeriesDownloadAccordion({
           preventAccordionToggle
         />
       }
-      fields={[
-        {
-          label: "Beskrivelse",
-          content: `Last ned alle ${items.length} tilgjengelige filer i serien.`,
-        },
-      ]}
-    />
+    >
+      <FieldList
+        fields={[
+          {
+            label: "Beskrivelse",
+            content: `Last ned alle ${items.length} tilgjengelige filer i serien.`,
+          },
+        ]}
+      />
+    </DetailAccordion>
   );
 }
 

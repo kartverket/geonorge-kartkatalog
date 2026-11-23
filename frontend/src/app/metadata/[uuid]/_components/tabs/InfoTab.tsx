@@ -1,13 +1,21 @@
 import { Heading } from "@kv-designsystem/react";
 import accordionGroupStyles from "@/app/metadata/[uuid]/_components/shared/AccordionGroup.module.css";
-import {
-  DetailAccordion,
-  FieldAccordion,
-} from "@/app/metadata/[uuid]/_components/shared/DetailAccordion";
+import { DetailAccordion } from "@/app/metadata/[uuid]/_components/shared/DetailAccordion";
+import type { Field } from "@/app/metadata/[uuid]/_components/shared/FieldList";
+import { FieldTable } from "@/app/metadata/[uuid]/_components/shared/FieldTable";
 import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
 import styles from "@/app/metadata/[uuid]/_components/tabs/InfoTab.module.css";
+import {
+  getVisibleFields,
+  hasVisibleFields,
+} from "@/app/metadata/[uuid]/_utils/tableContent";
+import { formatDateNumeric } from "@/app/metadata/[uuid]/_utils/utils";
 import { getProductTypeDefiniteString } from "@/lib/productType";
-import type { ProductConstraints } from "@/lib/schemas/product";
+import type {
+  ProductBoundingBox,
+  ProductConstraints,
+  ProductValidityPeriod,
+} from "@/lib/schemas/product";
 
 type InfoTabProps = {
   hierarchyLevel: string | null;
@@ -18,6 +26,13 @@ type InfoTabProps = {
   supplementalDescription?: string | null;
   helpUrl?: string | null;
   constraints: ProductConstraints;
+  datePublished: string | null;
+  dateUpdated: string | null;
+  dateMetadataUpdated: string | null;
+  validityPeriod: ProductValidityPeriod | null;
+  geographicAreas: string[];
+  boundingBox: ProductBoundingBox | null;
+  cloudCoverPercentage: number | null;
 };
 
 export function InfoTab({
@@ -29,6 +44,13 @@ export function InfoTab({
   supplementalDescription,
   helpUrl,
   constraints,
+  datePublished,
+  dateUpdated,
+  dateMetadataUpdated,
+  validityPeriod,
+  geographicAreas,
+  boundingBox,
+  cloudCoverPercentage,
 }: InfoTabProps) {
   const productTypeDefinite = getProductTypeDefiniteString(hierarchyLevel);
 
@@ -42,12 +64,21 @@ export function InfoTab({
       )}
       <div className={accordionGroupStyles.accordionGroup}>
         <UsageAccordion specificUsage={specificUsage} purpose={purpose} />
-        <LicenseAccordion constraints={constraints} />
-        <ProcessHistoryAccordion processHistory={processHistory} />
+        <WhenAndWhereAccordion
+          datePublished={datePublished}
+          dateUpdated={dateUpdated}
+          dateMetadataUpdated={dateMetadataUpdated}
+          validityPeriod={validityPeriod}
+          geographicAreas={geographicAreas}
+          boundingBox={boundingBox}
+          cloudCoverPercentage={cloudCoverPercentage}
+        />
         <HelpAccordion
           supplementalDescription={supplementalDescription}
           helpUrl={helpUrl}
         />
+        <LicenseAccordion constraints={constraints} />
+        <ProcessHistoryAccordion processHistory={processHistory} />
         <DetailAccordion title="Detaljert informasjon">
           <p className={styles.pending}>Innhold kommer</p>
         </DetailAccordion>
@@ -69,15 +100,105 @@ function UsageAccordion({
         ? "Bruksområde"
         : "Formål";
 
+  const fields: Field[] = [
+    { label: "Bruksområde", content: specificUsage },
+    { label: "Formål", content: showPurpose ? purpose : null },
+  ];
+
+  if (!hasVisibleFields(fields)) return null;
+
   return (
-    <FieldAccordion
-      title={title}
-      fields={[
-        { label: "Bruksområde", content: specificUsage },
-        { label: "Formål", content: showPurpose ? purpose : null },
-      ]}
-    />
+    <DetailAccordion title={title}>
+      <FieldTable fields={fields} />
+    </DetailAccordion>
   );
+}
+
+function WhenAndWhereAccordion({
+  datePublished,
+  dateUpdated,
+  dateMetadataUpdated,
+  validityPeriod,
+  geographicAreas,
+  boundingBox,
+  cloudCoverPercentage,
+}: Pick<
+  InfoTabProps,
+  | "datePublished"
+  | "dateUpdated"
+  | "dateMetadataUpdated"
+  | "validityPeriod"
+  | "geographicAreas"
+  | "boundingBox"
+  | "cloudCoverPercentage"
+>) {
+  const timeFields: Field[] = [
+    { label: "Publiseringsdato", content: formatDateNumeric(datePublished) },
+    { label: "Oppdatert (Ressurs)", content: formatDateNumeric(dateUpdated) },
+    {
+      label: "Oppdatert (Metadata)",
+      content: formatDateNumeric(dateMetadataUpdated),
+    },
+    {
+      label: "Gyldighetsperiode",
+      content: formatValidityPeriod(validityPeriod),
+    },
+  ];
+
+  const spatialFields: Field[] = [
+    {
+      label: "Geografisk område",
+      content: geographicAreas.length > 0 ? geographicAreas.join(", ") : null,
+    },
+    { label: "Koordinater", content: formatBoundingBox(boundingBox) },
+    {
+      label: "Skydekke prosent",
+      content:
+        cloudCoverPercentage !== null ? `${cloudCoverPercentage}%` : null,
+    },
+  ];
+
+  const sections = [
+    {
+      title: "Tidsparametre",
+      fields: getVisibleFields(timeFields),
+      paddingBottom: true,
+    },
+    {
+      title: "Romlige parametre",
+      fields: getVisibleFields(spatialFields),
+      paddingBottom: false,
+    },
+  ].filter((section) => section.fields.length > 0);
+
+  if (sections.length === 0) return null;
+
+  return (
+    <DetailAccordion title="Når og hvor">
+      {sections.map((section) => (
+        <FieldTable
+          key={section.title}
+          title={section.title}
+          fields={section.fields}
+          paddingBottom={section.paddingBottom}
+        />
+      ))}
+    </DetailAccordion>
+  );
+}
+
+function formatValidityPeriod(period: ProductValidityPeriod | null) {
+  const from = formatDateNumeric(period?.from);
+  const to = formatDateNumeric(period?.to);
+  if (from && to) return `${from} – ${to}`;
+  if (from) return `Fra og med ${from}`;
+  if (to) return `Til og med ${to}`;
+  return null;
+}
+
+function formatBoundingBox(box: ProductBoundingBox | null) {
+  if (!box) return null;
+  return `Nord ${box.northBoundLatitude}°, Sør ${box.southBoundLatitude}°, Øst ${box.eastBoundLongitude}°, Vest ${box.westBoundLongitude}°`;
 }
 
 function LicenseAccordion({
@@ -94,28 +215,31 @@ function LicenseAccordion({
     securityConstraints,
   } = constraints;
 
+  const fields: Field[] = [
+    { label: "Bruksbegrensninger", content: useLimitations?.join(", ") },
+    { label: "Tilgangsrestriksjoner", content: accessConstraints },
+    { label: "Brukerrestriksjoner", content: useConstraints },
+    {
+      label: "Lisens",
+      content: otherConstraintsLink && (
+        <a
+          href={otherConstraintsLink}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {otherConstraintsLinkText}
+        </a>
+      ),
+    },
+    { label: "Sikkerhetsnivå", content: securityConstraints },
+  ];
+
+  if (!hasVisibleFields(fields)) return null;
+
   return (
-    <FieldAccordion
-      title="Lisens og restriksjoner"
-      fields={[
-        { label: "Bruksbegrensninger", content: useLimitations?.join(", ") },
-        { label: "Tilgangsrestriksjoner", content: accessConstraints },
-        { label: "Brukerrestriksjoner", content: useConstraints },
-        {
-          label: "Lisens",
-          content: otherConstraintsLink && (
-            <a
-              href={otherConstraintsLink}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {otherConstraintsLinkText}
-            </a>
-          ),
-        },
-        { label: "Sikkerhetsnivå", content: securityConstraints },
-      ]}
-    />
+    <DetailAccordion title="Lisens og restriksjoner">
+      <FieldTable fields={fields} />
+    </DetailAccordion>
   );
 }
 

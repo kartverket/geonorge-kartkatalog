@@ -25,6 +25,15 @@ export const getUniqueItemsFromListByKey = <
 export const formatDate = (s?: string | null) =>
   s ? new Date(s).toLocaleDateString("nb-NO", { dateStyle: "long" }) : "-";
 
+export const formatDateNumeric = (s?: string | null) =>
+  s
+    ? new Date(s).toLocaleDateString("nb-NO", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : null;
+
 export const getRelevantAlerts = (alerts: Alerts | null): Alerts => {
   return (
     alerts?.filter((alert) => {

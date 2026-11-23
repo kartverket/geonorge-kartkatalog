@@ -126,6 +126,13 @@ export async function ProductTabsSection({
         processHistory={metadata.processHistory}
         supplementalDescription={metadata.supplementalDescription}
         helpUrl={metadata.helpUrl}
+        datePublished={metadata.datePublished}
+        dateUpdated={metadata.dateUpdated}
+        dateMetadataUpdated={metadata.dateMetadataUpdated}
+        validityPeriod={metadata.validityPeriod}
+        geographicAreas={metadata.geographicAreas}
+        boundingBox={metadata.boundingBox}
+        cloudCoverPercentage={metadata.cloudCoverPercentage}
         constraints={{
           ...metadata.constraints,
           securityConstraints: metadata.securityClassification,
