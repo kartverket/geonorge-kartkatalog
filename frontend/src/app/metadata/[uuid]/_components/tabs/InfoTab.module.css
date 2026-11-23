@@ -7,11 +7,6 @@
   gap: var(--ds-size-1);
 }
 
-.pending {
-  color: var(--ds-color-neutral-text-subtle);
-  font-style: italic;
-}
-
 .helpLink {
   margin-left: var(--ds-size-8);
   text-decoration: underline;

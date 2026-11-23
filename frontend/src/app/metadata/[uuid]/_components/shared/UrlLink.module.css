@@ -56,17 +56,6 @@
     flex-basis: 100%;
   }
 
-  .copyButton {
-    flex-basis: 100%;
-    justify-content: center;
-    padding-inline: var(--ds-size-3);
-    padding-block: var(--ds-size-2);
-    border-left: none;
-    border-top: 1px solid var(--ds-color-neutral-border-default);
-  }
-}
-
-@media (max-width: 800px) {
   /* Gjør url-text scrollbar på små skjermer */
   .urlText {
     text-overflow: clip;
@@ -74,5 +63,14 @@
     overflow-y: hidden;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
+  }
+
+  .copyButton {
+    flex-basis: 100%;
+    justify-content: center;
+    padding-inline: var(--ds-size-3);
+    padding-block: var(--ds-size-2);
+    border-left: none;
+    border-top: 1px solid var(--ds-color-neutral-border-default);
   }
 }

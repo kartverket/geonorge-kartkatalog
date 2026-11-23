@@ -14,23 +14,21 @@ export function ProductTabs({
   children: ReactNode;
 }) {
   return (
-    <div>
-      <Tabs defaultValue={tabs[0]?.value}>
-        <Tabs.List>
-          {tabs.map((t) => (
-            <Tabs.Tab
-              key={t.value}
-              value={t.value}
-              onClick={() =>
-                trackClick(`${t.value}-tab`, LOCATIONS.MetadataPageTabs)
-              }
-            >
-              {t.label}
-            </Tabs.Tab>
-          ))}
-        </Tabs.List>
-        {children}
-      </Tabs>
-    </div>
+    <Tabs defaultValue={tabs[0]?.value}>
+      <Tabs.List>
+        {tabs.map((t) => (
+          <Tabs.Tab
+            key={t.value}
+            value={t.value}
+            onClick={() =>
+              trackClick(`${t.value}-tab`, LOCATIONS.MetadataPageTabs)
+            }
+          >
+            {t.label}
+          </Tabs.Tab>
+        ))}
+      </Tabs.List>
+      {children}
+    </Tabs>
   );
 }
