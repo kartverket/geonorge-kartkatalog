@@ -26,13 +26,12 @@ export const ProductMetadataContactSchema = z.object({
   name: z.string().nullable(),
   organization: z.string().nullable(),
   organizationEnglish: z.string().nullable(),
-  role: z.string().nullable(),
 });
 
 export const ReferenceSystemSchema = z.object({
   code: z.string().nullable(),
   codeSpace: z.string().nullable(),
-  title: z.string().nullable().optional(),
+  title: z.string().nullable(),
 });
 
 export const DistributionEntrySchema = z.object({
@@ -59,7 +58,6 @@ export const CoverageDataSchema = z.object({
   completenessCoverageData: CoverageDataSourceSchema.nullable(),
 });
 
-export type CoverageData = z.infer<typeof CoverageDataSchema>;
 export type CoverageDataSource = z.infer<typeof CoverageDataSourceSchema>;
 export type ReferenceSystem = z.infer<typeof ReferenceSystemSchema>;
 export type DistributionGroup = z.infer<typeof DistributionGroupSchema>;
@@ -101,7 +99,6 @@ export const ProductMetadataSchema = z.object({
   contactPublisher: ProductMetadataContactSchema.nullable(),
   referenceSystems: z.array(ReferenceSystemSchema),
   distributionGroups: z.array(DistributionGroupSchema),
-  coverageUrl: z.string().nullable(),
   coverageData: CoverageDataSchema.nullable(),
 });
 

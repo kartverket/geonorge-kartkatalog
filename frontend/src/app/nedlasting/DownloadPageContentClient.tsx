@@ -43,6 +43,7 @@ import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
 import { usePersistedDownloadSelections } from "./usePersistedDownloadSelections";
+import { usePersistedOrderInfo } from "./usePersistedOrderInfo";
 
 type DownloadPageContentClientProps = {
   insightGroups: DownloadInsightGroups;
@@ -66,12 +67,12 @@ export function DownloadPageContentClient({
       capabilitiesUrl: card.distributionUrl,
     })),
   );
-  const { isOrdering, orderError, orderResult, submitOrder } =
+  const { isOrdering, orderError, orderResult, submitOrder, resetOrder } =
     useDownloadOrder();
 
   const [selections, setSelections] = usePersistedDownloadSelections();
-  const [usageGroup, setUsageGroup] = useState("");
-  const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
+  const { usageGroup, setUsageGroup, usagePurpose, setUsagePurpose } =
+    usePersistedOrderInfo();
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<DownloadStep>("bestilling");
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -86,6 +87,16 @@ export function DownloadPageContentClient({
     window.scrollTo(0, 0);
     headingRef.current?.focus({ preventScroll: true });
   }, [step]);
+
+  // Hvis brukeren har lagt nye datasett i kurven mens vi fortsatt viser
+  // oppsummeringen fra forrige bestilling (f.eks. etter å ha navigert bort
+  // og tilbake uten full sidelasting), gå tilbake til bestillingssteget.
+  useEffect(() => {
+    if (step === "last-ned" && selectedDownloadUuids.length > 0) {
+      setStep("bestilling");
+      resetOrder();
+    }
+  }, [step, selectedDownloadUuids, resetOrder]);
 
   const [orderedCards, setOrderedCards] = useState<DownloadCard[]>([]);
   const [orderEmailProvided, setOrderEmailProvided] = useState(false);
@@ -481,7 +492,7 @@ export function DownloadPageContentClient({
                       }
                     >
                       <TrashIcon aria-hidden />
-                      Fjern alle nedlastinger
+                      Fjern alle datasett
                     </Button>
                     <Button
                       type="submit"
@@ -490,8 +501,8 @@ export function DownloadPageContentClient({
                     >
                       {!isOrdering && <ArrowRightIcon aria-hidden />}
                       {isOrdering
-                        ? "Bestiller nedlasting..."
-                        : "Bestill nedlasting"}
+                        ? "Bestiller datasett..."
+                        : "Bestill datasett"}
                     </Button>
                   </div>
                 </form>

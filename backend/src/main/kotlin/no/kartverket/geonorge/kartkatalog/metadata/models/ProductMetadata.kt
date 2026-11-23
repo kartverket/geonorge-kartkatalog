@@ -36,7 +36,6 @@ data class ProductMetadata(
     val contactPublisher: ProductMetadataContact? = null,
     val referenceSystems: List<ProductReferenceSystem> = emptyList(),
     val distributionGroups: List<ProductDistributionGroup> = emptyList(),
-    val coverageUrl: String? = null,
     val coverageData: CoverageData? = null,
 )
 
@@ -93,7 +92,6 @@ data class ProductMetadataContact(
     var name: String? = null,
     var organization: String? = null,
     var organizationEnglish: String? = null,
-    var role: String? = null,
 )
 
 @Serializable

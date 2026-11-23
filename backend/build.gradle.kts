@@ -41,16 +41,20 @@ tasks.test {
 dependencies {
     implementation(ktorLibs.server.auth.oidc)
     implementation(ktorLibs.server.callLogging)
+    implementation(ktorLibs.server.callId)
     implementation(ktorLibs.server.contentNegotiation)
     implementation(ktorLibs.server.core)
     implementation(ktorLibs.server.cors)
     implementation(ktorLibs.server.forwardedHeader)
+    implementation(ktorLibs.server.metrics.micrometer)
     implementation(ktorLibs.server.netty)
     implementation(ktorLibs.server.statusPages)
     implementation(ktorLibs.server.routingOpenapi)
     implementation(ktorLibs.server.swagger)
     implementation(libs.kotlinx.datetime)
     implementation(libs.logback.classic)
+    implementation(libs.micrometer.registry.prometheus)
+    implementation(libs.logstash.logback.encoder)
     implementation(ktorLibs.utils)
 
     implementation(ktorLibs.client.core)
@@ -59,7 +63,7 @@ dependencies {
     implementation(ktorLibs.serialization.kotlinx.json)
 
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
-    implementation("com.google.genai:google-genai:1.80.0")
+    implementation("com.google.genai:google-genai:2.3.0")
 
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)

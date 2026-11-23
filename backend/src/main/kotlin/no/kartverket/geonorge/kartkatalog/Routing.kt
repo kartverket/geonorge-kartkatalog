@@ -42,7 +42,7 @@ import no.kartverket.geonorge.kartkatalog.search.legacySearchRoutes
 import no.kartverket.geonorge.kartkatalog.search.searchRoutes
 
 // Internal routes used by the frontend (BFF auth, session user and downloads) are left out of the public API docs.
-private val undocumentedPathPrefixes = listOf("/bff", "/beta/bff", "/auth", "/api/me", "/api/download")
+private val undocumentedPathPrefixes = listOf("/bff", "/beta/bff", "/auth", "/api/me", "/api/download", "/actuator")
 
 private fun String.isUndocumented(): Boolean =
     this == "/" || undocumentedPathPrefixes.any { this == it || startsWith("$it/") }
@@ -57,7 +57,7 @@ fun Application.configureRouting(
     val codeListTranslator = CodeListTranslator(registerClient)
     val areaResolver = AreaResolver(registerClient)
     val hvdResolver = HvdResolver(registerClient)
-    val metadataMapper = MetadataMapper(codeListTranslator, appConfig.staticNorgeskartUrl)
+    val metadataMapper = MetadataMapper(codeListTranslator)
     val metadataService = MetadataService(geonetworkClient, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
     val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)

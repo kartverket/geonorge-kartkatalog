@@ -16,6 +16,7 @@ Here's a list of features included in this project:
 |-----------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
 | [Content Negotiation](https://start.ktor.io/p/io.ktor/server-content-negotiation) | Provides automatic content conversion according to Content-Type and Accept headers |
 | [Call Logging](https://start.ktor.io/p/io.ktor/server-call-logging)               | Logs client requests                                                               |
+| [Call ID](https://start.ktor.io/p/io.ktor/server-call-id)                         | Assigns a request id to each call for log correlation                              |
 | [Status Pages](https://start.ktor.io/p/io.ktor/server-status-pages)               | Provides exception handling for routes                                             |
 | [CORS](https://start.ktor.io/p/io.ktor/server-cors)                               | Enables Cross-Origin Resource Sharing (CORS)                                       |
 
@@ -32,9 +33,19 @@ To build or run the project, use one of the following tasks:
 If the server starts successfully, you'll see the following output:
 
 ```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
+2024-12-04 14:32:45.584 [main] [] INFO  Application - Application started in 0.303 seconds.
+2024-12-04 14:32:45.682 [main] [] INFO  Application - Responding at http://0.0.0.0:8080
 ```
+
+## Request logging
+
+Each request is logged once on completion, with the status text as the message (for example `OK`). The health check route `/` is excluded. Every log line written while a request is handled also gets the fields `method`, `path` (query strings are not logged) and `userAgent` (truncated to 512 characters). The completed-request line additionally gets `status` (the numeric status code) and `durationMs` (processing time in milliseconds).
+
+Every request gets a request id, added as `callId` to all log lines written while the request is handled, so log lines from the same request can be correlated. The id is read from the `X-Request-Id` request header, or generated as a UUID if the header is missing or invalid (only `a-z`, `A-Z`, `0-9` and `-`, at most 64 characters, to prevent log injection). It is returned in the `X-Request-Id` response header.
+
+Logs are written to stdout as one JSON object per log event by default, for Grafana. Set the environment variable `LOG_FORMAT=text` (lowercase) for human-readable lines during local development. Both formats contain the same fields in the same order: `@timestamp`, `method`, `status`, `durationMs`, `message`, `path`, `userAgent`, `level`, `logger_name`, `thread_name`, `callId` and, for exceptions, `stack_trace`. Request fields are omitted in JSON (and empty in text) outside requests. The text format separates fields with `|`. The variable is read by logback directly from the process environment (not from `.env` via dotenv), and selects `logback-json.xml` or `logback-text.xml`. Any other value matches no configuration file, so logback reports an error at startup and nothing is logged.
+
+## API documentation
 
 API documentation is generated from the route definitions and available at `http://localhost:8080/swagger`. The OpenAPI JSON document is served at `http://localhost:8080/swagger/openapi.json`. Route documentation is written as KDoc comments above each route (see [Ktor's OpenAPI docs](https://ktor.io/docs/openapi-spec-generation.html#comment-annotations)). Code inference is disabled, so request bodies, responses and parameters must be documented explicitly and kept in sync with the handlers.
 
