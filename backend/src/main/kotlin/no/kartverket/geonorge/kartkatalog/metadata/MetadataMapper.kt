@@ -65,6 +65,10 @@ class MetadataMapper(
             nationalKeywords = mapNationalKeywords(record),
             nationalInitiatives = mapNationalInitiatives(collaborationKeywords),
             dokStatus = mapDokStatus(collaborationKeywords, rawSpatialScope),
+            collaborationAndLaws = mapCollaboration(collaborationKeywords),
+            datasetLanguage = mapLanguage(record.resourceLanguages.firstOrNull() ?: record.language),
+            namespace = record.resourceIdentifierCodeSpace,
+            datasetId = record.resourceIdentifierCode,
             isHighValueDataset = hvdKeywords.isNotEmpty(),
             distributionFormats =
                 record.distributionInfo?.formats.orEmpty().map {
@@ -191,6 +195,49 @@ class MetadataMapper(
             .filterKeys { it in matchedKeys }
             .values
             .toList()
+    }
+
+    private val collaborationLabels =
+        mapOf(
+            "detoffentligekartgrunnlaget" to "Det offentlige kartgrunnlaget",
+            "geodata" to "Geografiske data",
+            "highvaluedataset" to "High value dataset",
+            "jordobservasjonogmiljø" to "Jordobservasjon og miljø",
+            "norgedigitalt" to "Norge digitalt",
+            "norskklimaservicesenter" to "Norsk klimaservicesenter",
+            "arealplanerpbl" to "Arealplaner underlagt PBL",
+            "nautiskinformasjon" to "Nautisk informasjon",
+            "marinegrunnkart" to "Marine grunnkart",
+            "arcticsdi" to "Arctic SDI",
+            "beredskapsbase" to "Beredskapsbase",
+            "inspire" to "Inspire",
+            "datanorgeno" to "Data.norge.no",
+            "geodataloven" to "Geodataloven",
+            "mareano" to "Mareano",
+            "modellbasertevegprosjekter" to "Modellbaserte vegprosjekter",
+            "økologiskgrunnkart" to "Økologisk grunnkart",
+        )
+
+    private fun mapCollaboration(collaborationKeywords: List<ProductKeyword>): List<String> =
+        collaborationKeywords
+            .mapNotNull { it.keywordValue?.takeIf(String::isNotBlank) }
+            .map { collaborationLabels[it.normalizedForMatch()] ?: it }
+            .distinct()
+
+    private val languageLabels =
+        mapOf(
+            "nor" to "Norsk",
+            "nob" to "Norsk bokmål",
+            "nno" to "Norsk nynorsk",
+            "eng" to "Engelsk",
+            "sme" to "Nordsamisk",
+            "swe" to "Svensk",
+            "dan" to "Dansk",
+        )
+
+    private fun mapLanguage(code: String?): String? {
+        val value = code?.takeIf { it.isNotBlank() } ?: return null
+        return languageLabels[value.lowercase()] ?: value
     }
 
     private fun mapDokStatus(

@@ -33,6 +33,10 @@ type InfoTabProps = {
   geographicAreas: string[];
   boundingBox: ProductBoundingBox | null;
   cloudCoverPercentage: number | null;
+  collaborationAndLaws: string[];
+  datasetLanguage: string | null;
+  namespace: string | null;
+  datasetId: string | null;
 };
 
 export function InfoTab({
@@ -51,6 +55,10 @@ export function InfoTab({
   geographicAreas,
   boundingBox,
   cloudCoverPercentage,
+  collaborationAndLaws,
+  datasetLanguage,
+  namespace,
+  datasetId,
 }: InfoTabProps) {
   const productTypeDefinite = getProductTypeDefiniteString(hierarchyLevel);
 
@@ -79,11 +87,39 @@ export function InfoTab({
         />
         <LicenseAccordion constraints={constraints} />
         <ProcessHistoryAccordion processHistory={processHistory} />
-        <DetailAccordion title="Detaljert informasjon">
-          <p className={styles.pending}>Innhold kommer</p>
-        </DetailAccordion>
+        <DetailedInfoAccordion
+          collaborationAndLaws={collaborationAndLaws}
+          datasetLanguage={datasetLanguage}
+          namespace={namespace}
+          datasetId={datasetId}
+        />
       </div>
     </TabPanel>
+  );
+}
+
+function DetailedInfoAccordion({
+  collaborationAndLaws,
+  datasetLanguage,
+  namespace,
+  datasetId,
+}: Pick<
+  InfoTabProps,
+  "collaborationAndLaws" | "datasetLanguage" | "namespace" | "datasetId"
+>) {
+  const fields: Field[] = [
+    { label: "Samarbeid og lover", content: collaborationAndLaws.join(", ") },
+    { label: "Språk i datasett", content: datasetLanguage },
+    { label: "Navnerom til datasett", content: namespace },
+    { label: "Datasett-ID", content: datasetId },
+  ];
+
+  if (!hasVisibleFields(fields)) return null;
+
+  return (
+    <DetailAccordion title="Detaljert informasjon">
+      <FieldTable fields={fields} />
+    </DetailAccordion>
   );
 }
 

@@ -77,6 +77,8 @@ data class MetadataRecord(
     val cloudCoverPercentage: Double? = null,
     // Identification — dataset specific
     val resourceLanguages: List<String> = emptyList(),
+    val resourceIdentifierCode: String? = null,
+    val resourceIdentifierCodeSpace: String? = null,
     val topicCategories: List<String> = emptyList(),
     val spatialRepresentationTypes: List<String> = emptyList(),
     // Distribution

@@ -47,6 +47,7 @@ object MetadataParser {
         fun parse(): MetadataRecord {
             val idInfo = md.node("gmd:identificationInfo/*")
             val titleNode = idInfo?.node("gmd:citation/gmd:CI_Citation/gmd:title")
+            val resourceIdentifier = idInfo?.node("gmd:citation/gmd:CI_Citation/gmd:identifier/*")
             return MetadataRecord(
                 uuid = md.text("gmd:fileIdentifier/gco:CharacterString") ?: "",
                 parentIdentifier = md.text("gmd:parentIdentifier/gco:CharacterString"),
@@ -117,6 +118,8 @@ object MetadataParser {
                 temporalExtents = parseTemporalExtents(idInfo),
                 cloudCoverPercentage =
                     md.text("gmd:contentInfo//gmd:cloudCoverPercentage/gco:Real")?.toDoubleOrNull(),
+                resourceIdentifierCode = resourceIdentifier?.let(::identifierCode),
+                resourceIdentifierCodeSpace = resourceIdentifier?.let(::identifierCodeSpace),
                 resourceLanguages =
                     idInfo
                         ?.nodes("gmd:language")
@@ -178,6 +181,23 @@ object MetadataParser {
                                 ?: "",
                         codeSpace = anchor?.attr("xlink:href"),
                     )
+                }
+
+        private fun identifierCode(identifier: Node): String? =
+            identifier
+                .node("gmd:code/gmx:Anchor")
+                ?.textContent
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: identifier.text("gmd:code/gco:CharacterString")
+
+        // Falls back to the Anchor href minus the code when no explicit codeSpace is given.
+        private fun identifierCodeSpace(identifier: Node): String? =
+            identifier.text("gmd:codeSpace/gco:CharacterString")
+                ?: identifier.attr("gmd:code/gmx:Anchor", "xlink:href")?.let { href ->
+                    identifierCode(identifier)
+                        ?.let { code -> href.removeSuffix(code).trimEnd('/') }
+                        ?.takeIf { it.isNotEmpty() }
                 }
 
         private fun parseExtensionResources(): List<ExtensionResource> =

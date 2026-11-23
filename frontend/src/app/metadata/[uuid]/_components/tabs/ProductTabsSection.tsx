@@ -133,6 +133,10 @@ export async function ProductTabsSection({
         geographicAreas={metadata.geographicAreas}
         boundingBox={metadata.boundingBox}
         cloudCoverPercentage={metadata.cloudCoverPercentage}
+        collaborationAndLaws={metadata.collaborationAndLaws}
+        datasetLanguage={metadata.datasetLanguage}
+        namespace={metadata.namespace}
+        datasetId={metadata.datasetId}
         constraints={{
           ...metadata.constraints,
           securityConstraints: metadata.securityClassification,
