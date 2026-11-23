@@ -69,6 +69,12 @@ object MetadataParser {
                 applicationSchemaInfos = parseApplicationSchemaInfos(),
                 title = titleNode?.preferredText(anchorExpr = "gmx:Anchor") ?: "",
                 abstract = idInfo?.node("gmd:abstract")?.preferredText(),
+                englishTitle = titleNode?.englishText(),
+                englishAbstract = idInfo?.node("gmd:abstract")?.englishText(),
+                englishSpecificUsage =
+                    idInfo
+                        ?.node("gmd:resourceSpecificUsage/gmd:MD_Usage/gmd:specificUsage")
+                        ?.englishText(),
                 purpose = idInfo?.node("gmd:purpose")?.preferredText(),
                 status = idInfo?.attr("gmd:status/gmd:MD_ProgressCode", "codeListValue"),
                 maintenanceFrequency =
@@ -109,7 +115,12 @@ object MetadataParser {
                 keywordGroups =
                     idInfo
                         ?.nodes("gmd:descriptiveKeywords/gmd:MD_Keywords")
-                        ?.map { parseKeywordGroup(it) }
+                        ?.map {
+                            parseKeywordGroup(
+                                it,
+                                md.attr("gmd:language/gmd:LanguageCode", "codeListValue") == "eng",
+                            )
+                        }
                         ?: emptyList(),
                 legalConstraints = parseLegalConstraints(idInfo),
                 securityConstraints = parseSecurityConstraints(idInfo),
@@ -243,14 +254,17 @@ object MetadataParser {
                 type = node.text("gmd:fileDescription/gco:CharacterString"),
             )
 
-        private fun parseKeywordGroup(node: Node): KeywordGroup {
+        private fun parseKeywordGroup(
+            node: Node,
+            englishMetadata: Boolean,
+        ): KeywordGroup {
             val keywords =
                 node.nodes("gmd:keyword").map { kw ->
                     val anchor = kw.node("gmx:Anchor")
                     val value = kw.preferredText(anchorExpr = "gmx:Anchor") ?: ""
                     val href = anchor?.attr("xlink:href")
-                    val english =
-                        kw.text("gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString")
+                    // Like legacy: only an English localization counts, or the main text for English metadata.
+                    val english = if (englishMetadata) value.takeIf { it.isNotEmpty() } else kw.englishText()
                     Keyword(value = value, englishValue = english, href = href)
                 }
             val thesaurusTitleNode = node.node("gmd:thesaurusName/gmd:CI_Citation/gmd:title")
@@ -274,6 +288,8 @@ object MetadataParser {
             var otherConstraintsLink: String? = null
             var otherConstraintsLinkText: String? = null
             var otherConstraintsAccess: String? = null
+            var otherConstraintsAccessText: String? = null
+            var otherConstraintsAccessCode: String? = null
 
             idInfo.nodes("gmd:resourceConstraints/gmd:MD_Constraints").forEach { c ->
                 c.nodes("gmd:useLimitation").forEach { n ->
@@ -287,6 +303,12 @@ object MetadataParser {
                 if (ac != null) {
                     accessConstraints = ac
                     otherConstraintsAccess = anchor?.attr("xlink:href")
+                    otherConstraintsAccessText = anchor?.textContent?.trim()?.takeIf { it.isNotEmpty() }
+                    otherConstraintsAccessCode =
+                        c
+                            .nodes("gmd:otherConstraints/gco:CharacterString")
+                            .map { it.textContent.trim() }
+                            .firstOrNull { it in ACCESS_CODES }
                 }
                 if (uc != null) {
                     useConstraints = uc
@@ -306,6 +328,8 @@ object MetadataParser {
                 otherConstraintsLink = otherConstraintsLink,
                 otherConstraintsLinkText = otherConstraintsLinkText,
                 otherConstraintsAccess = otherConstraintsAccess,
+                otherConstraintsAccessText = otherConstraintsAccessText,
+                otherConstraintsAccessCode = otherConstraintsAccessCode,
             )
         }
 
@@ -387,10 +411,24 @@ object MetadataParser {
                                     "erOptions/gmd:MD_DigitalTransferOptions",
                             ).flatMap { parseOnlineResources(it) }
 
+                    val distributor = f.nodes("gmd:formatDistributor/gmd:MD_Distributor").firstOrNull()
+                    val distributorTransfer =
+                        distributor
+                            ?.nodes("gmd:distributorTransferOptions/gmd:MD_DigitalTransferOptions")
+                            ?.firstOrNull()
+                    val distributorResource = distributorTransfer?.let { parseOnlineResources(it) }?.firstOrNull()
+
                     DistributionFormat(
                         name = f.text("gmd:name/gco:CharacterString") ?: "",
                         version = f.text("gmd:version/gco:CharacterString"),
                         onlineResources = ownOnlineResources.ifEmpty { sharedOnlineResources },
+                        distributorOrganization =
+                            distributor?.text(
+                                "gmd:distributorContact/gmd:CI_ResponsibleParty/gmd:organisationName/gco:CharacterString",
+                            ),
+                        distributorFirstResource = distributorResource,
+                        distributorUnitsOfDistribution =
+                            distributorTransfer?.node("gmd:unitsOfDistribution")?.preferredText(),
                     )
                 }
             val fallbackFormats =
@@ -555,6 +593,15 @@ object MetadataParser {
                 ?.trim()
                 ?.takeIf { it.isNotEmpty() }
 
+        private fun Node.englishText(
+            localizedExpr: String = "gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString",
+        ): String? =
+            nodes(localizedExpr)
+                .firstOrNull { it.attr("locale").isEnglishLocale() }
+                ?.textContent
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+
         private fun Node.preferredText(
             baseExpr: String = "gco:CharacterString",
             localizedExpr: String = "gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString",
@@ -620,6 +667,7 @@ object MetadataParser {
         )
 
         private companion object {
+            val ACCESS_CODES = setOf("no restrictions", "norway digital restricted")
             private val norwegianLocales =
                 setOf(
                     "locale-nor",

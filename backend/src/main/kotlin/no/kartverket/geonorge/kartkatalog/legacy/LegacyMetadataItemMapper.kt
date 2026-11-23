@@ -1,4 +1,4 @@
-package no.kartverket.geonorge.kartkatalog.search
+package no.kartverket.geonorge.kartkatalog.legacy
 
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -8,7 +8,7 @@ import java.net.URI
 
 // Mirrors SearchResultItemViewModel in the legacy catalogue (api/metadata/{uuid}). A missing document gives
 // an item without Uuid, as in legacy.
-internal class LegacyMetadataItem(
+internal class LegacyMetadataItemMapper(
     language: String,
     private val norgeskartUrl: String,
 ) {

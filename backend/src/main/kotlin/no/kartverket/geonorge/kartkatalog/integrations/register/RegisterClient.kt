@@ -37,11 +37,27 @@ class RegisterClient(
     private val json = Json { ignoreUnknownKeys = true }
     private val log = LoggerFactory.getLogger(RegisterClient::class.java)
 
-    suspend fun getCodeList(codeList: CodeList): RegisterCodeListResponse =
-        fetch("code_list", "/api/kodelister/${codeList.systemId}", RegisterCodeListResponse.serializer())
+    suspend fun getCodeList(
+        codeList: CodeList,
+        language: String = "no",
+    ): RegisterCodeListResponse =
+        fetch(
+            "code_list",
+            "/api/kodelister/${codeList.systemId}${langQuery(language)}",
+            RegisterCodeListResponse.serializer(),
+        )
 
-    suspend fun getCodeListByName(name: String): RegisterCodeListResponse =
-        fetch("metadata_code_list", "/api/metadata-kodelister/$name", RegisterCodeListResponse.serializer())
+    suspend fun getCodeListByName(
+        name: String,
+        language: String = "no",
+    ): RegisterCodeListResponse =
+        fetch(
+            "metadata_code_list",
+            "/api/metadata-kodelister/$name${langQuery(language)}",
+            RegisterCodeListResponse.serializer(),
+        )
+
+    private fun langQuery(language: String) = if (language == "no") "" else "?lang=$language"
 
     suspend fun getSosiCodeList(path: String): RegisterCodeListResponse =
         fetch("sosi_code_list", "/api/sosi-kodelister/$path", RegisterCodeListResponse.serializer())

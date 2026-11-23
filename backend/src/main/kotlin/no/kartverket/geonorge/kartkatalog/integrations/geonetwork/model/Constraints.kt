@@ -10,6 +10,8 @@ data class LegalConstraints(
     val otherConstraintsLink: String? = null,
     val otherConstraintsLinkText: String? = null,
     val otherConstraintsAccess: String? = null,
+    val otherConstraintsAccessText: String? = null,
+    val otherConstraintsAccessCode: String? = null,
 )
 
 @Serializable
