@@ -17,7 +17,7 @@
   .fieldTable tbody tr:last-child td {
     padding-bottom: initial;
   }
-  .fieldTable tr:last-child {
+  .fieldTable tbody tr:last-child {
     padding-bottom: var(--ds-size-4);
   }
 

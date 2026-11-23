@@ -6,19 +6,15 @@ import styles from "./FieldTable.module.css";
 export function FieldTable({
   fields,
   title,
-  paddingBottom,
 }: {
   fields: Field[];
   title?: string;
-  paddingBottom?: boolean;
 }) {
   const visible = getVisibleFields(fields);
   if (visible.length === 0) return null;
 
   return (
-    <table
-      className={`ds-table ${styles.fieldTable} ${paddingBottom ? styles.paddingBottom : undefined}`}
-    >
+    <table className={`ds-table ${styles.fieldTable}`}>
       {title && (
         <thead>
           <tr>

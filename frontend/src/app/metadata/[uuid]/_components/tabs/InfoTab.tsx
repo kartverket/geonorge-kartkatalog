@@ -198,12 +198,10 @@ function WhenAndWhereAccordion({
     {
       title: "Tidsparametre",
       fields: getVisibleFields(timeFields),
-      paddingBottom: true,
     },
     {
       title: "Romlige parametre",
       fields: getVisibleFields(spatialFields),
-      paddingBottom: false,
     },
   ].filter((section) => section.fields.length > 0);
 
@@ -216,7 +214,6 @@ function WhenAndWhereAccordion({
           key={section.title}
           title={section.title}
           fields={section.fields}
-          paddingBottom={section.paddingBottom}
         />
       ))}
     </DetailAccordion>
