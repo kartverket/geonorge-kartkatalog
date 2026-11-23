@@ -39,9 +39,11 @@ If the server starts successfully, you'll see the following output:
 
 ## Request logging
 
-Each request is logged once on completion (status, method, path and duration; query strings are not logged). The health check route `/` is excluded.
+Each request is logged once on completion, with the status text as the message (for example `OK`). The health check route `/` is excluded. Every log line written while a request is handled also gets the fields `method`, `path` (query strings are not logged) and `userAgent` (truncated to 512 characters). The completed-request line additionally gets `status` (the numeric status code) and `durationMs` (processing time in milliseconds).
 
-Every request gets a request id, shown as `[callId]` in all log lines written while the request is handled, so log lines from the same request can be correlated. The id is read from the `X-Request-Id` request header, or generated as a UUID if the header is missing or invalid (only `a-z`, `A-Z`, `0-9` and `-`, at most 64 characters, to prevent log injection). It is returned in the `X-Request-Id` response header.
+Every request gets a request id, added as `callId` to all log lines written while the request is handled, so log lines from the same request can be correlated. The id is read from the `X-Request-Id` request header, or generated as a UUID if the header is missing or invalid (only `a-z`, `A-Z`, `0-9` and `-`, at most 64 characters, to prevent log injection). It is returned in the `X-Request-Id` response header.
+
+Logs are written to stdout as one JSON object per log event by default, for Grafana. Set the environment variable `LOG_FORMAT=text` (lowercase) for human-readable lines during local development. Both formats contain the same fields in the same order: `@timestamp`, `method`, `status`, `durationMs`, `message`, `path`, `userAgent`, `level`, `logger_name`, `thread_name`, `callId` and, for exceptions, `stack_trace`. Request fields are omitted in JSON (and empty in text) outside requests. The text format separates fields with `|`. The variable is read by logback directly from the process environment (not from `.env` via dotenv), and selects `logback-json.xml` or `logback-text.xml`. Any other value matches no configuration file, so logback reports an error at startup and nothing is logged.
 
 ## API documentation
 

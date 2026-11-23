@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.download
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import no.kartverket.geonorge.kartkatalog.metrics.countEvent
 import org.slf4j.LoggerFactory
 
 class DownloadException(
@@ -35,6 +36,7 @@ class DownloadService(
                     .awaitAll()
             val restricted = resolved.any { it.restricted }
             if (restricted && geoIdAccessToken == null) {
+                countEvent("download.orders.auth_required", "Restricted download orders rejected for missing login")
                 throw DownloadAuthenticationRequiredException()
             }
 
@@ -91,6 +93,7 @@ class DownloadService(
                         }.awaitAll()
                 }
 
+            recordGroupOutcome("success", groupIsRestricted)
             DownloadOrderGroupResult.Success(
                 DownloadOrderResponse(
                     files =
@@ -117,18 +120,30 @@ class DownloadService(
             )
         } catch (e: DownloadException) {
             log.warn("Order failed for group with url {}", group.first().orderUrl, e)
+            recordGroupOutcome("failure", groupIsRestricted)
             DownloadOrderGroupResult.Failure(
                 metadataUuids = metadataUuids,
                 message = "Bestillingen feilet. Prøv igjen, eller kontakt oss hvis problemet vedvarer.",
             )
         } catch (e: DownloadApiException) {
             log.warn("Order failed for group with url {}", group.first().orderUrl, e)
+            recordGroupOutcome("failure", groupIsRestricted)
             DownloadOrderGroupResult.Failure(
                 metadataUuids = metadataUuids,
                 message = "Bestillingen feilet. Prøv igjen, eller kontakt oss hvis problemet vedvarer.",
             )
         }
     }
+
+    private fun recordGroupOutcome(
+        outcome: String,
+        restricted: Boolean,
+    ) = countEvent(
+        "download.orders",
+        "Download order groups sent to the download API",
+        "outcome" to outcome,
+        "restricted" to restricted.toString(),
+    )
 
     suspend fun getOptions(
         uuid: String,
@@ -144,6 +159,7 @@ class DownloadService(
                 supportsPolygonSelection = capabilities.supportsPolygonSelection,
                 deliveryNotificationByEmail = capabilities.deliveryNotificationByEmail,
                 gridSelectionLayer = capabilities.mapSelectionLayer?.takeIf { it.isNotBlank() },
+                maxAreaKm2 = capabilities.maxArea,
             )
         }
 
@@ -174,6 +190,7 @@ class DownloadService(
             supportsPolygonSelection = capabilities.supportsPolygonSelection,
             deliveryNotificationByEmail = capabilities.deliveryNotificationByEmail,
             gridSelectionLayer = capabilities.mapSelectionLayer?.takeIf { it.isNotBlank() },
+            maxAreaKm2 = capabilities.maxArea,
         )
     }
 

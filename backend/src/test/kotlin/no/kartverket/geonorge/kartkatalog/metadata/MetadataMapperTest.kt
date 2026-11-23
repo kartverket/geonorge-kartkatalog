@@ -27,13 +27,12 @@ import kotlin.test.assertEquals
 
 class MetadataMapperTest {
     private val registerBaseUrl = "https://test.example.com/register"
-    private val staticNorgeskartUrl = "https://test.example.com/register"
 
     @Test
     fun `maps open data access state and access constraints`() =
         runBlocking {
             val mapper =
-                MetadataMapper(createTranslator(responseContent = """{"containeditems": []}"""), staticNorgeskartUrl)
+                MetadataMapper(createTranslator(responseContent = """{"containeditems": []}"""))
             val record =
                 minimalRecord(
                     legalConstraints =
@@ -57,7 +56,6 @@ class MetadataMapperTest {
                     createTranslator(
                         responseContent = """{"containeditems": [{"label": "Lisens", "codevalue": "license"}]}""",
                     ),
-                    staticNorgeskartUrl = staticNorgeskartUrl,
                 )
             val record =
                 minimalRecord(
@@ -77,7 +75,7 @@ class MetadataMapperTest {
     fun `groups distribution resources by actual protocol without swallowing other protocols`() =
         runBlocking {
             val mapper =
-                MetadataMapper(createTranslator(responseContent = """{"containeditems": []}"""), staticNorgeskartUrl)
+                MetadataMapper(createTranslator(responseContent = """{"containeditems": []}"""))
             val record =
                 minimalRecord(
                     distributionInfo =
@@ -153,7 +151,6 @@ class MetadataMapperTest {
                             """.trimIndent(),
                         onRequest = { requestCount++ },
                     ),
-                    staticNorgeskartUrl = staticNorgeskartUrl,
                 )
             val record =
                 minimalRecord(
@@ -193,7 +190,6 @@ class MetadataMapperTest {
                             ]}
                             """.trimIndent(),
                     ),
-                    staticNorgeskartUrl = staticNorgeskartUrl,
                 )
             val record =
                 minimalRecord(

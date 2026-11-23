@@ -20,7 +20,6 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.ProductReferenceSystem
 
 class MetadataMapper(
     private val codeListTranslator: CodeListTranslator,
-    private val staticNorgeskartUrl: String,
 ) {
     private data class ResourceContribution(
         val formatName: String,
@@ -90,11 +89,6 @@ class MetadataMapper(
                 record.contacts
                     .firstOrNull { it.role.equals("publisher", ignoreCase = true) }
                     ?.toProductMetadataContact(),
-            coverageUrl =
-                getCoverageLink(
-                    record.extensionResources,
-                    staticNorgeskartUrl = staticNorgeskartUrl,
-                ),
             coverageData = getCoverageLinks(record.extensionResources),
         )
     }
@@ -318,7 +312,6 @@ class MetadataMapper(
             email = email,
             organization = organization,
             organizationEnglish = organizationEnglish,
-            role = role,
         )
 
     private suspend fun LegalConstraints.toProductConstraints(accessState: AccessState?) =

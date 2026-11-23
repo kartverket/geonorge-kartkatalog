@@ -6,8 +6,9 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import no.kartverket.geonorge.kartkatalog.config.AppConfig
 import no.kartverket.geonorge.kartkatalog.config.configureAuthentication
+import no.kartverket.geonorge.kartkatalog.config.configureCallLogging
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
-import no.kartverket.geonorge.kartkatalog.config.configureMonitoring
+import no.kartverket.geonorge.kartkatalog.config.configureMetrics
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 
@@ -16,7 +17,8 @@ fun main() {
 
     embeddedServer(Netty, port = 8080) {
         install(XForwardedHeaders)
-        configureMonitoring()
+        configureMetrics()
+        configureCallLogging()
         configureHttp()
         configureSerialization()
         configureStatusPages()

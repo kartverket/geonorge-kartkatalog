@@ -302,6 +302,7 @@ export type DownloadAreaBlockAvailability = {
   supportsPolygonSelection: boolean;
   selectedGridCells: DownloadAreaOption[];
   gridSelectionLayer: string | null;
+  maxAreaKm2: number | null;
 };
 
 export function resolveAreaBlockAvailability(
@@ -314,22 +315,27 @@ export function resolveAreaBlockAvailability(
   const areaOptions = sortAreaOptionsNationwideFirst(
     unionByKey([options?.areas ?? []], (option) => option.area.code),
   );
+  // Felles for alle grenene under
+  const optionsFields = {
+    areaOptions,
+    supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
+    gridSelectionLayer: options?.gridSelectionLayer ?? null,
+    maxAreaKm2: options?.maxAreaKm2 ?? null,
+  };
 
   if (block.polygon) {
     const referenceArea = resolvePolygonReferenceArea(areaOptions);
     const referenceAreas = referenceArea ? [referenceArea] : [];
 
     return {
-      areaOptions,
+      ...optionsFields,
       selectedArea: referenceArea,
       projectionOptions: resolveProjectionOptions(referenceAreas),
       formatOptions: resolveFormatOptions(
         referenceAreas,
         block.projectionCodes,
       ),
-      supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
       selectedGridCells: [],
-      gridSelectionLayer: options?.gridSelectionLayer ?? null,
     };
   }
 
@@ -339,7 +345,7 @@ export function resolveAreaBlockAvailability(
       : [];
 
     return {
-      areaOptions,
+      ...optionsFields,
       selectedArea: null,
       selectedGridCells,
       projectionOptions: resolveProjectionOptions(selectedGridCells),
@@ -347,8 +353,6 @@ export function resolveAreaBlockAvailability(
         selectedGridCells,
         block.projectionCodes,
       ),
-      supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
-      gridSelectionLayer: options?.gridSelectionLayer ?? null,
     };
   }
 
@@ -358,13 +362,11 @@ export function resolveAreaBlockAvailability(
   const selectedAreas = selectedArea ? [selectedArea] : [];
 
   return {
-    areaOptions,
+    ...optionsFields,
     selectedArea,
     projectionOptions: resolveProjectionOptions(selectedAreas),
     formatOptions: resolveFormatOptions(selectedAreas, block.projectionCodes),
-    supportsPolygonSelection: options?.supportsPolygonSelection ?? false,
     selectedGridCells: [],
-    gridSelectionLayer: options?.gridSelectionLayer ?? null,
   };
 }
 
@@ -461,9 +463,11 @@ export function filterAreaBlockForProduct(
       .map((projection) => projection.code);
 
     const formatOptions = resolveFormatOptions(referenceAreas, projectionCodes);
-    const formatNameSet = new Set(bulkBlock.formatNames);
+    const formatNameSet = new Set(
+      bulkBlock.formatNames.map((name) => name.trim()),
+    );
     const formatNames = formatOptions
-      .filter((format) => formatNameSet.has(format.name))
+      .filter((format) => formatNameSet.has(formatKey(format)))
       .map((format) => format.name);
 
     return {
@@ -488,9 +492,11 @@ export function filterAreaBlockForProduct(
     .map((projection) => projection.code);
 
   const formatOptions = resolveFormatOptions(matchingAreas, projectionCodes);
-  const formatNameSet = new Set(bulkBlock.formatNames);
+  const formatNameSet = new Set(
+    bulkBlock.formatNames.map((name) => name.trim()),
+  );
   const formatNames = formatOptions
-    .filter((format) => formatNameSet.has(format.name))
+    .filter((format) => formatNameSet.has(formatKey(format)))
     .map((format) => format.name);
 
   return {
@@ -555,6 +561,12 @@ function toDownloadOrderProjection(
 ): DownloadOrderProjectionInput {
   const { code, name, codespace } = projection;
   return { code, name, codespace };
+}
+
+// Noen datasett har registrert formatnavn med mellomrom, f.eks. "PPTX " og "PPTX",
+// så vi sammenligner uten mellomrom i start og slutt.
+function formatKey(format: DownloadFormat): string {
+  return format.name.trim();
 }
 
 function intersectByKey<T>(lists: T[][], key: (item: T) => string): T[] {
@@ -645,7 +657,7 @@ function unionFormatsAcrossAreas(
     areas.flatMap((area) =>
       area.projections.map((projection) => projection.formats),
     ),
-    (format) => format.name,
+    formatKey,
   );
 }
 
@@ -660,6 +672,17 @@ export function resolveUnionDownloadAvailability(
     options ? [options] : [],
   );
 
+  const polygonCapableOptionsList = presentOptionsList.filter(
+    (options) => options.supportsPolygonSelection,
+  );
+  const supportsPolygonSelection = polygonCapableOptionsList.length > 0;
+  // Samme polygon brukes for alle datasettene, så den laveste grensen gjelder
+  const polygonAreaLimits = polygonCapableOptionsList.flatMap((options) =>
+    options.maxAreaKm2 !== null ? [options.maxAreaKm2] : [],
+  );
+  const maxAreaKm2 =
+    polygonAreaLimits.length > 0 ? Math.min(...polygonAreaLimits) : null;
+
   const areaOptions = sortAreaOptionsNationwideFirst(
     unionByKey(
       presentOptionsList
@@ -671,15 +694,10 @@ export function resolveUnionDownloadAvailability(
   );
 
   if (bulkBlock.polygon) {
-    const polygonCapableOptionsList = presentOptionsList.filter(
-      (options) => options.supportsPolygonSelection,
-    );
-
-    const displayAreasByProduct = polygonCapableOptionsList.map((options) =>
-      resolvePolygonReferenceArea(options.areas)
-        ? [resolvePolygonReferenceArea(options.areas) as DownloadAreaOption]
-        : [],
-    );
+    const displayAreasByProduct = polygonCapableOptionsList.map((options) => {
+      const referenceArea = resolvePolygonReferenceArea(options.areas);
+      return referenceArea ? [referenceArea] : [];
+    });
 
     return {
       areaOptions,
@@ -692,11 +710,10 @@ export function resolveUnionDownloadAvailability(
         displayAreasByProduct.map((areas) =>
           resolveFormatOptions(areas, bulkBlock.projectionCodes),
         ),
-        (format) => format.name,
+        formatKey,
       ),
-      supportsPolygonSelection: presentOptionsList.some(
-        (options) => options.supportsPolygonSelection,
-      ),
+      supportsPolygonSelection,
+      maxAreaKm2,
       selectedGridCells: [],
       gridSelectionLayer: null,
     };
@@ -729,11 +746,10 @@ export function resolveUnionDownloadAvailability(
           ? unionFormatsAcrossAreas(areas)
           : resolveFormatOptions(areas, bulkBlock.projectionCodes),
       ),
-      (format) => format.name,
+      formatKey,
     ),
-    supportsPolygonSelection: presentOptionsList.some(
-      (options) => options.supportsPolygonSelection,
-    ),
+    supportsPolygonSelection,
+    maxAreaKm2,
     selectedGridCells: [],
     gridSelectionLayer: null,
   };
