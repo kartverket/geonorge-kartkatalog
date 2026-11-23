@@ -43,6 +43,7 @@ import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
 import { useDownloadOrder } from "./useDownloadOrder";
 import { usePersistedDownloadSelections } from "./usePersistedDownloadSelections";
+import { usePersistedOrderInfo } from "./usePersistedOrderInfo";
 
 type DownloadPageContentClientProps = {
   insightGroups: DownloadInsightGroups;
@@ -70,8 +71,8 @@ export function DownloadPageContentClient({
     useDownloadOrder();
 
   const [selections, setSelections] = usePersistedDownloadSelections();
-  const [usageGroup, setUsageGroup] = useState("");
-  const [usagePurpose, setUsagePurpose] = useState<string[]>([]);
+  const { usageGroup, setUsageGroup, usagePurpose, setUsagePurpose } =
+    usePersistedOrderInfo();
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<DownloadStep>("bestilling");
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -491,7 +492,7 @@ export function DownloadPageContentClient({
                       }
                     >
                       <TrashIcon aria-hidden />
-                      Fjern alle nedlastinger
+                      Fjern alle datasett
                     </Button>
                     <Button
                       type="submit"
@@ -500,8 +501,8 @@ export function DownloadPageContentClient({
                     >
                       {!isOrdering && <ArrowRightIcon aria-hidden />}
                       {isOrdering
-                        ? "Bestiller nedlasting..."
-                        : "Bestill nedlasting"}
+                        ? "Bestiller datasett..."
+                        : "Bestill datasett"}
                     </Button>
                   </div>
                 </form>

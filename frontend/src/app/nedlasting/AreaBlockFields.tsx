@@ -209,6 +209,7 @@ export function AreaBlockFields({
       </div>
       <DrawAreaDialog
         open={isDrawingArea}
+        maxAreaKm2={availability.maxAreaKm2}
         onCloseAction={() => setIsDrawingArea(false)}
         onConfirmAction={(coordinates) => {
           onChangePolygonAction(coordinates);
