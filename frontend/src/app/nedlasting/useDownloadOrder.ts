@@ -22,6 +22,20 @@ const ORDER_ERROR_BY_STATUS: Record<number, string> = {
 const NETWORK_ORDER_ERROR =
   "Fikk ikke kontakt med tjenesten. Sjekk nettforbindelsen og prøv igjen.";
 
+function getErrorCode(responseText: string): string | null {
+  try {
+    const body: unknown = JSON.parse(responseText);
+    return typeof body === "object" &&
+      body !== null &&
+      "error" in body &&
+      typeof body.error === "string"
+      ? body.error
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export function useDownloadOrder() {
   const [isOrdering, setIsOrdering] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
@@ -52,11 +66,36 @@ export function useDownloadOrder() {
         provider === "ansattporten"
           ? "/download/order-restricted"
           : "/download/order";
-      const response = await fetch(`${bffPath}${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+
+      const postOrder = () =>
+        fetch(`${bffPath}${endpoint}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+      let response = await postOrder();
+
+      if (!response.ok) {
+        const errorText = await response.text();
+
+        if (
+          response.status === 401 &&
+          getErrorCode(errorText) === "invalid_session"
+        ) {
+          // Forrige forsøk ble avvist pga. en ødelagt sesjon på serveren (som nå
+          // er ryddet opp i), og rakk aldri å opprette noen bestilling - trygt å
+          // prøve igjen.
+          response = await postOrder();
+        } else {
+          failOrder(
+            ORDER_ERROR_BY_STATUS[response.status] ?? DEFAULT_ORDER_ERROR,
+            response.status,
+            errorText,
+          );
+          return null;
+        }
+      }
 
       if (!response.ok) {
         failOrder(
