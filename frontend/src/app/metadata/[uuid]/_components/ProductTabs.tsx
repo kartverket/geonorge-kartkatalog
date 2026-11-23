@@ -5,6 +5,7 @@ import type { MouseEvent } from "react";
 import { FairSection } from "@/app/metadata/[uuid]/_components/FairSection";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import { ProductDocumentation } from "@/app/metadata/[uuid]/_components/ProductDocumentation";
+import { MarkdownText } from "@/components/MarkdownText/MarkdownText";
 import { getProductTypeDefiniteString } from "@/lib/productType";
 import type {
   LinkedDistributions,
@@ -93,7 +94,7 @@ export function ProductTabs({
         <Tabs.Panel value="info" className={styles.panel}>
           <div className={styles.headingGroup}>
             <Heading data-size="xs">Om {productTypeDefinite}</Heading>
-            <p className={styles.abstract}>{abstract ?? "-"}</p>
+            {abstract ? <MarkdownText>{abstract}</MarkdownText> : <p>-</p>}
           </div>
           <div className={styles.accordionGroup}>
             <DetailAccordion items={infoDetails} />

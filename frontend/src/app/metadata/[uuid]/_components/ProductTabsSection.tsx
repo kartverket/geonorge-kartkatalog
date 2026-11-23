@@ -20,6 +20,7 @@ import {
   getThematicParentSeriesDownloadItem,
 } from "@/app/metadata/[uuid]/_utils/distributions";
 import { formatDate, unwrapSettled } from "@/app/metadata/[uuid]/_utils/utils";
+import { MarkdownText } from "@/components/MarkdownText/MarkdownText";
 import type {
   DistributionGroup,
   LinkedDistributions,
@@ -159,10 +160,20 @@ function buildInfoDetails({
               <FieldList
                 fields={[
                   ...(hasSpecificUsage
-                    ? [{ label: "Bruksområde", content: specificUsage }]
+                    ? [
+                        {
+                          label: "Bruksområde",
+                          content: <MarkdownText>{specificUsage}</MarkdownText>,
+                        },
+                      ]
                     : []),
                   ...(hasPurpose
-                    ? [{ label: "Formål", content: purpose }]
+                    ? [
+                        {
+                          label: "Formål",
+                          content: <MarkdownText>{purpose}</MarkdownText>,
+                        },
+                      ]
                     : []),
                 ]}
               />
@@ -213,7 +224,11 @@ function buildInfoDetails({
       ? [
           {
             title: "Prosesshistorie",
-            content: <p>{processHistory}</p>,
+            content: (
+              <div className={styles.detailText}>
+                <MarkdownText>{processHistory}</MarkdownText>
+              </div>
+            ),
           },
         ]
       : []),
@@ -222,8 +237,8 @@ function buildInfoDetails({
           {
             title: "Hjelp til bruk",
             content: (
-              <>
-                <p className={styles.abstract}>{supplementalDescription}</p>
+              <div className={styles.detailText}>
+                <MarkdownText>{supplementalDescription}</MarkdownText>
                 {helpUrl && (
                   <a
                     href={helpUrl}
@@ -234,14 +249,18 @@ function buildInfoDetails({
                     Les mer
                   </a>
                 )}
-              </>
+              </div>
             ),
           },
         ]
       : []),
     {
       title: "Detaljert informasjon",
-      content: <p className={styles.pending}>Innhold kommer</p>,
+      content: (
+        <p className={`${styles.detailText} ${styles.pending}`}>
+          Innhold kommer
+        </p>
+      ),
     },
   ];
 }

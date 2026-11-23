@@ -8,10 +8,6 @@
   display: none;
 }
 
-.abstract {
-  white-space: pre-line;
-}
-
 .headingGroup {
   display: grid;
   gap: var(--ds-size-1);
@@ -36,7 +32,10 @@
   border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
-.accordionGroup p {
+/* Fritekst inne i trekkspillene */
+.detailText {
+  display: grid;
+  gap: var(--ds-size-4);
   margin: var(--ds-size-8);
 }
 
@@ -144,7 +143,7 @@
 }
 
 .helpLink {
-  margin-left: var(--ds-size-8);
+  justify-self: start;
   text-decoration: underline;
   color: inherit;
 }
@@ -217,12 +216,7 @@
   }
 
   /* Reduser margin  */
-  .accordionGroup p {
+  .detailText {
     margin: var(--ds-size-5) var(--ds-size-2);
-  }
-
-  /* Samme venstremargin på helpLink som accordiongroup -> rett plassering */
-  .helpLink {
-    margin-left: var(--ds-size-2);
   }
 }
