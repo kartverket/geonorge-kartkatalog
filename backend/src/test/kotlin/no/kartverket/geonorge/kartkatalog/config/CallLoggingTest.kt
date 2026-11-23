@@ -19,10 +19,10 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class MonitoringTest {
+class CallLoggingTest {
     private fun ApplicationTestBuilder.setup() {
         application {
-            configureMonitoring()
+            configureCallLogging()
             routing { get("/test") { call.respondText("ok") } }
         }
     }
@@ -71,7 +71,7 @@ class MonitoringTest {
         try {
             testApplication {
                 application {
-                    configureMonitoring()
+                    configureCallLogging()
                     routing {
                         get("/test") {
                             LoggerFactory.getLogger("handler").info("inside")

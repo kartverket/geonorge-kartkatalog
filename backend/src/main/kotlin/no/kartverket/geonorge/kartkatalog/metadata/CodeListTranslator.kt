@@ -10,7 +10,8 @@ class CodeListTranslator(
     private val registerClient: RegisterClient,
 ) {
     private val log = LoggerFactory.getLogger(CodeListTranslator::class.java)
-    private val codeListCache = TimedCache<CodeList, List<RegisterCodeListItem>>(ttlMillis = 24 * 60 * 60 * 1000)
+    private val codeListCache =
+        TimedCache<CodeList, List<RegisterCodeListItem>>("code_lists", ttlMillis = 24 * 60 * 60 * 1000)
 
     suspend fun translate(
         codeList: CodeList,

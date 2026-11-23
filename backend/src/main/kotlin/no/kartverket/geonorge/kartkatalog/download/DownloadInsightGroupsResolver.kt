@@ -9,7 +9,7 @@ class DownloadInsightGroupsResolver(
     private val registerClient: RegisterClient,
 ) {
     private val log = LoggerFactory.getLogger(DownloadInsightGroupsResolver::class.java)
-    private val cache = TimedCache<String, Set<String>>(ttlMillis = 24 * 60 * 60 * 1000)
+    private val cache = TimedCache<String, Set<String>>("download_insight_groups", ttlMillis = 24 * 60 * 60 * 1000)
 
     suspend fun getValues(term: String): Set<String>? =
         cache.getOrFetch(term) {
