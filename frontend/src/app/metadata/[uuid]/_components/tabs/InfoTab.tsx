@@ -22,9 +22,9 @@ type InfoTabProps = {
   abstract: string | null;
   specificUsage: string | null;
   purpose: string | null;
-  processHistory?: string | null;
-  supplementalDescription?: string | null;
-  helpUrl?: string | null;
+  processHistory: string | null;
+  supplementalDescription: string | null;
+  helpUrl: string | null;
   constraints: ProductConstraints;
   datePublished: string | null;
   dateUpdated: string | null;
