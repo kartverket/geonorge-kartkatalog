@@ -1,16 +1,30 @@
+.fieldLabel {
+  width: 14rem;
+  vertical-align: top;
+}
+
 .fieldTable tbody tr:last-child td {
   border-bottom: none;
-  padding-bottom: var(--ds-size-4)
+    padding-bottom: var(--ds-size-4);
 }
+
 
 /* På mobil stables etikett og verdi i stedet for å dele bredden. */
 @media (max-width: 800px) {
+
   .fieldTable tr {
     display: flex;
     flex-direction: column;
   }
+    .fieldTable tbody tr:last-child td {
+        padding-bottom: initial;
+    }
+    .fieldTable tr:last-child  {
+        padding-bottom: var(--ds-size-4);
+    }
 
-  .fieldLabel {
+
+    .fieldLabel {
     width: auto;
     color: var(--ds-color-neutral-text-subtle);
     font-size: var(--ds-body-sm-font-size);
