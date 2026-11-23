@@ -30,31 +30,19 @@ class AppConfig(
             enabled =
                 optionalEnv("VECTOR_SEARCH_ENABLED")
                     ?.toBooleanStrictOrNull() ?: false,
-            similarityFunction =
-                optionalEnv("VECTOR_SIMILARITY_FUNCTION")
-                    ?: "dot_product",
-            cosineThreshold =
-                optionalEnv("VECTOR_COSINE_THRESHOLD")
-                    ?.toDoubleOrNull() ?: 0.56,
-            rerankWeight =
-                optionalEnv("VECTOR_RERANK_WEIGHT")
-                    ?.toIntOrNull() ?: 80,
-            topK =
-                optionalEnv("VECTOR_TOP_K")
-                    ?.toIntOrNull() ?: 200,
+            similarityFunction = "dot_product",
+            cosineThreshold = 0.56,
+            rerankWeight = 80,
+            topK = 200,
         )
 
     val vertexAIConfig: VertexAIConfig? =
         if (vectorSearchConfig.enabled) {
             VertexAIConfig(
                 projectId = env("VERTEX_AI_PROJECT_ID"),
-                location = optionalEnv("VERTEX_AI_LOCATION") ?: "europe-north1",
-                model =
-                    optionalEnv("VERTEX_AI_EMBEDDING_MODEL")
-                        ?: "text-multilingual-embedding-002",
-                timeoutMillis =
-                    optionalEnv("VERTEX_AI_TIMEOUT_MS")
-                        ?.toIntOrNull() ?: 30_000,
+                location = "europe-north1",
+                model = "text-multilingual-embedding-002",
+                timeoutMillis = 30_000,
             )
         } else {
             null
