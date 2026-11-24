@@ -7,7 +7,7 @@ import {
 } from "@/app/api";
 import { ContactInfoCard } from "@/app/metadata/[uuid]/_components/ContactInfoCard";
 import ProductAlert from "@/app/metadata/[uuid]/_components/ProductAlert";
-import { ProductTabsSection } from "@/app/metadata/[uuid]/_components/ProductTabsSection";
+import { ProductTabsSection } from "@/app/metadata/[uuid]/_components/tabs/ProductTabsSection";
 import {
   decodeRouteUuid,
   getAlertDetailsUrl,
