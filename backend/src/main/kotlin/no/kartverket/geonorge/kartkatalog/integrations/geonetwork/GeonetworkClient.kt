@@ -1,70 +1,14 @@
 package no.kartverket.geonorge.kartkatalog.integrations.geonetwork
 
 import io.ktor.client.HttpClient
-import io.ktor.client.request.accept
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.http.isSuccess
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
-import no.kartverket.geonorge.kartkatalog.metrics.observeUpstream
 
+/** Client for Geonorge's own GeoNetwork CSW endpoint. */
 class GeonetworkClient(
-    private val httpClient: HttpClient,
-    private val baseUrl: String,
-) {
-    private val cswUrl: String = "$baseUrl/srv/nor/csw"
-
-    suspend fun getRecordByUuid(uuid: String): MetadataRecord? =
-        observeUpstream("geonetwork", "get_record_by_id") { fetchRecord(uuid) }
-
-    private suspend fun fetchRecord(uuid: String): MetadataRecord? {
-        val requestXml = buildGetRecordByIdRequest(uuid)
-
-        val response =
-            httpClient.post(cswUrl) {
-                accept(ContentType.Application.Xml)
-                contentType(ContentType.Application.Xml)
-                setBody(requestXml)
-            }
-
-        // CSW answers a missing record with 200 and an empty response, so a non-success status is a real failure.
-        if (!response.status.isSuccess()) {
-            throw GeoNetworkException("CSW request failed with status ${response.status}")
-        }
-
-        val responseXml = response.bodyAsText()
-
-        if (responseXml.contains("ExceptionReport")) {
-            throw GeoNetworkException("CSW service returned an ExceptionReport: $responseXml")
-        }
-
-        if (!responseXml.contains("<gmd:MD_Metadata") &&
-            !responseXml.contains("<MD_Metadata")
-        ) {
-            return null
-        }
-
-        return MetadataParser.parse(responseXml.byteInputStream())
-    }
-
-    private fun buildGetRecordByIdRequest(uuid: String): String =
-        """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <csw:GetRecordById
-            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-            xmlns:gmd="http://www.isotc211.org/2005/gmd"
-            service="CSW"
-            version="2.0.2"
-            outputSchema="csw:IsoRecord">
-            <csw:Id>$uuid</csw:Id>
-            <csw:ElementSetName>full</csw:ElementSetName>
-        </csw:GetRecordById>
-        """.trimIndent()
-}
-
-class GeoNetworkException(
-    message: String,
-) : RuntimeException(message)
+    httpClient: HttpClient,
+    baseUrl: String,
+) : MetadataRecordSource by CswRecordClient(
+        httpClient = httpClient,
+        cswUrl = "$baseUrl/srv/nor/csw",
+        outputSchema = GEONETWORK_OUTPUT_SCHEMA,
+        upstreamName = "geonetwork",
+    )

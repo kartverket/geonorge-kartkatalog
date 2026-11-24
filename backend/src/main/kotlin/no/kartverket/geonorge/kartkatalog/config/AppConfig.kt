@@ -12,6 +12,7 @@ class AppConfig(
         }
 
     val geonetworkBaseUrl: String = env("GEONETWORK_BASE_URL")
+    val metUrl: String = "https://data.csw.met.no/?"
     val registerBaseUrl: String = env("REGISTER_BASE_URL")
     val solrBaseUrl: String = env("SOLR_BASE_URL")
     val staticNorgeskartUrl: String = env("NORGESKART_BASE_URL")

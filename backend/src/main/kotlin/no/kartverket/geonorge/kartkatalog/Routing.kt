@@ -2,6 +2,7 @@ package no.kartverket.geonorge.kartkatalog
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.http.ContentType
 import io.ktor.openapi.OpenApiInfo
 import io.ktor.server.application.Application
@@ -23,7 +24,11 @@ import no.kartverket.geonorge.kartkatalog.download.DownloadApiClient
 import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.CswRecordClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.ISO_19139_OUTPUT_SCHEMA
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetFallbackMetadataRecordSource
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.metCswUrl
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
@@ -44,6 +49,9 @@ import no.kartverket.geonorge.kartkatalog.search.searchRoutes
 // Internal routes used by the frontend (BFF auth, session user and downloads) are left out of the public API docs.
 private val undocumentedPathPrefixes = listOf("/bff", "/beta/bff", "/auth", "/api/me", "/api/download", "/actuator")
 
+// Same timeout as legacy GeoNorgeAPI (HttpWebRequest.Timeout = 60000).
+private const val MET_REQUEST_TIMEOUT_MILLIS = 60_000L
+
 private fun String.isUndocumented(): Boolean =
     this == "/" || undocumentedPathPrefixes.any { this == it || startsWith("$it/") }
 
@@ -52,16 +60,21 @@ fun Application.configureRouting(
     authentication: GeoIdAuthentication,
 ) {
     val httpClient = HttpClient(CIO)
-    val geonetworkClient = GeonetworkClient(httpClient, appConfig.geonetworkBaseUrl)
+    val metHttpClient = HttpClient(CIO) { install(HttpTimeout) { requestTimeoutMillis = MET_REQUEST_TIMEOUT_MILLIS } }
+    val recordSource =
+        MetFallbackMetadataRecordSource(
+            primary = GeonetworkClient(httpClient, appConfig.geonetworkBaseUrl),
+            met = CswRecordClient(metHttpClient, metCswUrl(appConfig.metUrl), ISO_19139_OUTPUT_SCHEMA, "met_csw"),
+        )
     val registerClient = RegisterClient(httpClient, appConfig.registerBaseUrl)
     val codeListTranslator = CodeListTranslator(registerClient)
     val areaResolver = AreaResolver(registerClient)
     val hvdResolver = HvdResolver(registerClient)
     val metadataMapper = MetadataMapper(codeListTranslator)
-    val metadataService = MetadataService(geonetworkClient, metadataMapper, registerClient)
+    val metadataService = MetadataService(recordSource, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
-    val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)
-    val distributionsService = DistributionsService(solrClient, geonetworkClient, codeListTranslator)
+    val linkedDistributionsService = LinkedDistributionsService(solrClient, recordSource)
+    val distributionsService = DistributionsService(solrClient, recordSource, codeListTranslator)
     val embeddingClient =
         appConfig.vertexAIConfig?.let {
             runCatching { VertexAIClient(it) }
@@ -83,7 +96,7 @@ fun Application.configureRouting(
         LegacyService(
             searchEngine,
             registerClient,
-            geonetworkClient,
+            recordSource,
             solrClient,
             codeListTranslator,
             appConfig.publicBaseUrl,
@@ -94,7 +107,10 @@ fun Application.configureRouting(
     val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
     val tokenExchangeClient = TokenExchangeClient(httpClient, appConfig.tokenExchangeUrl)
 
-    monitor.subscribe(ApplicationStopping) { httpClient.close() }
+    monitor.subscribe(ApplicationStopping) {
+        httpClient.close()
+        metHttpClient.close()
+    }
 
     routing {
         swaggerUI("/swagger") {

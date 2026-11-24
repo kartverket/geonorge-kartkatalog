@@ -29,6 +29,7 @@ flowchart LR
     FE["Frontend (Next.js)"] --> BE["Kartkatalog-backend"]
     BE --> Solr[["Solr"]]
     BE --> GN["GeoNetwork (CSW)"]
+    BE --> MET["MET CSW (no.met:-poster)"]
     BE --> Reg["Register (kodelister, områder, HVD)"]
     BE --> Ned["Nedlasting-API"]
     BE --> GeoID["GeoID (OIDC)"]
@@ -39,6 +40,7 @@ flowchart LR
 | System | Brukes til | Miljøvariabel |
 |---|---|---|
 | GeoNetwork | Henter full metadatapost (CSW) | `GEONETWORK_BASE_URL` |
+| MET CSW | Reserve for UUID-er som starter med `no.met:` og ikke finnes i vår GeoNetwork (samme URL som legacy: `MET_URL` + `srv/nor/csw`, 60 s timeout) | `MET_URL` (valgfri, standard `https://data.csw.met.no/?`) |
 | Solr | Søk, fasetter, distribusjoner, tilknyttede distribusjoner | `SOLR_BASE_URL` |
 | Register | Kodelister/oversettelser, områder, HVD, innsiktsgrupper | `REGISTER_BASE_URL` |
 | Norgeskart | Kartlenker i svar | `NORGESKART_BASE_URL` |
