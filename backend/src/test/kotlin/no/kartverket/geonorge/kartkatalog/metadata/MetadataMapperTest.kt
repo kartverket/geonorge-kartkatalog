@@ -246,6 +246,35 @@ class MetadataMapperTest {
             assertEquals("EPSG:9999", mapped[1].code)
         }
 
+    @Test
+    fun `maps collaboration keywords to labels and product tags`() =
+        runBlocking {
+            val mapper = MetadataMapper(createTranslator(responseContent = """{"containeditems": []}"""))
+            val record =
+                minimalRecord(
+                    keywordGroups =
+                        listOf(
+                            KeywordGroup(
+                                thesaurusHref = "https://register.geonorge.no/metadata-kodelister/samarbeid-og-lover",
+                                keywords =
+                                    listOf(
+                                        Keyword(value = "arealplanerPBL"),
+                                        Keyword(value = "Økologisk grunnkart"),
+                                        Keyword(value = "Ukjent samarbeid"),
+                                    ),
+                            ),
+                        ),
+                )
+
+            val mapped = mapper.toProductMetadata(record)
+
+            assertEquals(
+                listOf("Arealplaner underlagt PBL", "Økologisk grunnkart", "Ukjent samarbeid"),
+                mapped.collaborationAndLaws,
+            )
+            assertEquals(listOf("Økologisk grunnkart"), mapped.nationalInitiatives)
+        }
+
     private fun minimalRecord(
         referenceSystems: List<ReferenceSystem> = emptyList(),
         legalConstraints: LegalConstraints? = null,

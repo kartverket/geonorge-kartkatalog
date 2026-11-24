@@ -184,51 +184,20 @@ class MetadataMapper(
             it.thesaurusHref?.contains("data.europa.eu/bna/", ignoreCase = true) == true
         }
 
-    private val relevantCollaborationTags =
-        mapOf(
-            "mareano" to "Mareano",
-            "marinegrunnkart" to "Marine grunnkart",
-            "økologiskgrunnkart" to "Økologisk grunnkart",
-        )
-
-    private fun String.normalizedForMatch(): String = replace(" ", "").lowercase()
-
     private fun mapNationalInitiatives(collaborationKeywords: List<ProductKeyword>): List<String> {
-        val matchedKeys =
+        val matched =
             collaborationKeywords
-                .mapNotNull { it.keywordValue?.normalizedForMatch() }
+                .mapNotNull { it.keywordValue?.let(NationalInitiatives::find) }
                 .toSet()
-        return relevantCollaborationTags
-            .filterKeys { it in matchedKeys }
-            .values
-            .toList()
+        return NationalInitiatives.all
+            .filter { it.showAsProductTag && it in matched }
+            .map { it.label }
     }
-
-    private val collaborationLabels =
-        mapOf(
-            "detoffentligekartgrunnlaget" to "Det offentlige kartgrunnlaget",
-            "geodata" to "Geografiske data",
-            "highvaluedataset" to "High value dataset",
-            "jordobservasjonogmiljø" to "Jordobservasjon og miljø",
-            "norgedigitalt" to "Norge digitalt",
-            "norskklimaservicesenter" to "Norsk klimaservicesenter",
-            "arealplanerpbl" to "Arealplaner underlagt PBL",
-            "nautiskinformasjon" to "Nautisk informasjon",
-            "marinegrunnkart" to "Marine grunnkart",
-            "arcticsdi" to "Arctic SDI",
-            "beredskapsbase" to "Beredskapsbase",
-            "inspire" to "Inspire",
-            "datanorgeno" to "Data.norge.no",
-            "geodataloven" to "Geodataloven",
-            "mareano" to "Mareano",
-            "modellbasertevegprosjekter" to "Modellbaserte vegprosjekter",
-            "økologiskgrunnkart" to "Økologisk grunnkart",
-        )
 
     private fun mapCollaboration(collaborationKeywords: List<ProductKeyword>): List<String> =
         collaborationKeywords
             .mapNotNull { it.keywordValue?.takeIf(String::isNotBlank) }
-            .map { collaborationLabels[it.normalizedForMatch()] ?: it }
+            .map { NationalInitiatives.find(it)?.label ?: it }
             .distinct()
 
     private val languageLabels =
