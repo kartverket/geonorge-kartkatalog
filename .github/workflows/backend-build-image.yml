@@ -23,8 +23,8 @@ env:
   DOCKER_REGISTRY: ghcr.io
   NAME: kartverket/geonorge-kartkatalog-nbe
   #   ENV_SUFFIX: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
-  #   DEPLOY_PATH_DEV: ${{ github.ref_name == 'main' && 'env/atkv3-prod/geonorge-kartkatalog/kartkatalog-backend-version' || 'env/atkv3-dev/geonorge-kartkatalog-dev/kartkatalog-backend-version' }}
-  DEPLOY_PATH_DEV: "env/atkv3-dev/geonorge-kartkatalog-dev/kartkatalog-backend-version"
+  #   DEPLOY_PATH_DEV: ${{ github.ref_name == 'main' && 'env/atkv3-prod/geonorge-kartkatalog/kartkatalog-backend-version' || 'env/atkv3-dev/geonorge-kartkatalog/kartkatalog-backend-version' }}
+  DEPLOY_PATH_DEV: "env/atkv3-dev/geonorge-kartkatalog/kartkatalog-backend-version"
   DEPLOY_PATH_PROD: "env/atkv3-prod/geonorge-kartkatalog/kartkatalog-backend-version"
 
 jobs:
