@@ -93,9 +93,7 @@ class MetadataMapper(
             specificUsage = record.specificUsage,
             supplementalDescription = record.supplementalDescription,
             helpUrl =
-                record.extensionResources
-                    .firstOrNull { it.applicationProfile.equals("hjelp", ignoreCase = true) }
-                    ?.url,
+                record.findExtensionUrl("hjelp"),
             processHistory = record.processHistory,
             constraints = record.legalConstraints?.toProductConstraints(accessState = accessState),
             securityClassification =
@@ -123,15 +121,15 @@ class MetadataMapper(
         return if (from == null && to == null) null else ProductValidityPeriod(from = from, to = to)
     }
 
-    private fun describeAccessConstraints(
-        recordAccessConstraints: String?,
-        accessState: AccessState?,
-    ): String =
-        when {
-            accessState == AccessState.OPEN -> "Åpne data"
-            accessState == AccessState.RESTRICTED -> "Norge digitalt-begrenset"
-            else -> recordAccessConstraints ?: "-"
-        }
+//    private fun describeAccessConstraints(
+//        recordAccessConstraints: String?,
+//        accessState: AccessState?,
+//    ): String =
+//        when {
+//            accessState == AccessState.OPEN -> "Åpne data"
+//            accessState == AccessState.RESTRICTED -> "Norge digitalt-begrenset"
+//            else -> recordAccessConstraints ?: "-"
+//        }
 
     private suspend fun describeUseConstraints(
         useConstraints: String?,
