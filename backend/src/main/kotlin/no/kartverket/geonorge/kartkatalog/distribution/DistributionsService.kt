@@ -38,8 +38,6 @@ class DistributionsService(
                 try {
                     solrClient
                         .getMetadataByUuid(uuid)
-                        .response.docs
-                        .firstOrNull()
                 } catch (e: SolrException) {
                     log.warn("Failed to fetch related distributions from Solr for {}", uuid, e)
                     null
