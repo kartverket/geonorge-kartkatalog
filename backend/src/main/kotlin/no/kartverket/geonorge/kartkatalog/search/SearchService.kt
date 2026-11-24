@@ -8,6 +8,7 @@ import no.kartverket.geonorge.kartkatalog.download.DownloadItem
 import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
+import no.kartverket.geonorge.kartkatalog.metadata.NationalInitiatives
 import java.text.Collator
 import java.util.Locale
 
@@ -94,7 +95,7 @@ class SearchService(
                         when (facetField) {
                             "type" -> translateType(facetName)
                             "area" -> fylkeNames[facetName]
-                            "nationalinitiative" -> nationalInitiativeLabels[facetName]
+                            "nationalinitiative" -> NationalInitiatives.find(facetName)?.label
                             else -> null
                         },
                     category =
@@ -120,27 +121,6 @@ class SearchService(
         Collator.getInstance(Locale.forLanguageTag("nb")).let { c -> Comparator { a, b -> c.compare(a, b) } }
 
     private fun orderOf(vararg codes: String): Map<String, Int> = codes.withIndex().associate { (i, code) -> code to i }
-
-    private val nationalInitiativeLabels: Map<String, String> =
-        linkedMapOf(
-            "Det offentlige kartgrunnlaget" to "Det offentlige kartgrunnlaget",
-            "Geodata" to "Geografiske data",
-            "High value dataset" to "High value dataset",
-            "Jordobservasjon og miljø" to "Jordobservasjon og miljø",
-            "Norge digitalt" to "Norge digitalt",
-            "Norsk klimaservicesenter" to "Norsk klimaservicesenter",
-            "arealplanerPBL" to "Arealplaner underlagt PBL",
-            "Nautisk informasjon" to "Nautisk informasjon",
-            "MarineGrunnkart" to "Marine grunnkart",
-            "arcticSDI" to "Arctic SDI",
-            "beredskapsbase" to "Beredskapsbase",
-            "Inspire" to "Inspire",
-            "dataNorgeNo" to "Data.norge.no",
-            "geodataloven" to "Geodataloven",
-            "Mareano" to "Mareano",
-            "modellbaserteVegprosjekter" to "Modellbaserte vegprosjekter",
-            "ØkologiskGrunnkart" to "Økologisk grunnkart",
-        )
 
     private val facetValueOrder: Map<String, Map<String, Int>> =
         mapOf(
@@ -188,7 +168,7 @@ class SearchService(
                     "Atom Feed",
                     "Ingen online tilgang",
                 ),
-            "nationalinitiative" to orderOf(*nationalInitiativeLabels.keys.toTypedArray()),
+            "nationalinitiative" to orderOf(*NationalInitiatives.all.map { it.facetValue }.toTypedArray()),
         )
 
     private fun isJunkFacetValue(

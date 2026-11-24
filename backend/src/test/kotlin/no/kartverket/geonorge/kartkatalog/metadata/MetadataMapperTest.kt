@@ -10,17 +10,21 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.BoundingBox
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionInfo
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Keyword
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.LegalConstraints
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataDate
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.TemporalExtent
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductValidityPeriod
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -46,6 +50,41 @@ class MetadataMapperTest {
 
             assertEquals(AccessState.OPEN, mapped.accessState)
             assertEquals("Åpne data", mapped.constraints?.accessConstraints)
+        }
+
+    @Test
+    fun `maps time and place parameters`() =
+        runBlocking {
+            val mapper = MetadataMapper(createTranslator(responseContent = """{"containeditems": []}"""))
+            val record =
+                minimalRecord(
+                    keywordGroups =
+                        listOf(
+                            KeywordGroup(
+                                type = "place",
+                                keywords = listOf(Keyword(value = "Norge"), Keyword(value = "Svalbard")),
+                            ),
+                        ),
+                ).copy(
+                    dates =
+                        listOf(
+                            MetadataDate(date = "2015-02-16", type = "publication"),
+                            MetadataDate(date = "2020-01-01", type = "revision"),
+                        ),
+                    temporalExtents = listOf(TemporalExtent(begin = "2010-01-01", end = "unknown")),
+                    boundingBox = BoundingBox(4.0, 31.0, 57.0, 71.0),
+                    cloudCoverPercentage = 0.0,
+                )
+
+            val mapped = mapper.toProductMetadata(record)
+
+            assertEquals("2015-02-16", mapped.datePublished)
+            assertEquals("2020-01-01", mapped.dateUpdated)
+            assertEquals("2024-01-01", mapped.dateMetadataUpdated)
+            assertEquals(ProductValidityPeriod(from = "2010-01-01", to = null), mapped.validityPeriod)
+            assertEquals(listOf("Norge", "Svalbard"), mapped.geographicAreas)
+            assertEquals(71.0, mapped.boundingBox?.northBoundLatitude)
+            assertEquals(0.0, mapped.cloudCoverPercentage)
         }
 
     @Test
@@ -205,6 +244,35 @@ class MetadataMapperTest {
             assertEquals("EUREF89 UTM33", mapped[0].title)
             assertEquals(null, mapped[1].title)
             assertEquals("EPSG:9999", mapped[1].code)
+        }
+
+    @Test
+    fun `maps collaboration keywords to labels and product tags`() =
+        runBlocking {
+            val mapper = MetadataMapper(createTranslator(responseContent = """{"containeditems": []}"""))
+            val record =
+                minimalRecord(
+                    keywordGroups =
+                        listOf(
+                            KeywordGroup(
+                                thesaurusHref = "https://register.geonorge.no/metadata-kodelister/samarbeid-og-lover",
+                                keywords =
+                                    listOf(
+                                        Keyword(value = "arealplanerPBL"),
+                                        Keyword(value = "Økologisk grunnkart"),
+                                        Keyword(value = "Ukjent samarbeid"),
+                                    ),
+                            ),
+                        ),
+                )
+
+            val mapped = mapper.toProductMetadata(record)
+
+            assertEquals(
+                listOf("Arealplaner underlagt PBL", "Økologisk grunnkart", "Ukjent samarbeid"),
+                mapped.collaborationAndLaws,
+            )
+            assertEquals(listOf("Økologisk grunnkart"), mapped.nationalInitiatives)
         }
 
     private fun minimalRecord(

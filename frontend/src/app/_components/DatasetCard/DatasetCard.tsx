@@ -70,26 +70,24 @@ export function DatasetCard({ viewMode = "grid", ...p }: DatasetCardProps) {
     setTimeout(() => setCopied(false), 2000);
   }
 
-  const renderThumbnail = () => (
-    <div className={styles.thumbnailContainer}>
-      {thumbnailUrl ? (
-        <Image
-          src={thumbnailUrl}
-          alt=""
-          fill
-          sizes="(max-width: 767px) 100vw, 430px"
-          className={styles.thumbnail}
-        />
-      ) : (
-        <div className={styles.thumbnailFallback}>Ingen forhåndsvisning</div>
-      )}
-    </div>
-  );
-
   return (
     <div className={viewMode === "list" ? styles.listMode : styles.gridMode}>
       <Card className={styles.productCard}>
-        {viewMode !== "list" && renderThumbnail()}
+        <div className={styles.thumbnailContainer}>
+          {thumbnailUrl ? (
+            <Image
+              src={thumbnailUrl}
+              alt=""
+              fill
+              sizes="(max-width: 767px) 100vw, 430px"
+              className={styles.thumbnail}
+            />
+          ) : (
+            <div className={styles.thumbnailFallback}>
+              Ingen forhåndsvisning
+            </div>
+          )}
+        </div>
         <div className={styles.contentWrapper}>
           {p.typeTranslated && (
             <div className={styles.badgeRow}>

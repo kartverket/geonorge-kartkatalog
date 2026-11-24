@@ -67,13 +67,34 @@ export type Contact = z.infer<typeof ProductMetadataContactSchema>;
 const accessState = ["restricted", "open", "protected"] as const;
 export type AccessState = (typeof accessState)[number];
 
+const ValidityPeriodSchema = z.object({
+  from: z.string().nullable(),
+  to: z.string().nullable(),
+});
+
+const BoundingBoxSchema = z.object({
+  westBoundLongitude: z.number(),
+  eastBoundLongitude: z.number(),
+  southBoundLatitude: z.number(),
+  northBoundLatitude: z.number(),
+});
+
+export type ProductValidityPeriod = z.infer<typeof ValidityPeriodSchema>;
+export type ProductBoundingBox = z.infer<typeof BoundingBoxSchema>;
+
 export const ProductMetadataSchema = z.object({
   title: z.string(),
   organization: z.string().nullable(),
   hierarchyLevel: z.string(),
   seriesType: z.string().nullable(),
   accessState: z.enum(accessState).nullable(),
+  datePublished: z.string().nullable(),
   dateUpdated: z.string().nullable(),
+  dateMetadataUpdated: z.string().nullable(),
+  validityPeriod: ValidityPeriodSchema.nullable(),
+  geographicAreas: z.array(z.string()),
+  boundingBox: BoundingBoxSchema.nullable(),
+  cloudCoverPercentage: z.number().nullable(),
   maintenanceFrequency: z.string().nullable(),
   spatialRepresentation: z.string().nullable(),
   spatialScope: z.string().nullable(),
@@ -82,6 +103,10 @@ export const ProductMetadataSchema = z.object({
   nationalKeywords: z.array(ProductKeywordSchema),
   nationalInitiatives: z.array(z.string()),
   dokStatus: z.string().nullable(),
+  collaborationAndLaws: z.array(z.string()),
+  datasetLanguage: z.string().nullable(),
+  namespace: z.string().nullable(),
+  datasetId: z.string().nullable(),
   isHighValueDataset: z.boolean(),
   distributionFormats: z.array(ProductDistributionFormatSchema),
   thumbnailUrl: z.string().nullable(),
