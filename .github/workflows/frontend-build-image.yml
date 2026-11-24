@@ -127,6 +127,7 @@ jobs:
         with:
           image_url: ${{ env.DOCKER_REGISTRY }}/${{ env.NAME }}:${{ needs.build_image.outputs.short_tag }}
           trivy_vex: true
+          trivy_category: trivy-frontend
 
   deploy:
     runs-on: ubuntu-latest
