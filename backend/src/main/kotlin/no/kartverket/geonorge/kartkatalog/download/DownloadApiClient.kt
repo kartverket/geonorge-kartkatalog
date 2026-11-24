@@ -161,6 +161,9 @@ class DownloadApiClient(
                     response.status,
                     errorBody,
                 )
+                if (errorBody?.contains(MISSING_ROLE_MESSAGE) == true) {
+                    throw DownloadAccessDeniedException(errorBody)
+                }
                 throw DownloadApiException(
                     "Download API order request to $requestUrl failed with status ${response.status}" +
                         (errorBody?.takeIf { it.isNotBlank() }?.let { ": $it" } ?: ""),
@@ -221,3 +224,12 @@ open class DownloadApiException(
 
 class DownloadTokenDestinationNotAllowedException :
     DownloadApiException("GeoID access token cannot be sent to a non-allowlisted download client")
+
+// Nedlastings-API-et (v3) svarer med 500 og en tekst som inneholder dette
+// når brukeren mangler rolle for et begrenset datasett
+// TODO: sjekk med v4 at dette fortsatt er oppførsel
+private const val MISSING_ROLE_MESSAGE = "does not have required role"
+
+class DownloadAccessDeniedException(
+    message: String,
+) : DownloadApiException(message)
