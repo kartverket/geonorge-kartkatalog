@@ -69,7 +69,9 @@ dependencies {
     testImplementation(ktorLibs.server.testHost)
     testImplementation(ktorLibs.client.mock)
 
-    // INFO: Guide gradle to use jackson 2.22.3 (up from 2.22.0 in our case) to mitigate CVE's
-    // Jackson 2.22.0 was imported by auth.oidc. This line should be removed if auth.oidc updates to a secure version of jackson.
+    // INFO: Tvinger opp Jackson for å tette CVE-er i versjonene avhengighetene drar inn.
+    // Jackson 2 kommer fra auth.oidc, Jackson 3 fra logstash-logback-encoder.
+    // Fjern linjene når avhengighetene selv bruker trygge versjoner.
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.23.0"))
+    implementation(platform("tools.jackson:jackson-bom:3.3.0"))
 }
