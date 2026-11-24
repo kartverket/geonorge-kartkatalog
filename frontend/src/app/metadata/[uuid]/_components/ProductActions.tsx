@@ -1,4 +1,9 @@
-import { DownloadIcon, FileTextIcon, PencilIcon } from "@navikt/aksel-icons";
+import {
+  DownloadIcon,
+  ExternalLinkIcon,
+  FileTextIcon,
+  PencilIcon,
+} from "@navikt/aksel-icons";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
@@ -78,6 +83,14 @@ export async function ProductActions({
           icon={<DownloadIcon aria-hidden />}
           title="Last ned"
           variant="primary"
+        />
+      )}
+      {metadata.productPageUrl && (
+        <TrackedActionLinkButton
+          eventName="show-product-page"
+          href={metadata.productPageUrl}
+          icon={<ExternalLinkIcon aria-hidden />}
+          title="Vis produktside"
         />
       )}
       <TrackedActionLinkButton

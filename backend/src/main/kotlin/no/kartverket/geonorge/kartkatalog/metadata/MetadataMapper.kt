@@ -94,6 +94,7 @@ class MetadataMapper(
             supplementalDescription = record.supplementalDescription,
             helpUrl =
                 record.findExtensionUrl("hjelp"),
+            productPageUrl = record.findExtensionUrl("produktside")?.let(::withHttpsScheme),
             processHistory = record.processHistory,
             constraints = record.legalConstraints?.toProductConstraints(accessState = accessState),
             securityClassification =

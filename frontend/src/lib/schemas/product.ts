@@ -117,6 +117,7 @@ export const ProductMetadataSchema = z.object({
   processHistory: z.string().nullable(),
   supplementalDescription: z.string().nullable(),
   helpUrl: z.string().nullable(),
+  productPageUrl: z.string().nullable().default(null),
   constraints: LegalConstraintsSchema.nullable(),
   securityClassification: z.string().nullable(),
   contactMetadata: ProductMetadataContactSchema.nullable(),
