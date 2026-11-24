@@ -14,12 +14,13 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrResponse
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 
 class SolrClientTest {
     private val minimalSolrResponse =
@@ -61,12 +62,10 @@ class SolrClientTest {
             try {
                 val response = solrClient.getMetadataByUuid(uuid)
 
-                assertEquals(1, response.response.numFound)
+                assertNotNull(response)
                 assertEquals(
                     "test-uuid",
-                    response.response.docs
-                        .first()
-                        .uuid,
+                    response.uuid,
                 )
                 assertEquals("/solr/metadata/select", capturedPath)
                 assertEquals("https", capturedProtocol)
@@ -143,13 +142,11 @@ class SolrClientTest {
             val solrClient = SolrClient(httpClient, solrBaseUrl)
 
             httpClient.use { _ ->
-                val response: SolrResponse = solrClient.getMetadataByUuid(uuid)
-                assertEquals(1, response.response.numFound)
+                val response: SolrDocument? = solrClient.getMetadataByUuid(uuid)
+                assertNotNull(response)
                 assertEquals(
                     "test-uuid",
-                    response.response.docs
-                        .first()
-                        .uuid,
+                    response.uuid,
                 )
             }
         }
@@ -178,7 +175,7 @@ class SolrClientTest {
 
             httpClient.use {
                 val response = solrClient.getMetadataByUuid(UUID.randomUUID().toString())
-                assertEquals(1, response.response.numFound)
+                assertNotNull(response)
                 assertEquals(listOf("/solr/metadata/select", "/solr/services/select"), requestedPaths)
             }
         }
@@ -207,7 +204,7 @@ class SolrClientTest {
 
             httpClient.use {
                 val response = solrClient.getMetadataByUuid(UUID.randomUUID().toString())
-                assertEquals(1, response.response.numFound)
+                assertNotNull(response)
                 assertEquals(
                     listOf("/solr/metadata/select", "/solr/services/select", "/solr/applications/select"),
                     requestedPaths,
