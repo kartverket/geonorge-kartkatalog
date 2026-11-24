@@ -2,7 +2,7 @@ package no.kartverket.geonorge.kartkatalog.integrations.geonetwork
 
 import io.ktor.client.HttpClient
 
-/** Client for Geonorge's own GeoNetwork CSW endpoint. */
+/** Client for Geonorge's own GeoNetwork CSW endpoint. Uses the HTTP client's default timeout. */
 class GeonetworkClient(
     httpClient: HttpClient,
     baseUrl: String,

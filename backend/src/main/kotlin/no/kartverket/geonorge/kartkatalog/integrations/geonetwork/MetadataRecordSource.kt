@@ -30,9 +30,3 @@ class MetFallbackMetadataRecordSource(
         return met.getRecordByUuid(uuid)
     }
 }
-
-/**
- * Same URL as legacy (GeoNorgeAPI appends "srv/nor/csw" to the configured endpoint). With the default
- * "https://data.csw.met.no/?" this becomes "https://data.csw.met.no/?srv/nor/csw", which pycsw ignores.
- */
-fun metCswUrl(metUrl: String): String = "${metUrl}srv/nor/csw"

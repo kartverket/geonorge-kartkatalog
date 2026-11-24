@@ -24,11 +24,9 @@ import no.kartverket.geonorge.kartkatalog.download.DownloadApiClient
 import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.CswRecordClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.ISO_19139_OUTPUT_SCHEMA
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetFallbackMetadataRecordSource
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.metCswUrl
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
@@ -49,9 +47,6 @@ import no.kartverket.geonorge.kartkatalog.search.searchRoutes
 // Internal routes used by the frontend (BFF auth, session user and downloads) are left out of the public API docs.
 private val undocumentedPathPrefixes = listOf("/bff", "/beta/bff", "/auth", "/api/me", "/api/download", "/actuator")
 
-// Same timeout as legacy GeoNorgeAPI (HttpWebRequest.Timeout = 60000).
-private const val MET_REQUEST_TIMEOUT_MILLIS = 60_000L
-
 private fun String.isUndocumented(): Boolean =
     this == "/" || undocumentedPathPrefixes.any { this == it || startsWith("$it/") }
 
@@ -59,12 +54,11 @@ fun Application.configureRouting(
     appConfig: AppConfig,
     authentication: GeoIdAuthentication,
 ) {
-    val httpClient = HttpClient(CIO)
-    val metHttpClient = HttpClient(CIO) { install(HttpTimeout) { requestTimeoutMillis = MET_REQUEST_TIMEOUT_MILLIS } }
+    val httpClient = HttpClient(CIO) { install(HttpTimeout) }
     val recordSource =
         MetFallbackMetadataRecordSource(
             primary = GeonetworkClient(httpClient, appConfig.geonetworkBaseUrl),
-            met = CswRecordClient(metHttpClient, metCswUrl(appConfig.metUrl), ISO_19139_OUTPUT_SCHEMA, "met_csw"),
+            met = MetClient(httpClient, appConfig.metUrl),
         )
     val registerClient = RegisterClient(httpClient, appConfig.registerBaseUrl)
     val codeListTranslator = CodeListTranslator(registerClient)
@@ -107,10 +101,7 @@ fun Application.configureRouting(
     val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
     val tokenExchangeClient = TokenExchangeClient(httpClient, appConfig.tokenExchangeUrl)
 
-    monitor.subscribe(ApplicationStopping) {
-        httpClient.close()
-        metHttpClient.close()
-    }
+    monitor.subscribe(ApplicationStopping) { httpClient.close() }
 
     routing {
         swaggerUI("/swagger") {

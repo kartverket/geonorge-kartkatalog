@@ -16,11 +16,9 @@ import io.ktor.server.testing.testApplication
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.CswRecordClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.ISO_19139_OUTPUT_SCHEMA
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetFallbackMetadataRecordSource
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.metCswUrl
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
@@ -261,12 +259,7 @@ class MetadataRoutesTest {
             MetadataService(
                 MetFallbackMetadataRecordSource(
                     GeonetworkClient(client, geonetworkBaseUrl),
-                    CswRecordClient(
-                        client,
-                        metCswUrl("https://met.example.test/?"),
-                        ISO_19139_OUTPUT_SCHEMA,
-                        "met_csw",
-                    ),
+                    MetClient(client, "https://met.example.test/?"),
                 ),
                 metadataMapper,
                 registerClient,

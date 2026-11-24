@@ -2,6 +2,7 @@ package no.kartverket.geonorge.kartkatalog.integrations.geonetwork
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.accept
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -15,12 +16,16 @@ import no.kartverket.geonorge.kartkatalog.metrics.observeUpstream
 const val GEONETWORK_OUTPUT_SCHEMA = "csw:IsoRecord"
 const val ISO_19139_OUTPUT_SCHEMA = "http://www.isotc211.org/2005/gmd"
 
-/** Fetches ISO 19139 records with a CSW 2.0.2 GetRecordById POST from any CSW endpoint (GeoNetwork, pycsw, ...). */
+/**
+ * Fetches ISO 19139 records with a CSW 2.0.2 GetRecordById POST from any CSW endpoint (GeoNetwork, pycsw, ...).
+ * A [requestTimeoutMillis] requires the HttpTimeout plugin on [httpClient]; null keeps the client's default.
+ */
 class CswRecordClient(
     private val httpClient: HttpClient,
     private val cswUrl: String,
     private val outputSchema: String,
     private val upstreamName: String,
+    private val requestTimeoutMillis: Long? = null,
 ) : MetadataRecordSource {
     override suspend fun getRecordByUuid(uuid: String): MetadataRecord? =
         observeUpstream(upstreamName, "get_record_by_id") { fetchRecord(uuid) }
@@ -32,6 +37,9 @@ class CswRecordClient(
                     accept(ContentType.Application.Xml)
                     contentType(ContentType.Application.Xml)
                     setBody(buildGetRecordByIdRequest(uuid))
+                    this@CswRecordClient.requestTimeoutMillis?.let { timeoutMillis ->
+                        timeout { requestTimeoutMillis = timeoutMillis }
+                    }
                 }
             } catch (e: HttpRequestTimeoutException) {
                 throw GeoNetworkException("CSW request to $upstreamName timed out", e)
@@ -93,4 +101,6 @@ open class GeoNetworkException(
     cause: Throwable? = null,
 ) : RuntimeException(message, cause)
 
-class CswExceptionReportException(message: String) : GeoNetworkException(message)
+class CswExceptionReportException(
+    message: String,
+) : GeoNetworkException(message)

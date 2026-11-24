@@ -7,14 +7,13 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.coroutines.runBlocking
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.CswRecordClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.CswExceptionReportException
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.CswRecordClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeoNetworkException
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.ISO_19139_OUTPUT_SCHEMA
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetFallbackMetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataParser
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecordSource
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.metCswUrl
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.metrics.UpstreamMetricsRecorder
 import kotlin.test.AfterTest
@@ -126,8 +125,7 @@ class MetFallbackMetadataRecordSourceTest {
                     },
                 )
             clients += httpClient
-            val client =
-                CswRecordClient(httpClient, metCswUrl("https://data.csw.met.no/?"), ISO_19139_OUTPUT_SCHEMA, "met_csw")
+            val client = MetClient(httpClient, "https://data.csw.met.no/?")
 
             val parsed = client.getRecordByUuid("no.met:a<b&c")
 
