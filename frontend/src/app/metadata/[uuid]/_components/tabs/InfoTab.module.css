@@ -1,21 +1,10 @@
-.abstract {
-  white-space: pre-line;
-}
-
 .headingGroup {
   display: grid;
   gap: var(--ds-size-1);
 }
 
 .helpLink {
-  margin-left: var(--ds-size-8);
+  justify-self: start;
   text-decoration: underline;
   color: inherit;
-}
-
-@media (max-width: 800px) {
-  /* Samme venstremargin på helpLink som accordiongroup -> rett plassering */
-  .helpLink {
-    margin-left: var(--ds-size-2);
-  }
 }

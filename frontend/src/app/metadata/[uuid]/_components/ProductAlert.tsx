@@ -1,6 +1,6 @@
 "use client";
 
-import Markdown from "react-markdown";
+import { MarkdownText } from "@/components/MarkdownText/MarkdownText";
 import { getProductTypeString } from "@/lib/productType";
 import type { Alerts } from "@/lib/schemas/alerts";
 
@@ -65,9 +65,7 @@ export default function ProductAlert({
                   {"). "}
                 </>
               )}
-              <Markdown components={{ p: ({ children }) => <>{children}</> }}>
-                {note}
-              </Markdown>
+              <MarkdownText inline>{note}</MarkdownText>
               {effectiveDate && <em> Gjelder fra {effectiveDate}.</em>}
             </li>
           );

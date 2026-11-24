@@ -17,13 +17,17 @@
   border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
-.accordionGroup p {
+/* Tekst inne i trekkspillene. Egen klasse i stedet for alle <p>, så
+   avsnitt inne i markdown-tekst ikke får ekstra marg */
+.detailText {
+  display: grid;
+  gap: var(--ds-size-4);
   margin: var(--ds-size-8);
 }
 
 @media (max-width: 800px) {
   /* Reduser margin  */
-  .accordionGroup p {
+  .detailText {
     margin: var(--ds-size-5) var(--ds-size-2);
   }
 }

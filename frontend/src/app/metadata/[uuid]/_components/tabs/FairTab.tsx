@@ -72,7 +72,7 @@ export function FairTab({ fairStatus }: { fairStatus: ProductFairStatus }) {
               {principle.Label}
             </Details.Summary>
             <Details.Content>
-              <p>
+              <p className={accordionGroupStyles.detailText}>
                 <strong>
                   {principle.Label.split(" (")[0]}:{" "}
                   {principle.StatusPerCent ?? "-"}%

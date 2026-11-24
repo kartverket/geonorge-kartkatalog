@@ -10,6 +10,7 @@ import {
   hasVisibleFields,
 } from "@/app/metadata/[uuid]/_utils/tableContent";
 import { formatDateNumeric } from "@/app/metadata/[uuid]/_utils/utils";
+import { MarkdownText } from "@/components/MarkdownText/MarkdownText";
 import { getProductTypeDefiniteString } from "@/lib/productType";
 import type {
   ProductBoundingBox,
@@ -67,7 +68,7 @@ export function InfoTab({
       {abstract && (
         <div className={styles.headingGroup}>
           <Heading data-size="xs">Om {productTypeDefinite}</Heading>
-          <p className={styles.abstract}>{abstract}</p>
+          <MarkdownText>{abstract}</MarkdownText>
         </div>
       )}
       <div className={accordionGroupStyles.accordionGroup}>
@@ -137,8 +138,16 @@ function UsageAccordion({
         : "Formål";
 
   const fields: Field[] = [
-    { label: "Bruksområde", content: specificUsage },
-    { label: "Formål", content: showPurpose ? purpose : null },
+    {
+      label: "Bruksområde",
+      content: specificUsage ? (
+        <MarkdownText>{specificUsage}</MarkdownText>
+      ) : null,
+    },
+    {
+      label: "Formål",
+      content: showPurpose ? <MarkdownText>{purpose}</MarkdownText> : null,
+    },
   ];
 
   if (!hasVisibleFields(fields)) return null;
@@ -283,7 +292,9 @@ function ProcessHistoryAccordion({
 
   return (
     <DetailAccordion title="Prosesshistorie">
-      <p>{processHistory}</p>
+      <div className={accordionGroupStyles.detailText}>
+        <MarkdownText>{processHistory}</MarkdownText>
+      </div>
     </DetailAccordion>
   );
 }
@@ -296,17 +307,19 @@ function HelpAccordion({
 
   return (
     <DetailAccordion title="Hjelp til bruk">
-      <p className={styles.abstract}>{supplementalDescription}</p>
-      {helpUrl && (
-        <a
-          href={helpUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.helpLink}
-        >
-          Les mer
-        </a>
-      )}
+      <div className={accordionGroupStyles.detailText}>
+        <MarkdownText>{supplementalDescription}</MarkdownText>
+        {helpUrl && (
+          <a
+            href={helpUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.helpLink}
+          >
+            Les mer
+          </a>
+        )}
+      </div>
     </DetailAccordion>
   );
 }
