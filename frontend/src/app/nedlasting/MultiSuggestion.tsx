@@ -45,6 +45,10 @@ export function MultiSuggestion({
         ? allSelectedLabel
         : "Ingen treff";
 
+  // Designsystemet regner ikke ut "Ingen treff" på nytt når alternativene endrer
+  // seg inni listen, så listen lages på nytt når alternativene endrer seg
+  const optionsKey = options.map((option) => option.value).join("\n");
+
   return (
     <Suggestion
       className={styles.suggestion}
@@ -70,7 +74,7 @@ export function MultiSuggestion({
         disabled={options.length === 0 || isOrdering || disabled}
       />
       <Suggestion.Clear aria-label="Tøm søk" />
-      <Suggestion.List>
+      <Suggestion.List key={optionsKey}>
         <Suggestion.Empty>{emptyLabel}</Suggestion.Empty>
         {options.map((option) => (
           <Suggestion.Option
