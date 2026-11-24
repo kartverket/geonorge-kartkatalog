@@ -21,9 +21,7 @@ class LinkedDistributionsService(
         coroutineScope {
             val solrDoc =
                 solrClient
-                    .getMetadataByUuid(uuid)
-                    .response.docs
-                    .firstOrNull() ?: return@coroutineScope LinkedDistributions()
+                    .getMetadataByUuid(uuid) ?: return@coroutineScope LinkedDistributions()
 
             when (solrDoc.type) {
                 "service" -> getServiceLinkedDistributions(solrDoc, uuid)

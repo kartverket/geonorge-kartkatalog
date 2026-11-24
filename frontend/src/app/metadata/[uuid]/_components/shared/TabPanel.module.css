@@ -1,0 +1,16 @@
+.panel {
+  padding-top: var(--ds-size-15);
+  display: grid;
+  gap: var(--ds-size-8);
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  /* Reduserer padding på små skjermer. Mest kritisk for accordion under distribusjoner */
+  .panel {
+    padding-inline: var(--ds-size-2);
+  }
+}

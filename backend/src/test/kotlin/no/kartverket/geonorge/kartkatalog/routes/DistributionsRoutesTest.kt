@@ -115,7 +115,7 @@ class DistributionsRoutesTest {
                                 HttpStatusCode.OK,
                                 json,
                             )
-                        path == "/solr/metadata/select" -> respond(metadataSolr, solrStatus, json)
+                        path == "/solr/metadata_all/select" -> respond(metadataSolr, solrStatus, json)
                         path == "/solr/applications/select" -> respond(applicationSolr, applicationStatus, json)
                         path.startsWith("/solr/") -> respond(emptySolr, solrStatus, json)
                         else -> respond("{}", HttpStatusCode.NotFound)

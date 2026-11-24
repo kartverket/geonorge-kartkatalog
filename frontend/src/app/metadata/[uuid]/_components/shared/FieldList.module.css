@@ -1,0 +1,59 @@
+.fieldList {
+  display: grid;
+  grid-template-columns: 14rem minmax(0, 1fr);
+  row-gap: var(--ds-size-6);
+  column-gap: var(--ds-size-6);
+  margin: 0;
+  padding-inline: var(--ds-size-8);
+}
+
+.fieldRow {
+  display: contents;
+}
+
+.fieldLabel {
+  margin: 0;
+  align-self: start;
+}
+
+.fieldValue {
+  margin: 0;
+  /* Sentrerer tags (fieldValue) i y-akse når fieldLabel går over flere linjer */
+  align-self: center;
+}
+
+.fieldValue a {
+  text-decoration: underline;
+}
+
+/*
+ * På mobil er det ikke plass til etikett og verdi ved siden av hverandre
+ * (14rem etikettkolonne ville latt ~60px stå igjen til verdien), så
+ * feltene stables og margene strammes inn.
+ */
+@media (max-width: 800px) {
+  .fieldList {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--ds-size-5);
+    padding-inline: var(--ds-size-4);
+  }
+
+  .fieldRow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-size-1);
+    min-width: 0;
+    align-items: stretch;
+  }
+
+  .fieldLabel {
+    color: var(--ds-color-neutral-text-subtle);
+    font-size: var(--ds-body-sm-font-size);
+    align-self: flex-start;
+  }
+
+  /* Auto, arver fra .fieldrow her --> stretch */
+  .fieldValue {
+    align-self: auto;
+  }
+}

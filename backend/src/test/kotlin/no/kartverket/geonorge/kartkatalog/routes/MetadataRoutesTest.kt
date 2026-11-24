@@ -194,7 +194,7 @@ class MetadataRoutesTest {
                             )
                         }
 
-                        request.url.encodedPath == "/solr/metadata/select" -> {
+                        request.url.encodedPath == "/solr/metadata_all/select" -> {
                             if (solrFails) {
                                 respond(content = "", status = HttpStatusCode.ServiceUnavailable)
                             } else {
@@ -210,7 +210,8 @@ class MetadataRoutesTest {
                             }
                         }
 
-                        request.url.encodedPath == "/solr/services/select" -> {
+                        request.url.encodedPath == "/solr/metadata/select" ||
+                            request.url.encodedPath == "/solr/services/select" -> {
                             respond(
                                 content =
                                     """{"responseHeader": {"status": 0, "QTime": 1},

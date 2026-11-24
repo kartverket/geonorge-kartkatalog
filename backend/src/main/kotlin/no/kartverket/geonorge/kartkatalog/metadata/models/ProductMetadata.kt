@@ -10,7 +10,13 @@ data class ProductMetadata(
     val hierarchyLevel: String,
     val seriesType: String? = null,
     val accessState: AccessState? = null,
+    val datePublished: String? = null,
     val dateUpdated: String? = null,
+    val dateMetadataUpdated: String? = null,
+    val validityPeriod: ProductValidityPeriod? = null,
+    val geographicAreas: List<String> = emptyList(),
+    val boundingBox: ProductBoundingBox? = null,
+    val cloudCoverPercentage: Double? = null,
     val maintenanceFrequency: String? = null,
     val spatialRepresentation: String? = null,
     val spatialScope: String? = null,
@@ -19,6 +25,10 @@ data class ProductMetadata(
     val nationalKeywords: List<ProductKeyword> = emptyList(),
     val nationalInitiatives: List<String> = emptyList(),
     val dokStatus: String? = null,
+    val collaborationAndLaws: List<String> = emptyList(),
+    val datasetLanguage: String? = null,
+    val namespace: String? = null,
+    val datasetId: String? = null,
     val isHighValueDataset: Boolean = false,
     val distributionFormats: List<ProductDistributionFormat> = emptyList(),
     val thumbnailUrl: String? = null,
@@ -37,6 +47,20 @@ data class ProductMetadata(
     val referenceSystems: List<ProductReferenceSystem> = emptyList(),
     val distributionGroups: List<ProductDistributionGroup> = emptyList(),
     val coverageData: CoverageData? = null,
+)
+
+@Serializable
+data class ProductValidityPeriod(
+    val from: String? = null,
+    val to: String? = null,
+)
+
+@Serializable
+data class ProductBoundingBox(
+    val westBoundLongitude: Double,
+    val eastBoundLongitude: Double,
+    val southBoundLatitude: Double,
+    val northBoundLatitude: Double,
 )
 
 @Serializable

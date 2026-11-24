@@ -23,18 +23,9 @@ class SolrClient(
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun getMetadataByUuid(uuid: String): SolrResponse {
+    suspend fun getMetadataByUuid(uuid: String): SolrDocument? {
         val query = buildMetadataSolrQuery(uuid)
-
-        val metadataResult = querySolr(metadataPath, query)
-
-        if (metadataResult.response.docs.isNotEmpty()) return metadataResult
-
-        val servicesResult = querySolr(servicesPath, query)
-
-        if (servicesResult.response.docs.isNotEmpty()) return servicesResult
-
-        return querySolr(applicationPath, query)
+        return querySolr(metadataAllPath, query).response.docs.firstOrNull()
     }
 
     suspend fun getMetadataByUuids(uuids: List<String>): List<SolrDocument> {

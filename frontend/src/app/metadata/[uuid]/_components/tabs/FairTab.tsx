@@ -3,16 +3,18 @@
 import { Button, Details, Heading } from "@kv-designsystem/react";
 import { CheckmarkIcon, MinusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { type MouseEvent, useState } from "react";
+import accordionGroupStyles from "@/app/metadata/[uuid]/_components/shared/AccordionGroup.module.css";
+import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
 import type { ProductFairStatus } from "@/lib/schemas/product";
 import { LOCATIONS, trackClick } from "@/posthog/posthog";
-import styles from "./FairSection.module.css";
+import styles from "./FairTab.module.css";
 
 function CriterionStatus({ fulfilled }: { fulfilled: boolean | null }) {
   if (fulfilled === null) return <MinusIcon aria-hidden />;
   return fulfilled ? <CheckmarkIcon aria-hidden /> : <XMarkIcon aria-hidden />;
 }
 
-export function FairSection({ fairStatus }: { fairStatus: ProductFairStatus }) {
+export function FairTab({ fairStatus }: { fairStatus: ProductFairStatus }) {
   const [showLevels, setShowLevels] = useState(false);
 
   const onAccordionClick = (
@@ -28,7 +30,7 @@ export function FairSection({ fairStatus }: { fairStatus: ProductFairStatus }) {
   };
 
   return (
-    <>
+    <TabPanel value="quality">
       <div className={styles.headingGroup}>
         <Heading data-size="sm">Metadatakvalitet (FAIR-status)</Heading>
         <p>
@@ -61,7 +63,7 @@ export function FairSection({ fairStatus }: { fairStatus: ProductFairStatus }) {
         <Heading data-size="sm">Resultater for dette datasettet</Heading>
         <p>Total vurdering: {fairStatus.totalPercent ?? "-"}%.</p>
       </div>
-      <div className={styles.accordionGroup}>
+      <div className={accordionGroupStyles.accordionGroup}>
         {fairStatus.principles.map((principle) => (
           <Details key={principle.Code}>
             <Details.Summary
@@ -98,6 +100,6 @@ export function FairSection({ fairStatus }: { fairStatus: ProductFairStatus }) {
           </Details>
         ))}
       </div>
-    </>
+    </TabPanel>
   );
 }

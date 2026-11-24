@@ -9,6 +9,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineRe
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.ReferenceSystem
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.metadata.models.AccessState
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductBoundingBox
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductConstraints
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionEntry
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductDistributionFormat
@@ -17,6 +18,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.ProductKeyword
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadataContact
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductReferenceSystem
+import no.kartverket.geonorge.kartkatalog.metadata.models.ProductValidityPeriod
 
 class MetadataMapper(
     private val codeListTranslator: CodeListTranslator,
@@ -38,7 +40,24 @@ class MetadataMapper(
             hierarchyLevel = record.hierarchyLevel,
             seriesType = record.hierarchyLevelName,
             accessState = accessState,
+            datePublished = record.dates.firstOrNull { it.type == "publication" }?.date,
             dateUpdated = record.dates.firstOrNull { it.type == "revision" }?.date,
+            dateMetadataUpdated = record.dateStamp.takeIf { it.isNotBlank() },
+            validityPeriod = mapValidityPeriod(record),
+            geographicAreas =
+                mapKeywords(
+                    record,
+                ) { it.type.equals("place", ignoreCase = true) }.mapNotNull { it.keywordValue },
+            boundingBox =
+                record.boundingBox?.let {
+                    ProductBoundingBox(
+                        westBoundLongitude = it.westBoundLongitude,
+                        eastBoundLongitude = it.eastBoundLongitude,
+                        southBoundLatitude = it.southBoundLatitude,
+                        northBoundLatitude = it.northBoundLatitude,
+                    )
+                },
+            cloudCoverPercentage = record.cloudCoverPercentage,
             maintenanceFrequency =
                 codeListTranslator.translate(
                     CodeList.MAINTENANCE_FREQUENCY,
@@ -55,6 +74,10 @@ class MetadataMapper(
             nationalKeywords = mapNationalKeywords(record),
             nationalInitiatives = mapNationalInitiatives(collaborationKeywords),
             dokStatus = mapDokStatus(collaborationKeywords, rawSpatialScope),
+            collaborationAndLaws = mapCollaboration(collaborationKeywords),
+            datasetLanguage = mapLanguage(record.resourceLanguages.firstOrNull() ?: record.language),
+            namespace = record.resourceIdentifierCodeSpace,
+            datasetId = record.resourceIdentifierCode,
             isHighValueDataset = hvdKeywords.isNotEmpty(),
             distributionFormats =
                 record.distributionInfo?.formats.orEmpty().map {
@@ -90,6 +113,23 @@ class MetadataMapper(
             coverageData = getCoverageLinks(record.extensionResources),
         )
     }
+
+    private fun mapValidityPeriod(record: MetadataRecord): ProductValidityPeriod? {
+        val extent = record.temporalExtents.firstOrNull() ?: return null
+        val from = extent.begin.takeUnless { it.isNullOrBlank() || it == "unknown" }
+        val to = extent.end.takeUnless { it.isNullOrBlank() || it == "unknown" }
+        return if (from == null && to == null) null else ProductValidityPeriod(from = from, to = to)
+    }
+
+//    private fun describeAccessConstraints(
+//        recordAccessConstraints: String?,
+//        accessState: AccessState?,
+//    ): String =
+//        when {
+//            accessState == AccessState.OPEN -> "Åpne data"
+//            accessState == AccessState.RESTRICTED -> "Norge digitalt-begrenset"
+//            else -> recordAccessConstraints ?: "-"
+//        }
 
     private suspend fun describeUseConstraints(
         useConstraints: String?,
@@ -144,24 +184,36 @@ class MetadataMapper(
             it.thesaurusHref?.contains("data.europa.eu/bna/", ignoreCase = true) == true
         }
 
-    private val relevantCollaborationTags =
+    private fun mapNationalInitiatives(collaborationKeywords: List<ProductKeyword>): List<String> {
+        val matched =
+            collaborationKeywords
+                .mapNotNull { it.keywordValue?.let(NationalInitiatives::find) }
+                .toSet()
+        return NationalInitiatives.all
+            .filter { it.showAsProductTag && it in matched }
+            .map { it.label }
+    }
+
+    private fun mapCollaboration(collaborationKeywords: List<ProductKeyword>): List<String> =
+        collaborationKeywords
+            .mapNotNull { it.keywordValue?.takeIf(String::isNotBlank) }
+            .map { NationalInitiatives.find(it)?.label ?: it }
+            .distinct()
+
+    private val languageLabels =
         mapOf(
-            "mareano" to "Mareano",
-            "marinegrunnkart" to "Marine grunnkart",
-            "økologiskgrunnkart" to "Økologisk grunnkart",
+            "nor" to "Norsk",
+            "nob" to "Norsk bokmål",
+            "nno" to "Norsk nynorsk",
+            "eng" to "Engelsk",
+            "sme" to "Nordsamisk",
+            "swe" to "Svensk",
+            "dan" to "Dansk",
         )
 
-    private fun String.normalizedForMatch(): String = replace(" ", "").lowercase()
-
-    private fun mapNationalInitiatives(collaborationKeywords: List<ProductKeyword>): List<String> {
-        val matchedKeys =
-            collaborationKeywords
-                .mapNotNull { it.keywordValue?.normalizedForMatch() }
-                .toSet()
-        return relevantCollaborationTags
-            .filterKeys { it in matchedKeys }
-            .values
-            .toList()
+    private fun mapLanguage(code: String?): String? {
+        val value = code?.takeIf { it.isNotBlank() } ?: return null
+        return languageLabels[value.lowercase()] ?: value
     }
 
     private fun mapDokStatus(

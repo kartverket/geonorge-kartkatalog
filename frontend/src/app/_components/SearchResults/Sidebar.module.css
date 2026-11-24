@@ -11,7 +11,7 @@
   display: block;
 }
 
-@media (max-width: 799px) {
+@media (max-width: 800px) {
   .toTopButton {
     display: none;
   }
