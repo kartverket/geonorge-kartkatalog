@@ -67,7 +67,7 @@ class SolrClientTest {
                     "test-uuid",
                     response.uuid,
                 )
-                assertEquals("/solr/metadata/select", capturedPath)
+                assertEquals("/solr/metadata_all/select", capturedPath)
                 assertEquals("https", capturedProtocol)
             } finally {
                 httpClient.close()
@@ -148,89 +148,6 @@ class SolrClientTest {
                     "test-uuid",
                     response.uuid,
                 )
-            }
-        }
-
-    @Test
-    fun `falls back to services core when metadata core is empty`() =
-        runBlocking {
-            val requestedPaths = mutableListOf<String>()
-            val engine =
-                MockEngine { request ->
-                    requestedPaths.add(request.url.encodedPath)
-                    val content =
-                        if (request.url.encodedPath == "/solr/services/select") {
-                            minimalSolrResponse
-                        } else {
-                            emptySolrResponse
-                        }
-                    respond(
-                        content = content,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-                    )
-                }
-            val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
-            val solrClient = SolrClient(httpClient, solrBaseUrl)
-
-            httpClient.use {
-                val response = solrClient.getMetadataByUuid(UUID.randomUUID().toString())
-                assertNotNull(response)
-                assertEquals(listOf("/solr/metadata/select", "/solr/services/select"), requestedPaths)
-            }
-        }
-
-    @Test
-    fun `falls back to applications core when metadata and services are both empty`() =
-        runBlocking {
-            val requestedPaths = mutableListOf<String>()
-            val engine =
-                MockEngine { request ->
-                    requestedPaths.add(request.url.encodedPath)
-                    val content =
-                        if (request.url.encodedPath == "/solr/applications/select") {
-                            minimalSolrResponse
-                        } else {
-                            emptySolrResponse
-                        }
-                    respond(
-                        content = content,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-                    )
-                }
-            val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
-            val solrClient = SolrClient(httpClient, solrBaseUrl)
-
-            httpClient.use {
-                val response = solrClient.getMetadataByUuid(UUID.randomUUID().toString())
-                assertNotNull(response)
-                assertEquals(
-                    listOf("/solr/metadata/select", "/solr/services/select", "/solr/applications/select"),
-                    requestedPaths,
-                )
-            }
-        }
-
-    @Test
-    fun `does not query further cores once a result is found`() =
-        runBlocking {
-            val requestedPaths = mutableListOf<String>()
-            val engine =
-                MockEngine { request ->
-                    requestedPaths.add(request.url.encodedPath)
-                    respond(
-                        content = minimalSolrResponse,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-                    )
-                }
-            val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
-            val solrClient = SolrClient(httpClient, solrBaseUrl)
-
-            httpClient.use {
-                solrClient.getMetadataByUuid(UUID.randomUUID().toString())
-                assertEquals(listOf("/solr/metadata/select"), requestedPaths)
             }
         }
 
