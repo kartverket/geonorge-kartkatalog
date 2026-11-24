@@ -38,6 +38,7 @@ data class ProductMetadata(
     val specificUsage: String? = null,
     val supplementalDescription: String? = null,
     val helpUrl: String? = null,
+    val productPageUrl: String? = null,
     val processHistory: String? = null,
     val constraints: ProductConstraints? = null,
     val securityClassification: String? = null,
