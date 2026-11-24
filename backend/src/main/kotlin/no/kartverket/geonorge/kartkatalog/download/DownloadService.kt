@@ -24,13 +24,15 @@ private data class ResolvedOrderLine(
 
 class DownloadService(
     private val downloadApiClient: DownloadApiClient,
+    private val downloadApiV4Client: DownloadApiV4Client,
     private val downloadInsightGroupsResolver: DownloadInsightGroupsResolver,
 ) {
     private val log = LoggerFactory.getLogger(DownloadService::class.java)
 
     suspend fun order(
         request: DownloadOrderRequest,
-        geoIdAccessToken: String? = null,
+        accessToken: String? = null,
+        downloadApiVersion: String = "v3"
     ): DownloadOrderResult =
         coroutineScope {
             val resolved =
@@ -38,7 +40,7 @@ class DownloadService(
                     .map { item -> async { resolveOrderLine(item) } }
                     .awaitAll()
             val restricted = resolved.any { it.restricted }
-            if (restricted && geoIdAccessToken == null) {
+            if (restricted && accessToken == null) {
                 countEvent("download.orders.auth_required", "Restricted download orders rejected for missing login")
                 throw DownloadAuthenticationRequiredException()
             }
@@ -48,7 +50,7 @@ class DownloadService(
 
             val results =
                 groups
-                    .map { group -> async { orderGroup(request, group, geoIdAccessToken) } }
+                    .map { group -> async { orderGroup(request, group, accessToken, downloadApiVersion) } }
                     .awaitAll()
 
             DownloadOrderResult(results)
@@ -57,7 +59,8 @@ class DownloadService(
     private suspend fun orderGroup(
         request: DownloadOrderRequest,
         group: List<ResolvedOrderLine>,
-        geoIdAccessToken: String?,
+        accessToken: String?,
+        downloadApiVersion: String,
     ): DownloadOrderGroupResult {
         val metadataUuids = group.map { it.line.metadataUuid }
         val groupIsRestricted = group.any { it.restricted }
@@ -72,6 +75,37 @@ class DownloadService(
 
         return try {
             val response =
+                if (downloadApiVersion == "v4") {
+                    downloadApiV4Client.order(
+                        DownloadApiV4Order(
+                            email = request.email,
+                            usageGroup = request.usageGroup,
+                            orderLines = group.map { it.line.toV4() },
+                        ),
+                        if (groupIsRestricted) accessToken else null,
+                    ).let {
+                        DownloadApiOrderResponse(
+                            files = it.files.map { file ->
+                                DownloadApiOrderFile(
+                                    status = file.status ?: "Unknown", //TODO: sjekk om det gir mening
+                                    downloadUrl = file.downloadUrl,
+                                    name = file.name,
+                                    areaName = file.areaName,
+                                    projectionName = file.projectionName,
+                                    format = file.format,
+                                    metadataUuid = file.metadataUuid,
+                                    metadataName = file.metadataName,
+                                )
+                            },
+                            links = it.links.map { link ->
+                                DownloadApiLink(
+                                    href = link.href,
+                                    rel = link.rel,
+                                )
+                            },
+                        )
+                    }
+                } else {
                 downloadApiClient.order(
                     group.first().orderUrl,
                     DownloadApiOrderRequest(
@@ -79,8 +113,9 @@ class DownloadService(
                         usageGroup = request.usageGroup,
                         orderLines = group.map { it.line },
                     ),
-                    if (groupIsRestricted) geoIdAccessToken else null,
+                    if (groupIsRestricted) accessToken else null,
                 )
+            }
 
             val verifiedFiles =
                 coroutineScope {
@@ -154,8 +189,27 @@ class DownloadService(
     suspend fun getOptions(
         uuid: String,
         capabilitiesUrl: String,
+        downloadApiVersion: String = "v3",
     ): DownloadOptions {
-        val capabilities = downloadApiClient.getCapabilities(capabilitiesUrl, uuid)
+        val capabilities = if(downloadApiVersion == "v4") {
+            downloadApiV4Client.getCapabilities( uuid).let {
+                DownloadApiCapabilities(
+                    supportsPolygonSelection = it.supportsPolygonSelection,
+                    deliveryNotificationByEmail = it.deliveryNotificationByEmail,
+                    mapSelectionLayer = it.mapSelectionLayer,
+                    supportsDownloadBundling = it.supportsDownloadBundling,
+                    accessConstraintRequiredRole = it.accessConstraintRequiredRole,
+                    links = it.links.map { link ->
+                        DownloadApiLink(
+                            href = link.href,
+                            rel = link.rel,
+                        )
+                    },
+                )
+            }
+        } else {
+            downloadApiClient.getCapabilities(capabilitiesUrl, uuid)
+        }
         val areasUrl = capabilities.linkFor(AREA_REL)
 
         if (areasUrl == null) {
@@ -171,7 +225,7 @@ class DownloadService(
 
         return DownloadOptions(
             areas =
-                downloadApiClient.getAreas(areasUrl).map { area ->
+                downloadApiClient.getAreas(areasUrl).map { area -> //TODO: v4 client
                     DownloadAreaOption(
                         area =
                             DownloadArea(

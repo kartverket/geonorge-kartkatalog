@@ -7,6 +7,7 @@ import io.ktor.server.auth.principalOrNull
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
@@ -285,7 +286,7 @@ fun Route.downloadRoutes(
                         "atkv3-dev:datadeling-geonorge:geonorge-nedlasting-api",
                     )
 
-                val result = downloadService.order(body.toDomain(), accessToken)
+                val result = downloadService.order(body.toDomain(), accessToken, "v4")
                 call.respond(result.toDto())
                 return@post
             }

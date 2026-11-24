@@ -67,7 +67,7 @@ class DownloadServiceTest {
                                 ),
                             ),
                     ),
-                    geoIdAccessToken = "valid-token",
+                    accessToken = "valid-token",
                 )
 
             assertEquals(1, result.results.size)
@@ -122,7 +122,7 @@ class DownloadServiceTest {
                             ),
                         ),
                 ),
-                geoIdAccessToken = "valid-token",
+                accessToken = "valid-token",
             )
 
             assertEquals(listOf<String?>(null), authorizationHeaders)
@@ -190,7 +190,7 @@ class DownloadServiceTest {
                                 ),
                             ),
                     ),
-                    geoIdAccessToken = "valid-token",
+                    accessToken = "valid-token",
                 )
 
             assertEquals(2, result.results.size)
