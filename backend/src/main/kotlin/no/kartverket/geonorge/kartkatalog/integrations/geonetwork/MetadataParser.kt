@@ -64,7 +64,10 @@ object MetadataParser {
                     md.text("gmd:dateStamp/gco:Date")
                         ?: md.text("gmd:dateStamp/gco:DateTime")
                         ?: "",
-                metadataContact = parseContact(md.node("gmd:contact/gmd:CI_ResponsibleParty")!!),
+                // Some harvested records (e.g. from MET) have an empty <gmd:contact/>.
+                metadataContact =
+                    md.node("gmd:contact/gmd:CI_ResponsibleParty")?.let(::parseContact)
+                        ?: Contact(role = "pointOfContact"),
                 referenceSystems = parseReferenceSystems(),
                 extensionResources = parseExtensionResources(),
                 applicationSchemaInfos = parseApplicationSchemaInfos(),

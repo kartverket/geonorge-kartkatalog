@@ -2,6 +2,7 @@ package no.kartverket.geonorge.kartkatalog
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.http.ContentType
 import io.ktor.openapi.OpenApiInfo
 import io.ktor.server.application.Application
@@ -24,6 +25,8 @@ import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetClient
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetFallbackMetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
@@ -51,17 +54,21 @@ fun Application.configureRouting(
     appConfig: AppConfig,
     authentication: GeoIdAuthentication,
 ) {
-    val httpClient = HttpClient(CIO)
-    val geonetworkClient = GeonetworkClient(httpClient, appConfig.geonetworkBaseUrl)
+    val httpClient = HttpClient(CIO) { install(HttpTimeout) }
+    val recordSource =
+        MetFallbackMetadataRecordSource(
+            primary = GeonetworkClient(httpClient, appConfig.geonetworkBaseUrl),
+            met = MetClient(httpClient, appConfig.metUrl),
+        )
     val registerClient = RegisterClient(httpClient, appConfig.registerBaseUrl)
     val codeListTranslator = CodeListTranslator(registerClient)
     val areaResolver = AreaResolver(registerClient)
     val hvdResolver = HvdResolver(registerClient)
     val metadataMapper = MetadataMapper(codeListTranslator)
-    val metadataService = MetadataService(geonetworkClient, metadataMapper, registerClient)
+    val metadataService = MetadataService(recordSource, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
-    val linkedDistributionsService = LinkedDistributionsService(solrClient, geonetworkClient)
-    val distributionsService = DistributionsService(solrClient, geonetworkClient, codeListTranslator)
+    val linkedDistributionsService = LinkedDistributionsService(solrClient, recordSource)
+    val distributionsService = DistributionsService(solrClient, recordSource, codeListTranslator)
     val embeddingClient =
         appConfig.vertexAIConfig?.let {
             runCatching { VertexAIClient(it) }
@@ -83,7 +90,7 @@ fun Application.configureRouting(
         LegacyService(
             searchEngine,
             registerClient,
-            geonetworkClient,
+            recordSource,
             solrClient,
             codeListTranslator,
             appConfig.publicBaseUrl,

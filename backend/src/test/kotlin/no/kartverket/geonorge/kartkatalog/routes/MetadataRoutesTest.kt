@@ -17,6 +17,8 @@ import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetClient
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetFallbackMetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
@@ -138,11 +140,16 @@ class MetadataRoutesTest {
         xml: String,
         solrDocJson: String = solrJson,
         solrFails: Boolean = false,
+        metXml: String = emptyGeonetworkXml,
     ): Pair<MetadataService, LinkedDistributionsService> {
         val client =
             HttpClient(
                 MockEngine { request ->
                     when {
+                        request.url.host == "met.example.test" -> {
+                            respond(content = metXml, status = HttpStatusCode.OK)
+                        }
+
                         request.url.encodedPath.endsWith("/srv/nor/csw") -> {
                             respond(
                                 content = xml,
@@ -251,7 +258,10 @@ class MetadataRoutesTest {
 
         val metadataService =
             MetadataService(
-                GeonetworkClient(client, geonetworkBaseUrl),
+                MetFallbackMetadataRecordSource(
+                    GeonetworkClient(client, geonetworkBaseUrl),
+                    MetClient(client, "https://met.example.test/?"),
+                ),
                 metadataMapper,
                 registerClient,
             )
@@ -317,6 +327,34 @@ class MetadataRoutesTest {
             val response = client.get("/metadata/00000000-0000-0000-0000-000000000000")
             assertEquals(HttpStatusCode.NotFound, response.status)
             assertContains(response.bodyAsText(), "error")
+        }
+    }
+
+    @Test
+    fun `returns MET metadata for no_met uuid missing from our GeoNetwork`() {
+        val metXml = javaClass.classLoader.getResource("met-response.xml")!!.readText()
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(emptyGeonetworkXml, metXml = metXml)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/no.met:8d0d15d7-aba6-46fa-93cd-d0322cab7252")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(response.bodyAsText(), "\"organization\":\"Meteorologisk institutt\"")
+        }
+    }
+
+    @Test
+    fun `returns MET metadata for a record with an empty contact`() {
+        val metXml = javaClass.classLoader.getResource("met-empty-contact-response.xml")!!.readText()
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(emptyGeonetworkXml, metXml = metXml)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/no.met:9fbe6a04-279c-46b8-a582-bb08f4b11794")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(response.bodyAsText(), "Data fra norske værstasjoner")
         }
     }
 

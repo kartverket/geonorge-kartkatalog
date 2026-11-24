@@ -9,7 +9,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Contact
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.DistributionFormat
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.KeywordGroup
@@ -52,7 +52,7 @@ internal const val DEFAULT_NAMESPACE_LIMIT = 10
 class LegacyService(
     private val engine: SearchEngine,
     private val registerClient: RegisterClient,
-    private val geonetworkClient: GeonetworkClient,
+    private val recordSource: MetadataRecordSource,
     private val solrClient: SolrClient,
     private val codeListTranslator: CodeListTranslator,
     private val kartkatalogUrl: String,
@@ -184,7 +184,7 @@ class LegacyService(
         uuid: String,
         language: String,
     ): JsonObject? {
-        val record = geonetworkClient.getRecordByUuid(uuid) ?: return null
+        val record = recordSource.getRecordByUuid(uuid) ?: return null
         val english = language == "en"
         val isService = record.hierarchyLevel == "service"
         val isDatasetLike = record.hierarchyLevel == "dataset" || record.hierarchyLevel == "series"
@@ -386,7 +386,7 @@ class LegacyService(
     }
 
     private suspend fun viewService(uuid: String): JsonObject? {
-        val record = geonetworkClient.getRecordByUuid(uuid) ?: return null
+        val record = recordSource.getRecordByUuid(uuid) ?: return null
         val viewFormats =
             record.distributionInfo
                 ?.formats

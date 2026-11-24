@@ -1,6 +1,6 @@
 package no.kartverket.geonorge.kartkatalog.metadata
 
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProductMetadata
 import no.kartverket.geonorge.kartkatalog.metadata.models.ProduktarkItem
@@ -11,13 +11,13 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.toProduktspesifikasjon
 import no.kartverket.geonorge.kartkatalog.metadata.models.toTegnereglerItem
 
 class MetadataService(
-    private val geonetworkClient: GeonetworkClient,
+    private val recordSource: MetadataRecordSource,
     private val metadataMapper: MetadataMapper,
     private val registerClient: RegisterClient,
 ) {
     suspend fun getMetadata(uuid: String): ProductMetadata {
         val record =
-            geonetworkClient.getRecordByUuid(uuid)
+            recordSource.getRecordByUuid(uuid)
                 ?: throw MetadataRecordNotFoundException(uuid)
         return metadataMapper.toProductMetadata(record)
     }
@@ -50,7 +50,7 @@ class MetadataService(
         uuid: String,
         type: String,
     ): String? {
-        val record = geonetworkClient.getRecordByUuid(uuid) ?: throw MetadataRecordNotFoundException(uuid)
+        val record = recordSource.getRecordByUuid(uuid) ?: throw MetadataRecordNotFoundException(uuid)
         return record.findExtensionUrl(type)
     }
 }

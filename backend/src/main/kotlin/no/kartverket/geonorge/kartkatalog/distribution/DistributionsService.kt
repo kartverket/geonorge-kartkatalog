@@ -5,7 +5,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
@@ -23,7 +23,7 @@ data class Distribution(
 
 class DistributionsService(
     private val solrClient: SolrClient,
-    private val geonetworkClient: GeonetworkClient,
+    private val recordSource: MetadataRecordSource,
     private val codeListTranslator: CodeListTranslator,
 ) {
     private val log = LoggerFactory.getLogger(DistributionsService::class.java)
@@ -31,7 +31,7 @@ class DistributionsService(
     suspend fun getDistributions(uuid: String): List<Distribution> =
         coroutineScope {
             val record =
-                geonetworkClient.getRecordByUuid(uuid)
+                recordSource.getRecordByUuid(uuid)
                     ?: throw IllegalStateException("Metadata not found: $uuid")
             val own = record.toDistributions()
             val solrDoc =
@@ -48,7 +48,7 @@ class DistributionsService(
                     .map { relatedUuid ->
                         async {
                             val relatedRecord =
-                                geonetworkClient.getRecordByUuid(relatedUuid)
+                                recordSource.getRecordByUuid(relatedUuid)
                                     ?: throw IllegalStateException("Related metadata not found: $relatedUuid")
                             relatedRecord.toDistributions()
                         }

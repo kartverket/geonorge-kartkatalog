@@ -5,7 +5,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.download.DownloadItem
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
@@ -15,7 +15,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
 
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
-    private val geonetworkClient: GeonetworkClient,
+    private val recordSource: MetadataRecordSource,
 ) {
     suspend fun getLinkedDistributions(uuid: String): LinkedDistributions =
         coroutineScope {
@@ -181,7 +181,7 @@ class LinkedDistributionsService(
         solrDocsByUuid: Map<String, SolrDocument>,
         preferDownloadProtocol: Boolean = false,
     ): LinkedDistribution? {
-        val record = geonetworkClient.getRecordByUuid(relatedUuid) ?: return null
+        val record = recordSource.getRecordByUuid(relatedUuid) ?: return null
         return record.toLinkedDistribution(relatedUuid, protocol, solrDocsByUuid[relatedUuid], preferDownloadProtocol)
     }
 
