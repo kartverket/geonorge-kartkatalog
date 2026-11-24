@@ -93,6 +93,16 @@ class MetFallbackMetadataRecordSourceTest {
     }
 
     @Test
+    fun `other primary failures for MET identifiers do not fall back to MET`() {
+        val met = RecordingSource { record }
+        val source =
+            MetFallbackMetadataRecordSource(RecordingSource { throw GeoNetworkException("HTTP 500") }, met)
+
+        assertFailsWith<GeoNetworkException> { runBlocking { source.getRecordByUuid(metUuid) } }
+        assertEquals(emptyList(), met.requested)
+    }
+
+    @Test
     fun `MET identifiers found in our GeoNetwork do not hit MET`() =
         runBlocking {
             val met = RecordingSource { error("MET should not be called") }

@@ -284,6 +284,14 @@ class MetadataParserTest {
     }
 
     @Test
+    fun `parses a record with an empty metadata contact`() {
+        val parsed = parseFixture("met-empty-contact-response.xml")
+
+        assertEquals("no.met:9fbe6a04-279c-46b8-a582-bb08f4b11794", parsed.uuid)
+        assertNull(parsed.metadataContact.organization)
+    }
+
+    @Test
     fun `parses empty quantitation specifications`() {
         assertTrue(record.dataQualityMeasures.isEmpty())
         val measure = record.dataQualityMeasures.find { it.nameOfMeasure?.contains("FAIR", ignoreCase = true) == true }

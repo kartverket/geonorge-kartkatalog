@@ -344,6 +344,20 @@ class MetadataRoutesTest {
     }
 
     @Test
+    fun `returns MET metadata for a record with an empty contact`() {
+        val metXml = javaClass.classLoader.getResource("met-empty-contact-response.xml")!!.readText()
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(emptyGeonetworkXml, metXml = metXml)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/no.met:9fbe6a04-279c-46b8-a582-bb08f4b11794")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(response.bodyAsText(), "Data fra norske værstasjoner")
+        }
+    }
+
+    @Test
     fun `returns 404 for non-uuid id that is not found`() {
         val (metadataService, linkedDistributionsService) =
             createMetadataService(emptyGeonetworkXml)
