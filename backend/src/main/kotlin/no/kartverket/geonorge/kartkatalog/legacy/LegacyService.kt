@@ -248,8 +248,6 @@ class LegacyService(
         try {
             solrClient
                 .getMetadataByUuid(uuid)
-                .response.docs
-                .firstOrNull()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
