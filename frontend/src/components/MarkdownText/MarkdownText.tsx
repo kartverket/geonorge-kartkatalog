@@ -5,7 +5,7 @@ import styles from "./MarkdownText.module.css";
 // Dataeiere skriver ofte "###Overskrift" uten mellomrom, som ikke er gyldig
 // markdown. Gammel kartkatalog rettet dette før visning (FixMarkDown).
 function fixHeadings(text: string): string {
-  return text.replace(/^(#{1,6})(?=[^\s#])/gm, "$1 ");
+  return text.replace(/^###(?=[^\s#])/gm, "### ");
 }
 
 type MarkdownTextProps = {
