@@ -9,6 +9,7 @@ import io.ktor.http.Parameters
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
+import no.kartverket.geonorge.kartkatalog.metrics.observeUpstream
 
 class SolrClient(
     private val httpClient: HttpClient,
@@ -84,6 +85,12 @@ class SolrClient(
     ): SolrResponse = querySolr(if (english) metadataAllEnglishPath else metadataAllPath, query)
 
     private suspend fun querySolr(
+        path: String,
+        query: MetadataSolrQuery,
+    ): SolrResponse =
+        observeUpstream("solr", path.removePrefix("solr/").removeSuffix("/select")) { executeQuery(path, query) }
+
+    private suspend fun executeQuery(
         path: String,
         query: MetadataSolrQuery,
     ): SolrResponse {

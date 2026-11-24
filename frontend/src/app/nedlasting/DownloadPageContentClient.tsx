@@ -492,7 +492,7 @@ export function DownloadPageContentClient({
                       }
                     >
                       <TrashIcon aria-hidden />
-                      Fjern alle nedlastinger
+                      Fjern alle datasett
                     </Button>
                     <Button
                       type="submit"
@@ -501,8 +501,8 @@ export function DownloadPageContentClient({
                     >
                       {!isOrdering && <ArrowRightIcon aria-hidden />}
                       {isOrdering
-                        ? "Bestiller nedlasting..."
-                        : "Bestill nedlasting"}
+                        ? "Bestiller datasett..."
+                        : "Bestill datasett"}
                     </Button>
                   </div>
                 </form>

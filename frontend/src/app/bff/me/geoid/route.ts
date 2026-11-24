@@ -12,6 +12,14 @@ export async function GET(request: NextRequest) {
       if (error.status === 401) {
         const response = NextResponse.json({ authenticated: false });
         clearAuthProviderCookieIfMatches(request, response, "geoid");
+        if (
+          typeof error.body === "object" &&
+          error.body !== null &&
+          "error" in error.body &&
+          error.body.error === "invalid_session"
+        ) {
+          response.cookies.delete({ name: "GEOID_SESSION", path: "/" });
+        }
         return response;
       }
 

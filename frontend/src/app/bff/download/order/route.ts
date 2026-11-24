@@ -20,10 +20,17 @@ export async function POST(request: Request) {
     }
 
     if (error instanceof HttpError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
+      const body =
+        typeof error.body === "object" &&
+        error.body !== null &&
+        "error" in error.body
+          ? error.body
+          : { error: error.message };
+      const response = NextResponse.json(body, { status: error.status });
+      if (error.status === 401) {
+        response.cookies.delete({ name: "GEOID_SESSION", path: "/" });
+      }
+      return response;
     }
 
     return NextResponse.json(

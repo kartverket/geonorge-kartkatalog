@@ -5,6 +5,9 @@ import { bffPath } from "@/lib/basePath";
 import { parseDownloadOptions } from "@/lib/schemas/download";
 import type { DownloadOptionsByUuid } from "./downloadUtils";
 
+const MAX_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 1500;
+
 function getErrorMessage(body: unknown): string {
   if (
     typeof body === "object" &&
@@ -36,20 +39,16 @@ export function useDownloadOptionsForCards(
   cards: DownloadOptionsCardInput[],
 ): DownloadOptionsByUuid {
   const [optionsByUuid, setOptionsByUuid] = useState<DownloadOptionsByUuid>({});
-  const requestedKeys = useRef(new Set<string>());
+  const settledKeys = useRef(new Set<string>());
+  const attemptsByKey = useRef(new Map<string, number>());
   const cardsKey = JSON.stringify(cards);
 
   useEffect(() => {
     const controller = new AbortController();
     const currentCards: DownloadOptionsCardInput[] = JSON.parse(cardsKey);
-    const pendingKeys = new Set<string>();
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
 
-    for (const { uuid, capabilitiesUrl } of currentCards) {
-      const key = JSON.stringify({ uuid, capabilitiesUrl });
-      if (requestedKeys.current.has(key)) continue;
-      requestedKeys.current.add(key);
-      pendingKeys.add(key);
-
+    function fetchOptions(uuid: string, capabilitiesUrl: string, key: string) {
       setOptionsByUuid((current) => ({
         ...current,
         [uuid]: { options: null, isLoading: true, error: null },
@@ -59,35 +58,43 @@ export function useDownloadOptionsForCards(
         signal: controller.signal,
       })
         .then(async (response) => {
-          pendingKeys.delete(key);
           const body: unknown = await response.json();
 
           if (!response.ok) {
-            setOptionsByUuid((current) => ({
-              ...current,
-              [uuid]: {
-                options: null,
-                isLoading: false,
-                error: getErrorMessage(body),
-              },
-            }));
-            return;
+            throw new Error(getErrorMessage(body));
           }
 
+          const options = parseDownloadOptions(body);
+          if (options.areas.length === 0) {
+            throw new Error(
+              "Ingen tilgjengelige områder for dette datasettet.",
+            );
+          }
+
+          settledKeys.current.add(key);
+          attemptsByKey.current.delete(key);
           setOptionsByUuid((current) => ({
             ...current,
-            [uuid]: {
-              options: parseDownloadOptions(body),
-              isLoading: false,
-              error: null,
-            },
+            [uuid]: { options, isLoading: false, error: null },
           }));
         })
         .catch((cause) => {
-          pendingKeys.delete(key);
           if (controller.signal.aborted) return;
 
+          const attempts = (attemptsByKey.current.get(key) ?? 0) + 1;
+          attemptsByKey.current.set(key, attempts);
+
+          if (attempts < MAX_ATTEMPTS) {
+            timeouts.push(
+              setTimeout(() => {
+                fetchOptions(uuid, capabilitiesUrl, key);
+              }, RETRY_DELAY_MS * attempts),
+            );
+            return;
+          }
+
           console.error("Could not fetch download options", cause);
+          settledKeys.current.add(key);
           setOptionsByUuid((current) => ({
             ...current,
             [uuid]: {
@@ -102,11 +109,15 @@ export function useDownloadOptionsForCards(
         });
     }
 
+    for (const { uuid, capabilitiesUrl } of currentCards) {
+      const key = JSON.stringify({ uuid, capabilitiesUrl });
+      if (settledKeys.current.has(key)) continue;
+      fetchOptions(uuid, capabilitiesUrl, key);
+    }
+
     return () => {
       controller.abort();
-      for (const key of pendingKeys) {
-        requestedKeys.current.delete(key);
-      }
+      for (const timeout of timeouts) clearTimeout(timeout);
     };
   }, [cardsKey]);
 
