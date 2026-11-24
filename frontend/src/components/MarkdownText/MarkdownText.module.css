@@ -1,6 +1,8 @@
 .markdown {
   display: grid;
   gap: var(--ds-size-4);
+  /* Lange lenker må kunne brytes, ellers blir tabeller bredere enn skjermen på mobil */
+  overflow-wrap: anywhere;
 }
 
 .markdown > * {
