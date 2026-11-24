@@ -2,7 +2,7 @@
 
 import { type RefObject, useEffect, useState } from "react";
 
-const MOBILE_QUERY = "(max-width: 799px)";
+const MOBILE_QUERY = "(max-width: 800px)";
 const SCROLL_THRESHOLD = 8;
 
 /** Returns true while the user scrolls down on mobile; false on scroll up, at the top, or on larger screens. */

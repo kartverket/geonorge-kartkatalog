@@ -9,3 +9,9 @@
 .toggle button[aria-pressed="true"] {
   background: var(--ds-color-neutral-surface-hover);
 }
+
+@media (max-width: 800px) {
+  .toggle {
+    display: none;
+  }
+}
