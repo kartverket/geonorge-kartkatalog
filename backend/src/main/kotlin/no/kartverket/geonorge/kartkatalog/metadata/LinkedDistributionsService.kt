@@ -189,11 +189,10 @@ class LinkedDistributionsService(
         preferDownloadProtocol: Boolean = false,
     ): LinkedDistribution? {
         val record = recordSource.getRecordByUuid(relatedUuid) ?: return null
-        return record.toLinkedDistribution(relatedUuid, protocol, solrDocsByUuid[relatedUuid], preferDownloadProtocol)
+        return record.toLinkedDistribution(protocol, solrDocsByUuid[relatedUuid], preferDownloadProtocol)
     }
 
-    private suspend fun MetadataRecord.toLinkedDistribution(
-        uuid: String,
+    private fun MetadataRecord.toLinkedDistribution(
         protocol: String?,
         solrDoc: SolrDocument?,
         preferDownloadProtocol: Boolean = false,
