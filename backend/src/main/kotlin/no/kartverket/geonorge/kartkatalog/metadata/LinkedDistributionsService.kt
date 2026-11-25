@@ -235,10 +235,10 @@ class LinkedDistributionsService(
         )
     }
 
-    private fun List<OnlineResource>.findUrlForProtocol(protocol: String?): String? {
-        if (isEmpty()) return null
-        if (protocol.isNullOrBlank()) return singleOrNull()?.url
-
-        return firstOrNull { it.protocol.equals(protocol, ignoreCase = true) }?.url
-    }
+    private fun List<OnlineResource>.findUrlForProtocol(protocol: String?): String? =
+        if (protocol.isNullOrBlank()) {
+            singleOrNull()?.url
+        } else {
+            firstOrNull { it.protocol.equals(protocol, ignoreCase = true) }?.url
+        }
 }
