@@ -71,30 +71,9 @@ class TokenExchangeClient(
             } catch (e: SerializationException) {
                 throw DownloadApiException("Uventet svar fra token exchange", e)
             }
-
-        // TODO: Remove at some point when no longer needed
-        try {
-            tokenTest(exchangeResponse.accessToken)
-        } catch (e: Exception) {
-            throw RuntimeException("Failed token test: ${e.message}", e)
-        }
+            
 
         return exchangeResponse.accessToken
     }
 
-    // TODO: Remove at some point when no longer needed
-    private suspend fun tokenTest(accessToken: String) {
-        val response =
-            httpClient.post("https://nedlasting.test.geonorge.no/api/v4/order-restricted") {
-                bearerAuth(accessToken)
-                contentType(ContentType.Application.Json)
-                setBody("{}")
-            }
-        when (response.status) {
-            HttpStatusCode.OK -> Unit
-            HttpStatusCode.Unauthorized -> error("Token rejected by OPA")
-            HttpStatusCode.ServiceUnavailable -> error("OPA unavailable")
-            else -> error("Unexpected ${response.status}: ${response.bodyAsText()}")
-        }
-    }
 }

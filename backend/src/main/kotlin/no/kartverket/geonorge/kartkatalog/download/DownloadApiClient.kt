@@ -114,25 +114,25 @@ class DownloadApiClient(
     }
 
     suspend fun checkAvailability(url: String): DownloadAvailability =
-        try {
-            observeUpstream(UPSTREAM, "availability", failed = { it == DownloadAvailability.UNKNOWN }) {
-                withTimeout(3.seconds) {
-                    httpClient.prepareGet(url).execute { response ->
-                        when {
-                            response.status.isSuccess() -> DownloadAvailability.AVAILABLE
-                            response.status == HttpStatusCode.NotFound ||
-                                response.status == HttpStatusCode.Gone -> DownloadAvailability.CONFIRMED_UNAVAILABLE
-                            else -> DownloadAvailability.UNKNOWN
-                        }
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            // Our own 3s timeout leaves this coroutine active and yields UNKNOWN; a cancelled caller is rethrown here.
-            currentCoroutineContext().ensureActive()
-            log.warn("Nedlasting availability check failed for {}: {}", url, e.message)
-            DownloadAvailability.UNKNOWN
-        }
+         try {
+             observeUpstream(UPSTREAM, "availability", failed = { it == DownloadAvailability.UNKNOWN }) {
+                 withTimeout(3.seconds) {
+                     httpClient.prepareGet(url).execute { response ->
+                         when {
+                             response.status.isSuccess() -> DownloadAvailability.AVAILABLE
+                             response.status == HttpStatusCode.NotFound ||
+                                 response.status == HttpStatusCode.Gone -> DownloadAvailability.CONFIRMED_UNAVAILABLE
+                             else -> DownloadAvailability.UNKNOWN
+                         }
+                     }
+                 }
+             }
+         } catch (e: Exception) {
+             // Our own 3s timeout leaves this coroutine active and yields UNKNOWN; a cancelled caller is rethrown here.
+             currentCoroutineContext().ensureActive()
+             log.warn("Nedlasting availability check failed for {}: {}", url, e.message)
+             DownloadAvailability.UNKNOWN
+         }
 
     suspend fun order(
         orderUrl: String,
