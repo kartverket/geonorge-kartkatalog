@@ -63,10 +63,13 @@ class LinkedDistributionsService(
                     .filter { it.uuid != uuid }
 
             val relatedUuids =
-                (
-                    applicationDocs.map { it.uuid } + viewRefs.map { it.uuid } + downloadRefs.map { it.uuid } +
-                        seriesMemberRefs.map { it.uuid } + parentSeriesRefs.map { it.uuid }
-                )
+                buildList {
+                    applicationDocs.mapTo(this) { it.uuid }
+                    viewRefs.mapTo(this) { it.uuid }
+                    downloadRefs.mapTo(this) { it.uuid }
+                    seriesMemberRefs.mapTo(this) { it.uuid }
+                    parentSeriesRefs.mapTo(this) { it.uuid }
+                }
             val solrDocsByUuid = solrClient.getMetadataByUuids(relatedUuids).associateBy { it.uuid }
 
             val applicationsDeferred =
