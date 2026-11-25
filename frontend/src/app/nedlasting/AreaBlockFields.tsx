@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Field, Label, Paragraph, Tag } from "@kv-designsystem/react";
+import { Button, Field, Label, Paragraph } from "@kv-designsystem/react";
 import { XMarkIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import styles from "./DownloadOptionsForm.module.css";
@@ -12,6 +12,7 @@ import type {
 import { GridSelectDialog } from "./GridSelectDialog";
 import { isSupportedGridLayer } from "./gridLayers";
 import { MultiSuggestion } from "./MultiSuggestion";
+import { RequiredTag } from "./RequiredTag";
 import { SingleSuggestion } from "./SingleSuggestion";
 
 type AreaBlockFieldsProps = {
@@ -85,7 +86,7 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Geografisk område
-            <RequiredTag hidden={hasArea} />
+            <RequiredTag hidden={hasArea}>Påkrevd</RequiredTag>
           </Label>
           {block.polygon ? (
             <div className={styles.customAreaSummary}>
@@ -154,7 +155,9 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Projeksjon
-            <RequiredTag hidden={block.projectionCodes.length > 0} />
+            <RequiredTag hidden={block.projectionCodes.length > 0}>
+              Påkrevd
+            </RequiredTag>
           </Label>
           <MultiSuggestion
             selectedValues={block.projectionCodes}
@@ -172,7 +175,9 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Format
-            <RequiredTag hidden={block.formatNames.length > 0} />
+            <RequiredTag hidden={block.formatNames.length > 0}>
+              Påkrevd
+            </RequiredTag>
           </Label>
           <MultiSuggestion
             selectedValues={block.formatNames}
@@ -210,16 +215,5 @@ export function AreaBlockFields({
         />
       ) : null}
     </div>
-  );
-}
-
-function RequiredTag({ hidden }: { hidden: boolean }) {
-  return (
-    <Tag
-      data-color="warning"
-      className={`${styles.requiredTag} ${hidden ? styles.hiddenTag : ""}`}
-    >
-      Påkrevd
-    </Tag>
   );
 }

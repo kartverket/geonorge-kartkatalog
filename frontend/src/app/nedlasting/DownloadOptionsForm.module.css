@@ -32,15 +32,6 @@
   min-width: 12rem;
 }
 
-.hiddenTag {
-  visibility: hidden;
-}
-
-/* Avstanden designsystemet anbefaler mellom label og tag (se Textfield i Storybook) */
-.requiredTag {
-  margin-inline-start: var(--ds-size-2);
-}
-
 .customAreaSummary {
   display: flex;
   align-items: center;

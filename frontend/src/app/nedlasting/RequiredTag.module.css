@@ -1,0 +1,9 @@
+/* Avstanden designsystemet anbefaler mellom label og tag (se Textfield i Storybook) */
+.requiredTag {
+  margin-inline-start: var(--ds-size-2);
+}
+
+/* visibility i stedet for display, så feltene ikke hopper når taggen skjules */
+.hidden {
+  visibility: hidden;
+}
