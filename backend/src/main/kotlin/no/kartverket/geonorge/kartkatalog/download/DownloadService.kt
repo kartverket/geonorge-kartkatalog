@@ -82,7 +82,7 @@ class DownloadService(
                             usageGroup = request.usageGroup,
                             orderLines = group.map { it.line.toV4() },
                         ),
-                        if (groupIsRestricted) accessToken else null,
+                        accessToken //Different because v4 wants to know who made the order anyway
                     ).let {
                         DownloadApiOrderResponse(
                             files = it.files.map { file ->
