@@ -56,9 +56,9 @@ class DownloadApiV4Client(
 
     suspend fun order(
         request: DownloadApiV4Order,
-        geoIdAccessToken: String? = null,
+        accessToken: String? = null,
     ): DownloadApiV4OrderReceipt {
-        val restricted = geoIdAccessToken != null
+        val restricted = accessToken != null
         val url =
             if (restricted) {
                 url("orders", "restricted")
@@ -68,7 +68,7 @@ class DownloadApiV4Client(
         val response =
             execute(url, "order") {
                 httpClient.post(url) {
-                    geoIdAccessToken?.let { bearerAuth(it) }
+                    accessToken?.let { bearerAuth(it) }
                     contentType(ContentType.Application.Json)
                     setBody(json.encodeToString(DownloadApiV4Order.serializer(), request))
                 }

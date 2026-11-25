@@ -98,7 +98,7 @@ fun Application.configureRouting(
             appConfig.staticNorgeskartUrl,
         )
     val downloadApiClient = DownloadApiClient(httpClient, appConfig.allowedDownloadClients)
-    val downloadApiV4Client = DownloadApiV4Client(httpClient, appConfig.downloadBaseUrl)
+    val downloadApiV4Client = DownloadApiV4Client(httpClient, "${appConfig.downloadBaseUrl}/api/v4")
     val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
     val downloadService = DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
     val tokenExchangeClient = TokenExchangeClient(httpClient, appConfig.tokenExchangeUrl)
