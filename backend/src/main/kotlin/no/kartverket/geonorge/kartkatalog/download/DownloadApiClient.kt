@@ -155,15 +155,16 @@ class DownloadApiClient(
 
             if (!response.status.isSuccess()) {
                 val errorBody = runCatching { response.bodyAsText() }.getOrNull()
+                // Manglende rolle er ikke en feil hos oss; DownloadService logger den som info
+                if (errorBody?.contains(MISSING_ROLE_MESSAGE) == true) {
+                    throw DownloadAccessDeniedException(errorBody)
+                }
                 log.warn(
                     "Nedlasting order request to {} failed with status: {}, body: {}",
                     requestUrl,
                     response.status,
                     errorBody,
                 )
-                if (errorBody?.contains(MISSING_ROLE_MESSAGE) == true) {
-                    throw DownloadAccessDeniedException(errorBody)
-                }
                 throw DownloadApiException(
                     "Download API order request to $requestUrl failed with status ${response.status}" +
                         (errorBody?.takeIf { it.isNotBlank() }?.let { ": $it" } ?: ""),

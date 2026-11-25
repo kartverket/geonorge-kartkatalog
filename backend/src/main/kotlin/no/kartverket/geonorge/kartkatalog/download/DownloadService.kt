@@ -62,8 +62,11 @@ class DownloadService(
         val metadataUuids = group.map { it.line.metadataUuid }
         val groupIsRestricted = group.any { it.restricted }
 
-        fun failure(message: String): DownloadOrderGroupResult.Failure {
-            recordGroupOutcome("failure", groupIsRestricted)
+        fun failure(
+            message: String,
+            outcome: String = "failure",
+        ): DownloadOrderGroupResult.Failure {
+            recordGroupOutcome(outcome, groupIsRestricted)
             return DownloadOrderGroupResult.Failure(metadataUuids = metadataUuids, message = message)
         }
 
@@ -128,7 +131,7 @@ class DownloadService(
             )
         } catch (e: DownloadAccessDeniedException) {
             log.info("Order denied for group with url {}: {}", group.first().orderUrl, e.message)
-            failure("Du mangler tilgang til ett eller flere av disse datasettene.")
+            failure("Du mangler tilgang til ett eller flere av disse datasettene.", outcome = "denied")
         } catch (e: DownloadException) {
             log.warn("Order failed for group with url {}", group.first().orderUrl, e)
             failure(GENERIC_ORDER_FAILURE_MESSAGE)
