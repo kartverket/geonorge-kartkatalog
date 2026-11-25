@@ -18,7 +18,6 @@ class SolrClient(
     private val metadataPath = "solr/metadata/select"
     private val metadataAllPath = "solr/metadata_all/select"
     private val metadataAllEnglishPath = "solr/metadata_all_en/select"
-    private val servicesPath = "solr/services/select"
     private val applicationPath = "solr/applications/select"
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -32,13 +31,8 @@ class SolrClient(
         val distinctUuids = uuids.distinct()
         if (distinctUuids.isEmpty()) return emptyList()
 
-        val found = mutableMapOf<String, SolrDocument>()
-        for (path in listOf(metadataPath, servicesPath, applicationPath)) {
-            val remaining = distinctUuids.filterNot { it in found }
-            if (remaining.isEmpty()) break
-            querySolr(path, buildMetadataSolrQuery(remaining)).response.docs.forEach { found[it.uuid] = it }
-        }
-        return found.values.toList()
+        return querySolr(metadataAllPath, buildMetadataSolrQuery(distinctUuids))
+            .response.docs
     }
 
     suspend fun searchApplicationsForDataset(uuid: String): List<SolrDocument> {
@@ -203,7 +197,7 @@ private val METADATA_FL =
         "score,ServiceDistributionProtocolForDataset,ServiceDistributionUrlForDataset," +
         "ServiceDistributionNameForDataset,DistributionProtocols,legend_description_url,product_sheet_url," +
         "product_specification_url,area,datasetservice,popularMetadata,bundle,servicelayers,accessconstraint," +
-        "servicedataset,applicationdataset,otherconstraintsaccess,dataaccess,ServiceDistributionUuidForDataset," +
+        "servicedataset,otherconstraintsaccess,dataaccess,ServiceDistributionUuidForDataset," +
         "ServiceDistributionAccessConstraint,parentidentifier,serie,seriedatasets,distributions"
 
 class SolrException(

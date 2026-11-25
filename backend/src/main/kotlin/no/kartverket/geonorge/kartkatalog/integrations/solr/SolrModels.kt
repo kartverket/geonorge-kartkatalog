@@ -96,7 +96,6 @@ data class SolrDocument(
     val servicelayers: List<String>? = null,
     val accessconstraint: String? = null,
     val servicedataset: List<String>? = null,
-    val applicationdataset: List<String>? = null,
     val otherconstraintsaccess: String? = null,
     val dataaccess: String? = null,
     val parentidentifier: String? = null,

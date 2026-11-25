@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
@@ -31,6 +32,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class SearchRoutesTest {
+    private val bulkUuidLookup = Regex("""uuid:\([^)]*\)""")
+
     private val searchSolrJson =
         """
         {
@@ -283,9 +286,10 @@ class SearchRoutesTest {
                     HttpClient(
                         MockEngine { request ->
                             val content =
-                                when (request.url.encodedPath) {
-                                    "/solr/metadata/select" -> memberSolrJson
-                                    else -> seriesSolrJson
+                                if ((request.body as FormDataContent).formData["q"]?.matches(bulkUuidLookup) == true) {
+                                    memberSolrJson
+                                } else {
+                                    seriesSolrJson
                                 }
                             respond(
                                 content = content,
@@ -367,9 +371,10 @@ class SearchRoutesTest {
                     HttpClient(
                         MockEngine { request ->
                             val content =
-                                when (request.url.encodedPath) {
-                                    "/solr/metadata/select" -> memberSolrJson
-                                    else -> seriesSolrJson
+                                if ((request.body as FormDataContent).formData["q"]?.matches(bulkUuidLookup) == true) {
+                                    memberSolrJson
+                                } else {
+                                    seriesSolrJson
                                 }
                             respond(
                                 content = content,

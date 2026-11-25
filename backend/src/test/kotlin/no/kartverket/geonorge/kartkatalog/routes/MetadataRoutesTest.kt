@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
@@ -202,11 +203,14 @@ class MetadataRoutesTest {
                         }
 
                         request.url.encodedPath == "/solr/metadata_all/select" -> {
+                            val isBulkLookup =
+                                (request.body as FormDataContent).formData["q"]?.matches(Regex("""uuid:\([^)]*\)""")) ==
+                                    true
                             if (solrFails) {
                                 respond(content = "", status = HttpStatusCode.ServiceUnavailable)
                             } else {
                                 respond(
-                                    content = solrDocJson,
+                                    content = if (isBulkLookup) relatedSolrJson else solrDocJson,
                                     status = HttpStatusCode.OK,
                                     headers =
                                         headersOf(
@@ -215,30 +219,6 @@ class MetadataRoutesTest {
                                         ),
                                 )
                             }
-                        }
-
-                        request.url.encodedPath == "/solr/metadata/select" -> {
-                            respond(
-                                content = relatedSolrJson,
-                                status = HttpStatusCode.OK,
-                                headers =
-                                    headersOf(
-                                        HttpHeaders.ContentType,
-                                        ContentType.Application.Json.toString(),
-                                    ),
-                            )
-                        }
-
-                        request.url.encodedPath == "/solr/services/select" -> {
-                            respond(
-                                content = emptySolrJson,
-                                status = HttpStatusCode.OK,
-                                headers =
-                                    headersOf(
-                                        HttpHeaders.ContentType,
-                                        ContentType.Application.Json.toString(),
-                                    ),
-                            )
                         }
 
                         request.url.encodedPath == "/solr/applications/select" -> {
