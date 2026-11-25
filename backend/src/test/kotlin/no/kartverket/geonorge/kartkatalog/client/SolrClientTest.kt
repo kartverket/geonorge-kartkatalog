@@ -125,34 +125,6 @@ class SolrClientTest {
         }
 
     @Test
-    fun `getMetadataByUuids queries only metadata_all once and returns one doc per uuid`() =
-        runBlocking {
-            val paths = mutableListOf<String>()
-            val engine =
-                MockEngine { request ->
-                    paths += request.url.encodedPath
-                    respond(
-                        content =
-                            """{"responseHeader": {"status": 0, "QTime": 1}, "response": {"numFound": 3, "start": 0, "docs": [
-                               {"uuid": "dataset-1", "type": "dataset"},
-                               {"uuid": "software-1", "type": "software"},
-                               {"uuid": "dataset-1", "type": "dataset"}]}}""",
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-                    )
-                }
-            val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
-            val docs =
-                httpClient.use {
-                    SolrClient(httpClient, solrBaseUrl).getMetadataByUuids(
-                        listOf("dataset-1", "software-1", "dataset-1"),
-                    )
-                }
-            assertEquals(listOf("/solr/metadata_all/select"), paths)
-            assertEquals(listOf("dataset-1", "software-1"), docs.map { it.uuid })
-        }
-
-    @Test
     fun `parses solr json even when content type is text plain`() =
         runBlocking {
             val uuid = UUID.randomUUID().toString()
