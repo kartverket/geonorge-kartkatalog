@@ -55,7 +55,8 @@ class DownloadServiceTest {
                 )
             val downloadApiV4Client = DownloadApiV4Client(client, "https://nedlasting.geonorge.no/api/v4")
             val registerClient = RegisterClient(client, "https://register.geonorge.no")
-            val service = DownloadService(downloadApiClient, downloadApiV4Client, DownloadInsightGroupsResolver(registerClient))
+            val service =
+                DownloadService(downloadApiClient, downloadApiV4Client, DownloadInsightGroupsResolver(registerClient))
 
             val result =
                 service.order(

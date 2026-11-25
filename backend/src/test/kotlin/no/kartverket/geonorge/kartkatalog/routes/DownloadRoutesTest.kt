@@ -182,7 +182,8 @@ class DownloadRoutesTest {
                 val downloadApiV4Client = DownloadApiV4Client(client, "https://nedlasting.geonorge.no/api/v4")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
+                val downloadService =
+                    DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
                 routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
@@ -275,7 +276,8 @@ class DownloadRoutesTest {
                 val downloadApiV4Client = DownloadApiV4Client(client, "https://nedlasting.geonorge.no/api/v4")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
+                val downloadService =
+                    DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
                 routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
@@ -338,7 +340,8 @@ class DownloadRoutesTest {
                 val downloadApiV4Client = DownloadApiV4Client(client, "https://nedlasting.geonorge.no/api/v4")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
+                val downloadService =
+                    DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
                 routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
@@ -406,7 +409,8 @@ class DownloadRoutesTest {
                 val downloadApiClient = DownloadApiClient(client)
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
+                val downloadService =
+                    DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
                 routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
@@ -470,7 +474,8 @@ class DownloadRoutesTest {
                 val downloadApiV4Client = DownloadApiV4Client(client, "https://nedlasting.geonorge.no/api/v4")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
+                val downloadService =
+                    DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
                 routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
@@ -512,7 +517,8 @@ class DownloadRoutesTest {
                 val downloadApiV4Client = DownloadApiV4Client(client, "https://nedlasting.geonorge.no/api/v4")
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
+                val downloadService =
+                    DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
                 routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
@@ -552,7 +558,8 @@ class DownloadRoutesTest {
                 val downloadApiClient = DownloadApiClient(client)
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
+                val downloadService =
+                    DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
                 routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
@@ -602,7 +609,8 @@ class DownloadRoutesTest {
                 val nedlastingClient = DownloadApiClient(client)
                 val registerClient = RegisterClient(client, "https://register.geonorge.no")
                 val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-                val downloadService = DownloadService(nedlastingClient, downloadApiV4Client, downloadInsightGroupsResolver)
+                val downloadService =
+                    DownloadService(nedlastingClient, downloadApiV4Client, downloadInsightGroupsResolver)
                 val tokenExchangeClient = TokenExchangeClient(client, "https://token-exchange.example")
                 routing { downloadRoutes(downloadService, tokenExchangeClient, authentication) }
             }
