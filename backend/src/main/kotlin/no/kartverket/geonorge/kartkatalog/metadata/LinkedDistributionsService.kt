@@ -17,19 +17,16 @@ class LinkedDistributionsService(
     private val solrClient: SolrClient,
     private val recordSource: MetadataRecordSource,
 ) {
-    suspend fun getLinkedDistributions(uuid: String): LinkedDistributions =
-        coroutineScope {
-            val solrDoc =
-                solrClient
-                    .getMetadataByUuid(uuid) ?: return@coroutineScope LinkedDistributions()
+    suspend fun getLinkedDistributions(uuid: String): LinkedDistributions {
+        val solrDoc = solrClient.getMetadataByUuid(uuid) ?: return LinkedDistributions()
 
-            when (solrDoc.type) {
-                "service" -> getServiceLinkedDistributions(solrDoc, uuid)
-                "servicelayer" -> getServiceLayerLinkedDistributions(solrDoc, uuid)
-                "software" -> getApplicationLinkedDistributions(uuid)
-                else -> getDatasetLinkedDistributions(solrDoc, uuid)
-            }
+        return when (solrDoc.type) {
+            "service" -> getServiceLinkedDistributions(solrDoc, uuid)
+            "servicelayer" -> getServiceLayerLinkedDistributions(solrDoc, uuid)
+            "software" -> getApplicationLinkedDistributions(uuid)
+            else -> getDatasetLinkedDistributions(solrDoc, uuid)
         }
+    }
 
     private suspend fun getDatasetLinkedDistributions(
         solrDoc: SolrDocument,
@@ -107,7 +104,7 @@ class LinkedDistributionsService(
                     }
                 }
 
-            return@coroutineScope LinkedDistributions(
+            LinkedDistributions(
                 applications = applicationsDeferred.awaitAll().filterNotNull(),
                 viewServices = viewServicesDeferred.awaitAll().filterNotNull(),
                 downloadServices = downloadServicesDeferred.awaitAll().filterNotNull(),
@@ -164,9 +161,10 @@ class LinkedDistributionsService(
     // Related datasets were previously read from the Solr field `applicationdataset`, but that field only exists
     // in the `applications` core, and the lookup now goes through `metadata_all`. They are therefore read from
     // gmd:aggregationInfo/aggregateDataSetIdentifier in the GeoNetwork record instead.
-    private suspend fun getApplicationLinkedDistributions(uuid: String): LinkedDistributions =
-        coroutineScope {
-            val record = recordSource.getRecordByUuid(uuid) ?: return@coroutineScope LinkedDistributions()
+    private suspend fun getApplicationLinkedDistributions(uuid: String): LinkedDistributions {
+        val record = recordSource.getRecordByUuid(uuid) ?: return LinkedDistributions()
+
+        return coroutineScope {
             val datasetUuids = record.aggregateDataSetIdentifiers.filter { it != uuid }
             val solrDocsByUuid = solrClient.getMetadataByUuids(datasetUuids).associateBy { it.uuid }
 
@@ -179,6 +177,7 @@ class LinkedDistributionsService(
 
             LinkedDistributions(relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull())
         }
+    }
 
     private suspend fun fetchLinkedDistribution(
         relatedUuid: String,
