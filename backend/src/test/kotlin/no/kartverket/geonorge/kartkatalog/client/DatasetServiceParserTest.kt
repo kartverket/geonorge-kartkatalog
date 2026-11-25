@@ -33,6 +33,7 @@ class DatasetServiceParserTest {
         val parsedService = parsedServiceDetails[0]
         assertEquals(rightUuid, parsedService.uuid)
         assertEquals(serviceName, parsedService.name)
+        assertEquals("dataset", parsedService.type)
         assertEquals(protocol, parsedService.protocol)
         assertEquals(distUri, parsedService.distributionUrl)
         assertEquals(isOpen, parsedService.accessIsOpendata)

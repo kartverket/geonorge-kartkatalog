@@ -16,6 +16,7 @@ internal fun parseDatasetServices(datasetService: List<String>?): List<RelatedSe
             uuid = uuid,
             name = parts.getOrNull(DatasetServiceProperties.NAME.index),
             organizationName = parts.getOrNull(DatasetServiceProperties.ORGANIZATION_NAME.index),
+            type = parts.getOrNull(DatasetServiceProperties.TYPE.index),
             protocol = parts.getOrNull(DatasetServiceProperties.PROTOCOL.index),
             distributionUrl = parts.getOrNull(DatasetServiceProperties.DISTRIBUTION_URL.index),
             accessIsOpendata = parts.booleanAt(DatasetServiceProperties.ACCESS_IS_OPENDATA),
@@ -31,6 +32,7 @@ private enum class DatasetServiceProperties(
 ) {
     UUID(0),
     NAME(1),
+    TYPE(3),
     ORGANIZATION_NAME(4),
     PROTOCOL(6),
     DISTRIBUTION_URL(7),
