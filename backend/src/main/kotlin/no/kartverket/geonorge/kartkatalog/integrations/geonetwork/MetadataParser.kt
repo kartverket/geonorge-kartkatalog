@@ -154,6 +154,7 @@ object MetadataParser {
                                 "/gmd:MD_SpatialRepresentationTypeCode",
                         )?.mapNotNull { it.attr("codeListValue") }
                         ?: emptyList(),
+                aggregateDataSetIdentifiers = parseAggregateDataSetIdentifiers(idInfo),
                 distributionInfo = parseDistributionInfo(),
                 qualitySpecifications = parseQualitySpecifications(),
                 dataQualityMeasures = parseDataQualityMeasures(),
@@ -196,6 +197,15 @@ object MetadataParser {
                         codeSpace = anchor?.attr("xlink:href"),
                     )
                 }
+
+        // Every aggregateDataSetIdentifier is treated as a related dataset regardless of associationType
+        // (in practice these are "crossReference").
+        private fun parseAggregateDataSetIdentifiers(idInfo: Node?): List<String> =
+            idInfo
+                ?.nodes("gmd:aggregationInfo/gmd:MD_AggregateInformation/gmd:aggregateDataSetIdentifier/*")
+                ?.mapNotNull { identifierCode(it)?.takeIf { code -> code.isNotBlank() } }
+                ?.distinct()
+                ?: emptyList()
 
         private fun identifierCode(identifier: Node): String? =
             identifier

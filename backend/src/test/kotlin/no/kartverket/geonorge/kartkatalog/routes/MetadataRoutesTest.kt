@@ -13,6 +13,10 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
@@ -126,8 +130,7 @@ class MetadataRoutesTest {
             "docs": [{
               "uuid": "c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689",
               "title": "Test-applikasjon",
-              "type": "software",
-              "applicationdataset": ["11111111-1111-1111-1111-111111111111|Datasett||dataset|Org||GEONORGE:DOWNLOAD|https://example.com|Tema"]
+              "type": "software"
             }]
           }
         }
@@ -483,14 +486,36 @@ class MetadataRoutesTest {
 
     @Test
     fun `returns relatedDatasets for software`() {
+        val relatedUuid = "11111111-1111-1111-1111-111111111111"
+        val softwareXml =
+            responseXml.replace(
+                "</srv:SV_ServiceIdentification>",
+                """
+                <gmd:aggregationInfo>
+                    <gmd:MD_AggregateInformation>
+                        <gmd:aggregateDataSetIdentifier>
+                            <gmd:MD_Identifier>
+                                <gmd:code><gco:CharacterString>$relatedUuid</gco:CharacterString></gmd:code>
+                            </gmd:MD_Identifier>
+                        </gmd:aggregateDataSetIdentifier>
+                    </gmd:MD_AggregateInformation>
+                </gmd:aggregationInfo>
+                </srv:SV_ServiceIdentification>
+                """.trimIndent(),
+            )
         val (metadataService, linkedDistributionsService) =
-            createMetadataService(responseXml, solrDocJson = softwareSolrJson)
+            createMetadataService(softwareXml, solrDocJson = softwareSolrJson)
 
         testApp(metadataService, linkedDistributionsService) {
             val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
 
             assertEquals(HttpStatusCode.OK, response.status)
-            assertContains(response.bodyAsText(), "relatedDatasets")
+            val relatedDatasets =
+                Json
+                    .parseToJsonElement(response.bodyAsText())
+                    .jsonObject["relatedDatasets"]!!
+                    .jsonArray
+            assertEquals(listOf(relatedUuid), relatedDatasets.map { it.jsonObject["uuid"]?.jsonPrimitive?.content })
         }
     }
 
