@@ -26,7 +26,7 @@ class LinkedDistributionsService(
             when (solrDoc.type) {
                 "service" -> getServiceLinkedDistributions(solrDoc, uuid)
                 "servicelayer" -> getServiceLayerLinkedDistributions(solrDoc, uuid)
-                "software" -> getApplicationLinkedDistributions(solrDoc, uuid)
+                "software" -> getApplicationLinkedDistributions(uuid)
                 else -> getDatasetLinkedDistributions(solrDoc, uuid)
             }
         }
@@ -161,16 +161,21 @@ class LinkedDistributionsService(
             )
         }
 
-    private suspend fun getApplicationLinkedDistributions(
-        solrDoc: SolrDocument,
-        uuid: String,
-    ): LinkedDistributions =
+    // Related datasets were previously read from the Solr field `applicationdataset`, but that field only exists
+    // in the `applications` core, and the lookup now goes through `metadata_all`. They are therefore read from
+    // gmd:aggregationInfo/aggregateDataSetIdentifier in the GeoNetwork record instead.
+    private suspend fun getApplicationLinkedDistributions(uuid: String): LinkedDistributions =
         coroutineScope {
-            val datasetRefs = solrClient.parseDatasetServices(solrDoc.applicationdataset).filter { it.uuid != uuid }
-            val solrDocsByUuid = solrClient.getMetadataByUuids(datasetRefs.map { it.uuid }).associateBy { it.uuid }
+            val record = recordSource.getRecordByUuid(uuid) ?: return@coroutineScope LinkedDistributions()
+            val datasetUuids = record.aggregateDataSetIdentifiers.filter { it != uuid }
+            val solrDocsByUuid = solrClient.getMetadataByUuids(datasetUuids).associateBy { it.uuid }
 
+            // The protocol used to come from the `applicationdataset` entry; the dataset's own Solr document
+            // carries the same distribution protocol, so the card URL is resolved the same way as before.
             val relatedDatasetsDeferred =
-                datasetRefs.map { async { fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid) } }
+                datasetUuids.map {
+                    async { fetchLinkedDistribution(it, solrDocsByUuid[it]?.distributionProtocol, solrDocsByUuid) }
+                }
 
             LinkedDistributions(relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull())
         }

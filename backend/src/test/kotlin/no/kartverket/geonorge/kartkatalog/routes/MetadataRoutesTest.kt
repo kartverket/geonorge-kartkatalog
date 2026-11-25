@@ -13,6 +13,10 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
@@ -126,12 +130,14 @@ class MetadataRoutesTest {
             "docs": [{
               "uuid": "c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689",
               "title": "Test-applikasjon",
-              "type": "software",
-              "applicationdataset": ["11111111-1111-1111-1111-111111111111|Datasett||dataset|Org||GEONORGE:DOWNLOAD|https://example.com|Tema"]
+              "type": "software"
             }]
           }
         }
         """.trimIndent()
+
+    private val emptySolrJson =
+        """{"responseHeader": {"status": 0, "QTime": 1}, "response": {"numFound": 0, "start": 0, "docs": []}}"""
 
     private val geonetworkBaseUrl = "https://test.example.com/geonetwork"
     private val registerBaseUrl = "https://test.example.com/register"
@@ -141,6 +147,7 @@ class MetadataRoutesTest {
         solrDocJson: String = solrJson,
         solrFails: Boolean = false,
         metXml: String = emptyGeonetworkXml,
+        relatedSolrJson: String = emptySolrJson,
     ): Pair<MetadataService, LinkedDistributionsService> {
         val client =
             HttpClient(
@@ -210,13 +217,21 @@ class MetadataRoutesTest {
                             }
                         }
 
-                        request.url.encodedPath == "/solr/metadata/select" ||
-                            request.url.encodedPath == "/solr/services/select" -> {
+                        request.url.encodedPath == "/solr/metadata/select" -> {
                             respond(
-                                content =
-                                    """{"responseHeader": {"status": 0, "QTime": 1},
-                                    |"response": {"numFound": 0, "start": 0, "docs": []}}
-                                    """.trimMargin(),
+                                content = relatedSolrJson,
+                                status = HttpStatusCode.OK,
+                                headers =
+                                    headersOf(
+                                        HttpHeaders.ContentType,
+                                        ContentType.Application.Json.toString(),
+                                    ),
+                            )
+                        }
+
+                        request.url.encodedPath == "/solr/services/select" -> {
+                            respond(
+                                content = emptySolrJson,
                                 status = HttpStatusCode.OK,
                                 headers =
                                     headersOf(
@@ -483,14 +498,56 @@ class MetadataRoutesTest {
 
     @Test
     fun `returns relatedDatasets for software`() {
+        val relatedUuid = "11111111-1111-1111-1111-111111111111"
+        // The related dataset has several links and none of them is GEONORGE:DOWNLOAD
+        val softwareXml =
+            responseXml
+                .replace(
+                    "</gmd:MD_DigitalTransferOptions>",
+                    """
+                    <gmd:onLine>
+                        <gmd:CI_OnlineResource>
+                            <gmd:linkage><gmd:URL>https://example.com/atom</gmd:URL></gmd:linkage>
+                            <gmd:protocol><gco:CharacterString>W3C:AtomFeed</gco:CharacterString></gmd:protocol>
+                        </gmd:CI_OnlineResource>
+                    </gmd:onLine>
+                    </gmd:MD_DigitalTransferOptions>
+                    """.trimIndent(),
+                ).replace(
+                    "</srv:SV_ServiceIdentification>",
+                    """
+                    <gmd:aggregationInfo>
+                        <gmd:MD_AggregateInformation>
+                            <gmd:aggregateDataSetIdentifier>
+                                <gmd:MD_Identifier>
+                                    <gmd:code><gco:CharacterString>$relatedUuid</gco:CharacterString></gmd:code>
+                                </gmd:MD_Identifier>
+                            </gmd:aggregateDataSetIdentifier>
+                        </gmd:MD_AggregateInformation>
+                    </gmd:aggregationInfo>
+                    </srv:SV_ServiceIdentification>
+                    """.trimIndent(),
+                )
+        val relatedSolrJson =
+            """{"responseHeader": {"status": 0, "QTime": 1}, "response": {"numFound": 1, "start": 0,
+               "docs": [{"uuid": "$relatedUuid", "type": "dataset", "distribution_protocol": "W3C:AtomFeed"}]}}"""
         val (metadataService, linkedDistributionsService) =
-            createMetadataService(responseXml, solrDocJson = softwareSolrJson)
+            createMetadataService(softwareXml, solrDocJson = softwareSolrJson, relatedSolrJson = relatedSolrJson)
 
         testApp(metadataService, linkedDistributionsService) {
             val response = client.get("/metadata/c750a3f5-1cb8-46aa-a5eb-e13ee0cb9689/linked-distributions")
 
             assertEquals(HttpStatusCode.OK, response.status)
-            assertContains(response.bodyAsText(), "relatedDatasets")
+            val relatedDataset =
+                Json
+                    .parseToJsonElement(response.bodyAsText())
+                    .jsonObject["relatedDatasets"]!!
+                    .jsonArray
+                    .single()
+                    .jsonObject
+            assertEquals(relatedUuid, relatedDataset["uuid"]?.jsonPrimitive?.content)
+            assertEquals("W3C:AtomFeed", relatedDataset["distributionProtocol"]?.jsonPrimitive?.content)
+            assertEquals("https://example.com/atom", relatedDataset["distributionUrl"]?.jsonPrimitive?.content)
         }
     }
 
