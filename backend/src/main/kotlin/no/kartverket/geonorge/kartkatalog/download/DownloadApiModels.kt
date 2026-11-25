@@ -55,6 +55,7 @@ data class DownloadApiOrderLine(
             metadataUuid = metadataUuid,
             areas = areas.map { DownloadApiV4OrderArea(it.code, it.name) },
             formats = formats.map { DownloadApiV4Format(it.name, it.type) },
+            projections = projections.map { DownloadApiV4Projection(it.code, it.name, it.codespace) },
         )
     }
 }
