@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      disallow: ["/geonetwork/", "/geonetworkdev/", "/geonetworktest/"],
+      allow: "/",
       other: {
         "Content-Signal": "ai-train=no, search=yes, ai-input=no",
       },
