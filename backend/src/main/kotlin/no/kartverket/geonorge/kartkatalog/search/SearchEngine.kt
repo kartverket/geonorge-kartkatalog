@@ -5,7 +5,6 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import no.kartverket.geonorge.kartkatalog.distribution.MapCapabilityFields
 import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
-import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
@@ -150,9 +149,6 @@ class SearchEngine(
     ): String? = solrClient.findUuidByDatasetName(datasetName, excludeUuid)
 
     suspend fun getMetadataByUuids(uuids: List<String>): List<SolrDocument> = solrClient.getMetadataByUuids(uuids)
-
-    fun parseDatasetServices(values: List<String>?): List<RelatedServiceReference> =
-        solrClient.parseDatasetServices(values)
 
     private companion object {
         const val MINIMUM_VECTOR_SEARCH_LENGTH = 2

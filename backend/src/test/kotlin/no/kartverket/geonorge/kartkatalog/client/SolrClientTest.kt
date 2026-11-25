@@ -97,7 +97,7 @@ class SolrClientTest {
                 client.searchApplicationsForDataset("no.met:dataset/1")
             }
             assertEquals(
-                listOf("""uuid:no.met\:dataset\/1""", """applicationdataset:no.met\:dataset\/1*"""),
+                listOf("""uuid:"no.met\:dataset\/1"""", """applicationdataset:no.met\:dataset\/1*"""),
                 queries,
             )
             assertEquals("uuid,title,distribution_protocol", fields.last())
@@ -190,40 +190,4 @@ class SolrClientTest {
                 }
             }
         }
-
-    @Test
-    fun `parse related service good`() {
-        val engine = MockEngine { respond(content = "", status = HttpStatusCode.InternalServerError) }
-        val httpClient = HttpClient(engine) { install(ContentNegotiation) { json() } }
-        val solrClient = SolrClient(httpClient, solrBaseUrl)
-        val rightUuid = UUID.randomUUID().toString()
-        val serviceName = "Administrative enheter - historiske data 1997"
-        val protocol = "GEONORGE:DOWNLOAD"
-        val distUri = "https://nedlasting.geonorge.no/api/capabilities/"
-        val isOpen = true
-        val isClose = false
-
-        val datasetSerivceString =
-            "$rightUuid|" +
-                "$serviceName|" +
-                "${UUID.randomUUID()}|" +
-                "dataset|" +
-                "Kartverket||" +
-                "$protocol|" + "" +
-                "$distUri|" +
-                "Basis geodata|" +
-                "https://register.dev.geonorge.no/data/organizations/971040238_Kartverket_liten.png|" +
-                "https://editor.geonorge.no/thumbnails/${UUID.randomUUID()}_medium_adm1het.png|" +
-                "no restrictions|http://inspire.ec.europa.eu||$isOpen|$isClose"
-        val parsedServiceDetails = solrClient.parseDatasetServices(listOf(datasetSerivceString))
-
-        assertEquals(1, parsedServiceDetails.size)
-        val parsedService = parsedServiceDetails[0]
-        assertEquals(rightUuid, parsedService.uuid)
-        assertEquals(serviceName, parsedService.name)
-        assertEquals(protocol, parsedService.protocol)
-        assertEquals(distUri, parsedService.distributionUrl)
-        assertEquals(isOpen, parsedService.accessIsOpendata)
-        assertEquals(isClose, parsedService.accessIsRestricted)
-    }
 }

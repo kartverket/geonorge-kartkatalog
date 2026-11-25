@@ -23,6 +23,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.escapeSolrSpecialChars
+import no.kartverket.geonorge.kartkatalog.integrations.solr.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.legacy.models.DistributionDetails
 import no.kartverket.geonorge.kartkatalog.legacy.models.DistributionRow
 import no.kartverket.geonorge.kartkatalog.legacy.models.SearchOutcome
@@ -363,8 +364,7 @@ class LegacyService(
     ): List<JsonObject> {
         solrDoc ?: return emptyList()
         val refs =
-            solrClient
-                .parseDatasetServices(solrDoc.datasetservice)
+            parseDatasetServices(solrDoc.datasetservice)
                 .filter { it.uuid != uuid && DistributionProtocols.isViewService(it.protocol) }
         return coroutineScope {
             refs

@@ -118,44 +118,6 @@ class SolrClient(
             rows = uuids.size,
             wt = "json",
         )
-
-    fun parseDatasetServices(datasetService: List<String>?): List<RelatedServiceReference> =
-        datasetService.orEmpty().mapNotNull { entry ->
-            val parts = entry.split("|")
-            val uuid =
-                parts.getOrNull(DatasetServiceProperties.UUID.index)?.takeIf { it.isNotBlank() }
-                    ?: return@mapNotNull null
-            RelatedServiceReference(
-                uuid = uuid,
-                name = parts.getOrNull(DatasetServiceProperties.NAME.index),
-                organizationName = parts.getOrNull(DatasetServiceProperties.ORGANIZATION_NAME.index),
-                protocol =
-                    parts.getOrNull(DatasetServiceProperties.PROTOCOL.index),
-                distributionUrl = parts.getOrNull(DatasetServiceProperties.DISTRIBUTION_URL.index),
-                accessIsOpendata =
-                    parts
-                        .getOrNull(DatasetServiceProperties.ACCESS_IS_OPENDATA.index)
-                        ?.lowercase()
-                        ?.toBooleanStrictOrNull() ?: false,
-                accessIsRestricted =
-                    parts
-                        .getOrNull(DatasetServiceProperties.ACCESS_IS_RESTRICTED.index)
-                        ?.lowercase()
-                        ?.toBooleanStrictOrNull() ?: false,
-            )
-        }
-}
-
-private enum class DatasetServiceProperties(
-    val index: Int,
-) {
-    UUID(0),
-    NAME(1),
-    ORGANIZATION_NAME(4),
-    PROTOCOL(6),
-    DISTRIBUTION_URL(7),
-    ACCESS_IS_OPENDATA(14),
-    ACCESS_IS_RESTRICTED(15),
 }
 
 data class MetadataSolrQuery(
