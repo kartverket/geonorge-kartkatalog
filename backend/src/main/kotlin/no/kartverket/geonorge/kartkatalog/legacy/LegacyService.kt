@@ -34,7 +34,6 @@ import no.kartverket.geonorge.kartkatalog.metadata.getCoverageLink
 import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import no.kartverket.geonorge.kartkatalog.search.SearchHits
 import org.slf4j.LoggerFactory
-import kotlin.time.times
 
 private const val NATIONAL_THEME_THESAURUS = "Nasjonal tematisk inndeling (DOK-kategori)"
 private const val NATIONAL_INITIATIVE_THESAURUS = "Nasjonal inndeling i geografiske initiativ og SDI-er"
@@ -142,7 +141,7 @@ class LegacyService(
         // Legacy swallows Solr errors, so a failure looks the same as an unknown uuid.
         val doc =
             try {
-                engine.getMetadataAllByUuid(uuid)
+                solrClient.getMetadataByUuid(uuid)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {

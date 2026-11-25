@@ -144,8 +144,6 @@ class SearchEngine(
     private fun recordVectorFallback(reason: String) =
         countEvent("search.vector.fallbacks", "Vector searches that fell back to plain Solr", "reason" to reason)
 
-    internal suspend fun getMetadataAllByUuid(uuid: String): SolrDocument? = solrClient.getMetadataByUuid(uuid)
-
     internal suspend fun findUuidByDatasetName(
         datasetName: String,
         excludeUuid: String,
