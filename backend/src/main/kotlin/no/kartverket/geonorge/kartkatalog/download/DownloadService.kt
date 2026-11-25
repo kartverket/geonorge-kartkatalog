@@ -12,6 +12,9 @@ class DownloadException(
 
 class DownloadAuthenticationRequiredException : RuntimeException("Authentication is required for restricted downloads")
 
+private const val GENERIC_ORDER_FAILURE_MESSAGE =
+    "Bestillingen feilet. Prøv igjen, eller kontakt oss hvis problemet vedvarer."
+
 private data class ResolvedOrderLine(
     val orderUrl: String,
     val supportsBundling: Boolean,
@@ -58,6 +61,14 @@ class DownloadService(
     ): DownloadOrderGroupResult {
         val metadataUuids = group.map { it.line.metadataUuid }
         val groupIsRestricted = group.any { it.restricted }
+
+        fun failure(
+            message: String,
+            outcome: String = "failure",
+        ): DownloadOrderGroupResult.Failure {
+            recordGroupOutcome(outcome, groupIsRestricted)
+            return DownloadOrderGroupResult.Failure(metadataUuids = metadataUuids, message = message)
+        }
 
         return try {
             val response =
@@ -118,20 +129,15 @@ class DownloadService(
                         },
                 ),
             )
+        } catch (e: DownloadAccessDeniedException) {
+            log.info("Order denied for group with url {}: {}", group.first().orderUrl, e.message)
+            failure("Du mangler tilgang til ett eller flere av disse datasettene.", outcome = "denied")
         } catch (e: DownloadException) {
             log.warn("Order failed for group with url {}", group.first().orderUrl, e)
-            recordGroupOutcome("failure", groupIsRestricted)
-            DownloadOrderGroupResult.Failure(
-                metadataUuids = metadataUuids,
-                message = "Bestillingen feilet. Prøv igjen, eller kontakt oss hvis problemet vedvarer.",
-            )
+            failure(GENERIC_ORDER_FAILURE_MESSAGE)
         } catch (e: DownloadApiException) {
             log.warn("Order failed for group with url {}", group.first().orderUrl, e)
-            recordGroupOutcome("failure", groupIsRestricted)
-            DownloadOrderGroupResult.Failure(
-                metadataUuids = metadataUuids,
-                message = "Bestillingen feilet. Prøv igjen, eller kontakt oss hvis problemet vedvarer.",
-            )
+            failure(GENERIC_ORDER_FAILURE_MESSAGE)
         }
     }
 

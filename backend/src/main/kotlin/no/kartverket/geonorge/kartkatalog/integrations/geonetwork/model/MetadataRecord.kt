@@ -84,6 +84,8 @@ data class MetadataRecord(
     val resourceIdentifierCodeSpace: String? = null,
     val topicCategories: List<String> = emptyList(),
     val spatialRepresentationTypes: List<String> = emptyList(),
+    // UUIDs of related datasets from gmd:aggregationInfo (used e.g. by applications)
+    val aggregateDataSetIdentifiers: List<String> = emptyList(),
     // Distribution
     val distributionInfo: DistributionInfo? = null,
     // Data quality

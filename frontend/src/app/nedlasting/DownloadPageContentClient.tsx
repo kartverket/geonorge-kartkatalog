@@ -309,6 +309,9 @@ export function DownloadPageContentClient({
     ),
   );
 
+  // Kurven tømmes når bestillingen delvis lykkes, så på nedlastingssteget
+  // må navnene hentes fra det som ble bestilt
+  const cardsInOrder = step === "last-ned" ? orderedCards : cards;
   const failedOrderMessages =
     orderResult?.orders
       .filter((order) => order.status === "failed")
@@ -320,10 +323,11 @@ export function DownloadPageContentClient({
           Kunne ikke bestille{" "}
           {order.metadataUuids
             .map(
-              (uuid) => cards.find((card) => card.uuid === uuid)?.title ?? uuid,
+              (uuid) =>
+                cardsInOrder.find((card) => card.uuid === uuid)?.title ?? uuid,
             )
             .join(", ")}
-          : {order.message ?? "Ukjent feil"}. Du kan prøve på nytt.
+          : {order.message ?? "Ukjent feil."}
         </Paragraph>
       )) ?? [];
 
