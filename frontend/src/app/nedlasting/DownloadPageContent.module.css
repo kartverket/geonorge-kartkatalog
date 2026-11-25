@@ -36,17 +36,6 @@
   align-self: flex-start;
 }
 
-.hiddenTag {
-  visibility: hidden;
-}
-
-.labelRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
 .processingAlert {
   margin-top: var(--ds-size-8);
   margin-bottom: var(--ds-size-12);
