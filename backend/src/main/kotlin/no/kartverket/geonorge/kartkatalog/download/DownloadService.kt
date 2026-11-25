@@ -32,7 +32,7 @@ class DownloadService(
     suspend fun order(
         request: DownloadOrderRequest,
         accessToken: String? = null,
-        downloadApiVersion: String = "v3"
+        downloadApiVersion: String = "v3",
     ): DownloadOrderResult =
         coroutineScope {
             val resolved =
@@ -76,46 +76,49 @@ class DownloadService(
         return try {
             val response =
                 if (downloadApiVersion == "v4") {
-                    downloadApiV4Client.order(
-                        DownloadApiV4Order(
+                    downloadApiV4Client
+                        .order(
+                            DownloadApiV4Order(
+                                email = request.email,
+                                usageGroup = request.usageGroup,
+                                orderLines = group.map { it.line.toV4() },
+                            ),
+                            accessToken, // Different because v4 wants to know who made the order anyway
+                        ).let {
+                            DownloadApiOrderResponse(
+                                files =
+                                    it.files.map { file ->
+                                        DownloadApiOrderFile(
+                                            status = file.status ?: "Unknown", // TODO: sjekk om det gir mening
+                                            downloadUrl = file.downloadUrl,
+                                            name = file.name,
+                                            areaName = file.areaName,
+                                            projectionName = file.projectionName,
+                                            format = file.format,
+                                            metadataUuid = file.metadataUuid,
+                                            metadataName = file.metadataName,
+                                        )
+                                    },
+                                links =
+                                    it.links.map { link ->
+                                        DownloadApiLink(
+                                            href = link.href,
+                                            rel = link.rel,
+                                        )
+                                    },
+                            )
+                        }
+                } else {
+                    downloadApiClient.order(
+                        group.first().orderUrl,
+                        DownloadApiOrderRequest(
                             email = request.email,
                             usageGroup = request.usageGroup,
-                            orderLines = group.map { it.line.toV4() },
+                            orderLines = group.map { it.line },
                         ),
-                        accessToken //Different because v4 wants to know who made the order anyway
-                    ).let {
-                        DownloadApiOrderResponse(
-                            files = it.files.map { file ->
-                                DownloadApiOrderFile(
-                                    status = file.status ?: "Unknown", //TODO: sjekk om det gir mening
-                                    downloadUrl = file.downloadUrl,
-                                    name = file.name,
-                                    areaName = file.areaName,
-                                    projectionName = file.projectionName,
-                                    format = file.format,
-                                    metadataUuid = file.metadataUuid,
-                                    metadataName = file.metadataName,
-                                )
-                            },
-                            links = it.links.map { link ->
-                                DownloadApiLink(
-                                    href = link.href,
-                                    rel = link.rel,
-                                )
-                            },
-                        )
-                    }
-                } else {
-                downloadApiClient.order(
-                    group.first().orderUrl,
-                    DownloadApiOrderRequest(
-                        email = request.email,
-                        usageGroup = request.usageGroup,
-                        orderLines = group.map { it.line },
-                    ),
-                    if (groupIsRestricted) accessToken else null,
-                )
-            }
+                        if (groupIsRestricted) accessToken else null,
+                    )
+                }
 
             val verifiedFiles =
                 coroutineScope {
@@ -191,25 +194,27 @@ class DownloadService(
         capabilitiesUrl: String,
         downloadApiVersion: String = "v3",
     ): DownloadOptions {
-        val capabilities = if(downloadApiVersion == "v4") {
-            downloadApiV4Client.getCapabilities( uuid).let {
-                DownloadApiCapabilities(
-                    supportsPolygonSelection = it.supportsPolygonSelection,
-                    deliveryNotificationByEmail = it.deliveryNotificationByEmail,
-                    mapSelectionLayer = it.mapSelectionLayer,
-                    supportsDownloadBundling = it.supportsDownloadBundling,
-                    accessConstraintRequiredRole = it.accessConstraintRequiredRole,
-                    links = it.links.map { link ->
-                        DownloadApiLink(
-                            href = link.href,
-                            rel = link.rel,
-                        )
-                    },
-                )
+        val capabilities =
+            if (downloadApiVersion == "v4") {
+                downloadApiV4Client.getCapabilities(uuid).let {
+                    DownloadApiCapabilities(
+                        supportsPolygonSelection = it.supportsPolygonSelection,
+                        deliveryNotificationByEmail = it.deliveryNotificationByEmail,
+                        mapSelectionLayer = it.mapSelectionLayer,
+                        supportsDownloadBundling = it.supportsDownloadBundling,
+                        accessConstraintRequiredRole = it.accessConstraintRequiredRole,
+                        links =
+                            it.links.map { link ->
+                                DownloadApiLink(
+                                    href = link.href,
+                                    rel = link.rel,
+                                )
+                            },
+                    )
+                }
+            } else {
+                downloadApiClient.getCapabilities(capabilitiesUrl, uuid)
             }
-        } else {
-            downloadApiClient.getCapabilities(capabilitiesUrl, uuid)
-        }
         val areasUrl = capabilities.linkFor(AREA_REL)
 
         if (areasUrl == null) {
@@ -225,7 +230,8 @@ class DownloadService(
 
         return DownloadOptions(
             areas =
-                downloadApiClient.getAreas(areasUrl).map { area -> //TODO: v4 client
+                downloadApiClient.getAreas(areasUrl).map { area ->
+                    // TODO: v4 client
                     DownloadAreaOption(
                         area =
                             DownloadArea(
