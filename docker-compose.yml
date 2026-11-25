@@ -1,5 +1,11 @@
+networks:
+  geonorge-network:
+    external: true
+
 services:
   backend:
+    networks:
+      - geonorge-network
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -16,6 +22,8 @@ services:
           action: rebuild
 
   frontend:
+    networks:
+      - geonorge-network
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -38,6 +46,8 @@ services:
       - "host.docker.internal:host-gateway"
 
   ztoperator:
+    networks:
+      - geonorge-network
     image: ghcr.io/kartverket/skip-tilgangsstyring-local:2026-11-13-123700
     restart: unless-stopped
     ports:
