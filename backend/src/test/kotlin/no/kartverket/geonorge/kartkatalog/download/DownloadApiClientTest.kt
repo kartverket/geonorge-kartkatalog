@@ -228,6 +228,53 @@ class DownloadApiClientTest {
             }
         }
 
+    @Test
+    fun `order throws DownloadAccessDeniedException when the user lacks the required role`() =
+        runBlocking<Unit> {
+            val httpClient =
+                mockHttpClient(
+                    content =
+                        "Order contains restricted datasets, but user does not have required role " +
+                            "for 11111111-1111-1111-1111-111111111111",
+                    status = HttpStatusCode.InternalServerError,
+                )
+
+            try {
+                assertFailsWith<DownloadAccessDeniedException> {
+                    DownloadApiClient(httpClient).order(
+                        "https://nedlasting.geonorge.no/api/order",
+                        DownloadApiOrderRequest(orderLines = emptyList()),
+                    )
+                }
+            } finally {
+                httpClient.close()
+            }
+        }
+
+    @Test
+    fun `order throws a generic DownloadApiException for other server errors`() =
+        runBlocking {
+            val httpClient =
+                mockHttpClient(
+                    content = "Something went wrong",
+                    status = HttpStatusCode.InternalServerError,
+                )
+
+            try {
+                val exception =
+                    assertFailsWith<DownloadApiException> {
+                        DownloadApiClient(httpClient).order(
+                            "https://nedlasting.geonorge.no/api/order",
+                            DownloadApiOrderRequest(orderLines = emptyList()),
+                        )
+                    }
+
+                assertFalse(exception is DownloadAccessDeniedException)
+            } finally {
+                httpClient.close()
+            }
+        }
+
     private fun mockHttpClient(
         content: String,
         status: HttpStatusCode = HttpStatusCode.OK,

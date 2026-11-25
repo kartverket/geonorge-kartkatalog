@@ -315,6 +315,35 @@ class DistributionsRoutesTest {
         }
 
     @Test
+    fun `software uses aggregateDataSetIdentifier for related distributions`() =
+        testApp(
+            recordXml
+                .replace("codeListValue=\"service\"", "codeListValue=\"software\"")
+                .replace(
+                    "</srv:SV_ServiceIdentification>",
+                    """
+                    <gmd:aggregationInfo>
+                        <gmd:MD_AggregateInformation>
+                            <gmd:aggregateDataSetIdentifier>
+                                <gmd:MD_Identifier>
+                                    <gmd:code><gco:CharacterString>related-uuid</gco:CharacterString></gmd:code>
+                                </gmd:MD_Identifier>
+                            </gmd:aggregateDataSetIdentifier>
+                        </gmd:MD_AggregateInformation>
+                    </gmd:aggregationInfo>
+                    </srv:SV_ServiceIdentification>
+                    """.trimIndent(),
+                ),
+            relatedXml = recordXml.replace(uuid, "related-uuid"),
+        ) {
+            val distributions = Json.parseToJsonElement(client.get("/api/distributions/$uuid").bodyAsText()).jsonArray
+            assertEquals(
+                listOf(uuid, "related-uuid"),
+                distributions.map { it.jsonObject["Uuid"]?.jsonPrimitive?.content },
+            )
+        }
+
+    @Test
     fun `includes applications from solr for datasets`() =
         testApp(recordXml.replace("codeListValue=\"service\"", "codeListValue=\"dataset\"")) {
             val distributions =

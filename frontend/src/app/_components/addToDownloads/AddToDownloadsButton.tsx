@@ -1,7 +1,7 @@
 "use client";
 
 import type { ButtonProps } from "@kv-designsystem/react";
-import { Button } from "@kv-designsystem/react";
+import { Button, Tooltip } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
 import type { MouseEvent } from "react";
 import {
@@ -55,6 +55,13 @@ export default function AddToDownloadsButton({
     useAreAllItemsSelectedForDownload(addableItems);
   const isRemoving = areAllValidItemsSelected || areAllAddableItemsSelected;
 
+  // Begrensede datasett krever innlogging. Knappen får aria-disabled i stedet for
+  // disabled, så den fortsatt kan få hover og fokus og vise forklaringen.
+  const needsLogin =
+    !isRemoving &&
+    addableItems.length === 0 &&
+    (authState.status === "anonymous" || authState.status === "error");
+
   if (validItems.length === 0) return null;
 
   const resolvedTrackingItem = trackingItem ?? validItems[0];
@@ -64,6 +71,8 @@ export default function AddToDownloadsButton({
       event.preventDefault();
       event.stopPropagation();
     }
+
+    if (needsLogin) return;
 
     trackClick(
       isRemoving
@@ -89,12 +98,13 @@ export default function AddToDownloadsButton({
     addItemsToDownloads(addableItems);
   };
 
-  return (
+  const button = (
     <Button
       variant={variant ?? (isRemoving ? "secondary" : "primary")}
       data-size={size}
       className={className}
-      disabled={!isRemoving && addableItems.length === 0}
+      disabled={!needsLogin && !isRemoving && addableItems.length === 0}
+      aria-disabled={needsLogin || undefined}
       onClick={handleToggleDownloads}
     >
       {isRemoving ? (
@@ -109,5 +119,15 @@ export default function AddToDownloadsButton({
         </>
       )}
     </Button>
+  );
+  if (!needsLogin) return button;
+
+  return (
+    <Tooltip
+      content="Logg inn for å legge til begrensede datasett"
+      placement="top"
+    >
+      {button}
+    </Tooltip>
   );
 }

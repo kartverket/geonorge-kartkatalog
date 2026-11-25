@@ -42,7 +42,7 @@ class DistributionsService(
                     log.warn("Failed to fetch related distributions from Solr for {}", uuid, e)
                     null
                 }
-            val relatedUuids = relatedUuids(solrDoc, record.hierarchyLevel, uuid)
+            val relatedUuids = relatedUuids(solrDoc, record, uuid)
             val related =
                 relatedUuids
                     .map { relatedUuid ->
@@ -83,14 +83,16 @@ class DistributionsService(
 
     private fun relatedUuids(
         solrDoc: SolrDocument?,
-        hierarchyLevel: String,
+        record: MetadataRecord,
         uuid: String,
     ): List<String> {
         fun refs(values: List<String>?) = solrClient.parseDatasetServices(values).map { it.uuid }
         return when {
+            // Previously read from the Solr field `applicationdataset`, which only exists in the solr `applications`
+            // core and not in `metadata_all`; the GeoNetwork record's aggregateDataSetIdentifiers are used instead.
+            record.hierarchyLevel == "software" -> record.aggregateDataSetIdentifiers
             solrDoc == null -> emptyList()
-            hierarchyLevel == "service" -> refs(solrDoc.servicedataset) + refs(solrDoc.servicelayers)
-            hierarchyLevel == "software" -> refs(solrDoc.applicationdataset)
+            record.hierarchyLevel == "service" -> refs(solrDoc.servicedataset) + refs(solrDoc.servicelayers)
             else -> refs(solrDoc.datasetservice)
         }.filter { it != uuid }.distinct()
     }

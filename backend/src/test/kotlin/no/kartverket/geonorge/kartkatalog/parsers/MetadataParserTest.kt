@@ -292,6 +292,60 @@ class MetadataParserTest {
     }
 
     @Test
+    fun `parses aggregate dataset identifiers regardless of association type`() {
+        fun aggregationInfo(
+            code: String,
+            associationType: String,
+        ) = """
+            <gmd:aggregationInfo>
+                <gmd:MD_AggregateInformation>
+                    <gmd:aggregateDataSetIdentifier>
+                        <gmd:MD_Identifier>
+                            <gmd:code>$code</gmd:code>
+                        </gmd:MD_Identifier>
+                    </gmd:aggregateDataSetIdentifier>
+                    <gmd:associationType>
+                        <gmd:DS_AssociationTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml" codeListValue="$associationType"/>
+                    </gmd:associationType>
+                </gmd:MD_AggregateInformation>
+            </gmd:aggregationInfo>
+            """.trimIndent()
+
+        val xml =
+            javaClass.classLoader
+                .getResourceAsStream("response.xml")!!
+                .readBytes()
+                .toString(Charsets.UTF_8)
+                .replace(
+                    "</srv:SV_ServiceIdentification>",
+                    listOf(
+                        aggregationInfo(
+                            "<gco:CharacterString> f297e948-8a34-4e6c-9740-54b3a657f8d5 </gco:CharacterString>",
+                            "crossReference",
+                        ),
+                        aggregationInfo(
+                            "<gmx:Anchor xlink:href=\"https://example.com/dddbb667-1303-4ac5-8640-7ec04c0e3918\">" +
+                                "dddbb667-1303-4ac5-8640-7ec04c0e3918</gmx:Anchor>",
+                            "largerWorkCitation",
+                        ),
+                        aggregationInfo(
+                            "<gco:CharacterString>f297e948-8a34-4e6c-9740-54b3a657f8d5</gco:CharacterString>",
+                            "crossReference",
+                        ),
+                        aggregationInfo("<gco:CharacterString> </gco:CharacterString>", "crossReference"),
+                    ).joinToString("\n") + "</srv:SV_ServiceIdentification>",
+                )
+
+        val parsed = MetadataParser.parse(xml.byteInputStream())
+
+        assertEquals(
+            listOf("f297e948-8a34-4e6c-9740-54b3a657f8d5", "dddbb667-1303-4ac5-8640-7ec04c0e3918"),
+            parsed.aggregateDataSetIdentifiers,
+        )
+        assertTrue(record.aggregateDataSetIdentifiers.isEmpty())
+    }
+
+    @Test
     fun `parses empty quantitation specifications`() {
         assertTrue(record.dataQualityMeasures.isEmpty())
         val measure = record.dataQualityMeasures.find { it.nameOfMeasure?.contains("FAIR", ignoreCase = true) == true }
