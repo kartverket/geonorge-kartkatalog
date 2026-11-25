@@ -170,9 +170,11 @@ class LinkedDistributionsService(
             val datasetUuids = record.aggregateDataSetIdentifiers.filter { it != uuid }
             val solrDocsByUuid = solrClient.getMetadataByUuids(datasetUuids).associateBy { it.uuid }
 
+            // The protocol used to come from the `applicationdataset` entry; the dataset's own Solr document
+            // carries the same distribution protocol, so the card URL is resolved the same way as before.
             val relatedDatasetsDeferred =
                 datasetUuids.map {
-                    async { fetchLinkedDistribution(it, null, solrDocsByUuid, preferDownloadProtocol = true) }
+                    async { fetchLinkedDistribution(it, solrDocsByUuid[it]?.distributionProtocol, solrDocsByUuid) }
                 }
 
             LinkedDistributions(relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull())
