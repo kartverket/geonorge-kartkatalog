@@ -8,7 +8,6 @@ import {
   Input,
   Label,
   Paragraph,
-  Tag,
   ValidationMessage,
 } from "@kv-designsystem/react";
 import { ArrowLeftIcon, ArrowRightIcon, TrashIcon } from "@navikt/aksel-icons";
@@ -38,6 +37,7 @@ import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
 import { type DownloadStep, DownloadStepper } from "./DownloadStepper";
 import { OverwriteConfirmDialog } from "./OverwriteConfirmDialog";
+import { RequiredTag } from "./RequiredTag";
 import { SingleSuggestion } from "./SingleSuggestion";
 import { useDownloadCards } from "./useDownloadCards";
 import { useDownloadOptionsForCards } from "./useDownloadOptionsForCards";
@@ -395,16 +395,9 @@ export function DownloadPageContentClient({
                 <form onSubmit={handleSubmit}>
                   <div className={styles.userInputs}>
                     <Field>
-                      <Label className={styles.labelRow}>
+                      <Label>
                         Brukergruppe
-                        <Tag
-                          data-color="warning"
-                          className={
-                            usageGroup !== "" ? styles.hiddenTag : undefined
-                          }
-                        >
-                          Må fylles ut
-                        </Tag>
+                        <RequiredTag hidden={usageGroup !== ""} />
                       </Label>
                       <SingleSuggestion
                         selectedValue={usageGroup || null}
@@ -420,18 +413,9 @@ export function DownloadPageContentClient({
                       />
                     </Field>
                     <Field>
-                      <Label className={styles.labelRow}>
+                      <Label>
                         Formål
-                        <Tag
-                          data-color="warning"
-                          className={
-                            usagePurpose.length > 0
-                              ? styles.hiddenTag
-                              : undefined
-                          }
-                        >
-                          Må fylles ut
-                        </Tag>
+                        <RequiredTag hidden={usagePurpose.length > 0} />
                       </Label>
                       <MultiSuggestion
                         selectedValues={usagePurpose}
@@ -451,16 +435,9 @@ export function DownloadPageContentClient({
                   {requiresEmail ? (
                     <div className={styles.userInputs}>
                       <Field>
-                        <Label className={styles.labelRow}>
+                        <Label>
                           E-post
-                          <Tag
-                            data-color="warning"
-                            className={
-                              isValidEmail ? styles.hiddenTag : undefined
-                            }
-                          >
-                            Må fylles ut
-                          </Tag>
+                          <RequiredTag hidden={isValidEmail} />
                         </Label>
                         <Field.Description>
                           {cards.length > 1

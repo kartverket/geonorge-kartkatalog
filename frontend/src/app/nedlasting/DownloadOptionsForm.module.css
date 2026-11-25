@@ -32,10 +32,6 @@
   min-width: 12rem;
 }
 
-.hiddenTag {
-  visibility: hidden;
-}
-
 .customAreaSummary {
   display: flex;
   align-items: center;
