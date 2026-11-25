@@ -393,9 +393,7 @@ export function DownloadPageContentClient({
                     <Field>
                       <Label>
                         Brukergruppe
-                        <RequiredTag hidden={usageGroup !== ""}>
-                          Må fylles ut
-                        </RequiredTag>
+                        <RequiredTag hidden={usageGroup !== ""} />
                       </Label>
                       <SingleSuggestion
                         selectedValue={usageGroup || null}
@@ -413,9 +411,7 @@ export function DownloadPageContentClient({
                     <Field>
                       <Label>
                         Formål
-                        <RequiredTag hidden={usagePurpose.length > 0}>
-                          Må fylles ut
-                        </RequiredTag>
+                        <RequiredTag hidden={usagePurpose.length > 0} />
                       </Label>
                       <MultiSuggestion
                         selectedValues={usagePurpose}
@@ -437,9 +433,7 @@ export function DownloadPageContentClient({
                       <Field>
                         <Label>
                           E-post
-                          <RequiredTag hidden={isValidEmail}>
-                            Må fylles ut
-                          </RequiredTag>
+                          <RequiredTag hidden={isValidEmail} />
                         </Label>
                         <Field.Description>
                           {cards.length > 1

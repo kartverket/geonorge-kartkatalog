@@ -86,7 +86,7 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Geografisk område
-            <RequiredTag hidden={hasArea}>Påkrevd</RequiredTag>
+            <RequiredTag hidden={hasArea} />
           </Label>
           {block.polygon ? (
             <div className={styles.customAreaSummary}>
@@ -155,9 +155,7 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Projeksjon
-            <RequiredTag hidden={block.projectionCodes.length > 0}>
-              Påkrevd
-            </RequiredTag>
+            <RequiredTag hidden={block.projectionCodes.length > 0} />
           </Label>
           <MultiSuggestion
             selectedValues={block.projectionCodes}
@@ -175,9 +173,7 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Format
-            <RequiredTag hidden={block.formatNames.length > 0}>
-              Påkrevd
-            </RequiredTag>
+            <RequiredTag hidden={block.formatNames.length > 0} />
           </Label>
           <MultiSuggestion
             selectedValues={block.formatNames}
