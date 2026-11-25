@@ -155,6 +155,10 @@ class DownloadApiClient(
 
             if (!response.status.isSuccess()) {
                 val errorBody = runCatching { response.bodyAsText() }.getOrNull()
+                // Manglende rolle er ikke en feil hos oss; DownloadService logger den som info
+                if (errorBody?.contains(MISSING_ROLE_MESSAGE) == true) {
+                    throw DownloadAccessDeniedException(errorBody)
+                }
                 log.warn(
                     "Nedlasting order request to {} failed with status: {}, body: {}",
                     requestUrl,
@@ -221,3 +225,12 @@ open class DownloadApiException(
 
 class DownloadTokenDestinationNotAllowedException :
     DownloadApiException("GeoID access token cannot be sent to a non-allowlisted download client")
+
+// Nedlastings-API-et (v3) svarer med 500 og en tekst som inneholder dette
+// når brukeren mangler rolle for et begrenset datasett
+// TODO: sjekk med v4 at dette fortsatt er oppførsel
+private const val MISSING_ROLE_MESSAGE = "does not have required role"
+
+class DownloadAccessDeniedException(
+    message: String,
+) : DownloadApiException(message)
