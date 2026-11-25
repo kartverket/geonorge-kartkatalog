@@ -196,6 +196,7 @@ class DownloadServiceTest {
             assertEquals(2, result.results.size)
             assertEquals(setOf(null, "Bearer valid-token"), authorizationHeaders.toSet())
         }
+
     @Test
     fun `gives an access message to a denied group without losing the successful group`() =
         runTest {
