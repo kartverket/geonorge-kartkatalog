@@ -94,7 +94,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const localSession = AuthSessionSchema.parse(
           await localResponse.json(),
         );
-        console.log("localSession", localSession);
         if (localSession.authenticated) {
           setState({
             status: "authenticated",

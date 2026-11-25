@@ -386,7 +386,7 @@ export async function orderDownload(
       "Content-Type": "application/json",
       Origin: KATALOG_ORIGIN,
       ...(cookie ? { Cookie: cookie } : {}),
-      ...(authorization ? { Authorization: authorization } : {}),
+      ...(authorization ? { Authorization: `Bearer ${authorization}` } : {}),
     },
     body: JSON.stringify(request),
   });
