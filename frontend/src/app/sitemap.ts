@@ -2,14 +2,9 @@ import type { MetadataRoute } from "next";
 import { cacheLife } from "next/cache";
 import { connection } from "next/server";
 import { getSearchResults } from "@/app/api";
-import { basePath } from "@/lib/basePath";
+import { siteUrl } from "@/lib/siteUrl";
 
-const SITE_ORIGIN = "https://kartkatalog.geonorge.no/beta";
 const PAGE_SIZE = 1000;
-
-function siteUrl(path = "/"): string {
-  return new URL(`${basePath}${path}`, SITE_ORIGIN).toString();
-}
 
 async function getMetadataUrls(): Promise<MetadataRoute.Sitemap> {
   "use cache";
