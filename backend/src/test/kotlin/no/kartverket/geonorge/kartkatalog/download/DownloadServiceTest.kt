@@ -196,4 +196,76 @@ class DownloadServiceTest {
             assertEquals(2, result.results.size)
             assertEquals(setOf(null, "Bearer valid-token"), authorizationHeaders.toSet())
         }
+    @Test
+    fun `gives an access message to a denied group without losing the successful group`() =
+        runTest {
+            val client =
+                HttpClient(
+                    MockEngine { request ->
+                        val isCapabilities = request.url.encodedPath.startsWith("/api/capabilities")
+                        val restricted =
+                            request.url.encodedPath.endsWith("/11111111-1111-1111-1111-111111111111")
+                        val isRestrictedOrder =
+                            !isCapabilities && request.headers[HttpHeaders.Authorization] != null
+                        respond(
+                            content =
+                                when {
+                                    isCapabilities ->
+                                        """
+                                        {
+                                          ${if (restricted) "\"accessConstraintRequiredRole\": \"nd.metadata\"," else ""}
+                                          "supportsDownloadBundling": true,
+                                          "_links": [
+                                            {
+                                              "href": "https://nedlasting.geonorge.no/api/order",
+                                              "rel": "http://rel.geonorge.no/download/order"
+                                            }
+                                          ]
+                                        }
+                                        """.trimIndent()
+                                    isRestrictedOrder ->
+                                        "Order contains restricted datasets, but user does not have required role " +
+                                            "for 11111111-1111-1111-1111-111111111111"
+                                    else -> """{"files": [], "_links": []}"""
+                                },
+                            status =
+                                if (isRestrictedOrder) HttpStatusCode.InternalServerError else HttpStatusCode.OK,
+                            headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                        )
+                    },
+                ) {
+                    install(ContentNegotiation) { json() }
+                }
+            val service =
+                DownloadService(
+                    DownloadApiClient(
+                        client,
+                        DownloadTokenAllowlist.fromCommaSeparated("https://nedlasting.geonorge.no"),
+                    ),
+                    DownloadInsightGroupsResolver(RegisterClient(client, "https://register.geonorge.no")),
+                )
+
+            val result =
+                service.order(
+                    DownloadOrderRequest(
+                        items =
+                            listOf(
+                                DownloadOrderItem(
+                                    "22222222-2222-2222-2222-222222222222",
+                                    "https://nedlasting.geonorge.no/api/capabilities",
+                                ),
+                                DownloadOrderItem(
+                                    "11111111-1111-1111-1111-111111111111",
+                                    "https://nedlasting.geonorge.no/api/capabilities",
+                                ),
+                            ),
+                    ),
+                    geoIdAccessToken = "valid-token",
+                )
+
+            val failure = result.results.filterIsInstance<DownloadOrderGroupResult.Failure>().single()
+            assertEquals(listOf("11111111-1111-1111-1111-111111111111"), failure.metadataUuids)
+            assertEquals("Du mangler tilgang til ett eller flere av disse datasettene.", failure.message)
+            assertEquals(1, result.results.filterIsInstance<DownloadOrderGroupResult.Success>().size)
+        }
 }
