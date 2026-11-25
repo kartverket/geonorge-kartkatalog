@@ -85,12 +85,7 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Geografisk område
-            <Tag
-              data-color="warning"
-              className={hasArea ? styles.hiddenTag : undefined}
-            >
-              Påkrevd
-            </Tag>
+            <RequiredTag hidden={hasArea} />
           </Label>
           {block.polygon ? (
             <div className={styles.customAreaSummary}>
@@ -159,14 +154,7 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Projeksjon
-            <Tag
-              data-color="warning"
-              className={
-                block.projectionCodes.length > 0 ? styles.hiddenTag : undefined
-              }
-            >
-              Påkrevd
-            </Tag>
+            <RequiredTag hidden={block.projectionCodes.length > 0} />
           </Label>
           <MultiSuggestion
             selectedValues={block.projectionCodes}
@@ -184,14 +172,7 @@ export function AreaBlockFields({
         <Field className={styles.selectionField}>
           <Label>
             Format
-            <Tag
-              data-color="warning"
-              className={
-                block.formatNames.length > 0 ? styles.hiddenTag : undefined
-              }
-            >
-              Påkrevd
-            </Tag>
+            <RequiredTag hidden={block.formatNames.length > 0} />
           </Label>
           <MultiSuggestion
             selectedValues={block.formatNames}
@@ -229,5 +210,16 @@ export function AreaBlockFields({
         />
       ) : null}
     </div>
+  );
+}
+
+function RequiredTag({ hidden }: { hidden: boolean }) {
+  return (
+    <Tag
+      data-color="warning"
+      className={`${styles.requiredTag} ${hidden ? styles.hiddenTag : ""}`}
+    >
+      Påkrevd
+    </Tag>
   );
 }
