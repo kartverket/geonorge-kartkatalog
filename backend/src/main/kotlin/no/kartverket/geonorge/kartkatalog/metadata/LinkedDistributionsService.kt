@@ -18,19 +18,16 @@ class LinkedDistributionsService(
     private val solrClient: SolrClient,
     private val recordSource: MetadataRecordSource,
 ) {
-    suspend fun getLinkedDistributions(uuid: String): LinkedDistributions =
-        coroutineScope {
-            val solrDoc =
-                solrClient
-                    .getMetadataByUuid(uuid) ?: return@coroutineScope LinkedDistributions()
+    suspend fun getLinkedDistributions(uuid: String): LinkedDistributions {
+        val solrDoc = solrClient.getMetadataByUuid(uuid) ?: return LinkedDistributions()
 
-            when (solrDoc.type) {
-                "service" -> getServiceLinkedDistributions(solrDoc, uuid)
-                "servicelayer" -> getServiceLayerLinkedDistributions(solrDoc, uuid)
-                "software" -> getApplicationLinkedDistributions(uuid)
-                else -> getDatasetLinkedDistributions(solrDoc, uuid)
-            }
+        return when (solrDoc.type) {
+            "service" -> getServiceLinkedDistributions(solrDoc, uuid)
+            "servicelayer" -> getServiceLayerLinkedDistributions(solrDoc, uuid)
+            "software" -> getApplicationLinkedDistributions(uuid)
+            else -> getDatasetLinkedDistributions(solrDoc, uuid)
         }
+    }
 
     private suspend fun getDatasetLinkedDistributions(
         solrDoc: SolrDocument,
@@ -64,10 +61,13 @@ class LinkedDistributionsService(
                     .filter { it.uuid != uuid }
 
             val relatedUuids =
-                (
-                    applicationDocs.map { it.uuid } + viewRefs.map { it.uuid } + downloadRefs.map { it.uuid } +
-                        seriesMemberRefs.map { it.uuid } + parentSeriesRefs.map { it.uuid }
-                )
+                buildList {
+                    applicationDocs.mapTo(this) { it.uuid }
+                    viewRefs.mapTo(this) { it.uuid }
+                    downloadRefs.mapTo(this) { it.uuid }
+                    seriesMemberRefs.mapTo(this) { it.uuid }
+                    parentSeriesRefs.mapTo(this) { it.uuid }
+                }
             val solrDocsByUuid = solrClient.getMetadataByUuids(relatedUuids).associateBy { it.uuid }
 
             val applicationsDeferred =
@@ -105,7 +105,7 @@ class LinkedDistributionsService(
                     }
                 }
 
-            return@coroutineScope LinkedDistributions(
+            LinkedDistributions(
                 applications = applicationsDeferred.awaitAll().filterNotNull(),
                 viewServices = viewServicesDeferred.awaitAll().filterNotNull(),
                 downloadServices = downloadServicesDeferred.awaitAll().filterNotNull(),
@@ -162,9 +162,10 @@ class LinkedDistributionsService(
     // Related datasets were previously read from the Solr field `applicationdataset`, but that field only exists
     // in the `applications` core, and the lookup now goes through `metadata_all`. They are therefore read from
     // gmd:aggregationInfo/aggregateDataSetIdentifier in the GeoNetwork record instead.
-    private suspend fun getApplicationLinkedDistributions(uuid: String): LinkedDistributions =
-        coroutineScope {
-            val record = recordSource.getRecordByUuid(uuid) ?: return@coroutineScope LinkedDistributions()
+    private suspend fun getApplicationLinkedDistributions(uuid: String): LinkedDistributions {
+        val record = recordSource.getRecordByUuid(uuid) ?: return LinkedDistributions()
+
+        return coroutineScope {
             val datasetUuids = record.aggregateDataSetIdentifiers.filter { it != uuid }
             val solrDocsByUuid = solrClient.getMetadataByUuids(datasetUuids).associateBy { it.uuid }
 
@@ -177,6 +178,7 @@ class LinkedDistributionsService(
 
             LinkedDistributions(relatedDatasets = relatedDatasetsDeferred.awaitAll().filterNotNull())
         }
+    }
 
     private suspend fun fetchLinkedDistribution(
         relatedUuid: String,
@@ -185,11 +187,10 @@ class LinkedDistributionsService(
         preferDownloadProtocol: Boolean = false,
     ): LinkedDistribution? {
         val record = recordSource.getRecordByUuid(relatedUuid) ?: return null
-        return record.toLinkedDistribution(relatedUuid, protocol, solrDocsByUuid[relatedUuid], preferDownloadProtocol)
+        return record.toLinkedDistribution(protocol, solrDocsByUuid[relatedUuid], preferDownloadProtocol)
     }
 
-    private suspend fun MetadataRecord.toLinkedDistribution(
-        uuid: String,
+    private fun MetadataRecord.toLinkedDistribution(
         protocol: String?,
         solrDoc: SolrDocument?,
         preferDownloadProtocol: Boolean = false,
@@ -232,10 +233,10 @@ class LinkedDistributionsService(
         )
     }
 
-    private fun List<OnlineResource>.findUrlForProtocol(protocol: String?): String? {
-        if (isEmpty()) return null
-        if (protocol.isNullOrBlank()) return singleOrNull()?.url
-
-        return firstOrNull { it.protocol.equals(protocol, ignoreCase = true) }?.url
-    }
+    private fun List<OnlineResource>.findUrlForProtocol(protocol: String?): String? =
+        if (protocol.isNullOrBlank()) {
+            singleOrNull()?.url
+        } else {
+            firstOrNull { it.protocol.equals(protocol, ignoreCase = true) }?.url
+        }
 }

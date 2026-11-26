@@ -3,6 +3,7 @@ package no.kartverket.geonorge.kartkatalog.routes
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.toByteArray
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get
@@ -160,7 +161,7 @@ class MetadataRoutesTest {
 
                         request.url.encodedPath.endsWith("/srv/nor/csw") -> {
                             respond(
-                                content = xml,
+                                content = xml.withFileIdentifierFrom(request.body.toByteArray().decodeToString()),
                                 status = HttpStatusCode.OK,
                                 headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Xml.toString()),
                             )
@@ -542,5 +543,14 @@ class MetadataRoutesTest {
             assertEquals(HttpStatusCode.BadGateway, response.status)
             assertContains(response.bodyAsText(), "Upstream Solr error")
         }
+    }
+
+    // GeoNetwork returns the record that was asked for, so the fixture's fileIdentifier follows the requested csw:Id.
+    private fun String.withFileIdentifierFrom(cswRequest: String): String {
+        val requestedUuid = Regex("<csw:Id>([^<]*)</csw:Id>").find(cswRequest)?.groupValues?.get(1) ?: return this
+        return replaceFirst(
+            Regex("(<gmd:fileIdentifier>\\s*<gco:CharacterString>)[^<]*"),
+            "$1$requestedUuid",
+        )
     }
 }
