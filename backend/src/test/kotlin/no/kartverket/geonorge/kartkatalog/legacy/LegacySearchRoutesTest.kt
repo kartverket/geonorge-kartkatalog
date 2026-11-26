@@ -548,7 +548,7 @@ class LegacySearchRoutesTest {
     }
 
     @Test
-    fun `datasets-simple queries the metadata core with the fixed legacy query`() =
+    fun `datasets-simple queries metadata_all with the fixed legacy query`() =
         testApplication {
             simpleApp(upstream(solrBody = solrResponse.replace("\"typename\"", "\"x\"")))
 
@@ -573,7 +573,7 @@ class LegacySearchRoutesTest {
                     .getValue("TypeTranslated")
                     .jsonPrimitive.content,
             )
-            assertTrue("/solr/metadata/select" in paths)
+            assertTrue("/solr/metadata_all/select" in paths)
             val form = searchForms.single()
             assertContains(form, "ISO19115")
             assertContains(form, "rows=[1000]")

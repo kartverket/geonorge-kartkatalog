@@ -6,7 +6,9 @@ import kotlinx.serialization.json.jsonPrimitive
 import no.kartverket.geonorge.kartkatalog.distribution.MapCapabilityFields
 import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrCore
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrQueries
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
 import no.kartverket.geonorge.kartkatalog.metrics.countEvent
 import org.slf4j.LoggerFactory
@@ -82,16 +84,20 @@ class SearchEngine(
         var engine = "solr"
         val response =
             if (hybridQuery == null) {
-                solrClient.searchMetadataAll(query, english)
+                solrClient.searchGivenSolrCore(query, SolrCore.metadataAll(english))
             } else {
                 try {
-                    solrClient.searchMetadataAll(hybridQuery, english).also { engine = "hybrid" }
+                    solrClient
+                        .searchGivenSolrCore(
+                            hybridQuery,
+                            SolrCore.metadataAll(english),
+                        ).also { engine = "hybrid" }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
                     log.warn("Vector search failed, falling back to plain Solr search", e)
                     recordVectorFallback("solr_query_failed")
-                    solrClient.searchMetadataAll(query, english)
+                    solrClient.searchGivenSolrCore(query, SolrCore.metadataAll(english))
                 }
             }
         countEvent("search.requests", "Searches by engine used", "engine" to engine)
@@ -106,7 +112,10 @@ class SearchEngine(
         return SearchHits(response.response.numFound, response.response.docs.map { it.toSearchHit() }, facets)
     }
 
-    internal suspend fun searchGivenSolrCore(query: MetadataSolrQuery, core: String): SearchHits {
+    internal suspend fun searchGivenSolrCore(
+        query: MetadataSolrQuery,
+        core: SolrCore,
+    ): SearchHits {
         val response = solrClient.searchGivenSolrCore(query, core)
         val facets =
             response.facetCounts
@@ -146,7 +155,12 @@ class SearchEngine(
     internal suspend fun findUuidByDatasetName(
         datasetName: String,
         excludeUuid: String,
-    ): String? = solrClient.findUuidByDatasetName(datasetName, excludeUuid)
+    ): String? =
+        solrClient
+            .searchGivenSolrCore(SolrQueries.otherMetadataWithDatasetName(datasetName, excludeUuid), SolrCore.METADATA)
+            .response.docs
+            .firstOrNull()
+            ?.uuid
 
     suspend fun getMetadataByUuids(uuids: List<String>): List<SolrDocument> = solrClient.getMetadataByUuids(uuids)
 

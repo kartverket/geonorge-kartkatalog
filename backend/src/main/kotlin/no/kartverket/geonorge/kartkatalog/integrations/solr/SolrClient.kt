@@ -15,80 +15,23 @@ class SolrClient(
     private val httpClient: HttpClient,
     private val baseUrl: String,
 ) {
-    private val metadataPath = "solr/metadata/select"
-    private val metadataAllPath = "solr/metadata_all/select"
-    private val metadataAllEnglishPath = "solr/metadata_all_en/select"
-    private val applicationPath = "solr/applications/select"
-
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun getMetadataByUuid(uuid: String): SolrDocument? {
-        val query = buildMetadataSolrQuery(uuid)
-        return querySolr(metadataAllPath, query).response.docs.firstOrNull()
-    }
+    suspend fun getMetadataByUuid(uuid: String): SolrDocument? =
+        searchGivenSolrCore(SolrQueries.metadataByUuid(uuid), SolrCore.METADATA_ALL).response.docs.firstOrNull()
 
     suspend fun getMetadataByUuids(uuids: List<String>): List<SolrDocument> {
         val distinctUuids = uuids.distinct()
         if (distinctUuids.isEmpty()) return emptyList()
 
-        return querySolr(metadataAllPath, buildMetadataSolrQuery(distinctUuids))
-            .response.docs
+        return searchGivenSolrCore(SolrQueries.metadataByUuids(distinctUuids), SolrCore.METADATA_ALL).response.docs
     }
 
-    /**
-     * Feltet applicationdataset settes aldri i metadata_all (det finnes, men er alltid null), så `searchApplicationsForDataset` må foreløpig fortsette å bruke
-     * application-kjernen. Brukes for å koble applikasjoner til datasett (eks for visning av koblede applikasjoner på en produktside for datasett)
-     */
-    suspend fun searchApplicationsForDataset(uuid: String): List<SolrDocument> {
-        val query =
-            MetadataSolrQuery(
-                q = "applicationdataset:${escapeSolrSpecialChars(uuid)}*",
-                fl = "uuid,title,distribution_protocol",
-                rows = 100,
-                wt = "json",
-            )
-
-        return querySolr(applicationPath, query).response.docs
-    }
-
-    /**
-     * Søker i metadata-kjernen (som angivelig bare holder datasett og -serier). Den brukes for å svare på legacy-endepunktene
-     * "/api/datasets-namespace" og "/api/datasets-simple", hvorav førstnevnte trenger feltet resourceReferenceCodeName (se funksjonsbeskrivelsen under) og
-     * sistnevnte
-     */
-    suspend fun searchGivenSolrCore(query: MetadataSolrQuery, core:String): SolrResponse = querySolr(core, query)
-
-    /**
-     * Feltet resourceReferenceCodeName settes aldri i metadata_all, så `findUuidByDatasetName` må foreløpig fortsette å bruke
-     * metadata-kjernen. Eneste bruk er for å få svar på /api/valid-dataset-name
-     */
-    suspend fun findUuidByDatasetName(
-        datasetName: String,
-        excludeUuid: String,
-    ): String? =
-        querySolr(
-            metadataPath,
-            MetadataSolrQuery(
-                q =
-                    "resourceReferenceCodeName:\"${escapeSolrSpecialChars(datasetName)}\"" +
-                        " AND -uuid:\"${escapeSolrSpecialChars(excludeUuid)}\"",
-                fl = "uuid",
-                rows = 1,
-            ),
-        ).response.docs
-            .firstOrNull()
-            ?.uuid
-
-    suspend fun searchMetadataAll(
+    /** Kjører [query] mot [core]. Faste spørringer finnes i [SolrQueries]. */
+    suspend fun searchGivenSolrCore(
         query: MetadataSolrQuery,
-        english: Boolean = false,
-    ): SolrResponse = querySolr(if (english) metadataAllEnglishPath else metadataAllPath, query)
-
-    private suspend fun querySolr(
-        path: String,
-        query: MetadataSolrQuery,
-    ): SolrResponse =
-        observeUpstream("solr", path.removePrefix("solr/").removeSuffix("/select")) { executeQuery(path, query) }
+        core: SolrCore,
+    ): SolrResponse = observeUpstream("solr", core.coreName) { executeQuery(core.path, query) }
 
     private suspend fun executeQuery(
         path: String,
@@ -115,22 +58,6 @@ class SolrClient(
             throw SolrException("Failed to parse Solr response from $path (q=${query.q})", e)
         }
     }
-
-    private fun buildMetadataSolrQuery(uuid: String): MetadataSolrQuery =
-        MetadataSolrQuery(
-            q = "uuid:\"${escapeSolrSpecialChars(uuid)}\"",
-            fl = METADATA_FL,
-            rows = 1,
-            wt = "json",
-        )
-
-    private fun buildMetadataSolrQuery(uuids: List<String>): MetadataSolrQuery =
-        MetadataSolrQuery(
-            q = "uuid:(${uuids.joinToString(" OR ") { escapeSolrSpecialChars(it) }})",
-            fl = METADATA_FL,
-            rows = uuids.size,
-            wt = "json",
-        )
 }
 
 data class MetadataSolrQuery(
@@ -164,19 +91,6 @@ data class MetadataSolrQuery(
             append("wt", wt)
         }
 }
-
-// The former `metadata` core only held datasets and dataset series.
-private const val DATASET_TYPE_FILTER = "type:(\"dataset\" OR \"series\")"
-
-private val METADATA_FL =
-    "uuid,title,abstract,purpose,type,theme,organization,organizations,organization_seo_lowercase,placegroups," +
-        "organizationgroup,topic_category,organization_logo_url,thumbnail_url,distribution_url," +
-        "distribution_protocol,distribution_name,product_page_url,date_published,date_updated,nationalinitiative," +
-        "score,ServiceDistributionProtocolForDataset,ServiceDistributionUrlForDataset," +
-        "ServiceDistributionNameForDataset,DistributionProtocols,legend_description_url,product_sheet_url," +
-        "product_specification_url,area,datasetservice,popularMetadata,bundle,servicelayers,accessconstraint," +
-        "servicedataset,otherconstraintsaccess,dataaccess,ServiceDistributionUuidForDataset," +
-        "ServiceDistributionAccessConstraint,parentidentifier,serie,seriedatasets,distributions"
 
 class SolrException(
     message: String,

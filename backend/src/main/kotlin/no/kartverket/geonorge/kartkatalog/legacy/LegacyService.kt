@@ -20,6 +20,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrCore
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.escapeSolrSpecialChars
@@ -130,7 +131,7 @@ class LegacyService(
         organization: String?,
         language: String,
     ): JsonObject {
-        val hits = engine.searchGivenSolrCore(SimpleMetadataQuery.build(organization), "solr/metadata_all/select")
+        val hits = engine.searchGivenSolrCore(SimpleMetadataQuery.build(organization), SolrCore.METADATA_ALL)
         return LegacySearchResponseMapper(language, kartkatalogUrl, loadAreas())
             .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
     }
@@ -509,7 +510,7 @@ class LegacyService(
                 start = start,
             )
         val results =
-            engine.searchGivenSolrCore(query, "solr/metadata/select").documents.map { doc ->
+            engine.searchGivenSolrCore(query, SolrCore.METADATA).documents.map { doc ->
                 buildJsonObject {
                     put("Uuid", doc.uuid)
                     putNullable("Title", doc.title)
