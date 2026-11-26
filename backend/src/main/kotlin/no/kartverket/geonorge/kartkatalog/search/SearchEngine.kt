@@ -84,20 +84,18 @@ class SearchEngine(
         var engine = "solr"
         val response =
             if (hybridQuery == null) {
-                solrClient.searchGivenSolrCore(query, SolrCore.metadataAll(english))
+                solrClient.search(SolrCore.metadataAll(english), query)
             } else {
                 try {
                     solrClient
-                        .searchGivenSolrCore(
-                            hybridQuery,
-                            SolrCore.metadataAll(english),
-                        ).also { engine = "hybrid" }
+                        .search(SolrCore.metadataAll(english), hybridQuery)
+                        .also { engine = "hybrid" }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
                     log.warn("Vector search failed, falling back to plain Solr search", e)
                     recordVectorFallback("solr_query_failed")
-                    solrClient.searchGivenSolrCore(query, SolrCore.metadataAll(english))
+                    solrClient.search(SolrCore.metadataAll(english), query)
                 }
             }
         countEvent("search.requests", "Searches by engine used", "engine" to engine)
@@ -139,7 +137,7 @@ class SearchEngine(
         excludeUuid: String,
     ): String? =
         solrClient
-            .searchGivenSolrCore(SolrQueries.otherMetadataWithDatasetName(datasetName, excludeUuid), SolrCore.METADATA)
+            .search(SolrCore.METADATA, SolrQueries.otherMetadataWithDatasetName(datasetName, excludeUuid))
             .response.docs
             .firstOrNull()
             ?.uuid

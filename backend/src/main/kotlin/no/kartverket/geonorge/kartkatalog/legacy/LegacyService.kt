@@ -134,10 +134,8 @@ class LegacyService(
     ): JsonObject {
         val hits =
             solrClient
-                .searchGivenSolrCore(
-                    SimpleMetadataQuery.build(organization),
-                    SolrCore.METADATA_ALL,
-                ).toSearchHits()
+                .search(SolrCore.METADATA_ALL, SimpleMetadataQuery.build(organization))
+                .toSearchHits()
         return LegacySearchResponseMapper(language, kartkatalogUrl, loadAreas())
             .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
     }
@@ -516,7 +514,7 @@ class LegacyService(
                 start = start,
             )
         val results =
-            solrClient.searchGivenSolrCore(query, SolrCore.METADATA).response.docs.map { doc ->
+            solrClient.search(SolrCore.METADATA, query).response.docs.map { doc ->
                 buildJsonObject {
                     put("Uuid", doc.uuid)
                     putNullable("Title", doc.title)

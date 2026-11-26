@@ -1,7 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.integrations.solr
 
 /**
- * Faste Solr-spørringer. Kjøres med [SolrClient.searchGivenSolrCore] mot kjernen som er angitt per spørring.
+ * Faste Solr-spørringer. Kjøres med [SolrClient.search] mot kjernen som er angitt per spørring.
  */
 object SolrQueries {
     fun metadataByUuid(uuid: String): MetadataSolrQuery =

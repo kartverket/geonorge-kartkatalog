@@ -18,23 +18,23 @@ class SolrClient(
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun getMetadataByUuid(uuid: String): SolrDocument? =
-        searchGivenSolrCore(SolrQueries.metadataByUuid(uuid), SolrCore.METADATA_ALL).response.docs.firstOrNull()
+        search(SolrCore.METADATA_ALL, SolrQueries.metadataByUuid(uuid)).response.docs.firstOrNull()
 
     suspend fun getMetadataByUuids(uuids: List<String>): List<SolrDocument> {
         val distinctUuids = uuids.distinct()
         if (distinctUuids.isEmpty()) return emptyList()
 
-        return searchGivenSolrCore(SolrQueries.metadataByUuids(distinctUuids), SolrCore.METADATA_ALL).response.docs
+        return search(SolrCore.METADATA_ALL, SolrQueries.metadataByUuids(distinctUuids)).response.docs
     }
 
     /** Applikasjoner som peker på datasettet [datasetUuid]. Bruker [SolrCore.APPLICATIONS], se [SolrQueries.applicationsForDataset]. */
     suspend fun searchApplicationsForDataset(datasetUuid: String): List<SolrDocument> =
-        searchGivenSolrCore(SolrQueries.applicationsForDataset(datasetUuid), SolrCore.APPLICATIONS).response.docs
+        search(SolrCore.APPLICATIONS, SolrQueries.applicationsForDataset(datasetUuid)).response.docs
 
     /** Kjører [query] mot [core]. Faste spørringer finnes i [SolrQueries]. */
-    suspend fun searchGivenSolrCore(
-        query: MetadataSolrQuery,
+    suspend fun search(
         core: SolrCore,
+        query: MetadataSolrQuery,
     ): SolrResponse = observeUpstream("solr", core.coreName) { executeQuery(core.path, query) }
 
     private suspend fun executeQuery(
