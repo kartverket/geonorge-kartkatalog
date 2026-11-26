@@ -106,8 +106,8 @@ class SearchEngine(
         return SearchHits(response.response.numFound, response.response.docs.map { it.toSearchHit() }, facets)
     }
 
-    internal suspend fun searchMetadataCore(query: MetadataSolrQuery): SearchHits {
-        val response = solrClient.searchMetadata(query)
+    internal suspend fun searchGivenSolrCore(query: MetadataSolrQuery, core: String): SearchHits {
+        val response = solrClient.searchGivenSolrCore(query, core)
         val facets =
             response.facetCounts
                 ?.facetFields

@@ -130,7 +130,7 @@ class LegacyService(
         organization: String?,
         language: String,
     ): JsonObject {
-        val hits = engine.searchMetadataCore(SimpleMetadataQuery.build(organization))
+        val hits = engine.searchGivenSolrCore(SimpleMetadataQuery.build(organization), "solr/metadata_all/select")
         return LegacySearchResponseMapper(language, kartkatalogUrl, loadAreas())
             .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
     }
@@ -509,7 +509,7 @@ class LegacyService(
                 start = start,
             )
         val results =
-            engine.searchMetadataCore(query).documents.map { doc ->
+            engine.searchGivenSolrCore(query, "solr/metadata/select").documents.map { doc ->
                 buildJsonObject {
                     put("Uuid", doc.uuid)
                     putNullable("Title", doc.title)

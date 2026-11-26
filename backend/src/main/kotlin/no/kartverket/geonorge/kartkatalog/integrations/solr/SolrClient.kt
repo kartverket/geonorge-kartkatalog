@@ -35,6 +35,10 @@ class SolrClient(
             .response.docs
     }
 
+    /**
+     * Feltet applicationdataset settes aldri i metadata_all (det finnes, men er alltid null), så `searchApplicationsForDataset` må foreløpig fortsette å bruke
+     * application-kjernen. Brukes for å koble applikasjoner til datasett (eks for visning av koblede applikasjoner på en produktside for datasett)
+     */
     suspend fun searchApplicationsForDataset(uuid: String): List<SolrDocument> {
         val query =
             MetadataSolrQuery(
@@ -47,8 +51,17 @@ class SolrClient(
         return querySolr(applicationPath, query).response.docs
     }
 
-    suspend fun searchMetadata(query: MetadataSolrQuery): SolrResponse = querySolr(metadataPath, query)
+    /**
+     * Søker i metadata-kjernen (som angivelig bare holder datasett og -serier). Den brukes for å svare på legacy-endepunktene
+     * "/api/datasets-namespace" og "/api/datasets-simple", hvorav førstnevnte trenger feltet resourceReferenceCodeName (se funksjonsbeskrivelsen under) og
+     * sistnevnte
+     */
+    suspend fun searchGivenSolrCore(query: MetadataSolrQuery, core:String): SolrResponse = querySolr(core, query)
 
+    /**
+     * Feltet resourceReferenceCodeName settes aldri i metadata_all, så `findUuidByDatasetName` må foreløpig fortsette å bruke
+     * metadata-kjernen. Eneste bruk er for å få svar på /api/valid-dataset-name
+     */
     suspend fun findUuidByDatasetName(
         datasetName: String,
         excludeUuid: String,
@@ -151,6 +164,9 @@ data class MetadataSolrQuery(
             append("wt", wt)
         }
 }
+
+// The former `metadata` core only held datasets and dataset series.
+private const val DATASET_TYPE_FILTER = "type:(\"dataset\" OR \"series\")"
 
 private val METADATA_FL =
     "uuid,title,abstract,purpose,type,theme,organization,organizations,organization_seo_lowercase,placegroups," +
