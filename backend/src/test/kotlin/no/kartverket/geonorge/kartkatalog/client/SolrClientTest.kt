@@ -14,10 +14,8 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrCore
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrQueries
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -96,10 +94,7 @@ class SolrClientTest {
             httpClient.use {
                 val client = SolrClient(httpClient, solrBaseUrl)
                 client.getMetadataByUuid("no.met:dataset/1")
-                client.searchGivenSolrCore(
-                    SolrQueries.applicationsForDataset("no.met:dataset/1"),
-                    SolrCore.APPLICATIONS,
-                )
+                client.searchApplicationsForDataset("no.met:dataset/1")
             }
             assertEquals(
                 listOf("""uuid:"no.met\:dataset\/1"""", """applicationdataset:no.met\:dataset\/1*"""),

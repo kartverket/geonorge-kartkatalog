@@ -27,6 +27,10 @@ class SolrClient(
         return searchGivenSolrCore(SolrQueries.metadataByUuids(distinctUuids), SolrCore.METADATA_ALL).response.docs
     }
 
+    /** Applikasjoner som peker på datasettet [datasetUuid]. Bruker [SolrCore.APPLICATIONS], se [SolrQueries.applicationsForDataset]. */
+    suspend fun searchApplicationsForDataset(datasetUuid: String): List<SolrDocument> =
+        searchGivenSolrCore(SolrQueries.applicationsForDataset(datasetUuid), SolrCore.APPLICATIONS).response.docs
+
     /** Kjører [query] mot [core]. Faste spørringer finnes i [SolrQueries]. */
     suspend fun searchGivenSolrCore(
         query: MetadataSolrQuery,

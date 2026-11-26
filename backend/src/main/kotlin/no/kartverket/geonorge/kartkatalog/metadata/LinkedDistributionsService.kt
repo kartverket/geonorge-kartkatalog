@@ -9,9 +9,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrCore
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrQueries
 import no.kartverket.geonorge.kartkatalog.integrations.solr.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
@@ -51,8 +49,7 @@ class LinkedDistributionsService(
 
             val applicationDocs =
                 solrClient
-                    .searchGivenSolrCore(SolrQueries.applicationsForDataset(uuid), SolrCore.APPLICATIONS)
-                    .response.docs
+                    .searchApplicationsForDataset(uuid)
                     .filter { it.uuid != uuid }
 
             val seriesMemberRefs =

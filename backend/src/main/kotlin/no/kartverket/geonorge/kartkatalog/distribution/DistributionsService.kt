@@ -9,10 +9,8 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrCore
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
-import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrQueries
 import no.kartverket.geonorge.kartkatalog.integrations.solr.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
 import org.slf4j.LoggerFactory
@@ -62,9 +60,7 @@ class DistributionsService(
                 if (record.hierarchyLevel == "dataset") {
                     val applicationDocs =
                         try {
-                            solrClient
-                                .searchGivenSolrCore(SolrQueries.applicationsForDataset(uuid), SolrCore.APPLICATIONS)
-                                .response.docs
+                            solrClient.searchApplicationsForDataset(uuid)
                         } catch (e: SolrException) {
                             log.warn("Failed to fetch applications from Solr for {}", uuid, e)
                             emptyList()
