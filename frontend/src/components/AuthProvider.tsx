@@ -83,6 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             : { status: "anonymous" },
         );
 
+        if (session.authenticated) return;
+
         const localResponse = await fetch(
           `${bffPath}/me/local`,
           requestOptions,
