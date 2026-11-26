@@ -58,15 +58,15 @@ export default function ProductAlert({
           return (
             <li key={key}>
               {alert.alertType}
+              {effectiveDate && ` – gjelder fra ${effectiveDate}`}
               {alert.detailsUrl && (
                 <>
                   {" ("}
                   <a href={alert.detailsUrl}>Gå til varsel</a>
-                  {"). "}
+                  {")"}
                 </>
               )}
-              <MarkdownText inline>{note}</MarkdownText>
-              {effectiveDate && <em> Gjelder fra {effectiveDate}.</em>}
+              <MarkdownText>{note}</MarkdownText>
             </li>
           );
         })}
