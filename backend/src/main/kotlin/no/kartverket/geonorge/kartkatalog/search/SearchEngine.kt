@@ -9,6 +9,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrCore
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrQueries
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrResponse
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
 import no.kartverket.geonorge.kartkatalog.metrics.countEvent
 import org.slf4j.LoggerFactory
@@ -104,25 +105,7 @@ class SearchEngine(
         if (response.response.numFound == 0) {
             countEvent("search.zero_results", "Searches without any hits", "engine" to engine)
         }
-        val facets =
-            response.facetCounts
-                ?.facetFields
-                .orEmpty()
-                .mapValues { (_, raw) -> raw.toCounts() }
-        return SearchHits(response.response.numFound, response.response.docs.map { it.toSearchHit() }, facets)
-    }
-
-    internal suspend fun searchGivenSolrCore(
-        query: MetadataSolrQuery,
-        core: SolrCore,
-    ): SearchHits {
-        val response = solrClient.searchGivenSolrCore(query, core)
-        val facets =
-            response.facetCounts
-                ?.facetFields
-                .orEmpty()
-                .mapValues { (_, raw) -> raw.toCounts() }
-        return SearchHits(response.response.numFound, response.response.docs.map { it.toSearchHit() }, facets)
+        return response.toSearchHits()
     }
 
     private suspend fun buildHybridQuery(
@@ -168,6 +151,17 @@ class SearchEngine(
         const val MINIMUM_VECTOR_SEARCH_LENGTH = 2
     }
 }
+
+internal fun SolrResponse.toSearchHits(): SearchHits =
+    SearchHits(
+        numFound = response.numFound,
+        documents = response.docs.map { it.toSearchHit() },
+        facets =
+            facetCounts
+                ?.facetFields
+                .orEmpty()
+                .mapValues { (_, raw) -> raw.toCounts() },
+    )
 
 private fun JsonArray.toCounts(): List<SearchFacetCount> =
     chunked(2).mapNotNull { pair ->

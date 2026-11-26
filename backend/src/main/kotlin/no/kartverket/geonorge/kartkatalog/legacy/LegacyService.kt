@@ -35,6 +35,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.findExtensionUrl
 import no.kartverket.geonorge.kartkatalog.metadata.getCoverageLink
 import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import no.kartverket.geonorge.kartkatalog.search.SearchHits
+import no.kartverket.geonorge.kartkatalog.search.toSearchHits
 import org.slf4j.LoggerFactory
 
 private const val NATIONAL_THEME_THESAURUS = "Nasjonal tematisk inndeling (DOK-kategori)"
@@ -131,7 +132,12 @@ class LegacyService(
         organization: String?,
         language: String,
     ): JsonObject {
-        val hits = engine.searchGivenSolrCore(SimpleMetadataQuery.build(organization), SolrCore.METADATA_ALL)
+        val hits =
+            solrClient
+                .searchGivenSolrCore(
+                    SimpleMetadataQuery.build(organization),
+                    SolrCore.METADATA_ALL,
+                ).toSearchHits()
         return LegacySearchResponseMapper(language, kartkatalogUrl, loadAreas())
             .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
     }
@@ -510,12 +516,12 @@ class LegacyService(
                 start = start,
             )
         val results =
-            engine.searchGivenSolrCore(query, SolrCore.METADATA).documents.map { doc ->
+            solrClient.searchGivenSolrCore(query, SolrCore.METADATA).response.docs.map { doc ->
                 buildJsonObject {
                     put("Uuid", doc.uuid)
                     putNullable("Title", doc.title)
                     putNullable("Organization", doc.organizationgroup ?: doc.organization)
-                    putNullable("DatasetName", doc.datasetName)
+                    putNullable("DatasetName", doc.resourceReferenceCodeName)
                 }
             }
         return buildJsonObject { put("Results", JsonArray(results)) }
