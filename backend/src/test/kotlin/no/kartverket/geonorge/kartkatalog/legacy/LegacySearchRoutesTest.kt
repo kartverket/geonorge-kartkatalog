@@ -548,7 +548,7 @@ class LegacySearchRoutesTest {
     }
 
     @Test
-    fun `datasets-simple queries metadata_all with the fixed legacy query`() =
+    fun `datasets-simple queries metadata_all with the fixed legacy query and type filter`() =
         testApplication {
             simpleApp(upstream(solrBody = solrResponse.replace("\"typename\"", "\"x\"")))
 
@@ -577,7 +577,7 @@ class LegacySearchRoutesTest {
             val form = searchForms.single()
             assertContains(form, "ISO19115")
             assertContains(form, "rows=[1000]")
-            assertFalse("fq=" in form)
+            assertContains(form, "fq=[-type:(service OR servicelayer OR software)]")
             assertEquals("1000", json.getValue("Limit").jsonPrimitive.content)
             assertEquals("1", json.getValue("Offset").jsonPrimitive.content)
             assertEquals("1", json.getValue("NumFound").jsonPrimitive.content)

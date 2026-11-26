@@ -12,7 +12,7 @@ class SimpleMetadataQueryTest {
         assertEquals(1000, query.rows)
         assertEquals(0, query.start)
         assertEquals(null, query.sort)
-        assertTrue(query.fq.isEmpty())
+        assertEquals(listOf("-type:(service OR servicelayer OR software)"), query.fq)
         assertEquals(
             listOf(
                 "type",
@@ -32,13 +32,16 @@ class SimpleMetadataQueryTest {
 
     @Test
     fun `empty organization behaves like missing`() {
-        assertTrue(SimpleMetadataQuery.build("").fq.isEmpty())
+        assertEquals(listOf(SimpleMetadataQuery.TYPE_FILTER), SimpleMetadataQuery.build("").fq)
     }
 
     @Test
     fun `organization adds escaped tagged filter and excluded facet`() {
         val query = SimpleMetadataQuery.build("Kart \"og\" (verk)")
-        assertEquals(listOf("{!tag=organization}organization:\"Kart \\\"og\\\" \\(verk\\)\""), query.fq)
+        assertEquals(
+            listOf(SimpleMetadataQuery.TYPE_FILTER, "{!tag=organization}organization:\"Kart \\\"og\\\" \\(verk\\)\""),
+            query.fq,
+        )
         assertEquals("{!ex=organization}organization", query.facetFields.last())
         assertEquals(9, query.facetFields.size)
     }
@@ -46,7 +49,7 @@ class SimpleMetadataQueryTest {
     @Test
     fun `whitespace-only organization skips the filter but keeps the facet`() {
         val query = SimpleMetadataQuery.build("   ")
-        assertTrue(query.fq.isEmpty())
+        assertEquals(listOf(SimpleMetadataQuery.TYPE_FILTER), query.fq)
         assertEquals("{!ex=organization}organization", query.facetFields.last())
     }
 }

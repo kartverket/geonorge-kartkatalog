@@ -8,6 +8,10 @@ internal object SimpleMetadataQuery {
     const val OFFSET = 1
 
     private const val QUERY = "metadata_standard:\"ISO19115\\:Norsk versjon\""
+
+    // Legacy queried the metadata core, which held every type except services, service layers and software.
+    // metadata_all holds all types, so exclude those to keep the same result set.
+    internal const val TYPE_FILTER = "-type:(service OR servicelayer OR software)"
     private val defaultFacets =
         listOf(
             "type",
@@ -30,11 +34,14 @@ internal object SimpleMetadataQuery {
             rows = LIMIT,
             start = OFFSET - 1,
             fq =
-                if (filterByOrganization) {
-                    listOf("{!tag=organization}organization:\"${LegacySearchQuery.escape(organization.orEmpty())}\"")
-                } else {
-                    emptyList()
-                },
+                listOf(TYPE_FILTER) +
+                    if (filterByOrganization) {
+                        listOf(
+                            "{!tag=organization}organization:\"${LegacySearchQuery.escape(organization.orEmpty())}\"",
+                        )
+                    } else {
+                        emptyList()
+                    },
             // The organization facet only exists when a filter is given, as in legacy.
             facetFields =
                 defaultFacets + if (withFacet) listOf("{!ex=organization}organization") else emptyList(),
