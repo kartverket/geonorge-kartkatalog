@@ -57,6 +57,5 @@ internal object SimpleMetadataQuery {
             "ServiceDistributionNameForDataset,DistributionProtocols,legend_description_url,product_sheet_url," +
             "product_specification_url,area,datasetservice,popularMetadata,bundle,servicelayers," +
             "accessconstraint,servicedataset,otherconstraintsaccess,dataaccess," +
-            "ServiceDistributionUuidForDataset,ServiceDistributionAccessConstraint,parentidentifier," +
-            "resourceReferenceCodeName"
+            "ServiceDistributionUuidForDataset,ServiceDistributionAccessConstraint,parentidentifier"
 }

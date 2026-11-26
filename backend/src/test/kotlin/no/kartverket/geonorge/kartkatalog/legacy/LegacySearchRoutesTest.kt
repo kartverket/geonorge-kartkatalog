@@ -592,37 +592,6 @@ class LegacySearchRoutesTest {
         }
 
     @Test
-    fun `datasets-simple filters on organization and returns DatasetName`() =
-        testApplication {
-            simpleApp(
-                upstream(
-                    solrBody =
-                        solrResponse.replace(
-                            "\"type\":\"dataset\"",
-                            "\"type\":\"dataset\",\"resourceReferenceCodeName\":\"N50\"",
-                        ),
-                ),
-            )
-
-            val response = client.get("/api/datasets-simple?organization=Kartverket")
-            val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
-            assertEquals(HttpStatusCode.OK, response.status)
-            val form = searchForms.single()
-            assertContains(form, "organization:\"Kartverket\"")
-            assertContains(form, "{!ex=organization}organization")
-            assertEquals(
-                "N50",
-                json
-                    .getValue("Results")
-                    .jsonArray
-                    .first()
-                    .jsonObject
-                    .getValue("DatasetName")
-                    .jsonPrimitive.content,
-            )
-        }
-
-    @Test
     fun `datasets-simple answers 204 without body when solr fails`() =
         testApplication {
             simpleApp(upstream(solrError = true))

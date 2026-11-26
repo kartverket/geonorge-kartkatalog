@@ -26,7 +26,6 @@ class SimpleMetadataQueryTest {
             ),
             query.facetFields,
         )
-        assertTrue("resourceReferenceCodeName" in query.fl.split(','))
         assertTrue("organizations" !in query.fl.split(','))
     }
 
