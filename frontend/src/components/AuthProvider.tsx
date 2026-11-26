@@ -85,6 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (session.authenticated) return;
 
+        if (process.env.NEXT_PUBLIC_MOCK_AUTH_ENABLED !== "true") return;
+
         const localResponse = await fetch(
           `${bffPath}/me/local`,
           requestOptions,
