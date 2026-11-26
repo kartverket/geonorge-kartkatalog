@@ -10,6 +10,7 @@ import {
   type DownloadItem,
   removeItemsFromDownloads,
 } from "@/app/_components/addToDownloads/downloadStorage";
+import { savePendingDownloads } from "@/app/_components/addToDownloads/pendingDownloads";
 import { useAreAllItemsSelectedForDownload } from "@/app/_components/addToDownloads/useDownloads";
 import { useAuthInfo } from "@/components/AuthProvider";
 import { ConfirmDialog } from "@/components/ConfirmDialog/ConfirmDialog";
@@ -137,6 +138,7 @@ export default function AddToDownloadsButton({
             onCancelAction={() => setShowLoginDialog(false)}
             confirmLabel="Logg inn og legg til"
             onConfirmAction={() => {
+              savePendingDownloads(validItems);
               window.location.href = `${bffPath}/auth/geoid/login`;
             }}
           />,

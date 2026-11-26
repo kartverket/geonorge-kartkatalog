@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PendingDownloadsAfterLogin } from "@/app/_components/addToDownloads/PendingDownloadsAfterLogin";
 import { AuthProvider } from "@/components/AuthProvider";
 import { Footer } from "@/components/Footer/Footer";
 import { Header } from "@/components/Header/Header";
@@ -41,6 +42,7 @@ export default async function RootLayout({
           <CookieYesRoot />
         </CookieYesProvider>
         <AuthProvider>
+          <PendingDownloadsAfterLogin />
           <Suspense fallback={null}>
             <Header />
           </Suspense>
