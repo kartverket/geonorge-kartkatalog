@@ -10,6 +10,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.Metadata
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.integrations.solr.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
 
@@ -37,8 +38,7 @@ class LinkedDistributionsService(
     ): LinkedDistributions =
         coroutineScope {
             val relatedServices =
-                solrClient
-                    .parseDatasetServices(solrDoc.datasetservice)
+                parseDatasetServices(solrDoc.datasetservice)
                     .filter { it.uuid != uuid }
 
             val viewRefs =
@@ -56,13 +56,11 @@ class LinkedDistributionsService(
                     .filter { it.uuid != uuid }
 
             val seriesMemberRefs =
-                solrClient
-                    .parseDatasetServices(solrDoc.seriedatasets)
+                parseDatasetServices(solrDoc.seriedatasets)
                     .filter { it.uuid != uuid }
 
             val parentSeriesRefs =
-                solrClient
-                    .parseDatasetServices(listOfNotNull(solrDoc.serie))
+                parseDatasetServices(listOfNotNull(solrDoc.serie))
                     .filter { it.uuid != uuid }
 
             val relatedUuids =
@@ -121,8 +119,8 @@ class LinkedDistributionsService(
         uuid: String,
     ): LinkedDistributions =
         coroutineScope {
-            val datasetRefs = solrClient.parseDatasetServices(solrDoc.servicedataset).filter { it.uuid != uuid }
-            val layerRefs = solrClient.parseDatasetServices(solrDoc.servicelayers).filter { it.uuid != uuid }
+            val datasetRefs = parseDatasetServices(solrDoc.servicedataset).filter { it.uuid != uuid }
+            val layerRefs = parseDatasetServices(solrDoc.servicelayers).filter { it.uuid != uuid }
 
             val relatedUuids = datasetRefs.map { it.uuid } + layerRefs.map { it.uuid }
             val solrDocsByUuid = solrClient.getMetadataByUuids(relatedUuids).associateBy { it.uuid }
@@ -143,9 +141,9 @@ class LinkedDistributionsService(
         uuid: String,
     ): LinkedDistributions =
         coroutineScope {
-            val datasetRefs = solrClient.parseDatasetServices(solrDoc.servicedataset).filter { it.uuid != uuid }
+            val datasetRefs = parseDatasetServices(solrDoc.servicedataset).filter { it.uuid != uuid }
             val parentServiceRefs =
-                solrClient.parseDatasetServices(listOfNotNull(solrDoc.parentidentifier)).filter { it.uuid != uuid }
+                parseDatasetServices(listOfNotNull(solrDoc.parentidentifier)).filter { it.uuid != uuid }
 
             val relatedUuids = datasetRefs.map { it.uuid } + parentServiceRefs.map { it.uuid }
             val solrDocsByUuid = solrClient.getMetadataByUuids(relatedUuids).associateBy { it.uuid }

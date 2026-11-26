@@ -115,4 +115,5 @@ data class RelatedServiceReference(
     val distributionUrl: String?,
     val organizationName: String?,
     val protocol: String?,
+    val type: String? = null,
 )

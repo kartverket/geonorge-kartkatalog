@@ -11,6 +11,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
+import no.kartverket.geonorge.kartkatalog.integrations.solr.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.metadata.CodeListTranslator
 import org.slf4j.LoggerFactory
 
@@ -86,7 +87,7 @@ class DistributionsService(
         record: MetadataRecord,
         uuid: String,
     ): List<String> {
-        fun refs(values: List<String>?) = solrClient.parseDatasetServices(values).map { it.uuid }
+        fun refs(values: List<String>?) = parseDatasetServices(values).map { it.uuid }
         return when {
             // Previously read from the Solr field `applicationdataset`, which only exists in the solr `applications`
             // core and not in `metadata_all`; the GeoNetwork record's aggregateDataSetIdentifiers are used instead.

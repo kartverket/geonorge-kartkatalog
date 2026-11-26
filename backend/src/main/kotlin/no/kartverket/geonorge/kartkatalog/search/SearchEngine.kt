@@ -5,7 +5,6 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import no.kartverket.geonorge.kartkatalog.distribution.MapCapabilityFields
 import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
-import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
@@ -144,17 +143,12 @@ class SearchEngine(
     private fun recordVectorFallback(reason: String) =
         countEvent("search.vector.fallbacks", "Vector searches that fell back to plain Solr", "reason" to reason)
 
-    internal suspend fun getMetadataAllByUuid(uuid: String): SolrDocument? = solrClient.getMetadataAllByUuid(uuid)
-
     internal suspend fun findUuidByDatasetName(
         datasetName: String,
         excludeUuid: String,
     ): String? = solrClient.findUuidByDatasetName(datasetName, excludeUuid)
 
     suspend fun getMetadataByUuids(uuids: List<String>): List<SolrDocument> = solrClient.getMetadataByUuids(uuids)
-
-    fun parseDatasetServices(values: List<String>?): List<RelatedServiceReference> =
-        solrClient.parseDatasetServices(values)
 
     private companion object {
         const val MINIMUM_VECTOR_SEARCH_LENGTH = 2

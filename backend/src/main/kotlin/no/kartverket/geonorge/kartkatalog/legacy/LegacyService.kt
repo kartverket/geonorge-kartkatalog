@@ -23,6 +23,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.escapeSolrSpecialChars
+import no.kartverket.geonorge.kartkatalog.integrations.solr.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.legacy.models.DistributionDetails
 import no.kartverket.geonorge.kartkatalog.legacy.models.DistributionRow
 import no.kartverket.geonorge.kartkatalog.legacy.models.SearchOutcome
@@ -34,7 +35,6 @@ import no.kartverket.geonorge.kartkatalog.metadata.getCoverageLink
 import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import no.kartverket.geonorge.kartkatalog.search.SearchHits
 import org.slf4j.LoggerFactory
-import kotlin.time.times
 
 private const val NATIONAL_THEME_THESAURUS = "Nasjonal tematisk inndeling (DOK-kategori)"
 private const val NATIONAL_INITIATIVE_THESAURUS = "Nasjonal inndeling i geografiske initiativ og SDI-er"
@@ -142,7 +142,7 @@ class LegacyService(
         // Legacy swallows Solr errors, so a failure looks the same as an unknown uuid.
         val doc =
             try {
-                engine.getMetadataAllByUuid(uuid)
+                solrClient.getMetadataByUuid(uuid)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -364,8 +364,7 @@ class LegacyService(
     ): List<JsonObject> {
         solrDoc ?: return emptyList()
         val refs =
-            solrClient
-                .parseDatasetServices(solrDoc.datasetservice)
+            parseDatasetServices(solrDoc.datasetservice)
                 .filter { it.uuid != uuid && DistributionProtocols.isViewService(it.protocol) }
         return coroutineScope {
             refs

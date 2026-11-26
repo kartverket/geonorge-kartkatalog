@@ -6,6 +6,7 @@ import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.download.DownloadItem
 import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
+import no.kartverket.geonorge.kartkatalog.integrations.solr.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.metadata.AreaResolver
 import no.kartverket.geonorge.kartkatalog.metadata.HvdResolver
 import no.kartverket.geonorge.kartkatalog.metadata.NationalInitiatives
@@ -53,7 +54,7 @@ class SearchService(
             ?.getOrNull(2)
 
     private suspend fun getSeriesMemberDetails(doc: SearchHit): List<RelatedServiceReference> {
-        val seriesMemberRefs = engine.parseDatasetServices(doc.seriedatasets)
+        val seriesMemberRefs = parseDatasetServices(doc.seriedatasets)
         if (seriesMemberRefs.isEmpty()) return emptyList()
 
         val fullDocsByUuid =

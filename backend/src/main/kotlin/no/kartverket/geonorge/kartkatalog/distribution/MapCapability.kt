@@ -1,5 +1,7 @@
 package no.kartverket.geonorge.kartkatalog.distribution
 
+import no.kartverket.geonorge.kartkatalog.integrations.solr.RelatedServiceReference
+import no.kartverket.geonorge.kartkatalog.integrations.solr.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.metadata.DistributionProtocols
 
 internal interface MapCapabilityFields {
@@ -10,35 +12,16 @@ internal interface MapCapabilityFields {
     val serviceDistributionUrlForDataset: String?
 }
 
-internal data class DatasetServiceReference(
-    val uuid: String,
-    val type: String? = null,
-    val distributionProtocol: String? = null,
-    val getCapabilitiesUrl: String? = null,
-)
-
 internal data class MapCapability(
     val showMapLink: Boolean,
     val mapCapabilitiesUrl: String?,
 )
 
-internal fun parseDatasetServices(raw: List<String>?): List<DatasetServiceReference> =
-    raw.orEmpty().mapNotNull { value ->
-        val parts = value.split("|")
-        val uuid = parts.getOrNull(0)?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-        DatasetServiceReference(
-            uuid = uuid,
-            type = parts.getOrNull(3),
-            distributionProtocol = parts.getOrNull(6),
-            getCapabilitiesUrl = parts.getOrNull(7),
-        )
-    }
-
 internal fun canShowMap(
     type: String?,
     distributionProtocol: String?,
     distributionUrl: String?,
-    viewServices: List<DatasetServiceReference>,
+    viewServices: List<RelatedServiceReference>,
     serviceDistributionUrlForDataset: String?,
 ): Boolean {
     val hasMappedDatasetView = serviceDistributionUrlForDataset?.contains("service=wms", ignoreCase = true) == true
@@ -55,14 +38,14 @@ internal fun MapCapabilityFields.resolveMapCapability(): MapCapability {
     val datasetServices = parseDatasetServices(datasetservice)
     val viewServices =
         datasetServices.filter {
-            DistributionProtocols.isViewService(it.distributionProtocol) &&
+            DistributionProtocols.isViewService(it.protocol) &&
                 (it.type.equals("service", ignoreCase = true) || it.type.equals("servicelayer", ignoreCase = true))
         }
-    val firstViewService = viewServices.firstOrNull { !it.getCapabilitiesUrl.isNullOrBlank() }
+    val firstViewService = viewServices.firstOrNull { !it.distributionUrl.isNullOrBlank() }
     val mapCapabilitiesUrl =
         when {
             !serviceDistributionUrlForDataset.isNullOrBlank() -> serviceDistributionUrlForDataset
-            firstViewService != null -> firstViewService.getCapabilitiesUrl
+            firstViewService != null -> firstViewService.distributionUrl
             (type.equals("service", ignoreCase = true) || type.equals("servicelayer", ignoreCase = true)) &&
                 DistributionProtocols.isViewService(distributionProtocol) -> distributionUrl
             else -> null

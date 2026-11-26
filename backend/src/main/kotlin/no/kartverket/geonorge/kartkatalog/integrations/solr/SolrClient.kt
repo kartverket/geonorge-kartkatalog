@@ -49,13 +49,6 @@ class SolrClient(
 
     suspend fun searchMetadata(query: MetadataSolrQuery): SolrResponse = querySolr(metadataPath, query)
 
-    suspend fun getMetadataAllByUuid(uuid: String): SolrDocument? =
-        querySolr(
-            metadataAllPath,
-            MetadataSolrQuery(q = "uuid:\"${escapeSolrSpecialChars(uuid)}\"", fl = METADATA_ALL_ITEM_FL, rows = 1),
-        ).response.docs
-            .firstOrNull()
-
     suspend fun findUuidByDatasetName(
         datasetName: String,
         excludeUuid: String,
@@ -112,7 +105,7 @@ class SolrClient(
 
     private fun buildMetadataSolrQuery(uuid: String): MetadataSolrQuery =
         MetadataSolrQuery(
-            q = "uuid:${escapeSolrSpecialChars(uuid)}",
+            q = "uuid:\"${escapeSolrSpecialChars(uuid)}\"",
             fl = METADATA_FL,
             rows = 1,
             wt = "json",
@@ -125,44 +118,6 @@ class SolrClient(
             rows = uuids.size,
             wt = "json",
         )
-
-    fun parseDatasetServices(datasetService: List<String>?): List<RelatedServiceReference> =
-        datasetService.orEmpty().mapNotNull { entry ->
-            val parts = entry.split("|")
-            val uuid =
-                parts.getOrNull(DatasetServiceProperties.UUID.index)?.takeIf { it.isNotBlank() }
-                    ?: return@mapNotNull null
-            RelatedServiceReference(
-                uuid = uuid,
-                name = parts.getOrNull(DatasetServiceProperties.NAME.index),
-                organizationName = parts.getOrNull(DatasetServiceProperties.ORGANIZATION_NAME.index),
-                protocol =
-                    parts.getOrNull(DatasetServiceProperties.PROTOCOL.index),
-                distributionUrl = parts.getOrNull(DatasetServiceProperties.DISTRIBUTION_URL.index),
-                accessIsOpendata =
-                    parts
-                        .getOrNull(DatasetServiceProperties.ACCESS_IS_OPENDATA.index)
-                        ?.lowercase()
-                        ?.toBooleanStrictOrNull() ?: false,
-                accessIsRestricted =
-                    parts
-                        .getOrNull(DatasetServiceProperties.ACCESS_IS_RESTRICTED.index)
-                        ?.lowercase()
-                        ?.toBooleanStrictOrNull() ?: false,
-            )
-        }
-}
-
-private enum class DatasetServiceProperties(
-    val index: Int,
-) {
-    UUID(0),
-    NAME(1),
-    ORGANIZATION_NAME(4),
-    PROTOCOL(6),
-    DISTRIBUTION_URL(7),
-    ACCESS_IS_OPENDATA(14),
-    ACCESS_IS_RESTRICTED(15),
 }
 
 data class MetadataSolrQuery(
@@ -196,16 +151,6 @@ data class MetadataSolrQuery(
             append("wt", wt)
         }
 }
-
-private const val METADATA_ALL_ITEM_FL =
-    "uuid,title,abstract,purpose,type,theme,organization,organization_seo_lowercase,placegroups," +
-        "organizationgroup,topic_category,organization_logo_url,thumbnail_url,distribution_url," +
-        "distribution_protocol,distribution_name,product_page_url,date_published,date_updated," +
-        "nationalinitiative,score,ServiceDistributionProtocolForDataset,ServiceDistributionUrlForDataset," +
-        "ServiceDistributionNameForDataset,DistributionProtocols,legend_description_url,product_sheet_url," +
-        "product_specification_url,area,datasetservice,popularMetadata,bundle,servicelayers,accessconstraint," +
-        "servicedataset,otherconstraintsaccess,dataaccess,ServiceDistributionUuidForDataset," +
-        "ServiceDistributionAccessConstraint,parentidentifier"
 
 private val METADATA_FL =
     "uuid,title,abstract,purpose,type,theme,organization,organizations,organization_seo_lowercase,placegroups," +
