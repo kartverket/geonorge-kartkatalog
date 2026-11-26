@@ -1,9 +1,10 @@
 "use client";
 
 import type { ButtonProps } from "@kv-designsystem/react";
-import { Button, Tooltip } from "@kv-designsystem/react";
+import { Button } from "@kv-designsystem/react";
 import { DownloadIcon, TrashIcon } from "@navikt/aksel-icons";
-import type { MouseEvent } from "react";
+import { type MouseEvent, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   addItemsToDownloads,
   type DownloadItem,
@@ -11,6 +12,8 @@ import {
 } from "@/app/_components/addToDownloads/downloadStorage";
 import { useAreAllItemsSelectedForDownload } from "@/app/_components/addToDownloads/useDownloads";
 import { useAuthInfo } from "@/components/AuthProvider";
+import { ConfirmDialog } from "@/components/ConfirmDialog/ConfirmDialog";
+import { bffPath } from "@/lib/basePath";
 import { type Location, trackClick } from "@/posthog/posthog";
 
 export default function AddToDownloadsButton({
@@ -35,6 +38,7 @@ export default function AddToDownloadsButton({
   preventAccordionToggle?: boolean;
 }) {
   const authState = useAuthInfo();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
   const validItems = items.filter((i) => i.uuid && i.distributionUrl);
   const addableItems = validItems.filter(
     (i) =>
@@ -55,8 +59,8 @@ export default function AddToDownloadsButton({
     useAreAllItemsSelectedForDownload(addableItems);
   const isRemoving = areAllValidItemsSelected || areAllAddableItemsSelected;
 
-  // Begrensede datasett krever innlogging. Knappen får aria-disabled i stedet for
-  // disabled, så den fortsatt kan få hover og fokus og vise forklaringen.
+  // Begrensede datasett krever innlogging. Knappen er klikkbar og viser en dialog,
+  // så forklaringen når alle, også på touch-skjerm.
   const needsLogin =
     !isRemoving &&
     addableItems.length === 0 &&
@@ -72,7 +76,10 @@ export default function AddToDownloadsButton({
       event.stopPropagation();
     }
 
-    if (needsLogin) return;
+    if (needsLogin) {
+      setShowLoginDialog(true);
+      return;
+    }
 
     trackClick(
       isRemoving
@@ -98,36 +105,43 @@ export default function AddToDownloadsButton({
     addItemsToDownloads(addableItems);
   };
 
-  const button = (
-    <Button
-      variant={variant ?? (isRemoving ? "secondary" : "primary")}
-      data-size={size}
-      className={className}
-      disabled={!needsLogin && !isRemoving && addableItems.length === 0}
-      aria-disabled={needsLogin || undefined}
-      onClick={handleToggleDownloads}
-    >
-      {isRemoving ? (
-        <>
-          <TrashIcon aria-hidden />
-          {resolvedRemoveLabel}
-        </>
-      ) : (
-        <>
-          <DownloadIcon aria-hidden />
-          {resolvedAddLabel}
-        </>
-      )}
-    </Button>
-  );
-  if (!needsLogin) return button;
-
   return (
-    <Tooltip
-      content="Logg inn for å legge til begrensede datasett"
-      placement="top"
-    >
-      {button}
-    </Tooltip>
+    <>
+      <Button
+        variant={variant ?? (isRemoving ? "secondary" : "primary")}
+        data-size={size}
+        className={className}
+        disabled={!needsLogin && !isRemoving && addableItems.length === 0}
+        onClick={handleToggleDownloads}
+      >
+        {isRemoving ? (
+          <>
+            <TrashIcon aria-hidden />
+            {resolvedRemoveLabel}
+          </>
+        ) : (
+          <>
+            <DownloadIcon aria-hidden />
+            {resolvedAddLabel}
+          </>
+        )}
+      </Button>
+      {/* Legges i body, så klikk i dialogen ikke åpner/lukker trekkspillet knappen kan ligge i */}
+      {showLoginDialog &&
+        createPortal(
+          <ConfirmDialog
+            open
+            heading="Logg inn for å laste ned"
+            description="Dette datasettet krever at du har tilgang for å kunne legge det til i nedlasting."
+            cancelLabel="Gå tilbake"
+            onCancelAction={() => setShowLoginDialog(false)}
+            confirmLabel="Logg inn og legg til"
+            onConfirmAction={() => {
+              window.location.href = `${bffPath}/auth/geoid/login`;
+            }}
+          />,
+          document.body,
+        )}
+    </>
   );
 }
