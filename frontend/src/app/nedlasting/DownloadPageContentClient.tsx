@@ -26,12 +26,12 @@ import {
 } from "@/app/nedlasting/downloadUtils";
 import { MultiSuggestion } from "@/app/nedlasting/MultiSuggestion";
 import { useAuthInfo } from "@/components/AuthProvider";
+import { ConfirmDialog } from "@/components/ConfirmDialog/ConfirmDialog";
 import {
   type DownloadInsightGroups,
   DownloadOrderEmailSchema,
 } from "@/lib/schemas/download";
 import { LOCATIONS, trackClick, trackEvent } from "@/posthog/posthog";
-import { ConfirmDialog } from "./ConfirmDialog";
 import { DownloadOrderSummary } from "./DownloadOrderSummary";
 import styles from "./DownloadPageContent.module.css";
 import { DownloadSelectionList } from "./DownloadSelectionList";
