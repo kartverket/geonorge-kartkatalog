@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const enabled = process.env.NEXT_PUBLIC_MOCK_AUTH_ENABLED === "true";
   if (!enabled) {
-    return NextResponse.json(undefined, { status: 404 });
+    return NextResponse.json({}, { status: 404 });
   }
 
   const token = request.cookies.get("BearerToken")?.value;
