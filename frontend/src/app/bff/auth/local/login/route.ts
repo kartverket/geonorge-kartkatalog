@@ -6,6 +6,10 @@ import {
 } from "@/app/bff/auth/providerCookie";
 
 export async function GET() {
+  if (process.env.NEXT_PUBLIC_MOCK_AUTH_ENABLED !== "true") {
+    return new NextResponse(null, { status: 404 });
+  }
+
   const authBaseUrl = process.env.AUTH_BASE_URL;
   if (!authBaseUrl) {
     return new Response("AUTH_BASE_URL is not set", { status: 500 });
