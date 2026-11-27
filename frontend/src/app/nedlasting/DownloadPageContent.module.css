@@ -77,4 +77,7 @@
     .userInputs {
         flex-direction: column;
     }
+    .finishButtonContainer {
+        flex-direction: column;
+    }
 }
