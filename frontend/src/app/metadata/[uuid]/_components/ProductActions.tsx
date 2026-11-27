@@ -9,11 +9,10 @@ import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownload
 import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
 import AddToMapButton from "@/app/_components/addToMap/AddToMapButton";
 import {
-  getDownloadableSeriesMembers,
   getDownloadItem,
   getGeonorgeFileDownloadUrl,
   getMapItem,
-  getThematicParentSeriesDownloadItem,
+  getSeriesDownloads,
 } from "@/app/metadata/[uuid]/_utils/distributions";
 import {
   getEditUrl,
@@ -101,14 +100,8 @@ async function LinkedDistributionActions({
 }) {
   const linkedDistributions = await linkedDistributionsPromise;
   const downloadItem = getDownloadItem(metadata, uuid);
-  const thematicSeriesDownloadItem =
-    getThematicParentSeriesDownloadItem(linkedDistributions);
-  const isThematicSeries =
-    metadata.hierarchyLevel === "series" &&
-    metadata.seriesType === "series_thematic";
-  const downloadableSeriesMembers = isThematicSeries
-    ? []
-    : getDownloadableSeriesMembers(linkedDistributions);
+  const { thematicSeriesDownloadItem, downloadableSeriesMembers } =
+    getSeriesDownloads(metadata, linkedDistributions);
   const mapItem = getMapItem(metadata, linkedDistributions, uuid);
 
   return (

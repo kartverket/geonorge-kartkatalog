@@ -9,7 +9,10 @@ import {
   isGeonorgeDownloadProtocol,
   isGeonorgeFileDownloadProtocol,
 } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
-import { getGeonorgeDownloadUrl } from "@/app/metadata/[uuid]/_utils/distributions";
+import {
+  getGeonorgeDownloadUrl,
+  isThematicSeries,
+} from "@/app/metadata/[uuid]/_utils/distributions";
 import type { AccessState, DistributionGroup } from "@/lib/schemas/product";
 import { LOCATIONS } from "@/posthog/posthog";
 
@@ -67,7 +70,7 @@ export function DistributionDetailActionButton({
 
   const canDownloadDirectly =
     hierarchyLevel === "dataset" ||
-    (hierarchyLevel === "series" && seriesType === "series_thematic");
+    isThematicSeries({ hierarchyLevel, seriesType });
 
   if (
     isGeonorgeDownloadProtocol(group.protocol) &&

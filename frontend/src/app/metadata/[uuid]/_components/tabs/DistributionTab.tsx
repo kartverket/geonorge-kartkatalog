@@ -12,9 +12,9 @@ import { UrlLink } from "@/app/metadata/[uuid]/_components/shared/UrlLink";
 import { isGeonorgeDownloadProtocol } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
 import {
   buildUrlRows,
-  getDownloadableSeriesMembers,
   getGroupFormatNames,
-  getThematicParentSeriesDownloadItem,
+  getSeriesDownloads,
+  type SeriesDownloads,
 } from "@/app/metadata/[uuid]/_utils/distributions";
 import { hasVisibleFields } from "@/app/metadata/[uuid]/_utils/tableContent";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
@@ -39,11 +39,6 @@ type ProductInfo = {
   maintenanceFrequency: string | null;
 };
 
-type SeriesDownloads = {
-  thematicSeriesDownloadItem: DownloadItem | null;
-  downloadableSeriesMembers: DownloadItem[];
-};
-
 export async function DistributionTab({
   uuid,
   metadata,
@@ -65,16 +60,7 @@ export async function DistributionTab({
     dateUpdated: metadata.dateUpdated,
     maintenanceFrequency: metadata.maintenanceFrequency,
   };
-  const isThematicSeries =
-    metadata.hierarchyLevel === "series" &&
-    metadata.seriesType === "series_thematic";
-  const seriesDownloads: SeriesDownloads = {
-    thematicSeriesDownloadItem:
-      getThematicParentSeriesDownloadItem(linkedDistributions),
-    downloadableSeriesMembers: isThematicSeries
-      ? []
-      : getDownloadableSeriesMembers(linkedDistributions),
-  };
+  const seriesDownloads = getSeriesDownloads(metadata, linkedDistributions);
 
   const groups = metadata.distributionGroups;
   const visibleGroups = groups
