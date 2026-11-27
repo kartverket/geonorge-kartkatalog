@@ -50,3 +50,9 @@
 .addAreaBlockButton {
   align-self: flex-start;
 }
+
+@media (max-width: 800px) {
+  .areaInputButtons {
+    flex-direction: column;
+  }
+}

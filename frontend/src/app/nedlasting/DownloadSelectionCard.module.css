@@ -48,3 +48,14 @@
   --dsc-button-color: var(--ds-color-text-subtle);
   --dsc-button-border-color: var(--ds-color-border-strong);
 }
+
+@media (max-width: 800px) {
+  .infoRow {
+    flex-direction: column;
+  }
+  .actions {
+    padding-top: var(--ds-size-3);
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
