@@ -17,7 +17,7 @@ const val GEONETWORK_OUTPUT_SCHEMA = "csw:IsoRecord"
 const val ISO_19139_OUTPUT_SCHEMA = "http://www.isotc211.org/2005/gmd"
 
 /**
- * Fetches ISO 19139 records with a CSW 2.0.2 GetRecordById POST from any CSW endpoint (GeoNetwork, pycsw, ...).
+ * Fetches ISO 19139 records with CSW 2.0.2 GetRecordById/GetRecords POSTs from any CSW endpoint (GeoNetwork, pycsw, ...).
  * A [requestTimeoutMillis] requires the HttpTimeout plugin on [httpClient]; null keeps the client's default.
  */
 class CswRecordClient(
@@ -28,15 +28,38 @@ class CswRecordClient(
     private val requestTimeoutMillis: Long? = null,
 ) : MetadataRecordSource {
     override suspend fun getRecordByUuid(uuid: String): MetadataRecord? =
-        observeUpstream(upstreamName, "get_record_by_id") { fetchRecord(uuid) }
+        observeUpstream(upstreamName, "get_record_by_id") {
+            val responseXml = post(buildGetRecordByIdRequest(uuid))
+            // CSW answers a missing record with 200 and an empty response.
+            if (!responseXml.contains("<gmd:MD_Metadata") && !responseXml.contains("<MD_Metadata")) {
+                null
+            } else {
+                MetadataParser.parse(responseXml.byteInputStream())
+            }
+        }
 
-    private suspend fun fetchRecord(uuid: String): MetadataRecord? {
+    /**
+     * CSW 2.0.2 GetRecords with an OGC filter, as built by legacy GeoNorgeAPI's GetRecordsWithFilter.
+     * [filterXml] is the content of ogc:Filter and must already be XML-escaped.
+     */
+    suspend fun getRecords(
+        filterXml: String,
+        startPosition: Int,
+        maxRecords: Int,
+        sortByDateDescending: Boolean = false,
+    ): List<MetadataRecord> =
+        observeUpstream(upstreamName, "get_records") {
+            val responseXml = post(buildGetRecordsRequest(filterXml, startPosition, maxRecords, sortByDateDescending))
+            MetadataParser.parseAll(responseXml.byteInputStream())
+        }
+
+    private suspend fun post(requestXml: String): String {
         val response =
             try {
                 httpClient.post(cswUrl) {
                     accept(ContentType.Application.Xml)
                     contentType(ContentType.Application.Xml)
-                    setBody(buildGetRecordByIdRequest(uuid))
+                    setBody(requestXml)
                     this@CswRecordClient.requestTimeoutMillis?.let { timeoutMillis ->
                         timeout { requestTimeoutMillis = timeoutMillis }
                     }
@@ -45,26 +68,52 @@ class CswRecordClient(
                 throw GeoNetworkException("CSW request to $upstreamName timed out", e)
             }
 
-        // CSW answers a missing record with 200 and an empty response, so a non-success status is a real failure.
         if (!response.status.isSuccess()) {
             throw GeoNetworkException("CSW request to $upstreamName failed with status ${response.status}")
         }
 
         val responseXml = response.bodyAsText()
-
         if (responseXml.contains("ExceptionReport")) {
             throw CswExceptionReportException(
                 "CSW service $upstreamName returned an ExceptionReport: $responseXml",
             )
         }
+        return responseXml
+    }
 
-        if (!responseXml.contains("<gmd:MD_Metadata") &&
-            !responseXml.contains("<MD_Metadata")
-        ) {
-            return null
-        }
-
-        return MetadataParser.parse(responseXml.byteInputStream())
+    private fun buildGetRecordsRequest(
+        filterXml: String,
+        startPosition: Int,
+        maxRecords: Int,
+        sortByDateDescending: Boolean,
+    ): String {
+        val sortBy =
+            if (sortByDateDescending) {
+                "<ogc:SortBy><ogc:SortProperty><ogc:PropertyName>dc:date</ogc:PropertyName>" +
+                    "<ogc:SortOrder>DESC</ogc:SortOrder></ogc:SortProperty></ogc:SortBy>"
+            } else {
+                ""
+            }
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <csw:GetRecords
+                xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                xmlns:ogc="http://www.opengis.net/ogc"
+                service="CSW"
+                version="2.0.2"
+                resultType="results"
+                startPosition="$startPosition"
+                maxRecords="$maxRecords"
+                outputSchema="${outputSchema.escapeXml()}">
+                <csw:Query typeNames="csw:Record">
+                    <csw:ElementSetName>full</csw:ElementSetName>
+                    <csw:Constraint version="1.1.0">
+                        <ogc:Filter>$filterXml</ogc:Filter>
+                    </csw:Constraint>
+                    $sortBy
+                </csw:Query>
+            </csw:GetRecords>
+            """.trimIndent()
     }
 
     private fun buildGetRecordByIdRequest(uuid: String): String =
@@ -82,7 +131,7 @@ class CswRecordClient(
         """.trimIndent()
 }
 
-private fun String.escapeXml(): String =
+internal fun String.escapeXml(): String =
     buildString(length) {
         for (c in this@escapeXml) {
             when (c) {

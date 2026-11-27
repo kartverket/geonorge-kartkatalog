@@ -9,12 +9,19 @@ import { FieldList } from "@/app/metadata/[uuid]/_components/shared/FieldList";
 import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
 import { UrlLink } from "@/app/metadata/[uuid]/_components/shared/UrlLink";
 import { isGeonorgeDownloadProtocol } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
+import {
+  buildUrlRows,
+  getGroupFormatNames,
+  getSeriesDownloads,
+  type SeriesDownloads,
+} from "@/app/metadata/[uuid]/_utils/distributions";
 import { hasVisibleFields } from "@/app/metadata/[uuid]/_utils/tableContent";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import { getProductTypeDefiniteString } from "@/lib/productType";
 import type {
   DistributionGroup,
   LinkedDistributions,
+  ProductMetadata,
   ReferenceSystem,
 } from "@/lib/schemas/product";
 import { LOCATIONS } from "@/posthog/posthog";
@@ -32,66 +39,75 @@ type ProductInfo = {
   maintenanceFrequency: string | null;
 };
 
-type SeriesDownloads = {
-  thematicSeriesDownloadItem: DownloadItem | null;
-  downloadableSeriesMembers: DownloadItem[];
-};
-
-export function DistributionTab({
-  product,
-  groups,
-  linkedDistributions,
-  seriesDownloads,
+export async function DistributionTab({
+  uuid,
+  metadata,
+  linkedDistributions: linkedDistributionsPromise,
 }: {
-  product: ProductInfo;
-  groups: DistributionGroup[];
-  linkedDistributions: LinkedDistributions;
-  seriesDownloads: SeriesDownloads;
+  uuid: string;
+  metadata: ProductMetadata;
+  linkedDistributions: Promise<LinkedDistributions>;
 }) {
-  const productTypeDefinite = getProductTypeDefiniteString(
-    product.hierarchyLevel,
-  );
-  const hasOwnGeonorgeDownloadGroup = groups.some((group) =>
-    isGeonorgeDownloadProtocol(group.protocol),
-  );
+  const linkedDistributions = await linkedDistributionsPromise;
+  const product: ProductInfo = {
+    uuid,
+    title: metadata.title,
+    organizationName: metadata.organization,
+    hierarchyLevel: metadata.hierarchyLevel,
+    seriesType: metadata.seriesType,
+    accessState: metadata.accessState,
+    referenceSystems: metadata.referenceSystems,
+    dateUpdated: metadata.dateUpdated,
+    maintenanceFrequency: metadata.maintenanceFrequency,
+  };
+  const seriesDownloads = getSeriesDownloads(metadata, linkedDistributions);
+
+  const groups = metadata.distributionGroups;
+  const visibleGroups = groups
+    .map((group) => getGroupContent(product, group))
+    .filter((content) => hasVisibleFields(content.fields));
+  const showSeriesDownload =
+    !groups.some((group) => isGeonorgeDownloadProtocol(group.protocol)) &&
+    seriesDownloads.downloadableSeriesMembers.length > 0;
+  const hasAccess = visibleGroups.length > 0 || showSeriesDownload;
 
   return (
     <TabPanel value="distribution">
-      <Heading data-size="xs">Tilganger til {productTypeDefinite}</Heading>
-      <div className={accordionGroupStyles.accordionGroup}>
-        {groups.map((group, i) => {
-          const key = `${i}-${group.protocolName}`;
-          return (
-            <DistributionGroupAccordion
-              key={key}
-              product={product}
-              group={group}
-              seriesDownloads={seriesDownloads}
-            />
-          );
-        })}
-        {!hasOwnGeonorgeDownloadGroup && (
-          <SeriesDownloadAccordion
-            uuid={product.uuid}
-            title={product.title}
-            items={seriesDownloads.downloadableSeriesMembers}
-          />
-        )}
-      </div>
+      {hasAccess && (
+        <>
+          <Heading data-size="xs">
+            Tilganger til {getProductTypeDefiniteString(product.hierarchyLevel)}
+          </Heading>
+          <div className={accordionGroupStyles.accordionGroup}>
+            {visibleGroups.map((content, i) => {
+              const key = `${i}-${content.group.protocolName}`;
+              return (
+                <DistributionGroupAccordion
+                  key={key}
+                  product={product}
+                  content={content}
+                  seriesDownloads={seriesDownloads}
+                />
+              );
+            })}
+            {showSeriesDownload && (
+              <SeriesDownloadAccordion
+                uuid={product.uuid}
+                title={product.title}
+                items={seriesDownloads.downloadableSeriesMembers}
+              />
+            )}
+          </div>
+        </>
+      )}
       <LinkedDistributionsSection linkedDistributions={linkedDistributions} />
     </TabPanel>
   );
 }
 
-function DistributionGroupAccordion({
-  product,
-  group,
-  seriesDownloads,
-}: {
-  product: ProductInfo;
-  group: DistributionGroup;
-  seriesDownloads: SeriesDownloads;
-}) {
+type GroupContent = ReturnType<typeof getGroupContent>;
+
+function getGroupContent(product: ProductInfo, group: DistributionGroup) {
   const urlRows = buildUrlRows(group.entries);
   const formatNames = getGroupFormatNames(group.entries);
   const units = group.unitsOfDistribution
@@ -149,8 +165,18 @@ function DistributionGroupAccordion({
     },
   ];
 
-  if (!hasVisibleFields(fields)) return null;
+  return { group, urlRows, formatNames, fields };
+}
 
+function DistributionGroupAccordion({
+  product,
+  content: { group, urlRows, formatNames, fields },
+  seriesDownloads,
+}: {
+  product: ProductInfo;
+  content: GroupContent;
+  seriesDownloads: SeriesDownloads;
+}) {
   return (
     <DetailAccordion
       title={group.protocolName ?? "Ukjent protokoll"}
@@ -186,8 +212,6 @@ function SeriesDownloadAccordion({
   title: string;
   items: DownloadItem[];
 }) {
-  if (items.length === 0) return null;
-
   return (
     <DetailAccordion
       title="Geonorge nedlasting"
@@ -224,23 +248,4 @@ function Tags({ values, color }: { values: string[]; color?: string }) {
       ))}
     </span>
   );
-}
-
-type UrlRow = { label: string; url: string; formatNames: string[] };
-
-function getGroupFormatNames(entries: DistributionGroup["entries"]): string[] {
-  return [...new Set(entries.flatMap((entry) => entry.formatNames))];
-}
-
-function buildUrlRows(entries: DistributionGroup["entries"]): UrlRow[] {
-  const isSingleUrl = entries.length === 1;
-
-  return entries.map((entry) => ({
-    label:
-      isSingleUrl || entry.formatNames.length === 0
-        ? "Tilgangs-URL"
-        : entry.formatNames.join(", "),
-    url: entry.url,
-    formatNames: entry.formatNames,
-  }));
 }

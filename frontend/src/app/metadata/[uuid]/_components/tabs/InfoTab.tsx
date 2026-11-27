@@ -15,52 +15,35 @@ import { getProductTypeDefiniteString } from "@/lib/productType";
 import type {
   ProductBoundingBox,
   ProductConstraints,
+  ProductMetadata,
   ProductValidityPeriod,
 } from "@/lib/schemas/product";
 
-type InfoTabProps = {
-  hierarchyLevel: string | null;
-  abstract: string | null;
-  specificUsage: string | null;
-  purpose: string | null;
-  processHistory: string | null;
-  supplementalDescription: string | null;
-  helpUrl: string | null;
-  constraints: ProductConstraints;
-  datePublished: string | null;
-  dateUpdated: string | null;
-  dateMetadataUpdated: string | null;
-  validityPeriod: ProductValidityPeriod | null;
-  geographicAreas: string[];
-  boundingBox: ProductBoundingBox | null;
-  cloudCoverPercentage: number | null;
-  collaborationAndLaws: string[];
-  datasetLanguage: string | null;
-  namespace: string | null;
-  datasetId: string | null;
-};
-
-export function InfoTab({
-  hierarchyLevel,
-  abstract,
-  specificUsage,
-  purpose,
-  processHistory,
-  supplementalDescription,
-  helpUrl,
-  constraints,
-  datePublished,
-  dateUpdated,
-  dateMetadataUpdated,
-  validityPeriod,
-  geographicAreas,
-  boundingBox,
-  cloudCoverPercentage,
-  collaborationAndLaws,
-  datasetLanguage,
-  namespace,
-  datasetId,
-}: InfoTabProps) {
+export function InfoTab({ metadata }: { metadata: ProductMetadata }) {
+  const {
+    hierarchyLevel,
+    abstractText: abstract,
+    specificUsage,
+    purpose,
+    processHistory,
+    supplementalDescription,
+    helpUrl,
+    datePublished,
+    dateUpdated,
+    dateMetadataUpdated,
+    validityPeriod,
+    geographicAreas,
+    boundingBox,
+    cloudCoverPercentage,
+    collaborationAndLaws,
+    datasetLanguage,
+    namespace,
+    datasetId,
+  } = metadata;
+  const constraints = {
+    ...metadata.constraints,
+    securityConstraints: metadata.securityClassification,
+  };
   const productTypeDefinite = getProductTypeDefiniteString(hierarchyLevel);
 
   return (
@@ -105,7 +88,7 @@ function DetailedInfoAccordion({
   namespace,
   datasetId,
 }: Pick<
-  InfoTabProps,
+  ProductMetadata,
   "collaborationAndLaws" | "datasetLanguage" | "namespace" | "datasetId"
 >) {
   const fields: Field[] = [
@@ -127,7 +110,7 @@ function DetailedInfoAccordion({
 function UsageAccordion({
   specificUsage,
   purpose,
-}: Pick<InfoTabProps, "specificUsage" | "purpose">) {
+}: Pick<ProductMetadata, "specificUsage" | "purpose">) {
   const showPurpose = !!purpose && purpose !== specificUsage;
 
   const title =
@@ -168,7 +151,7 @@ function WhenAndWhereAccordion({
   boundingBox,
   cloudCoverPercentage,
 }: Pick<
-  InfoTabProps,
+  ProductMetadata,
   | "datePublished"
   | "dateUpdated"
   | "dateMetadataUpdated"
@@ -287,7 +270,7 @@ function LicenseAccordion({
 
 function ProcessHistoryAccordion({
   processHistory,
-}: Pick<InfoTabProps, "processHistory">) {
+}: Pick<ProductMetadata, "processHistory">) {
   if (!processHistory) return null;
 
   return (
@@ -302,7 +285,7 @@ function ProcessHistoryAccordion({
 function HelpAccordion({
   supplementalDescription,
   helpUrl,
-}: Pick<InfoTabProps, "supplementalDescription" | "helpUrl">) {
+}: Pick<ProductMetadata, "supplementalDescription" | "helpUrl">) {
   if (!supplementalDescription) return null;
 
   return (

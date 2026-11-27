@@ -105,7 +105,10 @@ data class SolrDocument(
     val typename: String? = null,
     val spatialscope: List<String>? = null,
     val resourceReferenceCodeName: String? = null,
-) : MapCapabilityFields
+) : MapCapabilityFields {
+    val isTimeSeries: Boolean
+        get() = type == "series" && typename == "series_time"
+}
 
 data class RelatedServiceReference(
     val uuid: String,

@@ -25,8 +25,8 @@ import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetClient
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetFallbackMetadataRecordSource
+import no.kartverket.geonorge.kartkatalog.integrations.met.MetClient
+import no.kartverket.geonorge.kartkatalog.integrations.met.MetFallbackMetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
@@ -55,10 +55,11 @@ fun Application.configureRouting(
     authentication: GeoIdAuthentication,
 ) {
     val httpClient = HttpClient(CIO) { install(HttpTimeout) }
+    val metClient = MetClient(httpClient, appConfig.metUrl)
     val recordSource =
         MetFallbackMetadataRecordSource(
             primary = GeonetworkClient(httpClient, appConfig.geonetworkBaseUrl),
-            met = MetClient(httpClient, appConfig.metUrl),
+            met = metClient,
         )
     val registerClient = RegisterClient(httpClient, appConfig.registerBaseUrl)
     val codeListTranslator = CodeListTranslator(registerClient)
@@ -67,7 +68,7 @@ fun Application.configureRouting(
     val metadataMapper = MetadataMapper(codeListTranslator)
     val metadataService = MetadataService(recordSource, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
-    val linkedDistributionsService = LinkedDistributionsService(solrClient, recordSource)
+    val linkedDistributionsService = LinkedDistributionsService(solrClient, recordSource, metClient)
     val distributionsService = DistributionsService(solrClient, recordSource, codeListTranslator)
     val embeddingClient =
         appConfig.vertexAIConfig?.let {

@@ -10,17 +10,19 @@ import kotlinx.coroutines.runBlocking
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.CswExceptionReportException
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.CswRecordClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeoNetworkException
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetClient
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetFallbackMetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataParser
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.met.MetClient
+import no.kartverket.geonorge.kartkatalog.integrations.met.MetFallbackMetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.metrics.UpstreamMetricsRecorder
+import java.time.LocalDate
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 
@@ -168,4 +170,48 @@ class MetFallbackMetadataRecordSourceTest {
             }
         }
     }
+
+    @Test
+    fun `time series members are fetched with the legacy GetRecords query`() =
+        runBlocking {
+            val bodies = mutableListOf<String>()
+            val httpClient =
+                HttpClient(
+                    MockEngine { request ->
+                        bodies += (request.body as TextContent).text
+                        respond(
+                            content = javaClass.getResource("/met-time-series-response.xml")!!.readText(),
+                            status = HttpStatusCode.OK,
+                        )
+                    },
+                )
+            clients += httpClient
+            val client = MetClient(httpClient, "https://data.csw.met.no/?") { LocalDate.of(2026, 11, 24) }
+
+            val members = client.getTimeSeriesMembers("no.met:series&1")
+            client.getTimeSeriesMembers("no.met:9fbe6a04-279c-46b8-a582-bb08f4b11794")
+
+            assertEquals(2, members.size)
+            val body = bodies.first()
+            assertContains(body, "<csw:GetRecords")
+            assertContains(body, """resultType="results"""")
+            assertContains(body, """startPosition="1"""")
+            assertContains(body, """maxRecords="100"""")
+            assertContains(body, """outputSchema="http://www.isotc211.org/2005/gmd"""")
+            assertContains(
+                body,
+                "<ogc:PropertyName>apiso:ParentIdentifier</ogc:PropertyName><ogc:Literal>no.met:series&amp;1</ogc:Literal>",
+            )
+            assertContains(
+                body,
+                "<ogc:PropertyName>apiso:TempExtent_begin</ogc:PropertyName><ogc:Literal>1906-11-24</ogc:Literal>",
+            )
+            assertContains(
+                body,
+                "<ogc:PropertyName>apiso:TempExtent_end</ogc:PropertyName><ogc:Literal>2026-11-24</ogc:Literal>",
+            )
+            assertContains(body, "<ogc:PropertyName>dc:date</ogc:PropertyName><ogc:SortOrder>DESC</ogc:SortOrder>")
+            assertFalse(bodies.last().contains("apiso:TempExtent_end"))
+            assertEquals(2, metrics.count("met_csw", "get_records", "success"))
+        }
 }

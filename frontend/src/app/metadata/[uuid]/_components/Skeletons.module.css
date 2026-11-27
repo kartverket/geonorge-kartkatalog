@@ -1,0 +1,26 @@
+.stack {
+  display: grid;
+  gap: var(--ds-size-4);
+  padding-block: var(--ds-size-6);
+}
+
+.heading {
+  width: min(100%, 16rem);
+  height: 1.5rem;
+}
+
+.row {
+  width: 100%;
+  height: var(--ds-size-12);
+}
+
+.tabRow {
+  display: flex;
+  gap: var(--ds-size-4);
+  flex-wrap: wrap;
+}
+
+.tab {
+  width: 12rem;
+  height: var(--ds-size-10);
+}

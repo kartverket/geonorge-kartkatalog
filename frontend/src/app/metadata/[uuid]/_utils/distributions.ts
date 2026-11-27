@@ -19,6 +19,27 @@ type MapSource = {
   getCapabilitiesUrl: string;
 };
 
+type UrlRow = { label: string; url: string; formatNames: string[] };
+
+export function getGroupFormatNames(
+  entries: DistributionGroup["entries"],
+): string[] {
+  return [...new Set(entries.flatMap((entry) => entry.formatNames))];
+}
+
+export function buildUrlRows(entries: DistributionGroup["entries"]): UrlRow[] {
+  const isSingleUrl = entries.length === 1;
+
+  return entries.map((entry) => ({
+    label:
+      isSingleUrl || entry.formatNames.length === 0
+        ? "Tilgangs-URL"
+        : entry.formatNames.join(", "),
+    url: entry.url,
+    formatNames: entry.formatNames,
+  }));
+}
+
 function getPrimaryGroupUrl(
   group: DistributionGroup | undefined,
 ): string | null {
@@ -69,7 +90,39 @@ export function toDownloadItem(
   };
 }
 
-export function getDownloadableSeriesMembers(
+type SeriesInfo = {
+  hierarchyLevel: string | null;
+  seriesType: string | null;
+};
+
+export function isThematicSeries(product: SeriesInfo): boolean {
+  return (
+    product.hierarchyLevel === "series" &&
+    product.seriesType === "series_thematic"
+  );
+}
+
+export type SeriesDownloads = {
+  thematicSeriesDownloadItem: DownloadItem | null;
+  downloadableSeriesMembers: DownloadItem[];
+};
+
+// Medlemmene av en tematisk serie lastes ikke ned enkeltvis, siden serien selv
+// allerede er én nedlastbar fil.
+export function getSeriesDownloads(
+  metadata: SeriesInfo,
+  linkedDistributions: LinkedDistributions,
+): SeriesDownloads {
+  return {
+    thematicSeriesDownloadItem:
+      getThematicParentSeriesDownloadItem(linkedDistributions),
+    downloadableSeriesMembers: isThematicSeries(metadata)
+      ? []
+      : getDownloadableSeriesMembers(linkedDistributions),
+  };
+}
+
+function getDownloadableSeriesMembers(
   linkedDistributions: LinkedDistributions,
 ): DownloadItem[] {
   return linkedDistributions.seriesMembers.flatMap((distribution) => {
@@ -80,7 +133,7 @@ export function getDownloadableSeriesMembers(
 
 // Et medlem av en tematisk serie gir samme fil som serien selv, så nedlasting
 // fra medlemmets side skal legge til serien i stedet
-export function getThematicParentSeriesDownloadItem(
+function getThematicParentSeriesDownloadItem(
   linkedDistributions: LinkedDistributions,
 ): DownloadItem | null {
   const thematicSeries = linkedDistributions.parentSeries.find(
@@ -93,12 +146,7 @@ export function getDownloadItem(
   metadata: ProductMetadata,
   uuid: string,
 ): DownloadItem | null {
-  const isDataset = metadata.hierarchyLevel === "dataset";
-  const isThematicSeries =
-    metadata.hierarchyLevel === "series" &&
-    metadata.seriesType === "series_thematic";
-
-  if (!isDataset && !isThematicSeries) {
+  if (metadata.hierarchyLevel !== "dataset" && !isThematicSeries(metadata)) {
     return null;
   }
 

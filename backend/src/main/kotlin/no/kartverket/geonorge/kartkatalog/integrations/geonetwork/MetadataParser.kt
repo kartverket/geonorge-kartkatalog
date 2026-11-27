@@ -31,18 +31,30 @@ import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 
 object MetadataParser {
-    fun parse(input: InputStream): MetadataRecord {
+    fun parse(input: InputStream): MetadataRecord = Parser(metadataNodes(input).first()).parse()
+
+    /** Parses every gmd:MD_Metadata in the document, e.g. a CSW GetRecordsResponse. */
+    fun parseAll(input: InputStream): List<MetadataRecord> = metadataNodes(input).map { Parser(it).parse() }
+
+    private fun metadataNodes(input: InputStream): List<Node> {
         val factory = DocumentBuilderFactory.newInstance().also { it.isNamespaceAware = true }
-        val doc = factory.newDocumentBuilder().parse(input)
-        return Parser(doc).parse()
+        val doc: Document = factory.newDocumentBuilder().parse(input)
+        val xpath = XPathFactory.newInstance().newXPath().also { it.namespaceContext = isoNamespaceContext }
+        val nodes = xpath.evaluate("//gmd:MD_Metadata", doc, XPathConstants.NODESET) as NodeList
+        if (nodes.length <= 1) return (0 until nodes.length).map { nodes.item(it) }
+        // JDK XPath cost scales with the size of the owning document, so give each record its own
+        // document. Without this, parsing 100 MET records takes ~45 s instead of well under a second.
+        val builder = factory.newDocumentBuilder()
+        return (0 until nodes.length).map { i ->
+            builder.newDocument().let { own -> own.appendChild(own.importNode(nodes.item(i), true)) }
+        }
     }
 
     private class Parser(
-        doc: Document,
+        private val md: Node,
     ) {
         private val xpath: XPath =
             XPathFactory.newInstance().newXPath().also { it.namespaceContext = isoNamespaceContext }
-        private val md: Node = xpath.node("//gmd:MD_Metadata", doc)!!
 
         fun parse(): MetadataRecord {
             val idInfo = md.node("gmd:identificationInfo/*")

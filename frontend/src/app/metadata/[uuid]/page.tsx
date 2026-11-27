@@ -15,7 +15,6 @@ import {
 import {
   getRelevantAlerts,
   getUniqueItemsFromListByKey,
-  unwrapSettled,
 } from "@/app/metadata/[uuid]/_utils/utils";
 import type { LinkedDistributions } from "@/lib/schemas/product";
 import { DatasetStructuredData } from "./_components/DatasetStructuredData";
@@ -24,6 +23,7 @@ import { ProductHeader } from "./_components/ProductHeader";
 import { ProductMeta } from "./_components/ProductMeta";
 import { ProductThumbnail } from "./_components/ProductThumbnail";
 import { ScrollToTopOnReload } from "./_components/ScrollToTopOnReload";
+import { ProductTabsSkeleton } from "./_components/Skeletons";
 import styles from "./page.module.css";
 
 // TODO: kunne fallbacken vært null i stedet for et tomt linked distribution-element?
@@ -58,19 +58,20 @@ export default async function ProductPage({
 }) {
   const { uuid: rawUuid } = await params;
   const uuid = decodeRouteUuid(rawUuid);
-  const metadata = await getMetadata(uuid);
-  const [alertsResult, linkedDistributionsResult] = await Promise.allSettled([
-    getProductAlerts(uuid),
-    getLinkedDistributions(uuid),
-  ]);
-
-  const alerts = unwrapSettled(alertsResult, "Kunne ikke laste varsler", null);
-
-  const linkedDistributions: LinkedDistributions = unwrapSettled(
-    linkedDistributionsResult,
-    "Kunne ikke laste koblede distribusjoner",
-    EMPTY_LINKED_DISTRIBUTIONS,
+  // Startes før metadata hentes og awaites ikke her: siden vises straks, og
+  // delene som trenger koblede distribusjoner strømmes inn bak <Suspense>.
+  const linkedDistributions = getLinkedDistributions(uuid).catch(
+    (error: unknown): LinkedDistributions => {
+      console.error("Kunne ikke laste koblede distribusjoner", error);
+      return EMPTY_LINKED_DISTRIBUTIONS;
+    },
   );
+  const alertsPromise = getProductAlerts(uuid).catch((error: unknown) => {
+    console.error("Kunne ikke laste varsler", error);
+    return null;
+  });
+  const metadata = await getMetadata(uuid);
+  const alerts = await alertsPromise;
   const relevantAlerts = getRelevantAlerts(alerts);
   const alertsWithDetailsUrl = relevantAlerts.map((alert) => ({
     ...alert,
@@ -128,7 +129,7 @@ export default async function ProductPage({
         metadata={metadata}
         linkedDistributions={linkedDistributions}
       />
-      <Suspense>
+      <Suspense fallback={<ProductTabsSkeleton />}>
         <ProductTabsSection
           uuid={uuid}
           metadata={metadata}

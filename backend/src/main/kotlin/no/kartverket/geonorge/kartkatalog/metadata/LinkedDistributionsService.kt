@@ -1,5 +1,6 @@
 package no.kartverket.geonorge.kartkatalog.metadata
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -8,16 +9,23 @@ import no.kartverket.geonorge.kartkatalog.download.DownloadItem
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
+import no.kartverket.geonorge.kartkatalog.integrations.met.TimeSeriesMember
+import no.kartverket.geonorge.kartkatalog.integrations.met.TimeSeriesMemberSource
+import no.kartverket.geonorge.kartkatalog.integrations.met.isMetIdentifier
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
+import org.slf4j.LoggerFactory
 
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
     private val recordSource: MetadataRecordSource,
+    private val timeSeriesMemberSource: TimeSeriesMemberSource,
 ) {
+    private val log = LoggerFactory.getLogger(LinkedDistributionsService::class.java)
+
     suspend fun getLinkedDistributions(uuid: String): LinkedDistributions {
         val solrDoc = solrClient.getMetadataByUuid(uuid) ?: return LinkedDistributions()
 
@@ -52,9 +60,15 @@ class LinkedDistributionsService(
                     .searchApplicationsForDataset(uuid)
                     .filter { it.uuid != uuid }
 
+            val isMetTimeSeries = solrDoc.isTimeSeries && isMetIdentifier(uuid)
             val seriesMemberRefs =
-                parseDatasetServices(solrDoc.seriedatasets)
-                    .filter { it.uuid != uuid }
+                /** Timeseries som ligger hos met har også seriemedlemmer på met sin server
+                 * seriedatasets er dermed tom, og vi kan droppe å parse noe */
+                if (isMetTimeSeries) {
+                    emptyList()
+                } else {
+                    parseDatasetServices(solrDoc.seriedatasets).filter { it.uuid != uuid }
+                }
 
             val parentSeriesRefs =
                 parseDatasetServices(listOfNotNull(solrDoc.serie))
@@ -92,9 +106,22 @@ class LinkedDistributionsService(
                 }
 
             val seriesMembersDeferred =
-                seriesMemberRefs.map {
-                    async {
-                        fetchLinkedDistribution(it.uuid, it.protocol, solrDocsByUuid, preferDownloadProtocol = true)
+                async {
+                    if (isMetTimeSeries) {
+                        fetchTimeSeriesMembers(uuid)
+                    } else {
+                        seriesMemberRefs
+                            .map {
+                                async {
+                                    fetchLinkedDistribution(
+                                        it.uuid,
+                                        it.protocol,
+                                        solrDocsByUuid,
+                                        preferDownloadProtocol = true,
+                                    )
+                                }
+                            }.awaitAll()
+                            .filterNotNull()
                     }
                 }
 
@@ -109,7 +136,7 @@ class LinkedDistributionsService(
                 applications = applicationsDeferred.awaitAll().filterNotNull(),
                 viewServices = viewServicesDeferred.awaitAll().filterNotNull(),
                 downloadServices = downloadServicesDeferred.awaitAll().filterNotNull(),
-                seriesMembers = seriesMembersDeferred.awaitAll().filterNotNull(),
+                seriesMembers = seriesMembersDeferred.await(),
                 parentSeries = parentSeriesDeferred.awaitAll().filterNotNull(),
             )
         }
@@ -180,6 +207,17 @@ class LinkedDistributionsService(
         }
     }
 
+    // Legacy swallows MET errors here; we log them so the rest of the page's linked distributions still load.
+    private suspend fun fetchTimeSeriesMembers(seriesUuid: String): List<LinkedDistribution> =
+        try {
+            timeSeriesMemberSource.getTimeSeriesMembers(seriesUuid).map { it.toLinkedDistribution() }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.warn("Could not fetch time series members for {} from MET", seriesUuid, e)
+            emptyList()
+        }
+
     private suspend fun fetchLinkedDistribution(
         relatedUuid: String,
         protocol: String?,
@@ -232,6 +270,23 @@ class LinkedDistributionsService(
             thematicSeriesDownloadItem = DownloadItem.fromThematicSeries(solrDoc?.serie),
         )
     }
+
+    private fun TimeSeriesMember.toLinkedDistribution() =
+        LinkedDistribution(
+            uuid = uuid,
+            title = title,
+            organization = organization,
+            typeTranslated = null,
+            seriesType = seriesType,
+            thumbnailUrl = null,
+            distributionUrl = distributionUrl,
+            distributionProtocol = distributionProtocol,
+            getCapabilitiesUrl = null,
+            showMapLink = wmsUrl != null,
+            mapCapabilitiesUrl = wmsUrl,
+            hierarchyLevel = hierarchyLevel,
+            accessState = resolveAccessState(record),
+        )
 
     private fun List<OnlineResource>.findUrlForProtocol(protocol: String?): String? =
         if (protocol.isNullOrBlank()) {
