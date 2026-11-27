@@ -548,7 +548,7 @@ class LegacySearchRoutesTest {
     }
 
     @Test
-    fun `datasets-simple queries the metadata core with the fixed legacy query`() =
+    fun `datasets-simple queries metadata_all with the fixed legacy query and type filter`() =
         testApplication {
             simpleApp(upstream(solrBody = solrResponse.replace("\"typename\"", "\"x\"")))
 
@@ -573,11 +573,11 @@ class LegacySearchRoutesTest {
                     .getValue("TypeTranslated")
                     .jsonPrimitive.content,
             )
-            assertTrue("/solr/metadata/select" in paths)
+            assertTrue("/solr/metadata_all/select" in paths)
             val form = searchForms.single()
             assertContains(form, "ISO19115")
             assertContains(form, "rows=[1000]")
-            assertFalse("fq=" in form)
+            assertContains(form, "fq=[-type:(service OR servicelayer OR software)]")
             assertEquals("1000", json.getValue("Limit").jsonPrimitive.content)
             assertEquals("1", json.getValue("Offset").jsonPrimitive.content)
             assertEquals("1", json.getValue("NumFound").jsonPrimitive.content)
@@ -589,37 +589,6 @@ class LegacySearchRoutesTest {
                     .jsonObject
             assertEquals("test-uuid", result.getValue("Uuid").jsonPrimitive.content)
             assertEquals("Kartverket", result.getValue("Organization").jsonPrimitive.content)
-        }
-
-    @Test
-    fun `datasets-simple filters on organization and returns DatasetName`() =
-        testApplication {
-            simpleApp(
-                upstream(
-                    solrBody =
-                        solrResponse.replace(
-                            "\"type\":\"dataset\"",
-                            "\"type\":\"dataset\",\"resourceReferenceCodeName\":\"N50\"",
-                        ),
-                ),
-            )
-
-            val response = client.get("/api/datasets-simple?organization=Kartverket")
-            val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
-            assertEquals(HttpStatusCode.OK, response.status)
-            val form = searchForms.single()
-            assertContains(form, "organization:\"Kartverket\"")
-            assertContains(form, "{!ex=organization}organization")
-            assertEquals(
-                "N50",
-                json
-                    .getValue("Results")
-                    .jsonArray
-                    .first()
-                    .jsonObject
-                    .getValue("DatasetName")
-                    .jsonPrimitive.content,
-            )
         }
 
     @Test
@@ -721,6 +690,7 @@ class LegacySearchRoutesTest {
             assertTrue("/solr/metadata/select" in paths)
             val form = searchForms.single()
             assertContains(form, "resourceReferenceCodespace:http\\:\\/\\/skjema.test\\/N50")
+            assertContains(form, "resourceReferenceCodeName")
             assertContains(form, "rows=[2000]")
             assertContains(form, "start=[0]")
             assertEquals(setOf("Results"), json.keys)
