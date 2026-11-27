@@ -69,3 +69,12 @@
   --dsc-button-color--hover: var(--ds-color-danger-text-subtle);
   --dsc-button-background--hover: var(--ds-color-danger-surface-hover);
 }
+
+@media (max-width: 800px) {
+    .buttonContainer{
+        flex-direction: column;
+    }
+    .userInputs {
+        flex-direction: column;
+    }
+}
