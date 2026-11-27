@@ -13,7 +13,7 @@ export function PendingDownloadsAfterLogin() {
   const authStatus = useAuthInfo().status;
 
   useEffect(() => {
-    if (authStatus === "loading") return;
+    if (authStatus === "loading" || authStatus === "error") return;
 
     const pending = takePendingDownloads();
     // Avbrutt innlogging: glem det som ventet, og ikke send brukeren noe sted
