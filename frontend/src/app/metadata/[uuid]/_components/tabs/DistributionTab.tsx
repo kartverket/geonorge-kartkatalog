@@ -1,7 +1,6 @@
 import { Heading } from "@kv-designsystem/react";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
-import type { getMetadata } from "@/app/api";
 import { DistributionDetailActionButton } from "@/app/metadata/[uuid]/_components/DistributionDetailActionButton";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import accordionGroupStyles from "@/app/metadata/[uuid]/_components/shared/AccordionGroup.module.css";
@@ -22,6 +21,7 @@ import { getProductTypeDefiniteString } from "@/lib/productType";
 import type {
   DistributionGroup,
   LinkedDistributions,
+  ProductMetadata,
   ReferenceSystem,
 } from "@/lib/schemas/product";
 import { LOCATIONS } from "@/posthog/posthog";
@@ -45,7 +45,7 @@ export async function DistributionTab({
   linkedDistributions: linkedDistributionsPromise,
 }: {
   uuid: string;
-  metadata: Awaited<ReturnType<typeof getMetadata>>;
+  metadata: ProductMetadata;
   linkedDistributions: Promise<LinkedDistributions>;
 }) {
   const linkedDistributions = await linkedDistributionsPromise;

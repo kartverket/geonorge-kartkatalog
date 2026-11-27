@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import {
   getFairStatus,
-  type getMetadata,
   getProduktark,
   getProduktspesifikasjon,
   getTegneregler,
@@ -19,7 +18,10 @@ import {
 import { hasDocumentation } from "@/app/metadata/[uuid]/_utils/productPage";
 import { unwrapSettled } from "@/app/metadata/[uuid]/_utils/utils";
 import { getProductTypeDefiniteString } from "@/lib/productType";
-import type { LinkedDistributions } from "@/lib/schemas/product";
+import type {
+  LinkedDistributions,
+  ProductMetadata,
+} from "@/lib/schemas/product";
 
 export async function ProductTabsSection({
   uuid,
@@ -27,7 +29,7 @@ export async function ProductTabsSection({
   linkedDistributions,
 }: {
   uuid: string;
-  metadata: Awaited<ReturnType<typeof getMetadata>>;
+  metadata: ProductMetadata;
   linkedDistributions: Promise<LinkedDistributions>;
 }) {
   const [
