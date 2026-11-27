@@ -77,9 +77,9 @@ export async function DistributionTab({
   };
 
   const groups = metadata.distributionGroups;
-  const visibleGroups = groups.filter((group) =>
-    hasVisibleFields(getGroupFields(product, group)),
-  );
+  const visibleGroups = groups
+    .map((group) => getGroupContent(product, group))
+    .filter((content) => hasVisibleFields(content.fields));
   const showSeriesDownload =
     !groups.some((group) => isGeonorgeDownloadProtocol(group.protocol)) &&
     seriesDownloads.downloadableSeriesMembers.length > 0;
@@ -93,13 +93,13 @@ export async function DistributionTab({
             Tilganger til {getProductTypeDefiniteString(product.hierarchyLevel)}
           </Heading>
           <div className={accordionGroupStyles.accordionGroup}>
-            {visibleGroups.map((group, i) => {
-              const key = `${i}-${group.protocolName}`;
+            {visibleGroups.map((content, i) => {
+              const key = `${i}-${content.group.protocolName}`;
               return (
                 <DistributionGroupAccordion
                   key={key}
                   product={product}
-                  group={group}
+                  content={content}
                   seriesDownloads={seriesDownloads}
                 />
               );
@@ -119,7 +119,9 @@ export async function DistributionTab({
   );
 }
 
-function getGroupFields(product: ProductInfo, group: DistributionGroup) {
+type GroupContent = ReturnType<typeof getGroupContent>;
+
+function getGroupContent(product: ProductInfo, group: DistributionGroup) {
   const urlRows = buildUrlRows(group.entries);
   const formatNames = getGroupFormatNames(group.entries);
   const units = group.unitsOfDistribution
@@ -127,7 +129,7 @@ function getGroupFields(product: ProductInfo, group: DistributionGroup) {
     .map((unit) => unit.trim())
     .filter(Boolean);
 
-  return [
+  const fields = [
     { label: "Beskrivelse", content: group.protocolDescription },
     ...urlRows.map((row) => ({
       label: row.label,
@@ -176,21 +178,19 @@ function getGroupFields(product: ProductInfo, group: DistributionGroup) {
       ),
     },
   ];
+
+  return { group, urlRows, formatNames, fields };
 }
 
 function DistributionGroupAccordion({
   product,
-  group,
+  content: { group, urlRows, formatNames, fields },
   seriesDownloads,
 }: {
   product: ProductInfo;
-  group: DistributionGroup;
+  content: GroupContent;
   seriesDownloads: SeriesDownloads;
 }) {
-  const urlRows = buildUrlRows(group.entries);
-  const formatNames = getGroupFormatNames(group.entries);
-  const fields = getGroupFields(product, group);
-
   return (
     <DetailAccordion
       title={group.protocolName ?? "Ukjent protokoll"}
