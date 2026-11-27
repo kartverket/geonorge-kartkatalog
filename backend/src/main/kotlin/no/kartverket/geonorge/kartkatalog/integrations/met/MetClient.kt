@@ -6,8 +6,8 @@ import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.ISO_19139_OUTP
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecordSource
 import java.time.LocalDate
 
-// Same timeout as legacy GeoNorgeAPI (HttpWebRequest.Timeout = 60000).
-private const val MET_REQUEST_TIMEOUT_MILLIS = 60_000L
+// Legacy GeoNorgeAPI waits 60 s.
+private const val MET_REQUEST_TIMEOUT_MILLIS = 20_000L
 
 private const val MET_UUID_PREFIX = "no.met:"
 

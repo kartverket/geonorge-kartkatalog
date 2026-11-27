@@ -220,7 +220,8 @@ export async function getLinkedDistributions(
   const body = await fetchJson(
     url,
     { method: "GET" },
-    { notFoundOn404: false },
+    // Longer than the default, so the backend's MET requests (20 s) can finish.
+    { timeout: 25000, notFoundOn404: false },
   );
   return parseLinkedDistributions(body);
 }
