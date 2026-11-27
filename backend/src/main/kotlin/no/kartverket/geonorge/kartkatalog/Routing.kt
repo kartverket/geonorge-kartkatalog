@@ -25,8 +25,8 @@ import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetClient
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetFallbackMetadataRecordSource
+import no.kartverket.geonorge.kartkatalog.integrations.met.MetClient
+import no.kartverket.geonorge.kartkatalog.integrations.met.MetFallbackMetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient

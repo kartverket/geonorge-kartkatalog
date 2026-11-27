@@ -40,7 +40,7 @@ flowchart LR
 | System | Brukes til | Miljøvariabel |
 |---|---|---|
 | GeoNetwork | Henter full metadatapost (CSW) | `GEONETWORK_BASE_URL` |
-| MET CSW | Reserve for UUID-er som starter med `no.met:` og ikke finnes i vår GeoNetwork (samme URL som legacy: `https://data.csw.met.no/?srv/nor/csw`, 60 s timeout, satt i `MetClient`). Også kilde til «Datasett i serien» for no.met-serier med `typename=series_time`: CSW GetRecords på `ParentIdentifier` + tidsavgrensning som legacy, maks 100, nyeste først. Feil gir tom liste og logges | – (`AppConfig.metUrl`, hardkodet) |
+| MET CSW | Reserve for UUID-er som starter med `no.met:` og ikke finnes i vår GeoNetwork (samme URL som legacy: `https://data.csw.met.no/?srv/nor/csw`, 60 s timeout, satt i `MetClient`). Også kilde til «Datasett i serien» for no.met-serier med `typename=series_time`: CSW GetRecords på `ParentIdentifier` + tidsavgrensning som legacy, maks 100, nyeste først. Tidsseriemedlemmer finnes bare hos MET; tidsserier i vår GeoNetwork har ingen medlemmer og spør ikke MET. Feil gir tom liste og logges | – (`AppConfig.metUrl`, hardkodet) |
 | Solr | Søk, fasetter, distribusjoner, tilknyttede distribusjoner | `SOLR_BASE_URL` |
 | Register | Kodelister/oversettelser, områder, HVD, innsiktsgrupper | `REGISTER_BASE_URL` |
 | Norgeskart | Kartlenker i svar | `NORGESKART_BASE_URL` |
@@ -61,7 +61,7 @@ src/main/kotlin/no/kartverket/geonorge/kartkatalog/
 ├── metadata/        Metadatamapping, kodelister, tilgangsstatus, tegneregler m.m.
 ├── distribution/    Distribusjoner for et metadata-objekt
 ├── download/        Nedlastingsbestilling og -alternativer
-└── integrations/    Klienter: geonetwork, solr, register, vertex
+└── integrations/    Klienter: geonetwork, met, solr, register, vertex
 ```
 
 ## Tilgjengeliggjorte endepunkt

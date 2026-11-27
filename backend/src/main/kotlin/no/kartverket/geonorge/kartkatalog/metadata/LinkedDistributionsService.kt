@@ -6,21 +6,18 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.kartverket.geonorge.kartkatalog.distribution.resolveMapCapability
 import no.kartverket.geonorge.kartkatalog.download.DownloadItem
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MET_WEATHER_STATION_SERIES_UUID
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecordSource
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.TimeSeriesMemberSource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
+import no.kartverket.geonorge.kartkatalog.integrations.met.TimeSeriesMember
+import no.kartverket.geonorge.kartkatalog.integrations.met.TimeSeriesMemberSource
+import no.kartverket.geonorge.kartkatalog.integrations.met.isMetIdentifier
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.parseDatasetServices
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistribution
 import no.kartverket.geonorge.kartkatalog.metadata.models.LinkedDistributions
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 
 class LinkedDistributionsService(
     private val solrClient: SolrClient,
@@ -63,12 +60,11 @@ class LinkedDistributionsService(
                     .searchApplicationsForDataset(uuid)
                     .filter { it.uuid != uuid }
 
+            val isMetTimeSeries = solrDoc.isTimeSeries && isMetIdentifier(uuid)
             val seriesMemberRefs =
                 /** Timeseries som ligger hos met har også seriemedlemmer på met sin server
                  * seriedatasets er dermed tom, og vi kan droppe å parse noe */
-                if (solrDoc.isMetTimeSeries) {
-                    // TODO: eller kan det være at noen har seriedatasets på seg? I så fall burde vi her kjøre
-//                    elsen, og heller håndtere isMetTimeSeries && seriesMemberRefs is empty i seriesMembersDeferred... snakk med dag olav
+                if (isMetTimeSeries) {
                     emptyList()
                 } else {
                     parseDatasetServices(solrDoc.seriedatasets).filter { it.uuid != uuid }
@@ -111,8 +107,7 @@ class LinkedDistributionsService(
 
             val seriesMembersDeferred =
                 async {
-                    if (solrDoc.isMetTimeSeries) {
-//                       for met-inst-timeseries kan vi hente seriemedlemmer hos met
+                    if (isMetTimeSeries) {
                         fetchTimeSeriesMembers(uuid)
                     } else {
                         seriesMemberRefs
@@ -215,7 +210,7 @@ class LinkedDistributionsService(
     // Legacy swallows MET errors here; we log them so the rest of the page's linked distributions still load.
     private suspend fun fetchTimeSeriesMembers(seriesUuid: String): List<LinkedDistribution> =
         try {
-            timeSeriesMemberSource.getTimeSeriesMembers(seriesUuid).map { it.toTimeSeriesMember(seriesUuid) }
+            timeSeriesMemberSource.getTimeSeriesMembers(seriesUuid).map { it.toLinkedDistribution() }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -276,48 +271,22 @@ class LinkedDistributionsService(
         )
     }
 
-    /** Same mapping as legacy MetadataService.GetTimeRelatedDistributions. */
-    private fun MetadataRecord.toTimeSeriesMember(seriesUuid: String): LinkedDistribution {
-        val distributionDetails = distributionInfo?.transferOptions?.firstOrNull()
-        val wmsResource =
-            distributionInfo
-                ?.formats
-                .orEmpty()
-                .flatMap { it.onlineResources }
-                .lastOrNull { it.protocol == "OGC:WMS" }
-        val memberTitle =
-            if (seriesUuid == MET_WEATHER_STATION_SERIES_UUID) {
-                listOfNotNull(title, publicationDateTime()?.format(TIME_SERIES_DATE_FORMAT)).joinToString(" ")
-            } else {
-                title
-            }
-        val url =
-            distributionDetails?.url?.takeIf { it.isNotEmpty() }?.let { if (it.endsWith(".nc")) "$it.html" else it }
-
-        return LinkedDistribution(
+    private fun TimeSeriesMember.toLinkedDistribution() =
+        LinkedDistribution(
             uuid = uuid,
-            title = memberTitle,
-            organization = contacts.firstOrNull { it.role == "owner" }?.organization,
+            title = title,
+            organization = organization,
             typeTranslated = null,
-            seriesType = hierarchyLevelName,
+            seriesType = seriesType,
             thumbnailUrl = null,
-            distributionUrl = url,
-            distributionProtocol = distributionDetails?.protocol,
+            distributionUrl = distributionUrl,
+            distributionProtocol = distributionProtocol,
             getCapabilitiesUrl = null,
-            showMapLink = wmsResource != null,
-            mapCapabilitiesUrl = wmsResource?.url,
+            showMapLink = wmsUrl != null,
+            mapCapabilitiesUrl = wmsUrl,
             hierarchyLevel = hierarchyLevel,
-            accessState = resolveAccessState(this),
+            accessState = resolveAccessState(record),
         )
-    }
-
-    private fun MetadataRecord.publicationDateTime(): LocalDateTime? {
-        val date = dates.firstOrNull { it.type == "publication" }?.date ?: return null
-        return runCatching { OffsetDateTime.parse(date).toLocalDateTime() }
-            .recoverCatching { LocalDateTime.parse(date) }
-            .recoverCatching { LocalDate.parse(date).atStartOfDay() }
-            .getOrNull()
-    }
 
     private fun List<OnlineResource>.findUrlForProtocol(protocol: String?): String? =
         if (protocol.isNullOrBlank()) {
@@ -326,5 +295,3 @@ class LinkedDistributionsService(
             firstOrNull { it.protocol.equals(protocol, ignoreCase = true) }?.url
         }
 }
-
-private val TIME_SERIES_DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")

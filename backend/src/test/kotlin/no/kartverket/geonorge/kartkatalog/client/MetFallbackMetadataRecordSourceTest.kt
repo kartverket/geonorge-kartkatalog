@@ -10,11 +10,11 @@ import kotlinx.coroutines.runBlocking
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.CswExceptionReportException
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.CswRecordClient
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeoNetworkException
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetClient
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetFallbackMetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataParser
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.met.MetClient
+import no.kartverket.geonorge.kartkatalog.integrations.met.MetFallbackMetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.metrics.UpstreamMetricsRecorder
 import java.time.LocalDate
 import kotlin.test.AfterTest

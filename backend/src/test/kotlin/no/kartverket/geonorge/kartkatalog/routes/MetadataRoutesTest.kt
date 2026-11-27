@@ -23,8 +23,8 @@ import no.kartverket.geonorge.kartkatalog.config.configureHttp
 import no.kartverket.geonorge.kartkatalog.config.configureSerialization
 import no.kartverket.geonorge.kartkatalog.config.configureStatusPages
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.GeonetworkClient
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetClient
-import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MetFallbackMetadataRecordSource
+import no.kartverket.geonorge.kartkatalog.integrations.met.MetClient
+import no.kartverket.geonorge.kartkatalog.integrations.met.MetFallbackMetadataRecordSource
 import no.kartverket.geonorge.kartkatalog.integrations.register.CodeList
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
@@ -504,12 +504,15 @@ class MetadataRoutesTest {
     }
 
     @Test
-    fun `uses Solr seriedatasets for time series without MET uuid`() {
+    fun `does not ask MET for time series without MET uuid`() {
         val metXml = javaClass.getResource("/met-time-series-response.xml")!!.readText()
         val (metadataService, linkedDistributionsService) =
             createMetadataService(
                 responseXml,
-                solrDocJson = timeSeriesSolrJson.replace("no.met:9fbe6a04", "9fbe6a04"),
+                solrDocJson =
+                    timeSeriesSolrJson
+                        .replace("no.met:9fbe6a04", "9fbe6a04")
+                        .replace(Regex(""""seriedatasets": \[.*]"""), """"seriedatasets": []"""),
                 metXml = metXml,
             )
 
@@ -517,10 +520,7 @@ class MetadataRoutesTest {
             val response = client.get("/metadata/9fbe6a04-279c-46b8-a582-bb08f4b11794/linked-distributions")
 
             assertEquals(HttpStatusCode.OK, response.status)
-            assertEquals(
-                listOf("11111111-1111-1111-1111-111111111111"),
-                seriesMembers(response.bodyAsText()).map { it["uuid"]!!.jsonPrimitive.content },
-            )
+            assertEquals(emptyList(), seriesMembers(response.bodyAsText()))
         }
     }
 
