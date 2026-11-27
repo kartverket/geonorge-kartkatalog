@@ -5,6 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
 import no.kartverket.geonorge.kartkatalog.distribution.MapCapabilityFields
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.MET_UUID_PREFIX
 
 @Serializable
 data class SolrResponse(
@@ -105,7 +106,10 @@ data class SolrDocument(
     val typename: String? = null,
     val spatialscope: List<String>? = null,
     val resourceReferenceCodeName: String? = null,
-) : MapCapabilityFields
+) : MapCapabilityFields {
+    val isMetTimeSeries: Boolean
+        get() = type == "series" && typename == "series_time" && uuid.startsWith(MET_UUID_PREFIX)
+}
 
 data class RelatedServiceReference(
     val uuid: String,

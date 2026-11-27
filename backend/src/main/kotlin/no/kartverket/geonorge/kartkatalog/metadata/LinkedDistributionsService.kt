@@ -63,16 +63,15 @@ class LinkedDistributionsService(
                     .searchApplicationsForDataset(uuid)
                     .filter { it.uuid != uuid }
 
-            // As legacy: members of a time series ("series_time") are not in Solr's seriedatasets, but are
-            // fetched from MET. All other series members come from seriedatasets.
-            val isTimeSeries = solrDoc.type == "series" && solrDoc.typename == "series_time"
             val seriesMemberRefs =
-                if (isTimeSeries) {
+                /** Timeseries som ligger hos met har også seriemedlemmer på met sin server
+                 * seriedatasets er dermed tom, og vi kan droppe å parse noe */
+                if (solrDoc.isMetTimeSeries) {
+                    // TODO: eller kan det være at noen har seriedatasets på seg? I så fall burde vi her kjøre
+//                    elsen, og heller håndtere isMetTimeSeries && seriesMemberRefs is empty i seriesMembersDeferred... snakk med dag olav
                     emptyList()
                 } else {
-                    parseDatasetServices(
-                        solrDoc.seriedatasets,
-                    ).filter { it.uuid != uuid }
+                    parseDatasetServices(solrDoc.seriedatasets).filter { it.uuid != uuid }
                 }
 
             val parentSeriesRefs =
@@ -111,20 +110,23 @@ class LinkedDistributionsService(
                 }
 
             val seriesMembersDeferred =
-                if (isTimeSeries) {
-                    listOf(async { fetchTimeSeriesMembers(uuid) })
-                } else {
-                    seriesMemberRefs.map {
-                        async {
-                            listOfNotNull(
-                                fetchLinkedDistribution(
-                                    it.uuid,
-                                    it.protocol,
-                                    solrDocsByUuid,
-                                    preferDownloadProtocol = true,
-                                ),
-                            )
-                        }
+                async {
+                    if (solrDoc.isMetTimeSeries) {
+//                       for met-inst-timeseries kan vi hente seriemedlemmer hos met
+                        fetchTimeSeriesMembers(uuid)
+                    } else {
+                        seriesMemberRefs
+                            .map {
+                                async {
+                                    fetchLinkedDistribution(
+                                        it.uuid,
+                                        it.protocol,
+                                        solrDocsByUuid,
+                                        preferDownloadProtocol = true,
+                                    )
+                                }
+                            }.awaitAll()
+                            .filterNotNull()
                     }
                 }
 
@@ -139,7 +141,7 @@ class LinkedDistributionsService(
                 applications = applicationsDeferred.awaitAll().filterNotNull(),
                 viewServices = viewServicesDeferred.awaitAll().filterNotNull(),
                 downloadServices = downloadServicesDeferred.awaitAll().filterNotNull(),
-                seriesMembers = seriesMembersDeferred.awaitAll().flatten(),
+                seriesMembers = seriesMembersDeferred.await(),
                 parentSeries = parentSeriesDeferred.awaitAll().filterNotNull(),
             )
         }
