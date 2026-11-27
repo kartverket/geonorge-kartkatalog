@@ -690,6 +690,7 @@ class LegacySearchRoutesTest {
             assertTrue("/solr/metadata/select" in paths)
             val form = searchForms.single()
             assertContains(form, "resourceReferenceCodespace:http\\:\\/\\/skjema.test\\/N50")
+            assertContains(form, "resourceReferenceCodeName")
             assertContains(form, "rows=[2000]")
             assertContains(form, "start=[0]")
             assertEquals(setOf("Results"), json.keys)

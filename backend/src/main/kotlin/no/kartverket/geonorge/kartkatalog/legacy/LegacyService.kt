@@ -509,7 +509,7 @@ class LegacyService(
         val query =
             MetadataSolrQuery(
                 q = "resourceReferenceCodespace:${escapeSolrSpecialChars(namespace)}",
-                fl = SimpleMetadataQuery.FIELDS,
+                fl = "uuid,title,organization,organizationgroup,resourceReferenceCodeName",
                 rows = limit,
                 start = start,
             )
