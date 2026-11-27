@@ -6,7 +6,10 @@ import kotlinx.serialization.json.jsonPrimitive
 import no.kartverket.geonorge.kartkatalog.distribution.MapCapabilityFields
 import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrCore
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrQueries
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrResponse
 import no.kartverket.geonorge.kartkatalog.integrations.vertex.VertexAIClient
 import no.kartverket.geonorge.kartkatalog.metrics.countEvent
 import org.slf4j.LoggerFactory
@@ -52,7 +55,6 @@ internal data class SearchHit(
     val productSpecificationUrl: String?,
     val dateUpdated: String?,
     val spatialscope: List<String>?,
-    val datasetName: String? = null,
 ) : MapCapabilityFields
 
 internal data class SearchHits(
@@ -82,38 +84,25 @@ class SearchEngine(
         var engine = "solr"
         val response =
             if (hybridQuery == null) {
-                solrClient.searchMetadataAll(query, english)
+                solrClient.search(SolrCore.metadataAll(english), query)
             } else {
                 try {
-                    solrClient.searchMetadataAll(hybridQuery, english).also { engine = "hybrid" }
+                    solrClient
+                        .search(SolrCore.metadataAll(english), hybridQuery)
+                        .also { engine = "hybrid" }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
                     log.warn("Vector search failed, falling back to plain Solr search", e)
                     recordVectorFallback("solr_query_failed")
-                    solrClient.searchMetadataAll(query, english)
+                    solrClient.search(SolrCore.metadataAll(english), query)
                 }
             }
         countEvent("search.requests", "Searches by engine used", "engine" to engine)
         if (response.response.numFound == 0) {
             countEvent("search.zero_results", "Searches without any hits", "engine" to engine)
         }
-        val facets =
-            response.facetCounts
-                ?.facetFields
-                .orEmpty()
-                .mapValues { (_, raw) -> raw.toCounts() }
-        return SearchHits(response.response.numFound, response.response.docs.map { it.toSearchHit() }, facets)
-    }
-
-    internal suspend fun searchMetadataCore(query: MetadataSolrQuery): SearchHits {
-        val response = solrClient.searchMetadata(query)
-        val facets =
-            response.facetCounts
-                ?.facetFields
-                .orEmpty()
-                .mapValues { (_, raw) -> raw.toCounts() }
-        return SearchHits(response.response.numFound, response.response.docs.map { it.toSearchHit() }, facets)
+        return response.toSearchHits()
     }
 
     private suspend fun buildHybridQuery(
@@ -146,7 +135,12 @@ class SearchEngine(
     internal suspend fun findUuidByDatasetName(
         datasetName: String,
         excludeUuid: String,
-    ): String? = solrClient.findUuidByDatasetName(datasetName, excludeUuid)
+    ): String? =
+        solrClient
+            .search(SolrCore.METADATA, SolrQueries.otherMetadataWithDatasetName(datasetName, excludeUuid))
+            .response.docs
+            .firstOrNull()
+            ?.uuid
 
     suspend fun getMetadataByUuids(uuids: List<String>): List<SolrDocument> = solrClient.getMetadataByUuids(uuids)
 
@@ -154,6 +148,17 @@ class SearchEngine(
         const val MINIMUM_VECTOR_SEARCH_LENGTH = 2
     }
 }
+
+internal fun SolrResponse.toSearchHits(): SearchHits =
+    SearchHits(
+        numFound = response.numFound,
+        documents = response.docs.map { it.toSearchHit() },
+        facets =
+            facetCounts
+                ?.facetFields
+                .orEmpty()
+                .mapValues { (_, raw) -> raw.toCounts() },
+    )
 
 private fun JsonArray.toCounts(): List<SearchFacetCount> =
     chunked(2).mapNotNull { pair ->
@@ -198,5 +203,4 @@ private fun SolrDocument.toSearchHit(): SearchHit =
         productSpecificationUrl = productSpecificationUrl,
         dateUpdated = dateUpdated?.toString(),
         spatialscope = spatialscope,
-        datasetName = resourceReferenceCodeName,
     )

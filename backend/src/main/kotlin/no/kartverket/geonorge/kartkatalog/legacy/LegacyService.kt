@@ -20,6 +20,7 @@ import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterClient
 import no.kartverket.geonorge.kartkatalog.integrations.register.RegisterException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.MetadataSolrQuery
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrClient
+import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrCore
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrDocument
 import no.kartverket.geonorge.kartkatalog.integrations.solr.SolrException
 import no.kartverket.geonorge.kartkatalog.integrations.solr.escapeSolrSpecialChars
@@ -34,6 +35,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.findExtensionUrl
 import no.kartverket.geonorge.kartkatalog.metadata.getCoverageLink
 import no.kartverket.geonorge.kartkatalog.search.SearchEngine
 import no.kartverket.geonorge.kartkatalog.search.SearchHits
+import no.kartverket.geonorge.kartkatalog.search.toSearchHits
 import org.slf4j.LoggerFactory
 
 private const val NATIONAL_THEME_THESAURUS = "Nasjonal tematisk inndeling (DOK-kategori)"
@@ -130,7 +132,10 @@ class LegacyService(
         organization: String?,
         language: String,
     ): JsonObject {
-        val hits = engine.searchMetadataCore(SimpleMetadataQuery.build(organization))
+        val hits =
+            solrClient
+                .search(SolrCore.METADATA_ALL, SimpleMetadataQuery.build(organization))
+                .toSearchHits()
         return LegacySearchResponseMapper(language, kartkatalogUrl, loadAreas())
             .build(SimpleMetadataQuery.LIMIT, SimpleMetadataQuery.OFFSET, hits)
     }
@@ -504,17 +509,17 @@ class LegacyService(
         val query =
             MetadataSolrQuery(
                 q = "resourceReferenceCodespace:${escapeSolrSpecialChars(namespace)}",
-                fl = SimpleMetadataQuery.FIELDS,
+                fl = "uuid,title,organization,organizationgroup,resourceReferenceCodeName",
                 rows = limit,
                 start = start,
             )
         val results =
-            engine.searchMetadataCore(query).documents.map { doc ->
+            solrClient.search(SolrCore.METADATA, query).response.docs.map { doc ->
                 buildJsonObject {
                     put("Uuid", doc.uuid)
                     putNullable("Title", doc.title)
                     putNullable("Organization", doc.organizationgroup ?: doc.organization)
-                    putNullable("DatasetName", doc.datasetName)
+                    putNullable("DatasetName", doc.resourceReferenceCodeName)
                 }
             }
         return buildJsonObject { put("Results", JsonArray(results)) }

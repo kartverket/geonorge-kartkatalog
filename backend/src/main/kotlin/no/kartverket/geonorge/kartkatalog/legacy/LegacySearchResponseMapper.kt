@@ -107,7 +107,6 @@ internal class LegacySearchResponseMapper(
             putNullable("Abstract", doc.abstractText)
             putNullable("Type", type)
             putNullable("TypeName", doc.typename)
-            putNullable("DatasetName", doc.datasetName)
             putNullable("TypeTranslated", translatedType(type))
             putNullable("Theme", doc.theme)
             putNullable("Organization", doc.organizationgroup ?: doc.organization)
