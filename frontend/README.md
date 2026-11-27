@@ -6,7 +6,7 @@ Next.js 16 + React 19 frontend for the Geonorge Kartkatalog. This document is me
 
 ## Prerequisites
 
-- **Node.js 20.20.x or 22.22+** (required by `posthog-node`; production image uses Node 26)
+- **Node.js 20.9+** (required by Next.js; production image uses Node 26)
 - **npm** (package-lock is committed with npm)
 
 Optional but recommended:
