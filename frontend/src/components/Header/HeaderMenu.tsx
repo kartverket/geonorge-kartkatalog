@@ -206,7 +206,7 @@ export function HeaderMenu({
             </a>
           </Button>
           <Button asChild variant="tertiary" className={styles.inMenuFromXl}>
-            <a
+            <Link
               href={downloadHref}
               onClick={() => onActionNavigate("nedlasting")}
             >
@@ -221,7 +221,7 @@ export function HeaderMenu({
                 <DownloadIcon aria-hidden />
               </Badge.Position>
               Nedlasting
-            </a>
+            </Link>
           </Button>
           {!isBeta && (
             <Button
