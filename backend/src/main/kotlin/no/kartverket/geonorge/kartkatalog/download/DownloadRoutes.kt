@@ -285,7 +285,7 @@ fun Route.downloadRoutes(
                         "atkv3-dev:datadeling-geonorge:geonorge-nedlasting-api",
                     )
 
-                val result = downloadService.order(body.toDomain(), accessToken)
+                val result = downloadService.order(body.toDomain(), accessToken, "v4")
                 call.respond(result.toDto())
                 return@post
             }

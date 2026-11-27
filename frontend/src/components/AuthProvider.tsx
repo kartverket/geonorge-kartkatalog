@@ -82,6 +82,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             ? { status: "authenticated", user: session.user, provider: "geoid" }
             : { status: "anonymous" },
         );
+
+        if (session.authenticated) return;
+
+        if (process.env.NEXT_PUBLIC_MOCK_AUTH_ENABLED !== "true") return;
+
+        const localResponse = await fetch(
+          `${bffPath}/me/local`,
+          requestOptions,
+        );
+        if (!localResponse.ok) {
+          setState({ status: "error" });
+          return;
+        }
+        const localSession = AuthSessionSchema.parse(
+          await localResponse.json(),
+        );
+        if (localSession.authenticated) {
+          setState({
+            status: "authenticated",
+            user: localSession.user,
+            provider: "mock",
+          });
+          return;
+        }
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
           return;

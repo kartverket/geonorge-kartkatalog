@@ -1,18 +1,17 @@
 package no.kartverket.geonorge.kartkatalog.auth
 
 import io.ktor.client.HttpClient
-import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import no.kartverket.geonorge.kartkatalog.download.DownloadApiException
+import org.slf4j.LoggerFactory
 
 @Serializable
 data class ExchangeRequest(
@@ -43,24 +42,39 @@ class TokenExchangeClient(
             ignoreUnknownKeys = true
             encodeDefaults = true
         }
+    private val log = LoggerFactory.getLogger(TokenExchangeClient::class.java)
 
     suspend fun exchangeToken(
         userToken: String,
         target: String,
     ): String {
         val response =
-            httpClient.post("${texasUrl.trimEnd('/')}/api/v1/token/exchange") {
-                contentType(ContentType.Application.Json)
-                setBody(
-                    json.encodeToString(
-                        ExchangeRequest.serializer(),
-                        ExchangeRequest(
-                            identityProvider = "tokenx",
-                            userToken = userToken,
-                            target = target,
+            try {
+                // For local texas, use the default token endpoint with form URL encoded body.
+                // httpClient.post("${texasUrl.trimEnd('/')}/default/token")
+                // {
+                //     contentType(ContentType.Application.FormUrlEncoded)
+                //     setBody(
+                //         "grant_type=urn:ietf:params:oauth:grant-type:token-exchange&client_id=atkv3-dev:geonorge-ny-kartkatalog-dev:kartkatalog-backend&client_secret=x&subject_token=$userToken&subject_token_type=urn:ietf:params:oauth:token-type:jwt&audience=$target"
+                //     )
+                // }
+
+                httpClient.post("${texasUrl.trimEnd('/')}/api/v1/token/exchange") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        json.encodeToString(
+                            ExchangeRequest.serializer(),
+                            ExchangeRequest(
+                                identityProvider = "tokenx",
+                                userToken = userToken,
+                                target = target,
+                            ),
                         ),
-                    ),
-                )
+                    )
+                }
+            } catch (e: Exception) {
+                log.error("Failed to exchange token: ${e.message}", e)
+                throw DownloadApiException("Failed to exchange token: ${e.message}", e)
             }
         val exchangeResponse =
             try {
@@ -72,29 +86,6 @@ class TokenExchangeClient(
                 throw DownloadApiException("Uventet svar fra token exchange", e)
             }
 
-        // TODO: Remove at some point when no longer needed
-        try {
-            tokenTest(exchangeResponse.accessToken)
-        } catch (e: Exception) {
-            throw RuntimeException("Failed token test: ${e.message}", e)
-        }
-
         return exchangeResponse.accessToken
-    }
-
-    // TODO: Remove at some point when no longer needed
-    private suspend fun tokenTest(accessToken: String) {
-        val response =
-            httpClient.post("https://nedlasting.test.geonorge.no/api/v4/order-restricted") {
-                bearerAuth(accessToken)
-                contentType(ContentType.Application.Json)
-                setBody("{}")
-            }
-        when (response.status) {
-            HttpStatusCode.OK -> Unit
-            HttpStatusCode.Unauthorized -> error("Token rejected by OPA")
-            HttpStatusCode.ServiceUnavailable -> error("OPA unavailable")
-            else -> error("Unexpected ${response.status}: ${response.bodyAsText()}")
-        }
     }
 }

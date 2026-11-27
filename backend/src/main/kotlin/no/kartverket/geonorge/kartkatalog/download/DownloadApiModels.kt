@@ -49,7 +49,18 @@ data class DownloadApiOrderLine(
     val usagePurpose: List<String> = emptyList(),
     val coordinates: String? = null,
     val clipperFile: String? = null,
-)
+) {
+    fun toV4(): DownloadApiV4OrderLine =
+        DownloadApiV4OrderLine(
+            metadataUuid = metadataUuid,
+            areas = areas.map { DownloadApiV4OrderArea(it.code, it.name, it.type) },
+            formats = formats.map { DownloadApiV4Format(it.name, it.type) },
+            projections = projections.map { DownloadApiV4Projection(it.code, it.name, it.codespace) },
+            usagePurpose = usagePurpose,
+            coordinates = coordinates,
+            clipperFile = clipperFile,
+        )
+}
 
 @Serializable
 data class DownloadApiArea(

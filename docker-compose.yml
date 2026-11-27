@@ -1,23 +1,73 @@
+networks:
+  geonorge-network:
+    external: true
+
 services:
   backend:
+    networks:
+      - geonorge-network
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        - RUN_VERIFICATIONS=false
     restart: unless-stopped
     ports:
       - "8080:8080"
     env_file:
       - ./backend/.env
+    develop:
+      watch:
+        - path: ./backend
+          action: rebuild
 
   frontend:
+    networks:
+      - geonorge-network
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
         # Trenger basepath ved buildtime
-        NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH:-}
+        - NEXT_PUBLIC_BASE_PATH=/beta
+        - RUN_VERIFICATIONS=false
+        - NEXT_PUBLIC_MOCK_AUTH_ENABLED=true
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "80:3000"
     env_file:
       - ./frontend/.env
+    depends_on:
+      - backend
+    develop:
+      watch:
+        - path: ./frontend
+          action: rebuild
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  ztoperator:
+    networks:
+      - geonorge-network
+    image: ghcr.io/kartverket/skip-tilgangsstyring-local:2026-11-13-123700
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./local/authpolicy.yaml:/config/authpolicy.yaml:ro
+    environment:
+      AUTH_POLICY_PATH: /config/authpolicy.yaml
+      PROXY_PORT: "8000"
+      UPSTREAM_URL: http://frontend:3000
+    depends_on:
+      - frontend
+      - backend
+    env_file:
+      - ./local/ztoperator/.env
+    develop:
+      watch:
+        - path: ./local/ztoperator
+          action: restart
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+

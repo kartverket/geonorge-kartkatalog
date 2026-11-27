@@ -50,6 +50,7 @@ export function Header() {
     "https://kartkatalog.geonorge.no/kart?lat=7197860&lon=396722&zoom=4";
   const downloadHref = "/nedlasting";
   const geoIdLoginHref = `${bffPath}/auth/geoid/login` as Route;
+  const localLoginHref = `${bffPath}/auth/local/login` as Route;
   const ansattportenLoginHref = `${bffPath}/auth/ansattporten/login` as Route;
 
   const rootRef = useRef<HTMLDivElement>(null);
@@ -172,6 +173,7 @@ export function Header() {
                   className={styles.showFromSm}
                   geoIdHref={geoIdLoginHref}
                   ansattportenHref={ansattportenLoginHref}
+                  localLoginHref={localLoginHref}
                   onOpen={() => trackHeaderClick("login")}
                   onNavigate={(provider) =>
                     trackHeaderClick(`login-${provider}`)
@@ -220,6 +222,7 @@ export function Header() {
           mapHref={mapHref}
           downloadHref={downloadHref}
           geoIdLoginHref={geoIdLoginHref}
+          localLoginHref={localLoginHref}
           ansattportenLoginHref={ansattportenLoginHref}
           posthogClickAction={trackHeaderClick}
         />

@@ -155,6 +155,7 @@ export function HeaderMenu({
   mapHref,
   downloadHref,
   geoIdLoginHref,
+  localLoginHref,
   ansattportenLoginHref,
   posthogClickAction,
 }: {
@@ -167,6 +168,7 @@ export function HeaderMenu({
   mapHref: string;
   downloadHref: string;
   geoIdLoginHref: Route;
+  localLoginHref: Route;
   ansattportenLoginHref: Route;
   posthogClickAction: (clickItem: string) => void;
 }) {
@@ -252,6 +254,7 @@ export function HeaderMenu({
                 className={styles.inMenuFromSm}
                 geoIdHref={geoIdLoginHref}
                 ansattportenHref={ansattportenLoginHref}
+                localLoginHref={localLoginHref}
                 onOpen={() => posthogClickAction("login")}
                 onNavigate={(provider) => onActionNavigate(`login-${provider}`)}
               />

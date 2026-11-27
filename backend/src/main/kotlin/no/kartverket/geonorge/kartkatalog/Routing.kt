@@ -21,6 +21,7 @@ import no.kartverket.geonorge.kartkatalog.config.GeoIdAuthentication
 import no.kartverket.geonorge.kartkatalog.distribution.DistributionsService
 import no.kartverket.geonorge.kartkatalog.distribution.distributionsRoutes
 import no.kartverket.geonorge.kartkatalog.download.DownloadApiClient
+import no.kartverket.geonorge.kartkatalog.download.DownloadApiV4Client
 import no.kartverket.geonorge.kartkatalog.download.DownloadInsightGroupsResolver
 import no.kartverket.geonorge.kartkatalog.download.DownloadService
 import no.kartverket.geonorge.kartkatalog.download.downloadRoutes
@@ -97,8 +98,9 @@ fun Application.configureRouting(
             appConfig.staticNorgeskartUrl,
         )
     val downloadApiClient = DownloadApiClient(httpClient, appConfig.allowedDownloadClients)
+    val downloadApiV4Client = DownloadApiV4Client(httpClient, "${appConfig.downloadBaseUrl}/api/v4")
     val downloadInsightGroupsResolver = DownloadInsightGroupsResolver(registerClient)
-    val downloadService = DownloadService(downloadApiClient, downloadInsightGroupsResolver)
+    val downloadService = DownloadService(downloadApiClient, downloadApiV4Client, downloadInsightGroupsResolver)
     val tokenExchangeClient = TokenExchangeClient(httpClient, appConfig.tokenExchangeUrl)
 
     monitor.subscribe(ApplicationStopping) { httpClient.close() }

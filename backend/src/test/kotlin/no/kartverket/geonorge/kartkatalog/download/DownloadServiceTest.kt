@@ -53,8 +53,10 @@ class DownloadServiceTest {
                     client,
                     DownloadTokenAllowlist.fromCommaSeparated("https://nedlasting.geonorge.no"),
                 )
+            val downloadApiV4Client = DownloadApiV4Client(client, "https://nedlasting.geonorge.no/api/v4")
             val registerClient = RegisterClient(client, "https://register.geonorge.no")
-            val service = DownloadService(downloadApiClient, DownloadInsightGroupsResolver(registerClient))
+            val service =
+                DownloadService(downloadApiClient, downloadApiV4Client, DownloadInsightGroupsResolver(registerClient))
 
             val result =
                 service.order(
@@ -67,7 +69,7 @@ class DownloadServiceTest {
                                 ),
                             ),
                     ),
-                    geoIdAccessToken = "valid-token",
+                    accessToken = "valid-token",
                 )
 
             assertEquals(1, result.results.size)
@@ -106,9 +108,11 @@ class DownloadServiceTest {
                 ) {
                     install(ContentNegotiation) { json() }
                 }
+            val downloadApiV4Client = DownloadApiV4Client(client, "https://nedlasting.geonorge.no/api/v4")
             val service =
                 DownloadService(
                     DownloadApiClient(client),
+                    downloadApiV4Client,
                     DownloadInsightGroupsResolver(RegisterClient(client, "https://register.geonorge.no")),
                 )
 
@@ -122,7 +126,7 @@ class DownloadServiceTest {
                             ),
                         ),
                 ),
-                geoIdAccessToken = "valid-token",
+                accessToken = "valid-token",
             )
 
             assertEquals(listOf<String?>(null), authorizationHeaders)
@@ -166,12 +170,14 @@ class DownloadServiceTest {
                 ) {
                     install(ContentNegotiation) { json() }
                 }
+            val downloadApiV4Client = DownloadApiV4Client(client, "https://nedlasting.geonorge.no/api/v4")
             val service =
                 DownloadService(
                     DownloadApiClient(
                         client,
                         DownloadTokenAllowlist.fromCommaSeparated("https://nedlasting.geonorge.no"),
                     ),
+                    downloadApiV4Client,
                     DownloadInsightGroupsResolver(RegisterClient(client, "https://register.geonorge.no")),
                 )
 
@@ -190,7 +196,7 @@ class DownloadServiceTest {
                                 ),
                             ),
                     ),
-                    geoIdAccessToken = "valid-token",
+                    accessToken = "valid-token",
                 )
 
             assertEquals(2, result.results.size)
@@ -237,12 +243,14 @@ class DownloadServiceTest {
                 ) {
                     install(ContentNegotiation) { json() }
                 }
+            val downloadApiV4Client = DownloadApiV4Client(client, "https://nedlasting.geonorge.no/api/v4")
             val service =
                 DownloadService(
                     DownloadApiClient(
                         client,
                         DownloadTokenAllowlist.fromCommaSeparated("https://nedlasting.geonorge.no"),
                     ),
+                    downloadApiV4Client,
                     DownloadInsightGroupsResolver(RegisterClient(client, "https://register.geonorge.no")),
                 )
 
@@ -261,7 +269,7 @@ class DownloadServiceTest {
                                 ),
                             ),
                     ),
-                    geoIdAccessToken = "valid-token",
+                    accessToken = "valid-token",
                 )
 
             val failure = result.results.filterIsInstance<DownloadOrderGroupResult.Failure>().single()

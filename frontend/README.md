@@ -193,3 +193,22 @@ Use **[@navikt/aksel-icons](https://aksel.nav.no/ikoner)** for all icons. It's a
 - [Next.js App Router docs](https://nextjs.org/docs/app)
 - [React 19 docs](https://react.dev/)
 - [Biome docs](https://biomejs.dev/)
+
+## Local auth while talking to download API
+
+The compose file includes some stuff related to working with auth locally as well as talking to the download api.
+
+Create a network before starting either compose setups. The system will yell if it does not exist.
+
+```bash
+docker network create my-network
+```
+
+Set the following in frontend .env file
+
+- NEXT_PUBLIC_MOCK_AUTH_ENABLED = true
+- AUTH_BASE_URL = http{{name of service in other compose file}}:{{port it is running on}}
+
+In `TokenExchangeClient.kt` swap the endpoints being called for exchange.
+
+Run the nedlasting api project using compose and then run this one using compose. Then you should be able to log inn using a mock user provided by the mock auth server running along side the nedlasting api.

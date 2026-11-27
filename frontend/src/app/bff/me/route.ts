@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 import { type NextRequest, NextResponse } from "next/server";
 import { clearAuthProviderCookieIfMatches } from "../auth/providerCookie";
 
@@ -53,14 +54,94 @@ function getOrganizationName(authDetailsHeader: string | null): string | null {
   return null;
 }
 
-export async function GET(request: NextRequest) {
-  const rawName = request.headers.get("X-User-Full-Name");
-  const name = rawName ? decodeUtf8Header(rawName) : rawName;
-  const organizationName = getOrganizationName(
-    request.headers.get("X-Auth-Details"),
-  );
+type AuthDetail = {
+  authorized_parties: AuthParty[];
+  resource?: string;
+  type?: string;
+  resource_name?: string;
+};
 
-  if (!name?.trim() || !organizationName) {
+type AuthParty = {
+  orgno: OrgNo;
+  resource?: string;
+  name?: string;
+  unit_type?: string;
+  action?: string[];
+};
+
+type OrgNo = {
+  ID: string;
+  authority: string;
+};
+function decodeToken(token: string): Record<string, unknown> | null {
+  try {
+    return jwtDecode<Record<string, unknown>>(token);
+  } catch {
+    return null;
+  }
+}
+
+function getGetOrgNameFromToken(request: NextRequest): string | null {
+  const tokenString = request.cookies.get("BearerToken")?.value;
+  if (!tokenString) return null;
+  const decodedToken = decodeToken(tokenString);
+  if (!decodedToken) return null;
+
+  const authDetails = decodedToken?.authorization_details as
+    | AuthDetail[]
+    | undefined;
+  if (!authDetails?.length) return null;
+
+  for (const details of authDetails) {
+    const authorizedParties = details.authorized_parties;
+    if (!Array.isArray(authorizedParties) || !isRecord(authorizedParties[0])) {
+      continue;
+    }
+
+    const party = authorizedParties[0];
+    if (!isRecord(party.orgno)) continue;
+
+    const organizationId = party.orgno.ID;
+    const name = party.name;
+    if (
+      typeof organizationId === "string" &&
+      /^[^:]+:\d{9}$/.test(organizationId) &&
+      typeof name === "string" &&
+      name.trim()
+    ) {
+      return name;
+    }
+  }
+  return null;
+}
+
+function getNameFromToken(request: NextRequest): string | null {
+  const tokenString = request.cookies.get("BearerToken")?.value;
+  if (!tokenString) return null;
+  const decodedToken = decodeToken(tokenString);
+  if (!decodedToken) return null;
+
+  const name = decodedToken?.name;
+  if (typeof name === "string" && name.trim()) {
+    return name;
+  }
+  return null;
+}
+
+export async function GET(request: NextRequest) {
+  const rawName = request.headers.get("x-user-full-name");
+  let name = rawName ? decodeUtf8Header(rawName) : rawName;
+  let organizationName = getOrganizationName(
+    request.headers.get("x-auth-details"),
+  );
+  if (!organizationName) {
+    organizationName = getGetOrgNameFromToken(request);
+  }
+  if (!name?.trim()) {
+    name = getNameFromToken(request);
+  }
+
+  if (!name || !organizationName) {
     const response = NextResponse.json({ authenticated: false });
     clearAuthProviderCookieIfMatches(request, response, "ansattporten");
     return response;

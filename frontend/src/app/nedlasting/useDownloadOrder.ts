@@ -63,7 +63,7 @@ export function useDownloadOrder() {
     try {
       const payload = parseDownloadOrderRequest(request);
       const endpoint =
-        provider === "ansattporten"
+        provider === "ansattporten" || provider === "mock"
           ? "/download/order-restricted"
           : "/download/order";
 

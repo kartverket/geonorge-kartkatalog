@@ -23,7 +23,7 @@ class AppConfig(
     val publicBaseUrl: String = env("PUBLIC_BASE_URL")
     val allowedDownloadClients: DownloadTokenAllowlist =
         DownloadTokenAllowlist.fromCommaSeparated(optionalEnv("ALLOWED_DOWNLOAD_CLIENTS"))
-
+    val downloadBaseUrl: String = env("DOWNLOAD_BASE_URL")
     val tokenExchangeUrl: String = env("TOKEN_EXCHANGE_URL")
 
     val vectorSearchConfig =

@@ -3,6 +3,7 @@ import { getKatalogUrl, KATALOG_ORIGIN, startLogout } from "@/app/api";
 import { basePath } from "@/lib/basePath";
 import {
   clearAuthProviderCookie,
+  clearBearerTokenCookie,
   resolveAuthProvider,
 } from "../providerCookie";
 
@@ -23,6 +24,12 @@ export async function POST(request: NextRequest) {
       303,
     );
     clearAuthProviderCookie(response);
+    return response;
+  }
+  if (provider === "mock") {
+    const response = NextResponse.redirect(getKatalogUrl(`${basePath}`), 303);
+    clearAuthProviderCookie(response);
+    clearBearerTokenCookie(response);
     return response;
   }
 
