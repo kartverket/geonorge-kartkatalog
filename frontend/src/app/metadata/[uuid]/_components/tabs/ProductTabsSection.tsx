@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import {
   getFairStatus,
   type getMetadata,
@@ -5,7 +6,9 @@ import {
   getProduktspesifikasjon,
   getTegneregler,
 } from "@/app/api";
-import { DistributionTab } from "@/app/metadata/[uuid]/_components/tabs/DistributionTab";
+import { DistributionTabSkeleton } from "@/app/metadata/[uuid]/_components/Skeletons";
+import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
+import { DistributionsTabWrapper } from "@/app/metadata/[uuid]/_components/tabs/DistributionTab";
 import { FairTab } from "@/app/metadata/[uuid]/_components/tabs/FairTab";
 import { InfoTab } from "@/app/metadata/[uuid]/_components/tabs/InfoTab";
 import { ProductDocumentationTab } from "@/app/metadata/[uuid]/_components/tabs/ProductDocumentationTab";
@@ -13,10 +16,6 @@ import {
   ProductTabs,
   type TabDefinition,
 } from "@/app/metadata/[uuid]/_components/tabs/ProductTabs";
-import {
-  getDownloadableSeriesMembers,
-  getThematicParentSeriesDownloadItem,
-} from "@/app/metadata/[uuid]/_utils/distributions";
 import { hasDocumentation } from "@/app/metadata/[uuid]/_utils/productPage";
 import { unwrapSettled } from "@/app/metadata/[uuid]/_utils/utils";
 import { getProductTypeDefiniteString } from "@/lib/productType";
@@ -29,7 +28,7 @@ export async function ProductTabsSection({
 }: {
   uuid: string;
   metadata: Awaited<ReturnType<typeof getMetadata>>;
-  linkedDistributions: LinkedDistributions;
+  linkedDistributions: Promise<LinkedDistributions>;
 }) {
   const [
     fairStatusResult,
@@ -67,10 +66,6 @@ export async function ProductTabsSection({
     null,
   );
 
-  const isThematicSeries =
-    metadata.hierarchyLevel === "series" &&
-    metadata.seriesType === "series_thematic";
-
   const productTypeDefinite = getProductTypeDefiniteString(
     metadata.hierarchyLevel,
   );
@@ -96,28 +91,20 @@ export async function ProductTabsSection({
 
   return (
     <ProductTabs tabs={tabs}>
-      <DistributionTab
-        product={{
-          uuid,
-          title: metadata.title,
-          organizationName: metadata.organization,
-          hierarchyLevel: metadata.hierarchyLevel,
-          seriesType: metadata.seriesType,
-          accessState: metadata.accessState,
-          referenceSystems: metadata.referenceSystems,
-          dateUpdated: metadata.dateUpdated,
-          maintenanceFrequency: metadata.maintenanceFrequency,
-        }}
-        groups={metadata.distributionGroups}
-        linkedDistributions={linkedDistributions}
-        seriesDownloads={{
-          thematicSeriesDownloadItem:
-            getThematicParentSeriesDownloadItem(linkedDistributions),
-          downloadableSeriesMembers: isThematicSeries
-            ? []
-            : getDownloadableSeriesMembers(linkedDistributions),
-        }}
-      />
+      <Suspense
+        fallback={
+          <TabPanel value="distribution">
+            <DistributionTabSkeleton />
+          </TabPanel>
+        }
+      >
+        <DistributionsTabWrapper
+          uuid={uuid}
+          metadata={metadata}
+          linkedDistributions={linkedDistributions}
+        />
+      </Suspense>
+      {/*TODO: kan vi også her bare ta inn metadata for å forenkle?*/}
       <InfoTab
         hierarchyLevel={metadata.hierarchyLevel}
         abstract={metadata.abstractText}

@@ -19,6 +19,27 @@ type MapSource = {
   getCapabilitiesUrl: string;
 };
 
+type UrlRow = { label: string; url: string; formatNames: string[] };
+
+export function getGroupFormatNames(
+  entries: DistributionGroup["entries"],
+): string[] {
+  return [...new Set(entries.flatMap((entry) => entry.formatNames))];
+}
+
+export function buildUrlRows(entries: DistributionGroup["entries"]): UrlRow[] {
+  const isSingleUrl = entries.length === 1;
+
+  return entries.map((entry) => ({
+    label:
+      isSingleUrl || entry.formatNames.length === 0
+        ? "Tilgangs-URL"
+        : entry.formatNames.join(", "),
+    url: entry.url,
+    formatNames: entry.formatNames,
+  }));
+}
+
 function getPrimaryGroupUrl(
   group: DistributionGroup | undefined,
 ): string | null {

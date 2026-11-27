@@ -40,7 +40,7 @@ flowchart LR
 | System | Brukes til | Miljøvariabel |
 |---|---|---|
 | GeoNetwork | Henter full metadatapost (CSW) | `GEONETWORK_BASE_URL` |
-| MET CSW | Reserve for UUID-er som starter med `no.met:` og ikke finnes i vår GeoNetwork (samme URL som legacy: `https://data.csw.met.no/?srv/nor/csw`, 60 s timeout, satt i `MetClient`) | – (`AppConfig.metUrl`, hardkodet) |
+| MET CSW | Reserve for UUID-er som starter med `no.met:` og ikke finnes i vår GeoNetwork (samme URL som legacy: `https://data.csw.met.no/?srv/nor/csw`, 60 s timeout, satt i `MetClient`). Også kilde til «Datasett i serien» for serier med `typename=series_time`: CSW GetRecords på `ParentIdentifier` + tidsavgrensning som legacy, maks 100, nyeste først. Feil gir tom liste og logges | – (`AppConfig.metUrl`, hardkodet) |
 | Solr | Søk, fasetter, distribusjoner, tilknyttede distribusjoner | `SOLR_BASE_URL` |
 | Register | Kodelister/oversettelser, områder, HVD, innsiktsgrupper | `REGISTER_BASE_URL` |
 | Norgeskart | Kartlenker i svar | `NORGESKART_BASE_URL` |

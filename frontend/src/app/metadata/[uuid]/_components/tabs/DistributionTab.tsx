@@ -1,6 +1,7 @@
 import { Heading } from "@kv-designsystem/react";
 import AddToDownloadsButton from "@/app/_components/addToDownloads/AddToDownloadsButton";
 import type { DownloadItem } from "@/app/_components/addToDownloads/downloadStorage";
+import type { getMetadata } from "@/app/api";
 import { DistributionDetailActionButton } from "@/app/metadata/[uuid]/_components/DistributionDetailActionButton";
 import { LinkedDistributionsSection } from "@/app/metadata/[uuid]/_components/LinkedDistributionsSection";
 import accordionGroupStyles from "@/app/metadata/[uuid]/_components/shared/AccordionGroup.module.css";
@@ -9,6 +10,12 @@ import { FieldList } from "@/app/metadata/[uuid]/_components/shared/FieldList";
 import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
 import { UrlLink } from "@/app/metadata/[uuid]/_components/shared/UrlLink";
 import { isGeonorgeDownloadProtocol } from "@/app/metadata/[uuid]/_utils/distributionProtocols";
+import {
+  buildUrlRows,
+  getDownloadableSeriesMembers,
+  getGroupFormatNames,
+  getThematicParentSeriesDownloadItem,
+} from "@/app/metadata/[uuid]/_utils/distributions";
 import { hasVisibleFields } from "@/app/metadata/[uuid]/_utils/tableContent";
 import { formatDate } from "@/app/metadata/[uuid]/_utils/utils";
 import { getProductTypeDefiniteString } from "@/lib/productType";
@@ -37,6 +44,7 @@ type SeriesDownloads = {
   downloadableSeriesMembers: DownloadItem[];
 };
 
+// TODO: skjule distribusjoner når den er tom
 export function DistributionTab({
   product,
   groups,
@@ -226,21 +234,43 @@ function Tags({ values, color }: { values: string[]; color?: string }) {
   );
 }
 
-type UrlRow = { label: string; url: string; formatNames: string[] };
+// TODO: kunne ikkke denne vært slått sammen med Dist.Tab? og så fjernet dette laget
+export async function DistributionsTabWrapper({
+  uuid,
+  metadata,
+  linkedDistributions: linkedDistributionsPromise,
+}: {
+  uuid: string;
+  metadata: Awaited<ReturnType<typeof getMetadata>>;
+  linkedDistributions: Promise<LinkedDistributions>;
+}) {
+  const linkedDistributions = await linkedDistributionsPromise;
+  const isThematicSeries =
+    metadata.hierarchyLevel === "series" &&
+    metadata.seriesType === "series_thematic";
 
-function getGroupFormatNames(entries: DistributionGroup["entries"]): string[] {
-  return [...new Set(entries.flatMap((entry) => entry.formatNames))];
-}
-
-function buildUrlRows(entries: DistributionGroup["entries"]): UrlRow[] {
-  const isSingleUrl = entries.length === 1;
-
-  return entries.map((entry) => ({
-    label:
-      isSingleUrl || entry.formatNames.length === 0
-        ? "Tilgangs-URL"
-        : entry.formatNames.join(", "),
-    url: entry.url,
-    formatNames: entry.formatNames,
-  }));
+  return (
+    <DistributionTab
+      product={{
+        uuid,
+        title: metadata.title,
+        organizationName: metadata.organization,
+        hierarchyLevel: metadata.hierarchyLevel,
+        seriesType: metadata.seriesType,
+        accessState: metadata.accessState,
+        referenceSystems: metadata.referenceSystems,
+        dateUpdated: metadata.dateUpdated,
+        maintenanceFrequency: metadata.maintenanceFrequency,
+      }}
+      groups={metadata.distributionGroups}
+      linkedDistributions={linkedDistributions}
+      seriesDownloads={{
+        thematicSeriesDownloadItem:
+          getThematicParentSeriesDownloadItem(linkedDistributions),
+        downloadableSeriesMembers: isThematicSeries
+          ? []
+          : getDownloadableSeriesMembers(linkedDistributions),
+      }}
+    />
+  );
 }

@@ -55,10 +55,11 @@ fun Application.configureRouting(
     authentication: GeoIdAuthentication,
 ) {
     val httpClient = HttpClient(CIO) { install(HttpTimeout) }
+    val metClient = MetClient(httpClient, appConfig.metUrl)
     val recordSource =
         MetFallbackMetadataRecordSource(
             primary = GeonetworkClient(httpClient, appConfig.geonetworkBaseUrl),
-            met = MetClient(httpClient, appConfig.metUrl),
+            met = metClient,
         )
     val registerClient = RegisterClient(httpClient, appConfig.registerBaseUrl)
     val codeListTranslator = CodeListTranslator(registerClient)
@@ -67,7 +68,7 @@ fun Application.configureRouting(
     val metadataMapper = MetadataMapper(codeListTranslator)
     val metadataService = MetadataService(recordSource, metadataMapper, registerClient)
     val solrClient = SolrClient(httpClient, appConfig.solrBaseUrl)
-    val linkedDistributionsService = LinkedDistributionsService(solrClient, recordSource)
+    val linkedDistributionsService = LinkedDistributionsService(solrClient, recordSource, metClient)
     val distributionsService = DistributionsService(solrClient, recordSource, codeListTranslator)
     val embeddingClient =
         appConfig.vertexAIConfig?.let {

@@ -160,7 +160,7 @@ private val METADATA_FL =
         "ServiceDistributionNameForDataset,DistributionProtocols,legend_description_url,product_sheet_url," +
         "product_specification_url,area,datasetservice,popularMetadata,bundle,servicelayers,accessconstraint," +
         "servicedataset,otherconstraintsaccess,dataaccess,ServiceDistributionUuidForDataset," +
-        "ServiceDistributionAccessConstraint,parentidentifier,serie,seriedatasets,distributions"
+        "ServiceDistributionAccessConstraint,parentidentifier,serie,seriedatasets,distributions,typename"
 
 class SolrException(
     message: String,

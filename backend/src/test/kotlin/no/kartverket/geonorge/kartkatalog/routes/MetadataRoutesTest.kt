@@ -36,6 +36,7 @@ import no.kartverket.geonorge.kartkatalog.metadata.metadataRoutes
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class MetadataRoutesTest {
     private val emptyGeonetworkXml =
@@ -150,13 +151,14 @@ class MetadataRoutesTest {
         solrFails: Boolean = false,
         metXml: String = emptyGeonetworkXml,
         relatedSolrJson: String = emptySolrJson,
+        metStatus: HttpStatusCode = HttpStatusCode.OK,
     ): Pair<MetadataService, LinkedDistributionsService> {
         val client =
             HttpClient(
                 MockEngine { request ->
                     when {
                         request.url.host == "met.example.test" -> {
-                            respond(content = metXml, status = HttpStatusCode.OK)
+                            respond(content = metXml, status = metStatus)
                         }
 
                         request.url.encodedPath.endsWith("/srv/nor/csw") -> {
@@ -265,6 +267,7 @@ class MetadataRoutesTest {
             LinkedDistributionsService(
                 SolrClient(client, "https://solr.example.test"),
                 GeonetworkClient(client, geonetworkBaseUrl),
+                MetClient(client, "https://met.example.test/?"),
             )
 
         return metadataService to linkedDistributionsService
@@ -446,6 +449,74 @@ class MetadataRoutesTest {
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertContains(response.bodyAsText(), "error")
+        }
+    }
+
+    private val timeSeriesSolrJson =
+        """
+        {
+          "responseHeader": {"status": 0, "QTime": 1},
+          "response": {
+            "numFound": 1, "start": 0,
+            "docs": [{
+              "uuid": "no.met:9fbe6a04-279c-46b8-a582-bb08f4b11794",
+              "title": "Data fra norske værstasjoner",
+              "type": "series",
+              "typename": "series_time",
+              "seriedatasets": ["11111111-1111-1111-1111-111111111111|Fra Solr||dataset|Org||GEONORGE:DOWNLOAD|https://example.com|Tema"]
+            }]
+          }
+        }
+        """.trimIndent()
+
+    private fun seriesMembers(body: String) =
+        Json
+            .parseToJsonElement(body)
+            .jsonObject["seriesMembers"]!!
+            .jsonArray
+            .map { it.jsonObject }
+
+    @Test
+    fun `returns time series members from MET instead of Solr seriedatasets`() {
+        val metXml = javaClass.getResource("/met-time-series-response.xml")!!.readText()
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(responseXml, solrDocJson = timeSeriesSolrJson, metXml = metXml)
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/no.met:9fbe6a04-279c-46b8-a582-bb08f4b11794/linked-distributions")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val members = seriesMembers(response.bodyAsText())
+            assertEquals(
+                listOf("no.met:86f6c695-306d-4fc9-830b-777133f70834", "no.met:5346feff-0ffa-45dd-9f62-3059a1723631"),
+                members.map { it["uuid"]!!.jsonPrimitive.content },
+            )
+            val first = members.first()
+            assertTrue(first["title"]!!.jsonPrimitive.content.endsWith(" 26.10.2024 00:00"))
+            assertEquals("Meteorologisk institutt", first["organization"]!!.jsonPrimitive.content)
+            assertEquals("OPENDAP:OPENDAP", first["distributionProtocol"]!!.jsonPrimitive.content)
+            assertEquals(
+                "https://thredds.met.no/thredds/dodsC/met.no/observations/surface/60810/110/" +
+                    "lebergsfjellet_precipitation_amount.nc.html",
+                first["distributionUrl"]!!.jsonPrimitive.content,
+            )
+        }
+    }
+
+    @Test
+    fun `returns empty time series members when MET fails`() {
+        val (metadataService, linkedDistributionsService) =
+            createMetadataService(
+                responseXml,
+                solrDocJson = timeSeriesSolrJson,
+                metStatus = HttpStatusCode.ServiceUnavailable,
+            )
+
+        testApp(metadataService, linkedDistributionsService) {
+            val response = client.get("/metadata/no.met:9fbe6a04-279c-46b8-a582-bb08f4b11794/linked-distributions")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(emptyList(), seriesMembers(response.bodyAsText()))
         }
     }
 
