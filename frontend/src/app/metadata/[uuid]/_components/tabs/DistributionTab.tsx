@@ -44,62 +44,82 @@ type SeriesDownloads = {
   downloadableSeriesMembers: DownloadItem[];
 };
 
-// TODO: skjule distribusjoner når den er tom
-export function DistributionTab({
-  product,
-  groups,
-  linkedDistributions,
-  seriesDownloads,
+export async function DistributionTab({
+  uuid,
+  metadata,
+  linkedDistributions: linkedDistributionsPromise,
 }: {
-  product: ProductInfo;
-  groups: DistributionGroup[];
-  linkedDistributions: LinkedDistributions;
-  seriesDownloads: SeriesDownloads;
+  uuid: string;
+  metadata: Awaited<ReturnType<typeof getMetadata>>;
+  linkedDistributions: Promise<LinkedDistributions>;
 }) {
-  const productTypeDefinite = getProductTypeDefiniteString(
-    product.hierarchyLevel,
+  const linkedDistributions = await linkedDistributionsPromise;
+  const product: ProductInfo = {
+    uuid,
+    title: metadata.title,
+    organizationName: metadata.organization,
+    hierarchyLevel: metadata.hierarchyLevel,
+    seriesType: metadata.seriesType,
+    accessState: metadata.accessState,
+    referenceSystems: metadata.referenceSystems,
+    dateUpdated: metadata.dateUpdated,
+    maintenanceFrequency: metadata.maintenanceFrequency,
+  };
+  const isThematicSeries =
+    metadata.hierarchyLevel === "series" &&
+    metadata.seriesType === "series_thematic";
+  const seriesDownloads: SeriesDownloads = {
+    thematicSeriesDownloadItem:
+      getThematicParentSeriesDownloadItem(linkedDistributions),
+    downloadableSeriesMembers: isThematicSeries
+      ? []
+      : getDownloadableSeriesMembers(linkedDistributions),
+  };
+
+  const groups = metadata.distributionGroups;
+  const visibleGroups = groups.filter((group) =>
+    hasVisibleFields(getGroupFields(product, group)),
   );
-  const hasOwnGeonorgeDownloadGroup = groups.some((group) =>
-    isGeonorgeDownloadProtocol(group.protocol),
-  );
+  const showSeriesDownload =
+    !groups.some((group) => isGeonorgeDownloadProtocol(group.protocol)) &&
+    seriesDownloads.downloadableSeriesMembers.length > 0;
+  const hasAccess = visibleGroups.length > 0 || showSeriesDownload;
 
   return (
     <TabPanel value="distribution">
-      <Heading data-size="xs">Tilganger til {productTypeDefinite}</Heading>
-      <div className={accordionGroupStyles.accordionGroup}>
-        {groups.map((group, i) => {
-          const key = `${i}-${group.protocolName}`;
-          return (
-            <DistributionGroupAccordion
-              key={key}
-              product={product}
-              group={group}
-              seriesDownloads={seriesDownloads}
-            />
-          );
-        })}
-        {!hasOwnGeonorgeDownloadGroup && (
-          <SeriesDownloadAccordion
-            uuid={product.uuid}
-            title={product.title}
-            items={seriesDownloads.downloadableSeriesMembers}
-          />
-        )}
-      </div>
+      {hasAccess && (
+        <>
+          <Heading data-size="xs">
+            Tilganger til {getProductTypeDefiniteString(product.hierarchyLevel)}
+          </Heading>
+          <div className={accordionGroupStyles.accordionGroup}>
+            {visibleGroups.map((group, i) => {
+              const key = `${i}-${group.protocolName}`;
+              return (
+                <DistributionGroupAccordion
+                  key={key}
+                  product={product}
+                  group={group}
+                  seriesDownloads={seriesDownloads}
+                />
+              );
+            })}
+            {showSeriesDownload && (
+              <SeriesDownloadAccordion
+                uuid={product.uuid}
+                title={product.title}
+                items={seriesDownloads.downloadableSeriesMembers}
+              />
+            )}
+          </div>
+        </>
+      )}
       <LinkedDistributionsSection linkedDistributions={linkedDistributions} />
     </TabPanel>
   );
 }
 
-function DistributionGroupAccordion({
-  product,
-  group,
-  seriesDownloads,
-}: {
-  product: ProductInfo;
-  group: DistributionGroup;
-  seriesDownloads: SeriesDownloads;
-}) {
+function getGroupFields(product: ProductInfo, group: DistributionGroup) {
   const urlRows = buildUrlRows(group.entries);
   const formatNames = getGroupFormatNames(group.entries);
   const units = group.unitsOfDistribution
@@ -107,7 +127,7 @@ function DistributionGroupAccordion({
     .map((unit) => unit.trim())
     .filter(Boolean);
 
-  const fields = [
+  return [
     { label: "Beskrivelse", content: group.protocolDescription },
     ...urlRows.map((row) => ({
       label: row.label,
@@ -156,8 +176,20 @@ function DistributionGroupAccordion({
       ),
     },
   ];
+}
 
-  if (!hasVisibleFields(fields)) return null;
+function DistributionGroupAccordion({
+  product,
+  group,
+  seriesDownloads,
+}: {
+  product: ProductInfo;
+  group: DistributionGroup;
+  seriesDownloads: SeriesDownloads;
+}) {
+  const urlRows = buildUrlRows(group.entries);
+  const formatNames = getGroupFormatNames(group.entries);
+  const fields = getGroupFields(product, group);
 
   return (
     <DetailAccordion
@@ -194,8 +226,6 @@ function SeriesDownloadAccordion({
   title: string;
   items: DownloadItem[];
 }) {
-  if (items.length === 0) return null;
-
   return (
     <DetailAccordion
       title="Geonorge nedlasting"
@@ -231,46 +261,5 @@ function Tags({ values, color }: { values: string[]; color?: string }) {
         </span>
       ))}
     </span>
-  );
-}
-
-// TODO: kunne ikkke denne vært slått sammen med Dist.Tab? og så fjernet dette laget
-export async function DistributionsTabWrapper({
-  uuid,
-  metadata,
-  linkedDistributions: linkedDistributionsPromise,
-}: {
-  uuid: string;
-  metadata: Awaited<ReturnType<typeof getMetadata>>;
-  linkedDistributions: Promise<LinkedDistributions>;
-}) {
-  const linkedDistributions = await linkedDistributionsPromise;
-  const isThematicSeries =
-    metadata.hierarchyLevel === "series" &&
-    metadata.seriesType === "series_thematic";
-
-  return (
-    <DistributionTab
-      product={{
-        uuid,
-        title: metadata.title,
-        organizationName: metadata.organization,
-        hierarchyLevel: metadata.hierarchyLevel,
-        seriesType: metadata.seriesType,
-        accessState: metadata.accessState,
-        referenceSystems: metadata.referenceSystems,
-        dateUpdated: metadata.dateUpdated,
-        maintenanceFrequency: metadata.maintenanceFrequency,
-      }}
-      groups={metadata.distributionGroups}
-      linkedDistributions={linkedDistributions}
-      seriesDownloads={{
-        thematicSeriesDownloadItem:
-          getThematicParentSeriesDownloadItem(linkedDistributions),
-        downloadableSeriesMembers: isThematicSeries
-          ? []
-          : getDownloadableSeriesMembers(linkedDistributions),
-      }}
-    />
   );
 }

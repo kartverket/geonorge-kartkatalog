@@ -8,7 +8,7 @@ import {
 } from "@/app/api";
 import { DistributionTabSkeleton } from "@/app/metadata/[uuid]/_components/Skeletons";
 import { TabPanel } from "@/app/metadata/[uuid]/_components/shared/TabPanel";
-import { DistributionsTabWrapper } from "@/app/metadata/[uuid]/_components/tabs/DistributionTab";
+import { DistributionTab } from "@/app/metadata/[uuid]/_components/tabs/DistributionTab";
 import { FairTab } from "@/app/metadata/[uuid]/_components/tabs/FairTab";
 import { InfoTab } from "@/app/metadata/[uuid]/_components/tabs/InfoTab";
 import { ProductDocumentationTab } from "@/app/metadata/[uuid]/_components/tabs/ProductDocumentationTab";
@@ -98,7 +98,7 @@ export async function ProductTabsSection({
           </TabPanel>
         }
       >
-        <DistributionsTabWrapper
+        <DistributionTab
           uuid={uuid}
           metadata={metadata}
           linkedDistributions={linkedDistributions}
