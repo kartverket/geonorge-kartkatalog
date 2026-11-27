@@ -104,31 +104,7 @@ export async function ProductTabsSection({
           linkedDistributions={linkedDistributions}
         />
       </Suspense>
-      {/*TODO: kan vi også her bare ta inn metadata for å forenkle?*/}
-      <InfoTab
-        hierarchyLevel={metadata.hierarchyLevel}
-        abstract={metadata.abstractText}
-        specificUsage={metadata.specificUsage}
-        purpose={metadata.purpose}
-        processHistory={metadata.processHistory}
-        supplementalDescription={metadata.supplementalDescription}
-        helpUrl={metadata.helpUrl}
-        datePublished={metadata.datePublished}
-        dateUpdated={metadata.dateUpdated}
-        dateMetadataUpdated={metadata.dateMetadataUpdated}
-        validityPeriod={metadata.validityPeriod}
-        geographicAreas={metadata.geographicAreas}
-        boundingBox={metadata.boundingBox}
-        cloudCoverPercentage={metadata.cloudCoverPercentage}
-        collaborationAndLaws={metadata.collaborationAndLaws}
-        datasetLanguage={metadata.datasetLanguage}
-        namespace={metadata.namespace}
-        datasetId={metadata.datasetId}
-        constraints={{
-          ...metadata.constraints,
-          securityConstraints: metadata.securityClassification,
-        }}
-      />
+      <InfoTab metadata={metadata} />
       {showDocumentation && (
         <ProductDocumentationTab
           tegneregler={tegneregler}
