@@ -7,19 +7,24 @@ type ConfirmDialogProps = {
   open: boolean;
   heading: string;
   description: string;
-  confirmLabel: string;
-  onConfirmAction: () => void;
+  cancelLabel?: string;
   onCancelAction: () => void;
+  // Uten bekreft-knapp vises bare avbryt-knappen, og den blir primærknapp
+  confirmLabel?: string;
+  onConfirmAction?: () => void;
 };
 
 export function ConfirmDialog({
   open,
   heading,
   description,
+  cancelLabel = "Avbryt",
+  onCancelAction,
   confirmLabel,
   onConfirmAction,
-  onCancelAction,
 }: ConfirmDialogProps) {
+  const hasConfirm = Boolean(confirmLabel && onConfirmAction);
+
   return (
     <Dialog open={open} onClose={onCancelAction}>
       <Dialog.Block>
@@ -32,12 +37,18 @@ export function ConfirmDialog({
       </Dialog.Block>
       <Dialog.Block>
         <div className={styles.buttonRow}>
-          <Button type="button" variant="secondary" onClick={onCancelAction}>
-            Avbryt
+          <Button
+            type="button"
+            variant={hasConfirm ? "secondary" : "primary"}
+            onClick={onCancelAction}
+          >
+            {cancelLabel}
           </Button>
-          <Button type="button" variant="primary" onClick={onConfirmAction}>
-            {confirmLabel}
-          </Button>
+          {hasConfirm ? (
+            <Button type="button" variant="primary" onClick={onConfirmAction}>
+              {confirmLabel}
+            </Button>
+          ) : null}
         </div>
       </Dialog.Block>
     </Dialog>
