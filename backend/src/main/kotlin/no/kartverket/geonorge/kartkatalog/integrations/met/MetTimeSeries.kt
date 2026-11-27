@@ -2,6 +2,7 @@ package no.kartverket.geonorge.kartkatalog.integrations.met
 
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.escapeXml
 import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.MetadataRecord
+import no.kartverket.geonorge.kartkatalog.integrations.geonetwork.model.OnlineResource
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -78,13 +79,19 @@ internal fun MetadataRecord.toTimeSeriesMember(seriesUuid: String): TimeSeriesMe
         title = memberTitle,
         organization = contacts.firstOrNull { it.role == "owner" }?.organization,
         seriesType = hierarchyLevelName,
-        distributionUrl =
-            transferOption?.url?.takeIf { it.isNotEmpty() }?.let { if (it.endsWith(".nc")) "$it.html" else it },
+        distributionUrl = transferOption?.let { memberUrl(it) },
         distributionProtocol = transferOption?.protocol,
         wmsUrl = wmsResource?.url,
         hierarchyLevel = hierarchyLevel,
         record = this,
     )
+}
+
+// Legacy appends ".html" to every ".nc" URL to link to the OPeNDAP form. We only do it for OPeNDAP, because a
+// direct download URL (THREDDS fileServer) would break.
+private fun memberUrl(resource: OnlineResource): String? {
+    val url = resource.url.takeIf { it.isNotEmpty() } ?: return null
+    return if (resource.protocol == "OPENDAP:OPENDAP" && url.endsWith(".nc")) "$url.html" else url
 }
 
 private fun MetadataRecord.publicationDateTime(): LocalDateTime? {
