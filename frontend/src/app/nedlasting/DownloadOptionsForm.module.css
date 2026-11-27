@@ -52,7 +52,7 @@
 }
 
 @media (max-width: 800px) {
-    .areaInputButtons {
-        flex-direction: column;
-    }
+  .areaInputButtons {
+    flex-direction: column;
+  }
 }

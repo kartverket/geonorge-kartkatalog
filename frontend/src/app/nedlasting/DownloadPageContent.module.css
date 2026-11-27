@@ -71,13 +71,13 @@
 }
 
 @media (max-width: 800px) {
-    .buttonContainer{
-        flex-direction: column;
-    }
-    .userInputs {
-        flex-direction: column;
-    }
-    .finishButtonContainer {
-        flex-direction: column;
-    }
+  .buttonContainer {
+    flex-direction: column;
+  }
+  .userInputs {
+    flex-direction: column;
+  }
+  .finishButtonContainer {
+    flex-direction: column;
+  }
 }
